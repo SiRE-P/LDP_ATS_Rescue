@@ -43,11 +43,11 @@ target_data_keyfield_duplicates <- target_data_exact_dups_removed %>%
 # View the duplicate records with line numbers
 View(target_data_keyfield_duplicates)
 # Export to CSV
-write.csv(target_data_keyfield_duplicates, paste(path, "target_data_keyfield_duplicates.csv", sep=""), row.names = FALSE)
+write.csv(target_data_keyfield_duplicates, paste(path, "target_data_keyfield_duplicates.csv", sep=""), row.names = FALSE) 
 
 # Remove key field duplicates from the target_data_exact_dups_removed dataset
-target_data_no_dups <- target_data_exact_dups_removed %>%
-  distinct(lake_code, survey_date, transect, depth_code, .keep_all = TRUE)  # Same key variables for duplicates removal
+target_data_no_dups <- target_data_exact_dups_removed 
+#  distinct(lake_code, survey_date, transect, depth_code, .keep_all = TRUE)  # Same key variables for duplicates removal
 
 # View matching records in target_data_filtered
 target_matching_keyfield_duplicates <- target_data_no_dups %>%
