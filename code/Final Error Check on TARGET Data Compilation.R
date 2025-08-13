@@ -3,7 +3,7 @@
 ##
 ## Author:  H Stiff
 ## Date:    250813
-## Notes:   Import Yuliya's compiled TARGET data, summarize and look for errors.
+## Notes:   Import Yuliya's compiled TARGET data, review for duplicates and data issues.
 ##          
 ## --------------------------------------------------------------------------
 
@@ -56,20 +56,20 @@ target_data_no_dups <- target_data_exact_dups_removed %>%
 target_matching_keyfield_duplicates <- target_data_no_dups %>%
   semi_join(target_keyfield_duplicates, by = c("lake_code", "survey_date", "transect", "depth_code")) %>%
   arrange(lake_code, survey_date, transect, depth_code)
-
 View(target_matching_keyfield_duplicates)
 
 # Categorical consistency checks ####
-unique(paste(target_data$lake, target_data$lake_code), sep="")  # check for unique/valid lake x lake_code combinations
+unique(paste(target_data_no_dups$lake, target_data_no_dups$lake_code), sep="")  # check for unique/valid lake x lake_code combinations
+unique(paste(target_data_no_dups$sounder_type, target_data_no_dups$sounder_code), sep="")  # check for unique/valid sounder x sounder_code combinations
 
-# Check for missing data #### should be zero missing for lake, year, date, transect, area, depth and targets variables...
+# Check for missing data #### 
+# Should be zero missing for lake, year, date, transect, area, depth and targets variables...
 NA_missing_summary <- sapply(target_data_no_dups, function(x) sum(is.na(x)))
 print(NA_missing_summary)
 
 # Check for invalid dates ####
 # Flag invalid dates
 target_data_err_chk <- target_data_no_dups %>%
-  
   mutate(
     parsed_date = ymd(survey_date, quiet = TRUE),
     invalid_date_flag = is.na(parsed_date),
@@ -101,7 +101,6 @@ View(range_issues)
 
 # Logical Relationships ####
 logical_relation_issues <- target_data_no_dups %>%
-  
   mutate(
     prop_sum = prop_sockeye + prop_stickleback,
     prop_sum_flag = prop_sum < 0.99 | prop_sum > 1.01) %>% # check if the sum of sox and stix proportions == 1 (with 0.01 fuzz factor)
@@ -117,7 +116,35 @@ ATS_year_issues <- target_data_no_dups %>%
     ats_year_chk = if_else(survey_month_chk <= 3, survey_year_chk - 1, survey_year_chk), 
     ats_year_error = ats_year_chk != ats_year) %>%
   filter(ats_year_error == TRUE) %>%
-  dplyr::select(lake_code, lake, survey_date, ats_year, ats_year_chk, ats_year_error)
+  dplyr::select(lake_code, lake, survey_date, survey_month, ats_year, ats_year_chk, ats_year_error) %>%
+  distinct(., .keep_all = TRUE) 
+View(ATS_year_issues)
+
+# Check lake-specific data issues previously noted ####
+megin_lake_issue <- target_data_no_dups %>% # should be a survey for March 20th, 1996
+  filter(lake_code == 118) %>%
+  dplyr::select(lake_code, lake, survey_date, survey_month, ats_year, source_file, data_issues) %>%
+  distinct(., .keep_all = TRUE) 
+
+muriel_lake_issue <- target_data_no_dups %>% # should be a survey for March 22, 1996
+  filter(lake_code == 44) %>%
+  dplyr::select(lake_code, lake, survey_date, survey_month, ats_year, source_file, data_issues) %>%
+  distinct(., .keep_all = TRUE) 
+
+tats_lake_issue <- target_data_no_dups %>% # should be a survey for AUG 1, 1992, with comment regarding being stored in 1995 datafile
+  filter(lake_code == 66) %>%
+  dplyr::select(lake_code, lake, survey_date, survey_month, ats_year, source_file, data_issues) %>%
+  distinct(., .keep_all = TRUE) 
+
+owikeno_A_lake_issue <- target_data_no_dups %>% # should be a survey for FEB 14 2007, but NO survey for FEB 15, 2007
+  filter(lake_code == 228) %>%
+  dplyr::select(lake_code, lake, survey_date, survey_month, ats_year, source_file, data_issues) %>%
+  distinct(., .keep_all = TRUE) 
+
+owikeno_B_lake_issue <- target_data_no_dups %>% # should be a survey for FEB 14 2007, but NO survey for FEB 15, 2007 or FEB 04, 2004
+  filter(lake_code == 229) %>%
+  dplyr::select(lake_code, lake, survey_date, survey_month, ats_year, source_file, data_issues) %>%
+  distinct(., .keep_all = TRUE) 
 
 
 
