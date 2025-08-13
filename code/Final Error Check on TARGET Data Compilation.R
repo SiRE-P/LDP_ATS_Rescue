@@ -11,42 +11,39 @@
 library(dplyr)
 library(lubridate)
 
+# Import data ####
 # Define the file path
-file_path <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/ATS Rescue/4_Outputs/TARGET_1977_2007_combined_V8.csv"
+path <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/ATS Rescue/4_Outputs/"
+file <- "TARGET_1977_2007_combined_V8.csv"
 
 # Read the CSV file
-target_data <- read.csv(file_path, stringsAsFactors = FALSE)
+target_data <- read.csv(paste(path, file, sep=""), stringsAsFactors = FALSE)
 
 # Add line_numbers to input data
 target_data_line_nums <- target_data %>%
   mutate(line_number = row_number()) 
 
-# Identify and display exact duplicate rows (excluding line_number)
-target_exact_duplicates <- target_data_line_nums %>%
-  filter(duplicated(select(., -line_number)))
-
-# View the duplicate records
-# View(target_exact_duplicates)
-
+# Identify and remove exact duplicate records ####
+target_data_exact_duplicates <- target_data_line_nums %>%
+  filter(duplicated(select(., -line_number))) #  excluding line_number
+View(target_data_exact_duplicates)
 # Export to CSV
-write.csv(target_exact_duplicates, "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/ATS Rescue/3_Data/2_For_Review/combined_target_data/target_exact_duplicates.csv", row.names = FALSE)
+write.csv(target_data_exact_duplicates, paste(path, "target_data_exact_duplicates.csv", sep=""), row.names = FALSE)
 
 # Remove exact duplicates from input data
 target_data_exact_dups_removed <- target_data_line_nums %>%
   distinct(across(-line_number), .keep_all = TRUE) %>%
   arrange(lake_code, survey_date, transect, depth_code)
 
-# Identify further duplicates based on key fields: lake_code, survey_date, transect, depth_code
-target_keyfield_duplicates <- target_data_exact_dups_removed %>%
-  group_by(lake_code, survey_date, transect, depth_code, targets) %>%  # key variables for duplicates check
+# Identify further duplicates on key fields #### 
+target_data_keyfield_duplicates <- target_data_exact_dups_removed %>%
+  group_by(lake_code, survey_date, transect, depth_code) %>%  # Key fields: lake_code, survey_date, transect, depth_code
   filter(n() > 1) %>%
   ungroup()
-
 # View the duplicate records with line numbers
-# View(target_keyfield_duplicates)
-
+View(target_data_keyfield_duplicates)
 # Export to CSV
-write.csv(target_keyfield_duplicates, "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/ATS Rescue/3_Data/2_For_Review/combined_target_data/target_keyfield_duplicates.csv", row.names = FALSE)
+write.csv(target_data_keyfield_duplicates, paste(path, "target_data_keyfield_duplicates.csv", sep=""), row.names = FALSE)
 
 # Remove key field duplicates from the target_data_exact_dups_removed dataset
 target_data_no_dups <- target_data_exact_dups_removed %>%
@@ -54,8 +51,8 @@ target_data_no_dups <- target_data_exact_dups_removed %>%
 
 # View matching records in target_data_filtered
 target_matching_keyfield_duplicates <- target_data_no_dups %>%
-  semi_join(target_keyfield_duplicates, by = c("lake_code", "survey_date", "transect", "depth_code")) %>%
-  arrange(lake_code, survey_date, transect, depth_code)
+  semi_join(target_data_keyfield_duplicates, by = c("lake_code", "survey_date", "transect", "depth_code")) %>%
+  arrange(lake_code, survey_date, transect, survey_comments, depth_code) 
 View(target_matching_keyfield_duplicates)
 
 # Categorical consistency checks ####
@@ -68,19 +65,18 @@ NA_missing_summary <- sapply(target_data_no_dups, function(x) sum(is.na(x)))
 print(NA_missing_summary)
 
 # Check for invalid dates ####
-# Flag invalid dates
-target_data_err_chk <- target_data_no_dups %>%
+target_date_err_chk <- target_data_no_dups %>%
   mutate(
     parsed_date = ymd(survey_date, quiet = TRUE),
-    invalid_date_flag = is.na(parsed_date),
+    invalid_date_flag = is.na(parsed_date),                  # Flag invalid dates
     year_mismatch_flag = year(parsed_date) != survey_year,
-    future_date_flag = parsed_date > Sys.Date(),
+    future_date_flag = parsed_date > Sys.Date(),   
     line_number = row_number()) %>%
  
   filter(invalid_date_flag | year_mismatch_flag | future_date_flag)
 
 # Summarize flagged invalid date records by lake, ats_year, and survey_date
-target_err_summary <- target_data_err_chk %>%
+target_date_err_summary <- target_date_err_chk %>%
   group_by(lake, ats_year, survey_date) %>%
   summarise(
     record_count = n(),
@@ -92,7 +88,7 @@ target_err_summary <- target_data_err_chk %>%
     .groups = "drop")
 
 # Print flagged dates summary, with approximate line-numbers in the data
-print(target_err_summary)
+print(target_date_err_summary)
 
 # Range checks ####
 range_issues <- target_data_no_dups %>%
@@ -113,7 +109,7 @@ ATS_year_issues <- target_data_no_dups %>%
     survey_date_chk  = ymd(survey_date),
     survey_year_chk  = year(survey_date),
     survey_month_chk = month(survey_date),
-    ats_year_chk = if_else(survey_month_chk <= 3, survey_year_chk - 1, survey_year_chk), 
+    ats_year_chk = if_else(survey_month_chk <= 3, survey_year_chk - 1, survey_year_chk), # BASED on April_YYYY to March_YYYY+1
     ats_year_error = ats_year_chk != ats_year) %>%
   filter(ats_year_error == TRUE) %>%
   dplyr::select(lake_code, lake, survey_date, survey_month, ats_year, ats_year_chk, ats_year_error) %>%
@@ -146,9 +142,4 @@ owikeno_B_lake_issue <- target_data_no_dups %>% # should be a survey for FEB 14 
   dplyr::select(lake_code, lake, survey_date, survey_month, ats_year, source_file, data_issues) %>%
   distinct(., .keep_all = TRUE) 
 
-
-
-
-
-
-
+# End of Program ####
