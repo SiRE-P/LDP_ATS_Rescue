@@ -91,7 +91,7 @@ target_err_summary <- target_data_err_chk %>%
     max_line_number = max(line_number),
     .groups = "drop")
 
-# Print flagged dates summary
+# Print flagged dates summary, with approximate line-numbers in the data
 print(target_err_summary)
 
 # Range checks ####
