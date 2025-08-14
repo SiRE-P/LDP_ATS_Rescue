@@ -106,7 +106,7 @@ View(logical_relation_issues)
 # ATS Year classification ####
 ATS_year_issues <- target_data_no_dups %>%
   mutate(
-    survey_date_chk  = ymd(survey_date),
+    survey_date_chk  = ymd(survey_date), 
     survey_year_chk  = year(survey_date),
     survey_month_chk = month(survey_date),
     ats_year_chk = if_else(survey_month_chk <= 3, survey_year_chk - 1, survey_year_chk), # BASED on April_YYYY to March_YYYY+1
