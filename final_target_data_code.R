@@ -68,7 +68,7 @@ parse_target_dat <- function(filepath) {
     
     ### If the last line is NOT a proper data line, treat it as NA
     note_is_extra <- !str_detect(note_line, "^\\d+-\\d+\\s+\\d+\\s+\\d+")
-    acoustic_note <- if (note_is_extra) note_line else NA_character_
+    acoustic_survey_notes <- if (note_is_extra) note_line else NA_character_
     
     ### If it’s a note, remove it so it doesn’t get parsed as data
     if (note_is_extra) {
