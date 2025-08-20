@@ -1,107 +1,162 @@
 ############################################################################
-####### Full code in order to process the .dat TARGET files#################
+####### Full code in order to process the .dat TARGET files ################
 ############################################################################
+
+###### PART I: converting .DAT target file into .CSV
 
 library(tidyverse)
 library(lubridate)
 
 parse_target_dat <- function(filepath) {
+  
+  ### Read all lines from the DAT file
   raw_lines <- read_lines(filepath)
-  raw_lines <- raw_lines[trimws(raw_lines) != ""]  ### remove blank lines
   
-  ### find the start of each data block
+  ### Remove blank lines from the DAT file
+  raw_lines <- raw_lines[trimws(raw_lines) != ""]
+  
+  ### Locate the start of each data block (identified by the header row)
   header_indices <- which(str_detect(raw_lines, "depth / transect / targets"))
-  all_data <- list()  ### to collect parsed chunks
   
+  ### Container to hold parsed data from all blocks
+  all_data <- list()
+  
+  ### Loop through each data block
   for (i in seq_along(header_indices)) {
     header_index <- header_indices[i]
     
-    ### define metadata block
+    ### Grab metadata lines just above the header (10 lines before)
     metadata_block <- raw_lines[max(1, header_index - 10):(header_index - 1)]
     
-    ### extract metadata
+    ######## Extracting the metadata ########
+    
+    ### Extract the lake code
     lake_code <- metadata_block[str_detect(metadata_block, "lake code")] %>%
       str_extract("\\d+(?=\\s*: lake code)") %>% 
       as.numeric()
     
+    ### Extract lake name
     lake <- metadata_block[str_detect(metadata_block, "lake code", negate = TRUE)] %>%
       .[str_detect(., "^[A-Z]")] %>% str_trim() %>% .[1]
     
+    ### Extract the date
     date_str <- metadata_block[str_detect(metadata_block, ": date")] %>%
       str_extract("\\d{6}") %>% .[1]
     
+    ### Convert to proper date
     survey_date <- ymd(date_str)
     
+    ### Extract sounder type
     sounder <- metadata_block[str_detect(metadata_block, "FURUNO|SIMRAD")] %>%
       str_extract("FURUNO[^:]*|SIMRAD[^:]*") %>%
       str_trim() %>% .[1]
     
+    ### Extract gain 
     gain <- metadata_block[str_detect(metadata_block, "Gain")] %>%
       str_extract("\\d+") %>% as.numeric() %>% .[1]
     
-    ### get data lines for this chunk
-    data_start <- header_index + 1
+    ######## Identifying the data lines for this block ########
+    
+    data_start <- header_index + 1  ### starting right after the header
     data_end <- if (i < length(header_indices)) header_indices[i + 1] - 1 else length(raw_lines)
     data_lines <- raw_lines[data_start:data_end]
     
-    ### parse each data line into a tibble
+    ######## Capture acoustic survey note ########
+    
+    ### Take the last non-empty line of the block
+    note_line <- tail(data_lines[str_trim(data_lines) != ""], 1)
+    
+    ### If the last line is NOT a proper data line, treat it as NA
+    note_is_extra <- !str_detect(note_line, "^\\d+-\\d+\\s+\\d+\\s+\\d+")
+    acoustic_survey_notes <- if (note_is_extra) note_line else NA_character_
+    
+    ### If it’s a note, remove it so it doesn’t get parsed as data
+    if (note_is_extra) {
+      data_lines <- head(data_lines, -1)
+    }
+    
+    ######## Parse actual data lines ########
+    
     parsed_data <- data_lines %>%
-      str_trim() %>%                        ### removing white space
-      discard(~ .x == "") %>%              ### skipping empty lines
-      str_split("\\s+") %>%
-      keep(~ length(.x) >= 5) %>%          ### keep only rows with >= 5 fields
-      map(~ .x[1:5]) %>%
+      str_trim() %>%                        #removing extra white space
+      discard(~ .x == "") %>%               #dropping empty lines
+      str_split("\\s+") %>%                 #splitting by white space
+      keep(~ length(.x) >= 5) %>%           #keep only lines with 5 or more fields
+      map(~ .x[1:5]) %>%                    #take first 5 fields
       map_dfr(~ tibble(
-        depth = .x[1] %>% str_extract("^\\d+-\\d+"),
-        transect = as.numeric(.x[2]),
-        targets = as.numeric(.x[3]),
-        pct_sockeye = as.numeric(.x[4]),
-        pct_stickleback = as.numeric(.x[5])
-      ))%>%
+        depth = .x[1] %>% str_extract("^\\d+-\\d+"), #depth range
+        transect = as.numeric(.x[2]),                #transect number
+        targets = as.numeric(.x[3]),                 #number of targets
+        pct_sockeye = as.numeric(.x[4]),             #prop sockeye
+        pct_stickleback = as.numeric(.x[5])          # prop stickleback
+      )) %>%
       mutate(
         lake = lake,
         lake_code = lake_code,
         survey_date = survey_date,
         sounder_type = sounder,
-        gain = gain
+        gain = gain,
+        acoustic_survey_notes = acoustic_note,  #add note (or NA)
+        source_file = basename(filepath)        #add source file name, to know what file the data came from
       )
     
+    ### Save parsed block into the results list
     all_data[[i]] <- parsed_data
   }
   
-  ### combine all chunks
-  final_data <- bind_rows(all_data)
-  return(final_data)
+  ### Combine all blocks into a single tibble and return
+  bind_rows(all_data)
 }
 
-### run the function
+
+######## Run the function on a .DAT file ########
+
 file_path <- "TARGET01.DAT"
 target_data <- parse_target_dat(file_path)
 
-### inspect and save
+### Inspect the results
 print(target_data)
-write_csv(target_data, "TARGET01_clean.csv")
 
-### To loop over multiple files use the following: ########################
-### Set the directory, List the dat files using pattern = "\\.DAT$", using bind_rows function 
-#### combined all the files into one (if interested)
+### Save to CSV
+write.csv(target_data, "TARGET01_clean_V1.csv", row.names = FALSE)
 
-####################VERSION 2 EDITING##############
-#### Editing of data V2, after the conversion of .DAT file, now editing .CSV 
+
+############################################################################
+####### To loop over multiple files use the following: #####################
+############################################################################
+
+### Set the directory with .DAT files you are interested in
+data_dir <- "target_data_inprogress"
+
+### List all files ending with .DAT
+dat_files <- list.files(path = data_dir, pattern = "\\.DAT$", full.names = TRUE, ignore.case = TRUE)
+
+### Parse each file, add source_file column, and combine into one tibble
+all_targets <- dat_files %>%
+  map_df(~ parse_target_dat(.x))
+
+### Inspect the combined data
+print(all_targets)
+
+### Save the combined data set
+write_csv(all_targets, "all_targets_clean_combined.csv", row.names = FALSE)
+
+##################################################################
+#### PART II: editing of the V1 of the converted .DAT file, this code includes, 
+#### minor editing of the columns, renaming and addition of other data like the depth
+
+library(dplyr)
+library(lubridate)
 library(tidyverse)
 
-data <- read_csv("TARGET01_clean.csv") 
+data <- read_csv("TARGET01_clean_V1.csv") #input the file you are interested in editing
 
-### depth separation 
+### separate the depth_stratum into two different columns, depth min (meters) and depth max
 depth_separate <- data %>%
   mutate(depth = str_trim(depth)) %>%
-  separate(depth, into = c("depth_min", "depth_max"), sep = "\\s*[-–]\\s*", convert = TRUE)
-### depth_stratum is now separated into two different columns, one depth min and the other depth max
+  separate(depth, into = c("depth_min_m", "depth_max_m"), sep = "\\s*[-–]\\s*", convert = TRUE)
 
-### separating and adding year and survey_type, had to add not specified later to avoid NA
-library(dplyr)
-library(tidyr)
-library(lubridate)
+### separating and adding survey_date and survey_type
 
 data <- depth_separate %>%
   separate(lake, into = c("lake_name", "survey_comments"), sep = "\\s{2,}", extra = "merge") %>%
@@ -111,10 +166,6 @@ data <- depth_separate %>%
                                   "NO COMMENTS", 
                                   survey_comments))
 
-### renaming the column "notes" into "acoustic_survey_notes"
-
-data <- data %>%
-  rename(acoustic_survey_notes = notes)
 
 ### renaming sockeye/stickleback columns
 data <- data %>%
@@ -123,44 +174,36 @@ data <- data %>%
 data <- data %>%
   rename(prop_stickleback = pct_stickleback)
 
-### adding a column and populating with my info 
+### adding program notes and populating with my info 
 
 data <- data %>%
   mutate(program_notes = "YS - Living Data Program - 2025-05-25")
 
-### adding a source file 
-
-data <- data %>%
-  mutate(source_file = "TARGET01.DAT")
-
-### adding a column with depth_code, and then populating it based on depth_min and depth_max
-library(dplyr)
-library(tidyverse)
+### addition of depth_code, column is populated based on depth_min_m and depth_max_m
 
 data <- data %>%
   mutate(depth_code = case_when(
-    depth_min == 2  & depth_max == 5  ~ 1,
-    depth_min == 3  & depth_max == 5  ~ 2,
-    depth_min == 5  & depth_max == 10 ~ 3,
-    depth_min == 10 & depth_max == 15 ~ 4,
-    depth_min == 15 & depth_max == 20 ~ 5,
-    depth_min == 20 & depth_max == 30 ~ 6,
-    depth_min == 30 & depth_max == 40 ~ 7,
-    depth_min == 40 & depth_max == 50 ~ 8,
-    depth_min == 50 & depth_max == 60 ~ 9,
-    depth_min == 60 & depth_max == 70 ~ 10,
-    depth_min == 70 & depth_max == 80 ~ 11,
-    depth_min == 80 & depth_max == 90 ~ 12,
-    depth_min == 90 & depth_max == 100 ~ 13
+    depth_min_m == 2  & depth_max_m == 5  ~ 1,
+    depth_min_m == 3  & depth_max_m == 5  ~ 2,
+    depth_min_m == 5  & depth_max_m == 10 ~ 3,
+    depth_min_m == 10 & depth_max_m == 15 ~ 4,
+    depth_min_m == 15 & depth_max_m == 20 ~ 5,
+    depth_min_m == 20 & depth_max_m == 30 ~ 6,
+    depth_min_m == 30 & depth_max_m == 40 ~ 7,
+    depth_min_m == 40 & depth_max_m == 50 ~ 8,
+    depth_min_m == 50 & depth_max_m == 60 ~ 9,
+    depth_min_m == 60 & depth_max_m == 70 ~ 10,
+    depth_min_m == 70 & depth_max_m == 80 ~ 11,
+    depth_min_m == 80 & depth_max_m == 90 ~ 12,
+    depth_min_m == 90 & depth_max_m == 100 ~ 13
   ))
 
-### splitting sounder_type into another column sounder_code 
-library(tidyverse)
+### splitting sounder_type and sounder_code into separate solumns
 
 data <- data %>%
   extract(sounder_type, into = c("sounder_type", "sounder_code"), regex = "^(\\S+)\\s+(.*)$")
 
-###renaming "gain" into "sounder_gain"
+### renaming "gain" into "sounder_gain" and lake into "lake_name"
 
 data <- data %>%
   rename(sounder_gain = gain)
@@ -183,9 +226,6 @@ data <- data %>%
   relocate(year, .before = 4)
 
 data <- data %>%
-  relocate(survey_date, .before = 3)
-
-data <- data %>%
   relocate(sounder_type, .before = 13)
 
 data <- data %>%
@@ -197,33 +237,42 @@ data <- data %>%
 data <- data %>%
   relocate(source_file, .before = 16)
 
-#### delete any NA rows 
-library(dplyr)
-library(tidyr)
-
-data <- data %>% 
-  drop_na()
-
 
 ### printing and saving to a csv file
-print(data)
-write.csv(data, "TARGET01_clean_V1.csv", row.names = FALSE)
 
+write.csv(data, "TARGET01_clean_V2.csv", row.names = FALSE)
 
+###############################################################################
+#### PART III: editing of the V2 of the converted .DAT file, this code includes,
+#### addition of transect length and survey month
 
-#### To loop over all files use the following: 
-###
-
-
-####### Addition of transect length and survey month ######################
 library(dplyr)
 library(tidyverse)
+library(lubridate)
 
-### load your data, csv and reference file 
-target_data <- read.csv("TARGET01_clean_V3.csv")
-lake_strata <- read.csv("lake_strata_lengths.csv")
+target_data <- read.csv("TARGET01_clean_V3.csv") #input the file you are interested in editing
+lake_strata <- read.csv("lake_strata_lengths.csv") #input the reference file 
 
-### before starting make sure that the columns are named properly
+### adding survey_month
+
+target_data <- target_data %>%
+  mutate(
+    survey_date = ymd(survey_date),  #convert to date class
+    month = month(survey_date)       #extract month as number
+  )
+
+# Add ats_year
+
+target_data <- target_data %>%
+  mutate(
+    survey_date = as.Date(survey_date),
+    ats_year = if_else(month(survey_date) >= 4,
+                       year(survey_date),
+                       year(survey_date) - 1)
+  )
+
+
+### before joining the files make sure that the columns are named properly and match between files
 
 merged_data <- target_data %>%
   left_join(
@@ -235,7 +284,8 @@ merged_data <- target_data %>%
       "transect" = "Transect"
     )
   )
-#### re-naming columns
+
+#### renaming columns
 merged_data <- merged_data %>%
   rename(area = Area)
 
@@ -245,49 +295,20 @@ merged_data <- merged_data %>%
 merged_data <- merged_data %>%
   rename(survey_comments = survey_type)
 
-### adding survey month
+### Save the file 
+write.csv(merged_data, "TARGET01_clean_V3.csv", row.names = FALSE)
 
-target_data_issues <- target_data_issues %>%
-  mutate(
-    survey_date = ymd(survey_date),  # convert to Date class
-    month = month(survey_date)       # extract month as number (1-12)
-  )
+###############################################################################
+#### PART IV: Target data issues, this code includes an addition of the data_issues column,
+#### in the column issues found within the data are flagged
 
-write.csv(target_data_issues, "TARGET01_clean_V4.csv", row.names = FALSE)
-
-##### Addition of trawl year #####################################
-library(tidyverse)
-library(lubridate)
-library(assert)
-
-my_data <- read_csv("TARGET01_clean_V4.csv")
-
-# Add trawl_year or ats_year
-
-my_data <- my_data %>%
-  mutate(
-    survey_date = ymd(survey_date),
-    survey_year = year(survey_date),
-    survey_month = month(survey_date),
-    
-    trawl_year = if_else(survey_month <= 4, survey_year - 1, survey_year),
-  )
-
-### check to see if data matches 
-assert_that(all(target_data$survey_date >= 2001 & target_data$survey_date <= 2002))
-
-# Save updated file
-write_csv(df, "TARGET01_clean_V5.csv")
-
-########### DATA ISSUES Flagging ################################
-
-##### Script dealing with the Target 2006 data duplicate issues #########
+##### Code that deal with the Target 2006 data duplicate issues #########
 library(tidyverse)
 library(lubridate)
 
 my_data <- read.csv("TARGET06_clean_V7.csv") 
 
-### Convert to character
+### Convert data to character
 my_data <- my_data %>%
   mutate(survey_date = as.character(survey_date))
 
@@ -296,7 +317,7 @@ my_data <- my_data %>%
 
 my_data_filtered <- my_data %>%
   filter(!(lake_code == 228 & survey_date == "2007-02-15"),
-         !(lake_code == 229 & survey_date %in% c("2004-02-04", "2007-02-15")))
+         !(lake_code == 229 & survey_date %in% c("2004-02-04", "2007-02-15", "2004-02-04")))
 
 ### More editing based on comments made in the email  
 
@@ -310,7 +331,7 @@ my_data_modified <- my_data_filtered %>%
       ),
       
       lake_code == 229 & survey_date == "2004-02-14" ~ paste0(
-        "Year does not match trawl_year or trawl_year + 1; this was a duplicate, other copy deleted; probable true date Feb 14, 2007, from acoustic_survey_notes, data found in TARGET06.DAT; unknown why the target numbers are different than for date 2007-02-14"
+        "Survey not in ATS year; this was a duplicate, other copy deleted; probable true date Feb 14, 2007, from acoustic_survey_notes, data found in TARGET06.DAT; unknown why the target numbers are different than for date 2007-02-14"
       ),
       
       lake_code == 229 & survey_date == "2007-02-14" ~ paste0(
@@ -325,8 +346,7 @@ my_data_modified <- my_data_filtered %>%
 
 write.csv(my_data_modified, "TARGET06_clean_V8.csv", row.names = FALSE)
 
-##### STEP 2 dealing with TAGET 95 Issues mentioned in email #######
-################### Target 95 issues ###########
+##### dealing with TARGET 1995 issues #######
 #### Assumes you already have data issues column, if not then go to the bottom chunk of code 
 
 library(tidyverse)
@@ -346,9 +366,9 @@ my_data <- my_data %>%
     )
   )
 
-write_csv(my_data, "TARGET95_clean_V8.csv")
+write_csv(my_data, "TARGET95_clean_V8.csv", row.names = FALSE)
 
-####DATA ISSUES FINAL CODE ####
+#### DATA ISSUES FINAL CODE ####
 #### This code creates the data_issues column and places all of the flags there
 
 library(tidyverse)
@@ -357,13 +377,13 @@ library(lubridate)
 my_data <- read.csv("TARGET07_clean_V7.csv")
 
 my_data <- my_data %>%
-  rename(ats_year = trawl_year) %>%
   mutate(
     survey_year = as.numeric(as.character(survey_year)),
     ats_year = as.numeric(as.character(ats_year)),
     sounder_code = as.character(sounder_code),
     
-    ### invalid dates like Sept 31
+    ### invalid dates ex. September 31st (not a calendar date)
+    
     date_invalid = is.na(ymd(survey_date)),
     
     survey_date_parsed = ymd(survey_date),
@@ -376,17 +396,18 @@ my_data <- my_data %>%
       if_else(is.na(prop_sockeye) & is.na(prop_stickleback),
               "prop_sockeye and prop_stickleback = zero, set to NA", ""),
       
-      ### 2. Invalid individual proportions of sockeye and stickleback
+      ### 2. Invalid individual proportions of sockeye and stickleback are larger than 1
       if_else((!is.na(prop_sockeye) & prop_sockeye > 1) |
                 (!is.na(prop_stickleback) & prop_stickleback > 1),
               "Invalid prop_sockeye and pro_stickleback proportions (>1)", ""),
       
-      ### 3. Invalid sum of proportions of sockeye and stickleback
+      ### 3. Invalid SUM of proportions of sockeye and stickleback
       if_else(!is.na(prop_sockeye) & !is.na(prop_stickleback) &
                 (prop_sockeye + prop_stickleback > 1),
               "Sum of prop_sockeye and pro_stickleback proportions > 1", ""),
       
-      ### 4. Year-month check for trawl_year and ats_year
+      ### 4. Year-month check for survey_year and ats_year; the cut-off for ats_year is 
+      ### that any samples between 01 April YYYY through 31 March YYYY+1 are designated ats_year YYYY
       if_else(
         (!is.na(survey_date_parsed)) &
           !((survey_year_from_date == ats_year & survey_month > 4) |
@@ -414,7 +435,8 @@ my_data <- my_data %>%
   ) %>%
   select(-date_invalid, -survey_date_parsed, -survey_year_from_date)
 
+
 write.csv(my_data, "TARGET07_clean_V8.csv", row.names = FALSE)
 
-
 #####################END OF SCRIPT#################
+
