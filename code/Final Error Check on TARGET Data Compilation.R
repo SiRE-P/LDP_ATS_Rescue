@@ -15,6 +15,7 @@ library(lubridate)
 # Define the file path
 path <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/ATS Rescue/4_Outputs/"
 file <- "TARGET_1977_2007_combined_V8.csv"
+file <- "TARGET_1977_2007_combined_V9.csv"
 
 # Read the CSV file
 target_data <- read.csv(paste(path, file, sep=""), stringsAsFactors = FALSE)
@@ -45,7 +46,7 @@ View(target_data_keyfield_duplicates)
 # Export to CSV
 write.csv(target_data_keyfield_duplicates, paste(path, "target_data_keyfield_duplicates.csv", sep=""), row.names = FALSE) 
 
-# Remove key field duplicates from the target_data_exact_dups_removed dataset
+# DO NOT REMOVE key field duplicates from the target_data_exact_dups_removed dataset
 target_data_no_dups <- target_data_exact_dups_removed 
 #  distinct(lake_code, survey_date, transect, depth_code, .keep_all = TRUE)  # Same key variables for duplicates removal
 
