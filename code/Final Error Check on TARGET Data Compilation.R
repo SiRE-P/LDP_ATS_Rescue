@@ -1,7 +1,7 @@
 ## --------------------------------------------------------------------------
 ## Final Error Check on TARGET Data Compilation.R
 ##
-## Author:  H Stiff
+## Author:  H Stiff 
 ## Date:    250813
 ## Notes:   Import Yuliya's compiled TARGET data, review for duplicates and data issues.
 ##          
@@ -12,13 +12,16 @@ library(dplyr)
 library(lubridate)
 
 # Import data ####
-# Define the file path
-path <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/ATS Rescue/4_Outputs/"
+# Define the file paths
+input_path  <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/ATS Rescue/3_Data/2_For_Review/target_data/1_combined_target_data/"
+output_path <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/ATS Rescue/4_Outputs/"
+
 file <- "TARGET_1977_2007_combined_V8.csv"
-file <- "TARGET_1977_2007_combined_V9.csv"
+file <- "TARGET_1977_2007_combined_V9.csv"      # 220819
+file <- "TARGET_1977_2007_combined_V9_YS.csv"   # 220820
 
 # Read the CSV file
-target_data <- read.csv(paste(path, file, sep=""), stringsAsFactors = FALSE)
+target_data <- read.csv(paste(input_path, file, sep=""), stringsAsFactors = FALSE)
 
 # Add line_numbers to input data
 target_data_line_nums <- target_data %>%
@@ -29,7 +32,7 @@ target_data_exact_duplicates <- target_data_line_nums %>%
   filter(duplicated(select(., -line_number))) #  excluding line_number
 View(target_data_exact_duplicates)
 # Export to CSV
-write.csv(target_data_exact_duplicates, paste(path, "target_data_exact_duplicates.csv", sep=""), row.names = FALSE)
+write.csv(target_data_exact_duplicates, paste(output_path, "target_data_exact_duplicates.csv", sep=""), row.names = FALSE)
 
 # Remove exact duplicates from input data
 target_data_exact_dups_removed <- target_data_line_nums %>%
@@ -44,7 +47,7 @@ target_data_keyfield_duplicates <- target_data_exact_dups_removed %>%
 # View the duplicate records with line numbers
 View(target_data_keyfield_duplicates)
 # Export to CSV
-write.csv(target_data_keyfield_duplicates, paste(path, "target_data_keyfield_duplicates.csv", sep=""), row.names = FALSE) 
+write.csv(target_data_keyfield_duplicates, paste(output_path, "target_data_keyfield_duplicates.csv", sep=""), row.names = FALSE) 
 
 # DO NOT REMOVE key field duplicates from the target_data_exact_dups_removed dataset
 target_data_no_dups <- target_data_exact_dups_removed 
