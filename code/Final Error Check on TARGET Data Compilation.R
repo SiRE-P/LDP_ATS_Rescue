@@ -18,7 +18,6 @@ output_path <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Dat
 
 file <- "TARGET_1977_2007_combined_V8.csv"
 file <- "TARGET_1977_2007_combined_V9.csv"      # 220819
-# file <- "TARGET_1977_2007_combined_V9_YS.csv"   # 220820
 
 # Read the CSV file
 target_data <- read.csv(paste(input_path, file, sep=""), stringsAsFactors = FALSE)
