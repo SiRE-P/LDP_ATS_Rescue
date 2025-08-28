@@ -122,24 +122,19 @@ write.csv(target_data, "TARGET01_clean_V1.csv", row.names = FALSE)
 
 
 ############################################################################
-####### To loop over multiple files use the following: #####################
-############################################################################
+### To loop over multiple files use the following: 
+### Code written by Sandra Emry (August 28, 2025)
 
-### Set the directory with .DAT files you are interested in
-data_dir <- "target_data_inprogress"
+### list all .dat files in the working directory
+dat_files <- list.files(pattern = "\\.dat$", ignore.case = TRUE)
 
-### List all files ending with .DAT
-dat_files <- list.files(path = data_dir, pattern = "\\.DAT$", full.names = TRUE, ignore.case = TRUE)
+### parse all files and combine into one tibble
+all_target_data <- dat_files %>%
+  set_names(~ tools::file_path_sans_ext(basename(.x))) %>%   
+  map_dfr(parse_target_dat, .id = "source_file")      
 
-### Parse each file, add source_file column, and combine into one tibble
-all_targets <- dat_files %>%
-  map_df(~ parse_target_dat(.x))
-
-### Inspect the combined data
-print(all_targets)
-
-### Save the combined data set
-write_csv(all_targets, "all_targets_clean_combined.csv", row.names = FALSE)
+### save combined output
+write_csv(all_target_data, "all_TARGET_clean.csv")
 
 ##################################################################
 #### PART II: editing of the V1 of the converted .DAT file, this code includes, 
