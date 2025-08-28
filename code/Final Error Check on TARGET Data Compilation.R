@@ -18,7 +18,6 @@ output_path <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Dat
 
 file <- "TARGET_1977_2007_combined_V8.csv"
 file <- "TARGET_1977_2007_combined_V9.csv"      # 220819
-file <- "TARGET_1977_2007_combined_V9_YS.csv"   # 220820
 
 # Read the CSV file
 target_data <- read.csv(paste(input_path, file, sep=""), stringsAsFactors = FALSE)
@@ -43,7 +42,9 @@ target_data_exact_dups_removed <- target_data_line_nums %>%
 target_data_keyfield_duplicates <- target_data_exact_dups_removed %>%
   group_by(lake_code, survey_date, transect, depth_code) %>%  # Key fields: lake_code, survey_date, transect, depth_code
   filter(n() > 1) %>%
+  mutate(key_field_replicate = "Replicate exists for this lake, date, transect and depth") %>%   # create new "data issues" column for keyfield replicates
   ungroup()
+
 # View the duplicate records with line numbers
 View(target_data_keyfield_duplicates)
 # Export to CSV
@@ -51,16 +52,16 @@ write.csv(target_data_keyfield_duplicates, paste(output_path, "target_data_keyfi
 
 # DO NOT REMOVE key field duplicates from the target_data_exact_dups_removed dataset
 target_data_no_dups <- target_data_exact_dups_removed 
-#  distinct(lake_code, survey_date, transect, depth_code, .keep_all = TRUE)  # Same key variables for duplicates removal
+#  distinct(lake_code, survey_date, transect, depth_code, .keep_all = TRUE)     # Statement commented out to preserve the replicates!
 
-# View matching records in target_data_filtered
+# View matching records in target_data_no_dups
 target_matching_keyfield_duplicates <- target_data_no_dups %>%
   semi_join(target_data_keyfield_duplicates, by = c("lake_code", "survey_date", "transect", "depth_code")) %>%
   arrange(lake_code, survey_date, transect, survey_comments, depth_code) 
 View(target_matching_keyfield_duplicates)
 
 # Categorical consistency checks ####
-unique(paste(target_data_no_dups$lake, target_data_no_dups$lake_code), sep="")  # check for unique/valid lake x lake_code combinations
+unique(paste(target_data_no_dups$lake, target_data_no_dups$lake_code), sep="")             # check for unique/valid lake x lake_code combinations
 unique(paste(target_data_no_dups$sounder_type, target_data_no_dups$sounder_code), sep="")  # check for unique/valid sounder x sounder_code combinations
 
 # Check for missing data #### 
