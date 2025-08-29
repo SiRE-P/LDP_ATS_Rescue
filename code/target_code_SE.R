@@ -409,3 +409,14 @@ range_issues <- merged_data %>%
   filter(depth_min > depth_max | targets < 0 | transect_length < 0 | area < 0 | sounder_gain <= 0) 
 print(range_issues) # negative targets 
 
+final_data <- merged_data %>% 
+  rename(depth_min_m = depth_min,
+         depth_max_m = depth_max,
+         area_ha = area,
+         transect_length_m = transect_length) %>% 
+  select(source_file, lake_code, lake, sounder_code, sounder_type, sounder_gain, survey_date, survey_year, survey_month, ats_year, depth_code, depth_min_m, 
+         depth_max_m, transect, transect_length_m, area_ha, targets, prop_stickleback, prop_sockeye,
+         data_issues, key_field_replicate, acoustic_survey_notes, survey_comments, everything())
+
+write_csv(final_data, "./data/target_clean_SE.csv")
+
