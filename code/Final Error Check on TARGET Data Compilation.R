@@ -13,11 +13,16 @@ library(lubridate)
 
 # Import data ####
 # Define the file paths
-input_path  <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/ATS Rescue/3_Data/2_For_Review/target_data/1_combined_target_data/"
-output_path <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/ATS Rescue/4_Outputs/"
 
-file <- "TARGET_1977_2007_combined_V8.csv"
-file <- "TARGET_1977_2007_combined_V9.csv"      # 220819
+# input_path  <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/ATS Rescue/3_Data/2_For_Review/target_data/1_combined_target_data/"
+# output_path <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/ATS Rescue/4_Outputs/"
+# 
+# file <- "TARGET_1977_2007_combined_V8.csv"
+# file <- "TARGET_1977_2007_combined_V9.csv"      # 220819
+
+input_path  <- "C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/LDP_ATS_Rescue/data/"
+output_path <- input_path
+file        <- "target_clean_SE_HS.csv"           # 220904 - run on Sandra Emry's tidied output from target_code_SE_HS.R
 
 # Read the CSV file
 target_data <- read.csv(paste(input_path, file, sep=""), stringsAsFactors = FALSE)
@@ -73,12 +78,11 @@ print(NA_missing_summary)
 target_date_err_chk <- target_data_no_dups %>%
   mutate(
     parsed_date = ymd(survey_date, quiet = TRUE),
-    invalid_date_flag = is.na(parsed_date),                  # Flag invalid dates
+    invalid_date_flag = is.na(parsed_date),                                     # Flag invalid dates
     year_mismatch_flag = year(parsed_date) != survey_year,
     future_date_flag = parsed_date > Sys.Date(),   
     line_number = row_number()) %>%
- 
-  filter(invalid_date_flag | year_mismatch_flag | future_date_flag)
+  filter(invalid_date_flag | year_mismatch_flag | future_date_flag)             # Keep invalid date records
 
 # Summarize flagged invalid date records by lake, ats_year, and survey_date
 target_date_err_summary <- target_date_err_chk %>%
