@@ -1,103 +1,193 @@
-library(tidyverse)
-library(tools)
-library(lubridate)
-library(stringr)
+# Libraries ####
 
-parse_target_dat <- function(filepath) {
-  raw_lines <- read_lines(filepath)
-  raw_lines <- raw_lines[trimws(raw_lines) != ""]  ### remove blank lines
+library(dplyr)
+library(lubridate)
+library(purrr)
+library(stringr)
+library(tidyverse)
+library(tibble)
+library(tictoc)       # get elapsed time 
+library(tools)
+
+# install.packages("tictoc")
+
+# Functions ####
+
+# function to assign ATS year based on survey date
+
+assign_ats_year <- function(survey_date) {
+  if_else(month(survey_date) >= 4,
+          year(survey_date),
+          year(survey_date) - 1)
+} # end function
+
+
+# function to read input data from TARGET*.DAT files (differs from SE's version in adding line_numbers for trace-ability)
+
+parse_target_dat_tracer <- function(filepath) {
+  # Read file as a single string to manually handle form feed characters
+  raw_text <- read_file(filepath)
   
-  ### find the start of each data block
+  # Split into lines using both newline and form feed as delimiters
+  raw_lines <- str_split(raw_text, "\\r?\\n|\\f", simplify = FALSE)[[1]]
+# print(raw_lines)
+  
+  # Generate line numbers based on split
+  line_numbers <- seq_along(raw_lines)
+  
+  # Detect form feed characters and report them
+  form_feed_positions <- str_locate_all(raw_text, "\f")[[1]]
+  if (nrow(form_feed_positions) > 0) {
+    # Estimate line number by counting line breaks before each form feed
+    line_breaks <- str_locate_all(raw_text, "\\r?\\n")[[1]][, "start"]
+    estimated_lines <- map_int(form_feed_positions[, "start"], ~ sum(line_breaks < .x) + 1)
+    walk(estimated_lines, ~ message(sprintf("NOTE: form feed character encountered in line %d", .x)))  }
+  
+  line_numbers <- seq_along(raw_lines)  # actual line numbers in the file
+ 
+  # Identify headers using actual line numbers
   header_indices <- which(str_detect(raw_lines, "depth / transect / targets"))
-  all_data <- list()  ### to collect parsed chunks
+  # print(paste("Column Headers located at: ", header_indices))
+  
+  all_data <- list()
   
   for (i in seq_along(header_indices)) {
     header_index <- header_indices[i]
     
-    ### define metadata block (everything above header)
-    metadata_block <- raw_lines[max(1, header_index - 10):(header_index - 1)]
-    
-    ### extract metadata
+    # Metadata block (adjusted to match actual line numbers)
+    metadata_start <- max(1, header_index - 8)
+    metadata_end <- header_index - 1
+    metadata_block <- raw_lines[metadata_start:metadata_end]
+  # print(metadata_block)
+  
     lake_code <- metadata_block[str_detect(metadata_block, "lake code")] %>%
-      str_extract("\\d+(?=\\s*: lake code)") %>% 
+      str_extract("\\d+(?=\\s*: lake code)") %>%
       as.numeric()
     
     lake <- metadata_block[str_detect(metadata_block, "lake code", negate = TRUE)] %>%
-      .[str_detect(., "^[A-Z]")] %>% str_trim() %>% .[1]
+      .[str_detect(., "^[A-Z]")] %>%
+      str_trim() %>%
+      .[1]
     
     date_str <- metadata_block[str_detect(metadata_block, ": date")] %>%
-      str_extract("\\d{6}") %>% .[1]
+      str_extract("\\d{6}") %>%
+      .[1]
     
     survey_date <- ymd(date_str)
     
     sounder <- metadata_block[str_detect(metadata_block, "FURUNO|SIMRAD")] %>%
       str_extract("FURUNO[^:]*|SIMRAD[^:]*") %>%
-      str_trim() %>% .[1]
+      str_trim() %>%
+      .[1]
     
     gain <- metadata_block[str_detect(metadata_block, "Gain")] %>%
-      str_extract("\\d+") %>% as.numeric() %>% .[1]
+      str_extract("\\d+") %>%
+      as.numeric() %>%
+      .[1]
     
-    ### capture acoustic survey notes
     acoustic_survey_notes <- metadata_block %>%
       discard(~ str_detect(.x, "lake code|: date|FURUNO|SIMRAD|Gain|^[A-Z]")) %>%
       str_trim() %>%
       paste(collapse = " ") %>%
       na_if("")
     
-    ### get data lines for this chunk
+    # Data block
     data_start <- header_index + 1
-    data_end <- if (i < length(header_indices)) header_indices[i + 1] - 1 else length(raw_lines)
-    data_lines <- raw_lines[data_start:data_end]
+    data_end <- if (i < length(header_indices)) header_indices[i + 1] - 2 else length(raw_lines)
     
-    ### parse each data line into a tibble
-    parsed_data <- data_lines %>%
-      str_trim() %>%
-      discard(~ .x == "") %>%
-      str_split("\\s+") %>%
-      keep(~ length(.x) >= 5) %>%
-      map(~ .x[1:5]) %>%
-      map_dfr(~ tibble(
-        depth = .x[1] %>% str_extract("^\\d+-\\d+"),
-        transect = as.numeric(.x[2]),
-        targets = as.numeric(.x[3]),
-        pct_sockeye = as.numeric(.x[4]),
-        pct_stickleback = as.numeric(.x[5])
-      )) %>%
+    data_lines <- raw_lines[data_start:data_end]
+    data_line_numbers <- line_numbers[data_start:data_end]
+    
+    # Parse each line, including blanks
+    parsed_data <- map2(data_lines, data_line_numbers, ~ {
+      fields <- str_split(str_trim(.x), "\\s+")[[1]]
+      if (length(fields) >= 5) {
+        tibble(
+          line_number = .y,
+          depth = fields[1],
+          transect = as.numeric(fields[2]),
+          targets = as.numeric(fields[3]),
+          pct_sockeye = as.numeric(fields[4]),
+          pct_stickleback = as.numeric(fields[5])
+        )
+      } else {
+        tibble(
+          line_number = .y,
+          depth = NA_character_,
+          transect = NA_real_,
+          targets = NA_real_,
+          pct_sockeye = NA_real_,
+          pct_stickleback = NA_real_
+        )
+      }
+    }) %>%
+      bind_rows() %>%
       mutate(
         lake = lake,
         lake_code = lake_code,
         survey_date = survey_date,
         sounder_type = sounder,
         gain = gain,
-        acoustic_survey_notes = acoustic_survey_notes
+        acoustic_survey_notes = acoustic_survey_notes,
+        source_file = basename(filepath)
       )
     
     all_data[[i]] <- parsed_data
   }
   
-  ### combine all chunks
-  final_data <- bind_rows(all_data)
+  final_data <- bind_rows(all_data) %>%
+    select(source_file,
+           line_number,
+           lake_code,
+           lake,
+           survey_date,
+           depth,
+           transect,
+           targets,
+           pct_sockeye,
+           pct_stickleback,
+           sounder_type,
+           gain,
+           acoustic_survey_notes,
+           everything()) %>%
+    filter(!if_any(c(transect, depth, targets), is.na)) %>% # this drops all records missing in any of three key variables, which seems to happen due to blank lines between input data blocks (HS 250908)
+    arrange(source_file, line_number)
+  
   return(final_data)
-}
+} # end function
 
+
+# Import TARGET*.DAT files ####
 
 ### list all .dat files in the working directory
 dat_files <- list.files(
   path = "data",              # look in the data/ folder
   pattern = "\\.dat$",        # only .dat files
   ignore.case = TRUE,
-  full.names = TRUE           # include full path so read_lines() works
-)
+  full.names = TRUE)          # include full path so read_lines() works
+
+print(dat_files)              # list the import DAT files (TARGET*.DAT)
 
 ### parse all files and combine into one tibble
+tic("Compilation time: ")
 all_target_data <- dat_files %>%
   set_names(~ tools::file_path_sans_ext(basename(.x))) %>%   
-  map_dfr(parse_target_dat, .id = "source_file")    
+  map_dfr(parse_target_dat_tracer, .id = "source_file") %>%     # modified function and call to add source file and line no's for traceability (HS 25-09-08)
+  filter(!if_all(c(transect, depth, targets), is.na))           # this drops all records missing in three key index variables, which seems to happen due to blank lines between input data blocks (HS 250908)
+toc()
 
-write_csv(all_target_data, "./data/all_target_data_SE.csv")
+write_csv(all_target_data, "./output/all_target_data_SE_HS.csv")
 
+# Error-Check target data ####
+
+# Identify exact duplicate records #
+target_data_exact_duplicates <- all_target_data %>%
+  filter(duplicated(select(., -line_number))) #  excluding line_number
 
 data <- all_target_data %>%
+  
+  # Remove exact duplicates from input data
+  distinct(across(-line_number), .keep_all = TRUE) %>%
   
   ### separating depth into min and max
   dplyr::mutate(depth = str_trim(depth)) %>%
@@ -110,6 +200,18 @@ data <- all_target_data %>%
            extra = "merge",
            fill = "right") %>% 
   
+  # Assigning target_survey_type -- ADULT vs JUVENILE (default) -- based on survey_comments
+  
+  mutate(
+    target_survey_code = case_when(
+      is.na(survey_comments) | str_trim(survey_comments) == "" ~ 1,
+      str_detect(survey_comments, regex("adult", ignore_case = TRUE)) ~ 2,
+      TRUE ~ 1),
+    target_survey_type = case_when(
+      is.na(survey_comments) | str_trim(survey_comments) == "" ~ "JUVENILE",
+      str_detect(survey_comments, regex("adult", ignore_case = TRUE)) ~ "ADULT",
+      TRUE ~ "JUVENILE")) %>%
+
   # convert survey_date from character into a data
   mutate(survey_date = ymd(survey_date),
          survey_year = year(survey_date),
@@ -136,8 +238,7 @@ data <- all_target_data %>%
     depth_min == 60 & depth_max == 70 ~ 10,
     depth_min == 70 & depth_max == 80 ~ 11,
     depth_min == 80 & depth_max == 90 ~ 12,
-    depth_min == 90 & depth_max == 100 ~ 13
-  )) %>%
+    depth_min == 90 & depth_max == 100 ~ 13)) %>%
   
   # separating sounder type and sounder code
   extract(sounder_type, into = c("sounder_type", "sounder_code"), regex = "^(\\S+)\\s+(.*)$") %>% 
@@ -146,10 +247,21 @@ data <- all_target_data %>%
   # renaming columns 
   rename(lake = lake_name) %>% 
   
+##### Addition of ats year
+  mutate(
+    ats_year = assign_ats_year(survey_date),
+    .before = survey_date)  %>% 
+  # drop_na()  # I think this is to drop the blank rows in between the collections (SE) -- # but I am not sure why we would want to do this (HS 250903)
+  filter(!if_all(c(transect, depth_code, targets), is.na))  # this drops all records missing in three key index variables, which seems to happen due to blank lines between input data blocks (HS 250908)
+
+data <- data %>%  
   #rearranging column order
-  select(
+  select(source_file,
+    line_number,
     lake_code,
     lake,
+    target_survey_code,
+    target_survey_type,
     survey_date,
     survey_year,
     survey_month,
@@ -160,31 +272,31 @@ data <- all_target_data %>%
     targets,
     prop_sockeye,
     prop_stickleback,
-    sounder_gain,
     sounder_type,
     sounder_code,
     sounder_gain,
     acoustic_survey_notes,
     survey_comments,
-    source_file,
-    everything()
-  ) %>% 
+    everything()) %>% 
+   arrange(source_file, line_number, ats_year, lake, survey_date, transect, depth_code)
 
-##### Addition of ats year
-  mutate(
-    # survey_date = as.Date(survey_date),
-    ats_year = if_else(month(survey_date) >= 4,
-                       year(survey_date),
-                       year(survey_date) - 1),
-    .before = survey_date) # %>% 
-  
-  # I think this is to drop the blank rows in between the collections (SE) -- # but I am not sure why we would want to do this (HS 250903)
-  # drop_na()
+filter_data  <- data %>% filter(if_all(everything(), is.na))   # this captures any and all recs that were NA IN ALL COLUMNS = 0
+data_with_na <- data %>% filter(if_any(everything(), is.na))   # this captures any record with an NA in ANY column = 9,674 (HS 250903)
+data_no_na   <- data %>% drop_na()                             # drop_na() with no arguments removes any row that has at least one NA in any column = 123,880 = 131,011 - 7,131
 
-filter_data <- data %>% filter(!if_all(everything(), is.na))  # this would put any and all recs that were NA IN ALL COLUMNS into filter_data - but there are none
+# Identify further duplicates on key fields #### 
+target_data_keyfield_duplicates <- data %>%
+  group_by(lake_code, survey_date, transect, depth_code) %>%  # Key fields: lake_code, survey_date, transect, depth_code
+  filter(n() > 1) %>%
+  mutate(key_field_replicate = "Replicate exists for this lake, date, transect and depth") %>%   # create new "data issues" column for keyfield replicates
+  ungroup()
 
-data_with_na <- data %>% filter(if_any(everything(), is.na))  # this captures any record with an NA in any column (HS 250903)
+# View the duplicate records with line numbers
+View(target_data_keyfield_duplicates)
+# Export to CSV
+write.csv(target_data_keyfield_duplicates, "/output/target_data_keyfield_duplicates.csv", row.names = FALSE) 
 
+# DO NOT REMOVE key field duplicates from the target_data_exact_dups_removed dataset
   # add in columns from lake_strata (area, length)
 lake_strata <- read.csv("./data/lake_strata_lengths.csv") #input the reference file 
 
@@ -229,17 +341,31 @@ merged_data <- merged_data_strata %>%
       TRUE ~ str_c(data_issues, "; Survey not in ATS Year")
     ),
     
-  # Megin Lake fix
-  survey_date = case_when(
-    lake_code == 118 & survey_year == 1996 & survey_month == 3 ~ ymd("1996-03-20"),
-    TRUE ~ survey_date
-  ),
-  data_issues = case_when(
-    lake_code == 118 & survey_year == 1996 & survey_month == 3 ~
-      str_c(data_issues, "; missing or invalid survey_date, assigned from survey comment info"),
-    TRUE ~ data_issues
-  ),
-
+    # SKAHA Lake fix for invalid date (00/09/31)
+    fix_skaha_date = lake_code == 241 & source_file == "TARGET00" & is.na(survey_date),
+    survey_date = case_when(
+      fix_skaha_date ~ ymd("2000-10-01"),
+      TRUE ~ survey_date),
+    survey_year = year(survey_date),
+    survey_month = month(survey_date),
+    ats_year = assign_ats_year(survey_date),
+    
+    data_issues = case_when(
+      fix_skaha_date ~ str_c(data_issues, "; missing or invalid survey_date (31-Sep-00), assigned (01-Oct-00) from survey comment info"),
+      TRUE ~ data_issues
+    ),
+    
+    # Megin Lake fix
+    survey_date = case_when(
+      lake_code == 118 & survey_year == 1996 & survey_month == 3 ~ ymd("1996-03-20"),
+      TRUE ~ survey_date
+    ),
+    data_issues = case_when(
+      lake_code == 118 & survey_year == 1996 & survey_month == 3 ~
+        str_c(data_issues, "; missing or invalid survey_date, assigned from survey comment info"),
+      TRUE ~ data_issues
+    ),
+    
   # Muriel Lake fix
   survey_date = case_when(
     lake_code == 44 & survey_year == 1996 & survey_month == 3 ~ ymd("1996-03-22"),
@@ -273,9 +399,7 @@ merged_data <- merged_data_strata %>%
         str_c(data_issues, "; this was a duplicate, other copy deleted; probable true date Feb 14, 2007, from acoustic_survey_notes, data found in TARGET06.DAT; unknown why the target numbers are different than for date 070214"),
       lake_code == 229 & survey_date == ymd("2007-02-14") ~
         str_c(data_issues, "; duplicate data dated 070215 deleted"),
-      TRUE ~ data_issues
-    )
-  ) %>% 
+      TRUE ~ data_issues)) %>% 
   select(-total_prop) 
 
 # finding and fixing some lake name issues 
@@ -292,15 +416,13 @@ lake_lookup <- tibble::tibble(
                "BONILLA", "DEVON", "HOBITON", "KITLOPE", "LOWE", "LongA", "LongB", 
                "MERCER", "MURIEL", "MURIEL LAKE", "NIMPKISH", "WOSS", "ALISTAIR", 
                "CURTIS", "FRED WRIGHT", "IAN", "YAKOUN", "CHEEWHAT", "SPROAT", 
-               "JANSEN", "MUCHALAT", "PORT JOHN", "GREAT CENTRAL", 
-               "Alistair Lk"),
+               "JANSEN", "MUCHALAT", "PORT JOHN", "GREAT CENTRAL", "Alistair Lk"),
   lake_new = c("Great Central Lk", "Awun Lk", "Henderson Lk", "Henderson Lk", 
                "Eden Lk", "Bonilla Lk", "Devon Lk", "Hobiton Lk", "Kitlope Lk", 
                "Lowe Lk", "Long Lk (A)", "Long Lk (B)", "Mercer Lk", "Muriel Lk", 
                "Muriel Lk", "Nimpkish Lk", "Woss Lk", "Alastair Lk", "Curtis Lk", 
                "Fred Wright Lk", "Ian Lk", "Yakoun Lk", "Cheewhat Lk", "Sproat Lk", 
-               "Jansen Lk", "Muchalat Lk", "Port John Lk", "Great Central Lk", "Alastair Lk")
-)
+               "Jansen Lk", "Muchalat Lk", "Port John Lk", "Great Central Lk", "Alastair Lk"))
 
 # Join and replace
 merged_data <- merged_data %>%
@@ -308,10 +430,8 @@ merged_data <- merged_data %>%
   mutate(lake.x = coalesce(lake_new, lake.x)) %>%
   select(-lake_new)
 
-merged_data$lake.x %>% unique() %>% sort(.)
-
-n_distinct(merged_data$lake.x)
-n_distinct(merged_data$lake_code)
+# merged_data$lake.x %>% unique() %>% sort(.)
+# n_distinct(merged_data$lake_code)
 
 merged_data %>% 
   group_by(lake_code, lake.x) %>% 
@@ -413,6 +533,7 @@ range_issues <- merged_data %>%
   filter(depth_min > depth_max | targets < 0 | transect_length < 0 | area < 0 | sounder_gain <= 0) 
 print(range_issues) # negative targets 
 
+# Output cleaned up data ####
 final_data <- merged_data %>% 
   rename(depth_min_m = depth_min,
          depth_max_m = depth_max,
@@ -422,5 +543,5 @@ final_data <- merged_data %>%
          depth_max_m, transect, transect_length_m, area_ha, targets, prop_stickleback, prop_sockeye,
          data_issues, key_field_replicate, acoustic_survey_notes, survey_comments, everything())
 
-write_csv(final_data, "./data/target_clean_SE_HS.csv")
+write_csv(final_data, "./output/target_clean_SE_HS.csv")
 
