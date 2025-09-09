@@ -27,6 +27,7 @@ assign_ats_year <- function(survey_date) {
 parse_target_dat_tracer <- function(filepath) {
   # Read file as a single string to manually handle form feed characters
   raw_text <- read_file(filepath)
+  print(paste("Processing data in file: ", filepath, sep=""))
   
   # Split into lines using both newline and form feed as delimiters
   raw_lines <- str_split(raw_text, "\\r?\\n|\\f", simplify = FALSE)[[1]]
@@ -41,7 +42,8 @@ parse_target_dat_tracer <- function(filepath) {
     # Estimate line number by counting line breaks before each form feed
     line_breaks <- str_locate_all(raw_text, "\\r?\\n")[[1]][, "start"]
     estimated_lines <- map_int(form_feed_positions[, "start"], ~ sum(line_breaks < .x) + 1)
-    walk(estimated_lines, ~ message(sprintf("NOTE: form feed character encountered in line %d", .x)))  }
+    walk(estimated_lines, ~ message(sprintf("NOTE: form feed character encountered in line %d", .x)))}
+    # walk(estimated_lines, ~ message(sprintf("NOTE: form feed character encountered in file '%s', line %d", .id, .x)))}
   
   line_numbers <- seq_along(raw_lines)  # actual line numbers in the file
  
@@ -416,13 +418,14 @@ lake_lookup <- tibble::tibble(
                "BONILLA", "DEVON", "HOBITON", "KITLOPE", "LOWE", "LongA", "LongB", 
                "MERCER", "MURIEL", "MURIEL LAKE", "NIMPKISH", "WOSS", "ALISTAIR", 
                "CURTIS", "FRED WRIGHT", "IAN", "YAKOUN", "CHEEWHAT", "SPROAT", 
-               "JANSEN", "MUCHALAT", "PORT JOHN", "GREAT CENTRAL", "Alistair Lk"),
+               "JANSEN", "MUCHALAT", "PORT JOHN", "GREAT CENTRAL", "Alistair Lk", "KCA", "KMA"),
   lake_new = c("Great Central Lk", "Awun Lk", "Henderson Lk", "Henderson Lk", 
                "Eden Lk", "Bonilla Lk", "Devon Lk", "Hobiton Lk", "Kitlope Lk", 
                "Lowe Lk", "Long Lk (A)", "Long Lk (B)", "Mercer Lk", "Muriel Lk", 
                "Muriel Lk", "Nimpkish Lk", "Woss Lk", "Alastair Lk", "Curtis Lk", 
                "Fred Wright Lk", "Ian Lk", "Yakoun Lk", "Cheewhat Lk", "Sproat Lk", 
-               "Jansen Lk", "Muchalat Lk", "Port John Lk", "Great Central Lk", "Alastair Lk"))
+               "Jansen Lk", "Muchalat Lk", "Port John Lk", "Great Central Lk", "Alastair Lk", 
+               "Kennedy L (Clay)", "Kennedy L (Main)"))
 
 # Join and replace
 merged_data <- merged_data %>%
@@ -541,7 +544,17 @@ final_data <- merged_data %>%
          transect_length_m = transect_length) %>% 
   select(source_file, lake_code, lake, sounder_code, sounder_type, sounder_gain, survey_date, survey_year, survey_month, ats_year, depth_code, depth_min_m, 
          depth_max_m, transect, transect_length_m, area_ha, targets, prop_stickleback, prop_sockeye,
-         data_issues, key_field_replicate, acoustic_survey_notes, survey_comments, everything())
+         data_issues, key_field_replicate, acoustic_survey_notes, survey_comments, everything()) %>%
+  arrange(ats_year, lake, survey_date, transect, depth_code)
 
-write_csv(final_data, "./output/target_clean_SE_HS.csv")
+# Segregate adult and juvenile type surveys
+adult_target_data <- final_data %>%
+  filter(target_survey_type == "ADULT")
+
+juvenile_target_data <- final_data %>%
+  filter(target_survey_type == "JUVENILE")
+
+write_csv(final_data, "/output/target_clean_ALL.csv")
+write_csv(adult_target_data, "/output/target_clean_ADULT.csv")
+write_csv(juvenile_target_data, "/output/target_clean_JUVENILE.csv")
 
