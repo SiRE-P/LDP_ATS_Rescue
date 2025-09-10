@@ -2,6 +2,7 @@
 
 library(dplyr)
 library(lubridate)
+library(progress)     # for progress bar
 library(purrr)
 library(stringr)
 library(tidyverse)
@@ -9,24 +10,23 @@ library(tibble)
 library(tictoc)       # get elapsed time 
 library(tools)
 
+date_stamp <- substr(format(Sys.time(), "%Y%m%d-%H%M"), 3, 8) # 8 for date only  # Get the current date to timestamp output files
+
 # install.packages("tictoc")
 
 # Functions ####
-
 # function to assign ATS year based on survey date
-
 assign_ats_year <- function(survey_date) {
   if_else(month(survey_date) >= 4,
           year(survey_date),
           year(survey_date) - 1)
 } # end function
 
-
 # function to read input data from TARGET*.DAT files (differs from SE's version in adding line_numbers for trace-ability)
-
 parse_target_dat_tracer <- function(filepath) {
   # Read file as a single string to manually handle form feed characters
   raw_text <- read_file(filepath)
+  cat("\n")
   print(paste("Processing data in file: ", filepath, sep=""))
   
   # Split into lines using both newline and form feed as delimiters
@@ -42,10 +42,10 @@ parse_target_dat_tracer <- function(filepath) {
     # Estimate line number by counting line breaks before each form feed
     line_breaks <- str_locate_all(raw_text, "\\r?\\n")[[1]][, "start"]
     estimated_lines <- map_int(form_feed_positions[, "start"], ~ sum(line_breaks < .x) + 1)
-    walk(estimated_lines, ~ message(sprintf("NOTE: form feed character encountered in line %d", .x)))}
-    # walk(estimated_lines, ~ message(sprintf("NOTE: form feed character encountered in file '%s', line %d", .id, .x)))}
-  
-  line_numbers <- seq_along(raw_lines)  # actual line numbers in the file
+# walk(estimated_lines, ~ message(sprintf("NOTE: form feed character encountered in line %d", .x))) # uncomment to log line_numbers with FF character
+     }
+
+  line_numbers <- seq_along(raw_lines)       # actual line numbers in the input DAT file
  
   # Identify headers using actual line numbers
   header_indices <- which(str_detect(raw_lines, "depth / transect / targets"))
@@ -161,24 +161,58 @@ parse_target_dat_tracer <- function(filepath) {
 
 # Import TARGET*.DAT files ####
 
-### list all .dat files in the working directory
+# list all .dat files in the working directory
 dat_files <- list.files(
   path = "data",              # look in the data/ folder
   pattern = "\\.dat$",        # only .dat files
   ignore.case = TRUE,
   full.names = TRUE)          # include full path so read_lines() works
 
-print(dat_files)              # list the import DAT files (TARGET*.DAT)
+# list the import DAT files (TARGET*.DAT)
+cat("\nAcoustic Target Data files to process: ", dat_files, "\n")
 
-### parse all files and combine into one tibble
-tic("Compilation time: ")
-all_target_data <- dat_files %>%
-  set_names(~ tools::file_path_sans_ext(basename(.x))) %>%   
-  map_dfr(parse_target_dat_tracer, .id = "source_file") %>%     # modified function and call to add source file and line no's for traceability (HS 25-09-08)
-  filter(!if_all(c(transect, depth, targets), is.na))           # this drops all records missing in three key index variables, which seems to happen due to blank lines between input data blocks (HS 250908)
-toc()
+# parse all files and combine into one tibble
 
-write_csv(all_target_data, "./output/all_target_data_SE_HS.csv")
+pb <- progress_bar$new(       # set up a progress bar
+  format = "  Parsing [:bar] :percent (:current/:total files)",
+  total = length(dat_files),
+  clear = FALSE,
+  width = 60,
+  show_after = 0)             # show progress bar (immediately)
+
+tic("Compilation time: ")     # get start time
+
+all_target_data <- tibble()
+
+for (file in dat_files) {
+  parsed <- parse_target_dat_tracer(file)
+  parsed <- parsed %>%
+    filter(!if_all(c(transect, depth, targets), is.na))
+  all_target_data <- bind_rows(all_target_data, parsed)
+  pb$tick()                   # update progress bar
+  flush.console()             # force output to appear immediately  
+  
+# Sys.sleep(0.1)              # optional: slow down loop to make updates visible
+  }
+
+cat("\n")
+toc()                         # get finish time and post
+cat("\n")
+
+# tic("Compilation time: ")
+# all_target_data <- dat_files %>%
+#   set_names(~ tools::file_path_sans_ext(basename(.x))) %>%   
+# # map_dfr(parse_target_dat_tracer, .id = "source_file") %>%     # modified function and call to add source file and line no's for traceability (HS 25-09-08)
+#   
+#   map_dfr(function(file) {
+#     pb$tick()
+#     parse_target_dat_tracer(file)
+#   }, .id = "source_file") %>%
+# 
+#   filter(!if_all(c(transect, depth, targets), is.na))           # this drops all records missing in three key index variables, which seems to happen due to blank lines between input data blocks (HS 250908)
+# toc()
+
+write_csv(all_target_data, paste("./output/all_target_data_SE_HS_", date_stamp, ".csv", sep=""))
 
 # Error-Check target data ####
 
@@ -296,7 +330,7 @@ target_data_keyfield_duplicates <- data %>%
 # View the duplicate records with line numbers
 View(target_data_keyfield_duplicates)
 # Export to CSV
-write.csv(target_data_keyfield_duplicates, "/output/target_data_keyfield_duplicates.csv", row.names = FALSE) 
+write.csv(target_data_keyfield_duplicates, paste("./output/target_data_keyfield_duplicates_", date_stamp, ".csv", sep=""), row.names = FALSE) 
 
 # DO NOT REMOVE key field duplicates from the target_data_exact_dups_removed dataset
   # add in columns from lake_strata (area, length)
@@ -343,8 +377,8 @@ merged_data <- merged_data_strata %>%
       TRUE ~ str_c(data_issues, "; Survey not in ATS Year")
     ),
     
-    # SKAHA Lake fix for invalid date (00/09/31)
-    fix_skaha_date = lake_code == 241 & source_file == "TARGET00" & is.na(survey_date),
+    # SKAHA Lake date fix for invalid date (00/09/31)
+    fix_skaha_date = lake_code == 241 & source_file == "TARGET00.DAT" & is.na(survey_date),
     survey_date = case_when(
       fix_skaha_date ~ ymd("2000-10-01"),
       TRUE ~ survey_date),
@@ -354,6 +388,48 @@ merged_data <- merged_data_strata %>%
     
     data_issues = case_when(
       fix_skaha_date ~ str_c(data_issues, "; missing or invalid survey_date (31-Sep-00), assigned (01-Oct-00) from survey comment info"),
+      TRUE ~ data_issues
+    ),
+    
+    # KCA Lake date fix for invalid date (850631)
+    fix_kca_date = lake_code == 40 & source_file == "TARGET85.DAT" & is.na(survey_date),
+    survey_date = case_when(
+      fix_kca_date ~ ymd("1985-07-01"),
+      TRUE ~ survey_date),
+    survey_year = year(survey_date),
+    survey_month = month(survey_date),
+    ats_year = assign_ats_year(survey_date),
+    
+    data_issues = case_when(
+      fix_kca_date ~ str_c(data_issues, "; missing or invalid survey_date (31-Jun-85), assigned (01-Jul-85) from survey comment info"),
+      TRUE ~ data_issues
+    ),
+    
+    # Muriel Lake date fix for invalid date (96/03/--)
+    fix_muriel_date = lake_code == 44 & source_file == "TARGET95.DAT" & is.na(survey_date),
+    survey_date = case_when(
+      fix_muriel_date ~ ymd("1996-03-22"),
+      TRUE ~ survey_date),
+    survey_year = year(survey_date),
+    survey_month = month(survey_date),
+    ats_year = assign_ats_year(survey_date),
+    
+    data_issues = case_when(
+      fix_muriel_date ~ str_c(data_issues, "; missing or invalid survey_date (96/03/--), assigned (960322) from survey comment info"),
+      TRUE ~ data_issues
+    ),
+    
+    # Megin Lake date fix for invalid date (96/03/--)
+    fix_megin_date = lake_code == 118 & source_file == "TARGET95.DAT" & is.na(survey_date),
+    survey_date = case_when(
+      fix_megin_date ~ ymd("1996-03-20"),
+      TRUE ~ survey_date),
+    survey_year = year(survey_date),
+    survey_month = month(survey_date),
+    ats_year = assign_ats_year(survey_date),
+    
+    data_issues = case_when(
+      fix_megin_date ~ str_c(data_issues, "; missing or invalid survey_date (96/03/--), assigned (960320) from survey comment info"),
       TRUE ~ data_issues
     ),
     
@@ -402,15 +478,16 @@ merged_data <- merged_data_strata %>%
       lake_code == 229 & survey_date == ymd("2007-02-14") ~
         str_c(data_issues, "; duplicate data dated 070215 deleted"),
       TRUE ~ data_issues)) %>% 
-  select(-total_prop) 
+  select(-total_prop, -fix_skaha_date, -fix_kca_date, -fix_muriel_date, -fix_megin_date) 
 
 # finding and fixing some lake name issues 
+cat("Fixing lake name issues...\n") 
 merged_data %>% 
   select(lake.x, lake.y) %>% 
   filter(lake.x != lake.y) %>% 
   unique() %>% 
-  arrange(lake.x) %>% 
-  print(n = Inf)
+  arrange(lake.x) # %>% 
+  # print(n = Inf)
 
 # Reference table of old and new names
 lake_lookup <- tibble::tibble(
@@ -418,14 +495,16 @@ lake_lookup <- tibble::tibble(
                "BONILLA", "DEVON", "HOBITON", "KITLOPE", "LOWE", "LongA", "LongB", 
                "MERCER", "MURIEL", "MURIEL LAKE", "NIMPKISH", "WOSS", "ALISTAIR", 
                "CURTIS", "FRED WRIGHT", "IAN", "YAKOUN", "CHEEWHAT", "SPROAT", 
-               "JANSEN", "MUCHALAT", "PORT JOHN", "GREAT CENTRAL", "Alistair Lk", "KCA", "KMA"),
+               "JANSEN", "MUCHALAT", "PORT JOHN", "GREAT CENTRAL", "Alistair Lk", 
+               "KCA", "KMA", "Kennedy L (Clay)", "Kennedy L (Main)"),
   lake_new = c("Great Central Lk", "Awun Lk", "Henderson Lk", "Henderson Lk", 
                "Eden Lk", "Bonilla Lk", "Devon Lk", "Hobiton Lk", "Kitlope Lk", 
                "Lowe Lk", "Long Lk (A)", "Long Lk (B)", "Mercer Lk", "Muriel Lk", 
                "Muriel Lk", "Nimpkish Lk", "Woss Lk", "Alastair Lk", "Curtis Lk", 
                "Fred Wright Lk", "Ian Lk", "Yakoun Lk", "Cheewhat Lk", "Sproat Lk", 
                "Jansen Lk", "Muchalat Lk", "Port John Lk", "Great Central Lk", "Alastair Lk", 
-               "Kennedy L (Clay)", "Kennedy L (Main)"))
+               "Kennedy Lk (Clayoquot Arm)", "Kennedy Lk (Main Arm)", 
+               "Kennedy Lk (Clayoquot Arm)", "Kennedy Lk (Main Arm)"))
 
 # Join and replace
 merged_data <- merged_data %>%
@@ -436,20 +515,17 @@ merged_data <- merged_data %>%
 # merged_data$lake.x %>% unique() %>% sort(.)
 # n_distinct(merged_data$lake_code)
 
+cat("\nFinal unique lake_code and lake_name combinations...\n") 
 merged_data %>% 
   group_by(lake_code, lake.x) %>% 
   tally() %>% 
   print(n = Inf)
+cat("\n")
 
-# Are these the same??? If so, change lake names so they are 
-# same lake codes
-# KCA and Kennedy L (Clay) 
-# KMA and Kennedy L (Main)
-
-# different lake codes
+# different lake codes --> leave as is for now with separate lake_codes despite same lake_name [HS 250909]
 # Heydon_2005 and Heydon Lk
 # Nahwitti_2005 and Nahwitti Lk
-# Osoyoos_2005 and ?
+# Osoyoos_2005 and ? probably Osoyoos Lk (N)
 # Phillips_2005 and Phillips Lk
 # Quatse_2005 and Quatse Lk
 # Skaha_2007 and Skaha Lk
@@ -458,8 +534,9 @@ merged_data <- merged_data %>%
   select(-lake.y) %>% 
   rename(lake = lake.x) 
 
-
-#### NEED TO DEAL WITH WEATHER STILL ##  No need to extract weather info as long as comment line is captured in acoustic_survey_notes (which it is)
+#### NEED TO DEAL WITH WEATHER STILL #
+#### No need to extract weather info as long as comment line is captured in acoustic_survey_notes (which it is)
+#
 # unique(merged_data$acoustic_survey_notes) %>% as_tibble()
 # 
 # merged_data %>%
@@ -474,17 +551,16 @@ merged_data <- merged_data %>%
 #   select(acoustic_survey_notes, weather) %>% 
 #   distinct() %>% View
 
-
 # Checking for NAs from depth code 
 missing_depth_code <- merged_data %>%
-  filter(is.na(depth_code)) # GREAT!  # ? Not so sure: quite a few records with missing depths but targets > 0
+  filter(is.na(depth_code)) # GREAT!  # ? Not so sure: quite a few records with missing depths but targets > 0  # FIXED! {hs 250909}
 
 # From Howard's checks code: 
 # Identify further duplicates on key fields #### 
 merged_data <- merged_data %>%
   group_by(lake_code, survey_date, transect, depth_code) %>%
   mutate(
-    key_field_replicate = if_else(                                              # rename this field to data_issues2_key_field_replicate
+    key_field_replicate = if_else(                                              # rename this field to data_issues2_key_field_replicate?
       n() > 1,
       "Replicate exists for this lake, date, transect and depth",
       NA_character_
@@ -517,10 +593,14 @@ sounder_check <- merged_data %>%
 # Show only codes with more than one type
 sounder_check %>% filter(n_types > 1)
 
+cat("\nMissing Values (NAs) Summary\n")
+cat("  Number of records should be zero for all key variables (i.e., lake, date, depth, transect), 
+    all data variables (targets, proportions), but may not be for meta-data variables (data_issues, key_field_replicates).\n")
 NA_missing_summary <- sapply(merged_data, function(x) sum(is.na(x)))
 print(NA_missing_summary)
+cat("\n")
 
-# Check for invalid dates ####
+# Invalid date check ####
 target_date_err_chk <- merged_data %>%
   mutate(
     parsed_date = ymd(survey_date, quiet = TRUE),
@@ -528,13 +608,20 @@ target_date_err_chk <- merged_data %>%
     year_mismatch_flag = year(parsed_date) != survey_year,
     future_date_flag = parsed_date > Sys.Date(),   
     line_number = row_number()) %>%
-  
-  filter(invalid_date_flag | year_mismatch_flag | future_date_flag)
+    filter(invalid_date_flag | year_mismatch_flag | future_date_flag)
 
-# Range checks ####
+cat("\nInvalid Date Check")
+date_issues <- target_date_err_chk 
+print(date_issues)
+cat("\n")
+
+# Variable range checks ####
+cat("\nRange Check Summary for Transect, Depth, Area, Sounder and Targets values...")
 range_issues <- merged_data %>%
-  filter(depth_min > depth_max | targets < 0 | transect_length < 0 | area < 0 | sounder_gain <= 0) 
-print(range_issues) # negative targets 
+  filter(depth_min > depth_max | targets < 0 | transect_length < 0 | area < 0 | sounder_gain <= 0) %>%
+  select(ats_year, lake_code, lake, survey_date, transect, transect_length, depth_code, depth_min, depth_max, area, sounder_gain, targets)
+print(range_issues, n = Inf) # negative targets 
+cat("\n")
 
 # Output cleaned up data ####
 final_data <- merged_data %>% 
@@ -554,7 +641,7 @@ adult_target_data <- final_data %>%
 juvenile_target_data <- final_data %>%
   filter(target_survey_type == "JUVENILE")
 
-write_csv(final_data, "/output/target_clean_ALL.csv")
-write_csv(adult_target_data, "/output/target_clean_ADULT.csv")
-write_csv(juvenile_target_data, "/output/target_clean_JUVENILE.csv")
+write_csv(final_data, paste("./output/target_clean_ALL_", date_stamp, ".csv", sep=""))
+write_csv(adult_target_data, paste("./output/target_clean_ADULT_", date_stamp, ".csv", sep=""))
+write_csv(juvenile_target_data, paste("./output/target_clean_JUVENILE_", date_stamp, ".csv", sep=""))
 
