@@ -219,6 +219,7 @@ write_csv(all_target_data, paste("./output/all_target_data_SE_HS_", date_stamp, 
 # Identify exact duplicate records #
 target_data_exact_duplicates <- all_target_data %>%
   filter(duplicated(select(., -line_number))) #  excluding line_number
+write_csv(target_data_exact_duplicates, paste("./output/target_data_exact_duplicates_", date_stamp, ".csv", sep=""))
 
 data <- all_target_data %>%
   
@@ -328,7 +329,7 @@ target_data_keyfield_duplicates <- data %>%
   ungroup()
 
 # View the duplicate records with line numbers
-View(target_data_keyfield_duplicates)
+# View(target_data_keyfield_duplicates)
 # Export to CSV
 write.csv(target_data_keyfield_duplicates, paste("./output/target_data_keyfield_duplicates_", date_stamp, ".csv", sep=""), row.names = FALSE) 
 
@@ -516,13 +517,13 @@ merged_data <- merged_data %>%
 # n_distinct(merged_data$lake_code)
 
 cat("\nFinal unique lake_code and lake_name combinations...\n") 
-merged_data %>% 
-  group_by(lake_code, lake.x) %>% 
-  tally() %>% 
-  print(n = Inf)
-cat("\n")
+tallied_data <- merged_data %>%
+  group_by(lake_code, lake.x) %>%
+  tally()
+print(tallied_data, n = Inf)
+cat("\nTotal target data records:", sum(tallied_data$n), "\n") # Print the total record count
 
-# different lake codes --> leave as is for now with separate lake_codes despite same lake_name [HS 250909]
+# different lake codes --> YES, leave as is for now with separate lake_codes despite same lake_name [HS 250909]
 # Heydon_2005 and Heydon Lk
 # Nahwitti_2005 and Nahwitti Lk
 # Osoyoos_2005 and ? probably Osoyoos Lk (N)
@@ -534,8 +535,7 @@ merged_data <- merged_data %>%
   select(-lake.y) %>% 
   rename(lake = lake.x) 
 
-#### NEED TO DEAL WITH WEATHER STILL #
-#### No need to extract weather info as long as comment line is captured in acoustic_survey_notes (which it is)
+#### NEED TO DEAL WITH WEATHER STILL --> NO, no need to extract weather info as long as comment line is captured in acoustic_survey_notes (which it is)
 #
 # unique(merged_data$acoustic_survey_notes) %>% as_tibble()
 # 
@@ -555,7 +555,6 @@ merged_data <- merged_data %>%
 missing_depth_code <- merged_data %>%
   filter(is.na(depth_code)) # GREAT!  # ? Not so sure: quite a few records with missing depths but targets > 0  # FIXED! {hs 250909}
 
-# From Howard's checks code: 
 # Identify further duplicates on key fields #### 
 merged_data <- merged_data %>%
   group_by(lake_code, survey_date, transect, depth_code) %>%
