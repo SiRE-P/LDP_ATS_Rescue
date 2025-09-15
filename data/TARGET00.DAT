@@ -1,7 +1,7 @@
 
 
    1                   : lake code
-GCL                 Rankin - Hanslit Survey
+GCL                 Rankin - Hanslit Survey (HS testing)
 001129                 : date
 SIMRAD               2 : 1 = FURUNO FM 22  /  2 = SIMRAD
 10   : Sounder Gain    : Sounder Gain
@@ -2249,12 +2249,12 @@ depth / transect / targets / %sockeye / %stickleback
 
 
  241                   : lake code
-Skaha Lk            Hanslit Survey
+Skaha Lk            Hanslit Survey # INVALID DATE (00/09/31) - RESET to 00/10/01 in code
 000931                 : date
 SIMRAD               2 : 1 = FURUNO FM 22  /  2 = SIMRAD
 10   : Sounder Gain    : Sounder Gain
 
-30Sep00/16Jan01/BH/EY500/0/0/0/7/9/0                                                                          
+30Sep00/16Jan01/BH/EY500/0/0/0/7/9/0 # REPLICATE SURVEY DATE? #                                                                          
 
 depth / transect / targets / %sockeye / %stickleback
 
