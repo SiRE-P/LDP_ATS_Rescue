@@ -1382,7 +1382,7 @@ depth / transect / targets / %sockeye / %stickleback
   41                   : lake code
 KMA                 
 810203                 : date
-FUFURNO FM 22        1 : 1 = FURUNO FM 22  /  2 = SIMRAD
+FURUNO FM 22         1 : 1 = FURUNO FM 22  /  2 = SIMRAD
 10                     : Sounder Gain
                                                   
                                                                                                               
