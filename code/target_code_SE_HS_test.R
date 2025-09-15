@@ -77,8 +77,14 @@ parse_target_dat_tracer <- function(filepath) {
     
     survey_date <- ymd(date_str)
     
-    sounder <- metadata_block[str_detect(metadata_block, "FURUNO|SIMRAD")] %>%
-      str_extract("FURUNO[^:]*|SIMRAD[^:]*") %>%
+    # sounder <- metadata_block[str_detect(metadata_block, "FURUNO|SIMRAD")] %>%
+    #   str_extract("FURUNO[^:]*|SIMRAD[^:]*") %>%
+    #   str_trim() %>%
+    #   .[1]
+    
+    sounder <- metadata_block[str_detect(metadata_block, "FURUNO|SIMRAD|BIOSONICS")] %>%
+      str_extract("^[^:]*") %>%  # extract everything before the first colon
+      str_extract("FURUNO[^:]*|SIMRAD[^:]*|BIOSONICS[^:]*") %>%
       str_trim() %>%
       .[1]
     
@@ -220,7 +226,9 @@ target_data_exact_duplicates <- all_target_data %>%
   filter(duplicated(select(., -line_number)))      #  excluding line_number
 write_csv(target_data_exact_duplicates, paste("./output/target_data_exact_duplicates_", date_stamp, ".csv", sep=""))
 
-data <- all_target_data %>%
+data <- all_target_data %>% 
+  
+  # filter(lake_code == 1, survey_date == as.Date("1977-09-20")) %>%
   
   # Remove exact duplicates from input data
   distinct(across(-line_number), .keep_all = TRUE) %>%
@@ -276,10 +284,18 @@ data <- all_target_data %>%
     depth_min == 90 & depth_max == 100 ~ 13)) %>%
   
   # separating sounder type and sounder code
-  extract(sounder_type, into = c("sounder_type", "sounder_code"), regex = "^(\\S+)\\s+(.*)$") %>% 
+  # extract(sounder_type, into = c("sounder_type", "sounder_code"), regex = "^(\\S+)\\s+(.*)$") %>% 
+  # mutate(sounder_code = as.numeric(sounder_code)) %>%
+  # rename(sounder_gain = gain) %>% 
+
+  extract(
+    sounder_type,
+    into = c("sounder_type", "sounder_code"),
+    regex = "^(.*\\D)(\\d+)$"
+  ) %>%
   mutate(sounder_code = as.numeric(sounder_code)) %>%
-  rename(sounder_gain = gain) %>% 
-  
+  rename(sounder_gain = gain) %>%
+
   # renaming columns 
   rename(lake = lake_name) %>% 
   
@@ -587,6 +603,14 @@ merged_data <- merged_data %>%
       NA_character_)) %>%
   ungroup()
 
+# Missing values check####
+cat("\nMissing Values (NAs) Summary\n")
+cat("  Number of records should be zero for all index variables (i.e., lake, date, depth, transect) and target counts (targets), 
+  but may not be 0 for proportions and meta-data variables (data_issues, key_field_replicates).\n")
+NA_missing_summary <- sapply(merged_data, function(x) sum(is.na(x)))
+print(NA_missing_summary)
+cat("\n")
+
 # Categorical consistency checks ####
 # Count unique lake names per lake_code
 lake_check <- merged_data %>%
@@ -606,17 +630,22 @@ sounder_check <- merged_data %>%
     n_types = n_distinct(sounder_type),
     types = paste(unique(sounder_type), collapse = ", ")
   ) %>%
-  ungroup()
+  ungroup() %>%
+  print()
 
 # Show only codes with more than one type
-sounder_check %>% filter(n_types > 1)
+cat("\nSounder Check (Code 1 = FURUNO; 2 = SIMRAD; 3 = BIOSONICS)\n")
+sounder_check %>% filter(n_types > 0)
 
-cat("\nMissing Values (NAs) Summary\n")
-cat("  Number of records should be zero for all index variables (i.e., lake, date, depth, transect) and target counts (targets), 
-  but may not be 0 for proportions and meta-data variables (data_issues, key_field_replicates).\n")
-NA_missing_summary <- sapply(merged_data, function(x) sum(is.na(x)))
-print(NA_missing_summary)
-cat("\n")
+cat("\nSounder Code/Type Error Records (Code 1 = FURUNO; 2 = SIMRAD; 3 = BIOSONICS)\n")
+sounder_err <- merged_data %>%
+  filter(sounder_code == 1 & !str_detect(sounder_type, "FURUNO") |
+         sounder_code == 2 & !str_detect(sounder_type, "SIMRAD") |
+        !sounder_code %in% c(1, 2)) %>%
+  select(sounder_code, sounder_type, sounder_gain, lake_code, survey_date, source_file, line_number) %>%
+  distinct(across(-line_number), .keep_all = TRUE) %>%
+  arrange(sounder_code, sounder_type, survey_date) %>%
+  print()
 
 # Invalid date check ####
 target_date_err_chk <- merged_data %>%
@@ -635,38 +664,51 @@ date_issues <- target_date_err_chk
 print(date_issues)
 cat("\n")
 
-# Index Variable range checks ####
-cat("\nKey Variable Check: Transect, Depth, Area, Sounder values...")
-
+# Metadata variable range checks ####
+cat("\nNumeric Metadata Variable Check: Lake, Dates, Sounder values...")
 # Select numeric columns and summarize missing, min, and max
-summary_table <- merged_data %>%
+target_metadata <- merged_data %>%
+  select(ats_year, lake, survey_date, where(is.numeric)) %>%
+  select(-line_number, -targets, -prop_sockeye, -prop_stickleback, -total_prop, -depth_code, -depth_min, -depth_max, -transect, -transect_length, -area) %>%
+  mutate(survey_month = as.numeric(as.character(merged_data$survey_month))) %>%
+  arrange(ats_year, lake, survey_year, survey_month)
+
+target_metadata_chk <- target_metadata %>%
+  distinct() %>%
+  arrange(ats_year, lake, survey_year, survey_month)
+  
+metadata_issues <-target_metadata_chk %>%
   select(where(is.numeric)) %>%
+  distinct() %>%
   summarise(across(everything(), list(
     missing = ~sum(is.na(.)),
     min = ~min(., na.rm = TRUE),
-    max = ~max(., na.rm = TRUE))))
-
-# Transpose and clean up for readability
-summary_clean <- summary_table %>%
+    max = ~max(., na.rm = TRUE)))) %>%
   pivot_longer(cols = everything()) %>%
   separate(name, into = c("variable", "stat"), sep = "_(?=[^_]+$)") %>%
   pivot_wider(names_from = stat, values_from = value) %>%
   arrange(variable) %>% 
   print()
 
-# main numeric data issues include:
-#      prop_sockeye and prop_stickleback sometimes > 1
-#      total_prop(ortion) sometimes > 1 (and as shown elsewhere, sometimes < 1)
-#      targets sometimes < 0
-#      sounder gain = 500 ?
+# main numeric metadata issues include:
+#      missing sounder data (code, gain)   <== data appears to be missing the Sounder Gain value; check STRs ?
+#      sounder gain = 500 ?                <== program is reading "EY500" which might be a sounder model, not the gain 
+target_sounder_gain_issues <- target_metadata_chk %>%
+  filter(sounder_gain > 50 |       # shows nine surveys in four lakes, all in 2005 with GAIN = 500 
+        is.na(sounder_gain)) %>%   # shows 38 surveys without sounder_gain                         
+print(n = Inf)
+
+target_sounder_code_issues <- target_metadata_chk %>%
+  filter(is.na(sounder_code)) %>%   # shows 281 surveys missing sounder_code
+  print()
+
 
 # Variable range checks ####
-cat("\nRange Check Summary for Transect, Depth, Area, Sounder and Targets values...")
+cat("\nRange Check Summary for Transect, Depth,  Targets and Proportions values...")
 range_issues <- merged_data %>%
   filter(
     # transect_length < 0 |
     # area < 0 |
-    # sounder_gain > 100
       depth_min > depth_max |
       targets < 0 |
       total_prop < 0.99 & total_prop > 0 |
@@ -676,6 +718,11 @@ range_issues <- merged_data %>%
     sounder_gain, targets, prop_sockeye, prop_stickleback, total_prop)
 print(range_issues, n = 100) # negative targets 
 cat("\n")
+
+# main numeric data issues include:
+#      prop_sockeye and prop_stickleback sometimes > 1
+#      total_prop(ortion) sometimes > 1 (and as shown elsewhere, sometimes < 1)
+#      targets sometimes < 0
 
 # Output cleaned up data ####
 final_data <- merged_data %>% 
