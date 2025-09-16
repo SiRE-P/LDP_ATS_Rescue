@@ -245,10 +245,9 @@ all_target_data <- tibble()
 write_csv(all_target_data, paste("./output/all_target_data_RAW_", date_stamp, ".csv", sep=""))
 
 raw_data_inventory <- all_target_data %>%
-  select(ats_year, lake, lake_code, survey_date, sounder_code, sounder_type, source_file, 
-         acoustic_survey_notes, survey_comments) %>%
+  select(source_file, lake, lake_code, survey_date, sounder_type, sounder_gain = gain, acoustic_survey_notes) %>%
   distinct() %>%
-  arrange(ats_year, lake, lake_code, survey_date)
+  arrange(source_file, lake, lake_code, survey_date)
 
 write_csv(raw_data_inventory, paste("./output/target_raw_data_INVENTORY_", date_stamp, ".csv", sep=""))
 
