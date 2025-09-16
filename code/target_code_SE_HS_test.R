@@ -589,10 +589,6 @@ merged_data <- merged_data %>%
 #   select(acoustic_survey_notes, weather) %>% 
 #   distinct() %>% View
 
-# Checking for NAs from depth code 
-missing_depth_code <- merged_data %>%
-  filter(is.na(depth_code)) # GREAT!  # ? Not so sure: quite a few records with missing depths but targets > 0  # FIXED! {hs 250909}
-
 # Identify further duplicates on key fields #### 
 merged_data <- merged_data %>%
   group_by(lake_code, survey_date, transect, depth_code) %>%
@@ -603,7 +599,12 @@ merged_data <- merged_data %>%
       NA_character_)) %>%
   ungroup()
 
-# Missing values check####
+# # Checking for NAs from depth code [handled in Missing Values Check, below]
+# missing_depth_code <- merged_data %>%
+#   filter(is.na(depth_code)) %>% # records with missing depths but targets > 0  # FIXED! mainly due to blank data lines {hs 250909}
+#   print()
+
+# Missing Values Check ####
 cat("\nMissing Values (NAs) Summary\n")
 cat("  Number of records should be zero for all index variables (i.e., lake, date, depth, transect) and target counts (targets), 
   but may not be 0 for proportions and meta-data variables (data_issues, key_field_replicates).\n")
@@ -611,31 +612,51 @@ NA_missing_summary <- sapply(merged_data, function(x) sum(is.na(x)))
 print(NA_missing_summary)
 cat("\n")
 
-# Categorical consistency checks ####
+# Categorical Consistency Checks ####
 # Count unique lake names per lake_code
 lake_check <- merged_data %>%
   group_by(lake_code) %>%
   summarize(
     n_lakes = n_distinct(lake),
     lakes = paste(unique(lake), collapse = ", ")) %>%
-  ungroup()
-
-# Show only lake_codes that have more than one name
-lake_check %>% filter(n_lakes > 1)
-
-# Check uniqueness of sounder_code → sounder_type
-sounder_check <- merged_data %>%
-  group_by(sounder_code) %>%
-  summarize(
-    n_types = n_distinct(sounder_type),
-    types = paste(unique(sounder_type), collapse = ", ")
-  ) %>%
   ungroup() %>%
+# Show only lake_codes that have more than one name
+  filter(n_lakes > 1) %>%
   print()
 
-# Show only codes with more than one type
+# Check uniqueness of sounder_code → sounder_type
 cat("\nSounder Check (Code 1 = FURUNO; 2 = SIMRAD; 3 = BIOSONICS)\n")
-sounder_check %>% filter(n_types > 0)
+# sounder_check <- merged_data %>%
+#   group_by(sounder_code) %>%
+#   summarize(
+#     n_types = n_distinct(sounder_type),
+#     types = paste(unique(sounder_type), collapse = ", ")
+#   ) %>%
+#   ungroup() %>%
+#   filter(n_types > 0) %>%
+#   print() # show sounder_codes and all associated sounder_type model names 
+# 
+# 
+# sounder_check <- merged_data %>%
+#   distinct(sounder_code, sounder_type) %>%
+#   group_by(sounder_code) %>%
+#   mutate(n_types = n()) %>%
+#   ungroup() %>%
+#   filter(n_types > 0) %>%
+#   arrange(sounder_code, sounder_type) %>%
+#   print()
+
+sounder_combinations <- merged_data %>%
+  count(sounder_code, sounder_type, name = "n_occurrences") %>%
+  arrange(sounder_code, desc(n_occurrences), sounder_type) %>%
+  print()
+# Add a total row
+total_row <- sounder_combinations %>%
+  summarize(
+    sounder_code = "TOTAL",
+    sounder_type = "",
+    n_occurrences = sum(n_occurrences)) %>% 
+  print()
 
 cat("\nSounder Code/Type Error Records (Code 1 = FURUNO; 2 = SIMRAD; 3 = BIOSONICS)\n")
 sounder_err <- merged_data %>%
