@@ -199,7 +199,7 @@ dat_files <- list.files(
   ignore.case = TRUE,
   full.names = TRUE)          # include full path so read_lines() works
 
-# list the import DAT files (TARGET*.DAT)
+# # list the import DAT files (TARGET*.DAT)
 cat("\nAcoustic Target Data files to process: ", dat_files, "\n")
 
 # parse all files and combine into one tibble
@@ -215,34 +215,43 @@ tic("Compilation time: ")     # get start time
 
 all_target_data <- tibble()
 
-for (file in dat_files) {
-  parsed <- parse_target_dat_tracer(file)
-  parsed <- parsed %>%
-    filter(!if_all(c(transect, depth, targets), is.na)) # drops blank lines (which are missing for these variables)
-  all_target_data <- bind_rows(all_target_data, parsed) # append parsed data to all_target_data
-  pb$tick()                   # update progress bar
-  flush.console()             # force progress bar to appear immediately  
-# Sys.sleep(0.1)              # optional: slow down loop to make updates visible
-  }
-
-cat("\n")
-toc()                         # get finish time and post elapsed time
-cat("\n")
+  for (file in dat_files) {
+    parsed <- parse_target_dat_tracer(file)
+    parsed <- parsed %>%
+      filter(!if_all(c(transect, depth, targets), is.na)) # drops blank lines (which are missing for these variables)
+    all_target_data <- bind_rows(all_target_data, parsed) # append parsed data to all_target_data
+    pb$tick()                   # update progress bar
+    flush.console()             # force progress bar to appear immediately
+  # Sys.sleep(0.1)              # optional: slow down loop to make updates visible
+    }
+ 
+  cat("\n")
+  toc()                         # get finish time and post elapsed time
+  cat("\n")
 
 # tic("Compilation time: ")                                       # Sandra's method
 # all_target_data <- dat_files %>%
-#   set_names(~ tools::file_path_sans_ext(basename(.x))) %>%   
+#   set_names(~ tools::file_path_sans_ext(basename(.x))) %>%
 # # map_dfr(parse_target_dat_tracer, .id = "source_file") %>%     # modified function and call to add source file and line no's for traceability (HS 25-09-08)
-#   
+#
 #   map_dfr(function(file) {
 #     pb$tick()
 #     parse_target_dat_tracer(file)
 #   }, .id = "source_file") %>%
-# 
+#
 #   filter(!if_all(c(transect, depth, targets), is.na))           # this drops all records missing in three key index variables, which seems to happen due to blank lines between input data blocks (HS 250908)
 # toc()
 
-write_csv(all_target_data, paste("./output/all_target_data_SE_HS_", date_stamp, ".csv", sep=""))
+write_csv(all_target_data, paste("./output/all_target_data_RAW_", date_stamp, ".csv", sep=""))
+
+raw_data_inventory <- all_target_data %>%
+  select(ats_year, lake, lake_code, survey_date, sounder_code, sounder_type, source_file, 
+         acoustic_survey_notes, survey_comments) %>%
+  distinct() %>%
+  arrange(ats_year, lake, lake_code, survey_date)
+
+write_csv(raw_data_inventory, paste("./output/target_raw_data_INVENTORY_", date_stamp, ".csv", sep=""))
+
 
 # Error-Check target data ####
 
@@ -306,7 +315,7 @@ data <- all_target_data %>%
     depth_min == 60 & depth_max == 70 ~ 10,
     depth_min == 70 & depth_max == 80 ~ 11,
     depth_min == 80 & depth_max == 90 ~ 12,
-    depth_min == 90 & depth_max == 100 ~ 13)) %>%
+    depth_min == 90 & depth_max == 100~ 13)) %>%
   
   # separating sounder type and sounder code
   # extract(sounder_type, into = c("sounder_type", "sounder_code"), regex = "^(\\S+)\\s+(.*)$") %>% 
@@ -392,8 +401,8 @@ merged_data_strata <- data %>%
 merged_data <- merged_data_strata %>%
   mutate(
     # create data_issues column if missing
-    data_issues = ""
-  ) %>%
+    data_issues = "") %>%
+  
   mutate(
     total_prop = prop_stickleback + prop_sockeye,
     
@@ -425,6 +434,13 @@ merged_data <- merged_data_strata %>%
     prop_stickleback = case_when(
       is.na(prop_sockeye) & prop_stickleback == 0 & targets == 0 ~ NA_real_,
       TRUE ~ prop_stickleback
+    ),
+    
+    # targets < 0 flagged as NA
+    data_issues = case_when(
+      (targets < 0) ~
+        str_c(data_issues, "Targets < 0; "),
+      TRUE ~ data_issues
     ),
     
     # Year vs ats_year 
@@ -598,7 +614,28 @@ merged_data <- merged_data %>%
   select(-lake.y) %>% 
   rename(lake = lake.x) 
 
-#### NEED TO DEAL WITH WEATHER STILL --> NO, no need to extract weather info as long as comment line is captured in acoustic_survey_notes (which it is)
+# Count unique lake names per lake_code
+lake_check <- merged_data %>%
+  group_by(lake_code) %>%
+  summarize(
+    n_lakes = n_distinct(lake),
+    lakes = paste(unique(lake), collapse = ", ")) %>%
+  ungroup()
+
+# Show only lake_codes that have more than one name
+lake_check %>% filter(n_lakes > 1)
+
+# Identify further duplicates on key fields #### 
+merged_data <- merged_data %>%
+  group_by(lake_code, survey_date, transect, depth_code) %>%
+  mutate(
+    key_field_replicate = if_else(                                              # rename this field to data_issues2_key_field_replicate?
+      n() > 1,
+      "Replicate exists for this lake, date, transect and depth",
+      NA_character_)) %>%
+  ungroup()
+
+#### NEED TO DEAL WITH WEATHER STILL (SE) --> NO, no need to extract weather info as long as comment line is captured in acoustic_survey_notes (which it is)
 #
 # unique(merged_data$acoustic_survey_notes) %>% as_tibble()
 # 
@@ -618,17 +655,7 @@ merged_data <- merged_data %>%
 missing_depth_code <- merged_data %>%
   filter(is.na(depth_code)) # GREAT!  # ? Not so sure: quite a few records with missing depths but targets > 0  # FIXED! {hs 250909}
 
-# Identify further duplicates on key fields #### 
-merged_data <- merged_data %>%
-  group_by(lake_code, survey_date, transect, depth_code) %>%
-  mutate(
-    key_field_replicate = if_else(                                              # rename this field to data_issues2_key_field_replicate?
-      n() > 1,
-      "Replicate exists for this lake, date, transect and depth",
-      NA_character_)) %>%
-  ungroup()
-
-# Missing values check####
+# Missing values check ####
 cat("\nMissing Values (NAs) Summary\n")
 cat("  Number of records should be zero for all index variables (i.e., lake, date, depth, transect) and target counts (targets), 
   but may not be 0 for proportions and meta-data variables (data_issues, key_field_replicates).\n")
@@ -636,19 +663,8 @@ NA_missing_summary <- sapply(merged_data, function(x) sum(is.na(x)))
 print(NA_missing_summary)
 cat("\n")
 
-# Categorical consistency checks ####
-# Count unique lake names per lake_code
-lake_check <- merged_data %>%
-  group_by(lake_code) %>%
-  summarize(
-    n_lakes = n_distinct(lake),
-    lakes = paste(unique(lake), collapse = ", ")) %>%
-  ungroup()
-
-# Show only lake_codes that have more than one name
-lake_check %>% filter(n_lakes > 1)
-
 # Invalid date check ####
+cat("\nInvalid Date Check")
 target_date_err_chk <- merged_data %>%
   mutate(
     parsed_date = ymd(survey_date, quiet = TRUE),
@@ -660,7 +676,6 @@ target_date_err_chk <- merged_data %>%
   dplyr::select(source_file, line_number, lake, lake_code, survey_date, depth_code, transect, targets, prop_sockeye, prop_sockeye, survey_comments, acoustic_survey_notes) %>%
   arrange(source_file, line_number, lake, depth_code, transect)
 
-cat("\nInvalid Date Check")
 date_issues <- target_date_err_chk 
 print(date_issues)
 cat("\n")
@@ -669,7 +684,7 @@ cat("\n")
 cat("\nNumeric Metadata Variable Check: Lake, Dates, Sounder values...")
 # Select numeric columns and summarize missing, min, and max
 target_metadata <- merged_data %>%
-  select(ats_year, lake, survey_date, where(is.numeric)) %>%
+  select(ats_year, lake, survey_date, sounder_type, where(is.numeric)) %>%
   select(-line_number, -targets, -prop_sockeye, -prop_stickleback, -total_prop, -depth_code, -depth_min, -depth_max, -transect, -transect_length, -area) %>%
   mutate(survey_month = as.numeric(as.character(merged_data$survey_month))) %>%
   arrange(ats_year, lake, survey_year, survey_month)
@@ -697,48 +712,53 @@ metadata_issues <-target_metadata_chk %>%
 
 # Check uniqueness of sounder_code → sounder_type
 cat("\nSounder Code Check (Code 1 = FURUNO; 2 = SIMRAD; ? = BIOSONICS)\n")
-sounder_check <- merged_data %>%
-  group_by(sounder_code) %>%
+sounder_combinations <- target_metadata_chk %>%
+  count(sounder_code, sounder_type, name = "n_occurrences") %>%
+  arrange(sounder_code, desc(n_occurrences), sounder_type)
+
+total_sounder_recs <- sounder_combinations %>%
   summarize(
-    n_types = n_distinct(sounder_type),
-    types = paste(unique(sounder_type), collapse = ", ")
-  ) %>%
-  ungroup() %>%
+    sounder_code = "TOTAL",
+    sounder_type = "",
+    n_occurrences = sum(n_occurrences)) %>%
+  rbind(sounder_combinations) %>%
+  arrange(sounder_code) %>%
   print()
 
-cat("\nSounder Code/Type Error Records\n")
-sounder_err <- merged_data %>%
-  filter(sounder_code == 1 & !str_detect(sounder_type, "FURUNO") |
-           sounder_code == 2 & !str_detect(sounder_type, "SIMRAD") |
-           !sounder_code %in% c(1, 2)) %>%
-  select(sounder_code, sounder_type, sounder_gain, lake_code, survey_date, source_file, line_number) %>%
+cat("\nSounder Code/Type/Gain Error Records\n")
+merged_data_final_chk <- merged_data %>%             # flag sounder_code and sounder_gain issues, errors
+  mutate(sounder_issues = "" ) %>%
+  mutate(sounder_issues = ifelse(sounder_code == 1 & !str_detect(sounder_type, "FURUNO") |
+                                 sounder_code == 2 & !str_detect(sounder_type, "SIMRAD") |
+                                !sounder_code %in% c(1, 2) | is.na(sounder_code), 
+                                 str_c("Sounder Code or Type error;"), sounder_issues)) %>%
+  mutate(sounder_issues = ifelse(sounder_gain > 50 | is.na(sounder_gain), 
+                                 str_c(sounder_issues, "Sounder Gain missing or error;"), sounder_issues))
+
+merged_data_sounder_chk <- merged_data_final_chk %>%
+  select(sounder_issues, sounder_code, sounder_type, sounder_gain, lake_code, survey_date, source_file, line_number) %>%
+  filter(sounder_issues != "") %>%
   distinct(across(-line_number), .keep_all = TRUE) %>%
-  arrange(sounder_code, sounder_type, survey_date) %>%
-  print()
-
-target_sounder_gain_issues <- target_metadata_chk %>%
-  filter(sounder_gain > 50 |       # shows nine surveys in four lakes, all in 2005 with GAIN = 500 due to presence of EY500 text 
-           is.na(sounder_gain)) %>%   # shows 38 surveys without sounder_gain                         
-  print(n = Inf)
-
-target_sounder_code_issues <- target_metadata_chk %>%
-  filter(is.na(sounder_code)) %>%   # shows 281 surveys missing sounder_code
-  print()
-
+  arrange(sounder_issues, sounder_code, sounder_type, survey_date)  %>%
+  group_split(sounder_issues) %>%
+  walk(~{               # Print each group with a blank line between
+    cat("\n---", unique(.x$sounder_issues), "Check Survey Trip Reports (STRs)? ---\n")
+    print(.x, n = Inf)
+    cat("\n")})
 
 # Variable range checks ####
-cat("\nRange Check Summary for Transect, Depth,  Targets and Proportions values...")
-range_issues <- merged_data %>%
+cat("\nRange Check Summary for Transect, Depth, Targets and Proportions values...")
+range_issues <- merged_data_final_chk %>%
   filter(
-    # transect_length < 0 |
-    # area < 0 |
-      depth_min > depth_max |
-      targets < 0 |
-      total_prop < 0.99 & total_prop > 0 |
-      total_prop > 1.01 ) %>%
+      # transect_length < 0 |
+      # area < 0 |
+      # depth_min > depth_max |
+      # total_prop < 0.99 & total_prop > 0 |
+      # total_prop > 1.01 |
+      targets < 0 ) %>%
   select(
     data_issues, source_file, line_number, lake, survey_date, 
-    sounder_gain, targets, prop_sockeye, prop_stickleback, total_prop)
+    targets, prop_sockeye, prop_stickleback, total_prop)
 print(range_issues, n = 100) # negative targets 
 cat("\n")
 
@@ -747,8 +767,17 @@ cat("\n")
 #      total_prop(ortion) sometimes > 1 (and as shown elsewhere, sometimes < 1)
 #      targets sometimes < 0
 
+final_inventory <- merged_data_final_chk %>%
+  select(ats_year, lake, lake_code, survey_date, sounder_code, sounder_type, source_file, 
+         acoustic_survey_notes, survey_comments) %>%
+  distinct() %>%
+  arrange(ats_year, lake, lake_code, survey_date)
+
+write_csv(final_inventory, paste("./output/target_clean_INVENTORY_", date_stamp, ".csv", sep=""))
+
+
 # Output cleaned up data ####
-final_data <- merged_data %>% 
+final_data <- merged_data_final_chk %>% 
   rename(depth_min_m = depth_min,
          depth_max_m = depth_max,
          area_ha = area,
