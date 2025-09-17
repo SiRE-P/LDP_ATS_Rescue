@@ -442,13 +442,6 @@ merged_data <- merged_data_strata %>%
       TRUE ~ data_issues
     ),
     
-    # Year vs ats_year 
-    data_issues = case_when(
-      (survey_year == ats_year & survey_month > 4) |
-        (survey_year == ats_year + 1 & survey_month < 5) ~ data_issues,
-      TRUE ~ str_c(data_issues, "Survey date not in ATS Year; ")
-    ),
-    
     # Sounder issues 
     data_issues = case_when(
       !(sounder_code %in% c(1, 2)) | is.na(sounder_type) | is.na(sounder_gain) ~ 
@@ -543,6 +536,12 @@ merged_data <- merged_data_strata %>%
     lake_code == 66 & survey_date == ymd("1992-08-01") ~
       str_c(data_issues, "Data erroneously stored in TARGET95.DAT, ats_year updated from survey_date and processed_date; "),
     TRUE ~ data_issues
+  ),
+  # Year vs ats_year 
+  data_issues = case_when(
+    (survey_year == ats_year & survey_month > 3) |
+    (survey_year == ats_year + 1 & survey_month < 4) ~ data_issues,
+    TRUE ~ str_c(data_issues, "Survey date not in ATS Year; ")
   )
   ) %>%
   # Owikeno removals
@@ -725,7 +724,7 @@ total_sounder_recs <- sounder_combinations %>%
   print()
 
 cat("\nSounder Code/Type/Gain Error Records\n")
-merged_data_final_chk <- merged_data %>%             # flag sounder_code and sounder_gain issues, errors
+merged_data_final_chk <- merged_data %>%             # flag but do not change sounder_code and sounder_gain issues, errors
   mutate(sounder_issues = "" ) %>%
   mutate(sounder_issues = ifelse(sounder_code == 1 & !str_detect(sounder_type, "FURUNO") |
                                  sounder_code == 2 & !str_detect(sounder_type, "SIMRAD") |
@@ -740,12 +739,16 @@ merged_data_sounder_chk <- merged_data_final_chk %>%
   distinct(across(-line_number), .keep_all = TRUE) %>%
   arrange(sounder_issues, sounder_code, sounder_type, survey_date)  %>%
   group_split(sounder_issues) %>%
-  walk(~{               # Print each group with a blank line between
+  walk(~{                          # Print each group with a blank line between
     cat("\n---", unique(.x$sounder_issues), "Check Survey Trip Reports (STRs)? ---\n")
     print(.x, n = Inf)
     cat("\n")})
 
 # Variable range checks ####
+# main numeric data issues include:
+#      total_prop(ortion) sometimes > 1 (and as shown elsewhere, sometimes < 1)
+#      targets < 0
+# these things are flagged only, not changed
 cat("\nRange Check Summary for Transect, Depth, Targets and Proportions values...")
 range_issues <- merged_data_final_chk %>%
   filter(
@@ -760,11 +763,7 @@ range_issues <- merged_data_final_chk %>%
     targets, prop_sockeye, prop_stickleback, total_prop)
 print(range_issues, n = 100) # negative targets 
 cat("\n")
-
-# main numeric data issues include:
-#      prop_sockeye and prop_stickleback sometimes > 1
-#      total_prop(ortion) sometimes > 1 (and as shown elsewhere, sometimes < 1)
-#      targets sometimes < 0
+write_csv(range_issues, paste("./output/target_data_targets_issues_", date_stamp, ".csv", sep=""))
 
 final_inventory <- merged_data_final_chk %>%
   select(ats_year, lake, lake_code, survey_date, sounder_code, sounder_type, source_file, 
@@ -774,16 +773,16 @@ final_inventory <- merged_data_final_chk %>%
 
 write_csv(final_inventory, paste("./output/target_clean_INVENTORY_", date_stamp, ".csv", sep=""))
 
-
 # Output cleaned up data ####
 final_data <- merged_data_final_chk %>% 
+  mutate(data_issues = str_c(data_issues, " ", sounder_issues)) %>%  # amalgamate all data issues into the data_issues field
   rename(depth_min_m = depth_min,
          depth_max_m = depth_max,
          area_ha = area,
          transect_length_m = transect_length) %>% 
   select(ats_year, data_issues, key_field_replicate, lake_code, lake, survey_date, survey_year, survey_month, depth_code, depth_min_m, 
          depth_max_m, transect, transect_length_m, area_ha, targets, prop_stickleback, prop_sockeye,
-         acoustic_survey_notes, survey_comments, sounder_code, sounder_type, sounder_gain, source_file, line_number, everything()) %>%
+         acoustic_survey_notes, survey_comments, sounder_code, sounder_type, sounder_gain, source_file, line_number, everything(), -sounder_issues) %>%
   arrange(ats_year, lake, survey_date, transect, depth_code)
 
 # Segregate adult and juvenile type surveys
