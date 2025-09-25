@@ -242,6 +242,9 @@ all_target_data <- tibble()
 # toc()
 
 write_csv(all_target_data, paste("./output/all_target_data_RAW_", date_stamp, ".csv", sep=""))
+all_target_data <- read_csv("./output/all_target_data_RAW_250916.csv")
+
+# Start processing data check... ####
 
 raw_data_inventory <- all_target_data %>%
   select(source_file, lake, lake_code, survey_date, sounder_type, sounder_gain = gain, acoustic_survey_notes) %>%
@@ -440,6 +443,14 @@ merged_data <- merged_data_strata %>%
         str_c(data_issues, "Targets < 0; "),
       TRUE ~ data_issues
     ),
+
+    # transect_length = 0 (lake bottom) but targets > 0
+    data_issues = case_when(
+      transect_length == 0 & targets > 0 ~
+        str_c(data_issues, "Transect Length = 0 but #Targets > 0; "),
+      TRUE ~ data_issues
+    ),
+    
     
     # Sounder issues 
     data_issues = case_when(
