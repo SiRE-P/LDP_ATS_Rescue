@@ -66,7 +66,7 @@ parse_target_dat_tracer <- function(filepath) {
     # Estimate line number by counting line breaks before each form feed
     line_breaks <- str_locate_all(raw_text, "\\r?\\n")[[1]][, "start"]
     estimated_lines <- map_int(form_feed_positions[, "start"], ~ sum(line_breaks < .x) + 1)
-# walk(estimated_lines, ~ message(sprintf("NOTE: form feed character encountered in line %d", .x))) # uncomment to log line_numbers with FF character
+#   walk(estimated_lines, ~ message(sprintf("NOTE: form feed character encountered in line %d", .x))) # uncomment to log line_numbers with FF character
      }
 
   line_numbers <- seq_along(raw_lines)       # actual line numbers in the input DAT file
@@ -382,9 +382,9 @@ target_data_keyfield_duplicates <- data %>%
 # View(target_data_keyfield_duplicates)
 # Export to CSV
 write.csv(target_data_keyfield_duplicates, paste("./output/target_data_keyfield_duplicates_", date_stamp, ".csv", sep=""), row.names = FALSE) 
-
 # DO NOT REMOVE key field duplicates from the target_data_exact_dups_removed dataset
-  # add in columns from lake_strata (area, length)
+
+# add in columns from lake_strata (area, length)
 lake_strata <- read.csv("./data/lake_strata_lengths.csv") #input the reference file 
 
 merged_data_strata <- data %>%
@@ -403,41 +403,46 @@ merged_data <- merged_data_strata %>%
   mutate(
     # create data_issues column if missing
     data_issues = "") %>%
-  
+ 
+  # do some error checks and flag any issues in data_issues field...   
   mutate(
-    total_prop = prop_stickleback + prop_sockeye,
     
-    # prop_sockeye / prop_stickleback NAs
+    # prop_sockeye & prop_stickleback not provided, though targets exist
     data_issues = case_when(
-      is.na(prop_sockeye) & is.na(prop_stickleback) ~
-        str_c(data_issues, "Missing proportions: prop_sockeye and prop_stickleback == NA; "),
+      is.na(prop_sockeye) & is.na(prop_stickleback) & targets > 0 ~
+        str_c(data_issues, "Missing species proportions (NA) but targets > 0; "),
       TRUE ~ data_issues
     ),
     
-    # proportion check 
-    data_issues = case_when(
-      total_prop > 1.01 ~ str_c(data_issues, "Species proportions do not add to 1; "),
-      total_prop < 0.99 ~ str_c(data_issues, "Species proportions do not add to 1; "),
-      TRUE ~ data_issues
-    ),
-  
     # prop_sockeye / prop_stickleback zeros flagged as NA
     data_issues = case_when(
-      (prop_sockeye == 0 & prop_stickleback == 0 & targets == 0) ~
-        str_c(data_issues, "Targets == 0, prop_sockeye and prop_stickleback set to NA; "),
+      # (prop_sockeye == 0 & prop_stickleback == 0 & targets == 0) ~
+      targets == 0 & (is.numeric(prop_sockeye) | is.numeric(prop_stickleback)) ~
+        str_c(data_issues, "Prop_sockeye and prop_stickleback set to NA because targets == 0; "),
       TRUE ~ data_issues
     ),
     # Set prop_sockeye and prop_stickleback to NA under the same condition
     prop_sockeye = case_when(
-      prop_sockeye == 0 & prop_stickleback == 0 & targets == 0 ~ NA_real_,
+      # prop_sockeye == 0 & prop_stickleback == 0 & targets == 0 ~ NA_real_,
+      targets == 0 & (is.numeric(prop_sockeye) | is.numeric(prop_stickleback)) ~ NA_real_,
       TRUE ~ prop_sockeye
     ),
     prop_stickleback = case_when(
-      is.na(prop_sockeye) & prop_stickleback == 0 & targets == 0 ~ NA_real_,
+      # is.na(prop_sockeye) & prop_stickleback == 0 & targets == 0 ~ NA_real_,
+      targets == 0 & (is.numeric(prop_sockeye) | is.numeric(prop_stickleback)) ~ NA_real_,
       TRUE ~ prop_stickleback
     ),
+
+    total_prop = prop_stickleback + prop_sockeye,
     
-    # targets < 0 flagged as NA
+    # proportion check 
+    data_issues = case_when(
+      is.numeric(total_prop) & (total_prop < 0.99 | total_prop > 1.01) ~ 
+        str_c(data_issues, "Species proportions do not add to 1; "),
+      TRUE ~ data_issues
+    ),
+    
+    # targets < 0 
     data_issues = case_when(
       (targets < 0) ~
         str_c(data_issues, "Targets < 0; "),
@@ -450,7 +455,6 @@ merged_data <- merged_data_strata %>%
         str_c(data_issues, "Transect Length = 0 but #Targets > 0; "),
       TRUE ~ data_issues
     ),
-    
     
     # Sounder issues 
     data_issues = case_when(
@@ -515,27 +519,27 @@ merged_data <- merged_data_strata %>%
       TRUE ~ data_issues
     ),
     
-    # Megin Lake fix
-    survey_date = case_when(
-      lake_code == 118 & survey_year == 1996 & survey_month == 3 ~ ymd("1996-03-20"),
-      TRUE ~ survey_date
-    ),
-    data_issues = case_when(
-      lake_code == 118 & survey_year == 1996 & survey_month == 3 ~
-        str_c(data_issues, "Missing or invalid survey_date, assigned from survey comment info; "),
-      TRUE ~ data_issues
-    ),
+    # # Megin Lake fix - commented out as now redundant
+    # survey_date = case_when(
+    #   lake_code == 118 & survey_year == 1996 & survey_month == 3 ~ ymd("1996-03-20"),
+    #   TRUE ~ survey_date
+    # ),
+    # data_issues = case_when(
+    #   lake_code == 118 & survey_year == 1996 & survey_month == 3 ~
+    #     str_c(data_issues, "Missing or invalid survey_date, assigned from survey comment info; "),
+    #   TRUE ~ data_issues
+    # ),
     
-  # Muriel Lake fix
-  survey_date = case_when(
-    lake_code == 44 & survey_year == 1996 & survey_month == 3 ~ ymd("1996-03-22"),
-    TRUE ~ survey_date
-  ),
-  data_issues = case_when(
-    lake_code == 44 & survey_year == 1996 & survey_month == 3 ~
-      str_c(data_issues, "Missing or invalid survey_date, assigned from survey comment info; "),
-    TRUE ~ data_issues
-  ),
+  # # Muriel Lake fix - commented out as now redundant
+  # survey_date = case_when(
+  #   lake_code == 44 & survey_year == 1996 & survey_month == 3 ~ ymd("1996-03-22"),
+  #   TRUE ~ survey_date
+  # ),
+  # data_issues = case_when(
+  #   lake_code == 44 & survey_year == 1996 & survey_month == 3 ~
+  #     str_c(data_issues, "Missing or invalid survey_date, assigned from survey comment info; "),
+  #   TRUE ~ data_issues
+  # ),
 
   # Tatsemenie fix
   ats_year = case_when(
