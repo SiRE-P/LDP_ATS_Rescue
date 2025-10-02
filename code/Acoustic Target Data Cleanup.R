@@ -242,7 +242,7 @@ all_target_data <- tibble()
 # toc()
 
 # Save raw import data and an inventory of surveys to csv...####
-write_csv(all_target_data,  paste("./output/all_target_data_RAW_", date_stamp, ".csv", sep=""))
+write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", date_stamp, ".csv", sep=""))
 # all_target_data <- read_csv(paste("./output/all_target_data_RAW_250930", ".csv", sep=""))   # use this if skipping the compilation process, above, with appropriate date of csv
 
 # output an inventory of unique surveys in the input data
@@ -250,7 +250,7 @@ raw_data_inventory <- all_target_data %>%
   select(source_file, lake, lake_code, survey_date, sounder_type, sounder_gain = gain, acoustic_survey_notes) %>%
   distinct() %>%
   arrange(source_file, lake, lake_code, survey_date)
-write_csv(raw_data_inventory, paste("./output/target_raw_data_INVENTORY_", date_stamp, ".csv", sep=""))
+write_csv(raw_data_inventory, paste("./output/Target_INPUT_data_INVENTORY_", date_stamp, ".csv", sep=""))
 
 
 # Duplicate data check... ####
@@ -262,7 +262,7 @@ target_data_exact_duplicates <- all_target_data %>%
   select(lake, lake_code, survey_date, source_file, line_number, transect, depth, everything()) # re-order
 # View(target_data_exact_duplicates)
 # Export to CSV
-write_csv(target_data_exact_duplicates, paste("./output/target_data_exact_duplicates_", date_stamp, ".csv", sep=""))
+write_csv(target_data_exact_duplicates, paste("./output/Target_CHK_exact_duplicate_records_", date_stamp, ".csv", sep=""))
 target_data_exact_dups_inventory <- target_data_exact_duplicates %>%
   select(lake, lake_code, survey_date, transect) %>% unique() %>%  print(n = Inf)
 
@@ -390,7 +390,7 @@ target_data_keyfield_duplicates <- data %>%
 # View the duplicate records with line numbers
 # View(target_data_keyfield_duplicates)
 # Export to CSV
-write.csv(target_data_keyfield_duplicates, paste("./output/target_data_keyfield_duplicates_", date_stamp, ".csv", sep=""), row.names = FALSE) 
+write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_duplicate_surveys_", date_stamp, ".csv", sep=""), row.names = FALSE) 
 # DO NOT REMOVE key field duplicates from the target_data_exact_dups_removed dataset
 
 # add in columns from lake_strata (area, length)
@@ -821,7 +821,7 @@ range_issues <- merged_data_final_chk %>%
     targets, prop_sockeye, prop_stickleback, total_prop)
 print(range_issues, n = 100) # negative targets 
 cat("\n")
-write_csv(range_issues, paste("./output/target_data_targets_issues_", date_stamp, ".csv", sep=""))
+write_csv(range_issues, paste("./output/Target_CHK_targets_issues_", date_stamp, ".csv", sep=""))
 
 final_inventory <- merged_data_final_chk %>%
   select(ats_year, lake, lake_code, survey_date, sounder_code, sounder_type, source_file, 
@@ -829,7 +829,7 @@ final_inventory <- merged_data_final_chk %>%
   distinct() %>%
   arrange(ats_year, lake, lake_code, survey_date)
 
-write_csv(final_inventory, paste("./output/target_clean_INVENTORY_", date_stamp, ".csv", sep=""))
+write_csv(final_inventory, paste("./output/Target_OUTPUT_data_inventory_", date_stamp, ".csv", sep=""))
 
 # Output cleaned up data ####
 final_data <- merged_data_final_chk %>% 
@@ -850,9 +850,9 @@ adult_target_data <- final_data %>%
 juvenile_target_data <- final_data %>%
   filter(target_survey_type == "JUVENILE")
 
-write_csv(final_data, paste("./output/target_clean_ALL_", date_stamp, ".csv", sep=""))
-write_csv(adult_target_data, paste("./output/target_clean_ADULT_", date_stamp, ".csv", sep=""))
-write_csv(juvenile_target_data, paste("./output/target_clean_JUVENILE_", date_stamp, ".csv", sep=""))
+write_csv(final_data, paste("./output/Target_OUTPUT_ATS_clean_", date_stamp, ".csv", sep=""))
+# write_csv(adult_target_data, paste("./output/Target_OUTPUT_ATS_Adult_", date_stamp, ".csv", sep=""))
+# write_csv(juvenile_target_data, paste("./output/Target_OUTPUT_ATS_Juvenile", date_stamp, ".csv", sep=""))
 
 ## --------------------------------------------------------------------------
 ## Compare RAW and FINAL Acoustic Survey Dates.R
@@ -919,5 +919,5 @@ combined_raw_and_final <- combined2 %>%
   select(source, ats_year, lake_code, survey_date, everything()) %>%
   arrange(source, ats_year, lake_code, survey_date)
 
-write_csv(combined_raw_and_final, paste("./output/target_merge_RAW_FINAL_", date_stamp, ".csv", sep=""))
+write_csv(combined_raw_and_final, paste("./output/Target_CHK_RAW_vs_CLEAN_surveys_", date_stamp, ".csv", sep=""))
 
