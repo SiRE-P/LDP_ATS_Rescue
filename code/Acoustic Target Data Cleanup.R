@@ -241,32 +241,41 @@ all_target_data <- tibble()
 #   filter(!if_all(c(transect, depth, targets), is.na))           # this drops all records missing in three key index variables, which seems to happen due to blank lines between input data blocks (HS 250908)
 # toc()
 
-write_csv(all_target_data, paste("./output/all_target_data_RAW_", date_stamp, ".csv", sep=""))
-all_target_data <- read_csv("./output/all_target_data_RAW_250916.csv")
+# Save raw import data and an inventory of surveys to csv...####
+write_csv(all_target_data,  paste("./output/all_target_data_RAW_", date_stamp, ".csv", sep=""))
+# all_target_data <- read_csv(paste("./output/all_target_data_RAW_250930", ".csv", sep=""))   # use this if skipping the compilation process, above, with appropriate date of csv
 
-# Start processing data check... ####
-
+# output an inventory of unique surveys in the input data
 raw_data_inventory <- all_target_data %>%
   select(source_file, lake, lake_code, survey_date, sounder_type, sounder_gain = gain, acoustic_survey_notes) %>%
   distinct() %>%
   arrange(source_file, lake, lake_code, survey_date)
-
 write_csv(raw_data_inventory, paste("./output/target_raw_data_INVENTORY_", date_stamp, ".csv", sep=""))
 
 
-# Error-Check target data ####
+# Duplicate data check... ####
 
-# Identify exact duplicate records and save to csv #
+# Identify exact duplicate records ####
 target_data_exact_duplicates <- all_target_data %>%
-  filter(duplicated(select(., -line_number)))      #  excluding line_number
+  filter(duplicated(select(., -line_number, -source_file))) %>% #  excluding line_number and source_file
+  arrange(lake, lake_code, survey_date, source_file, line_number, transect) %>%
+  select(lake, lake_code, survey_date, source_file, line_number, transect, depth, everything()) # re-order
+# View(target_data_exact_duplicates)
+# Export to CSV
 write_csv(target_data_exact_duplicates, paste("./output/target_data_exact_duplicates_", date_stamp, ".csv", sep=""))
+target_data_exact_dups_inventory <- target_data_exact_duplicates %>%
+  select(lake, lake_code, survey_date, transect) %>% unique() %>%  print(n = Inf)
 
-data <- all_target_data %>% 
+# Remove exact duplicates from input data
+target_data_exact_dups_removed <- all_target_data %>%
+# distinct(across(-line_number, -source_file), .keep_all = TRUE) %>%
+  distinct(across(!all_of(c("line_number", "source_file"))), .keep_all = TRUE) %>%
+  arrange(lake, lake_code, survey_date, transect, depth)
+
+# Error-Check target data ####
+data <- target_data_exact_dups_removed %>% 
   
   # filter(lake_code == 1, survey_date == as.Date("1977-09-20")) %>%
-  
-  # Remove exact duplicates from input data
-  distinct(across(-line_number), .keep_all = TRUE) %>%
   
   ### separating depth into min and max
   dplyr::mutate(depth = str_trim(depth)) %>%
@@ -279,15 +288,15 @@ data <- all_target_data %>%
            extra = "merge",
            fill = "right") %>% 
   
-  # Assigning target_survey_type as ADULT or JUVENILE (default) -- based on text in survey_comments
+  # Assigning target_survey_type as ADULT or JUVENILE (default) -- based on text="ADULT SURVEY" in survey_comments (ignore other references to adults present, not present, etc)
   mutate(
     target_survey_code = case_when(
       is.na(survey_comments) | str_trim(survey_comments) == "" ~ 1,
-      str_detect(survey_comments, regex("adult", ignore_case = TRUE)) ~ 2,
+      str_detect(survey_comments, regex("adult survey", ignore_case = TRUE)) ~ 2,
       TRUE ~ 1),
     target_survey_type = case_when(
       is.na(survey_comments) | str_trim(survey_comments) == "" ~ "JUVENILE",
-      str_detect(survey_comments, regex("adult", ignore_case = TRUE)) ~ "ADULT",
+      str_detect(survey_comments, regex("adult survey", ignore_case = TRUE)) ~ "ADULT",
       TRUE ~ "JUVENILE")) %>%
 
   # convert survey_date from character into a data
@@ -399,7 +408,7 @@ merged_data_strata <- data %>%
   rename(transect_length = Length) %>% 
   relocate(lake.y, .after = lake.x)
 
-merged_data <- merged_data_strata %>%
+merged_data_with_issues <- merged_data_strata %>%
   mutate(
     # create data_issues column if missing
     data_issues = "") %>%
@@ -456,12 +465,12 @@ merged_data <- merged_data_strata %>%
       TRUE ~ data_issues
     ),
     
-    # Sounder issues 
-    data_issues = case_when(
-      !(sounder_code %in% c(1, 2)) | is.na(sounder_type) | is.na(sounder_gain) ~ 
-        str_c(data_issues, "Sounder data missing; "),
-      TRUE ~ data_issues
-    ),
+    # Sounder issues - these are better flagged below
+    # data_issues = case_when(
+    #   !(sounder_code %in% c(1, 2)) | is.na(sounder_type) | is.na(sounder_gain) ~ 
+    #     str_c(data_issues, "Sounder data missing; "),
+    #   TRUE ~ data_issues
+    # ),
     
     # SKAHA Lake date fix for invalid date (00/09/31)
     fix_skaha_date = lake_code == 241 & source_file == "TARGET00.DAT" & is.na(survey_date),
@@ -574,7 +583,7 @@ merged_data <- merged_data_strata %>%
 
 # finding and fixing some lake name issues 
 cat("Fixing lake name issues...\n") 
-merged_data %>% 
+merged_data_with_issues %>% 
   select(lake.x, lake.y) %>% 
   filter(lake.x != lake.y) %>% 
   unique() %>% 
@@ -599,7 +608,7 @@ lake_lookup <- tibble::tibble(
                "Kennedy Lk (Clayoquot Arm)", "Kennedy Lk (Main Arm)"))
 
 # Join and replace
-merged_data <- merged_data %>%
+merged_data <- merged_data_with_issues %>%
   left_join(lake_lookup, by = c("lake.x" = "lake_old")) %>%
   mutate(lake.x = coalesce(lake_new, lake.x)) %>%
   select(-lake_new)
@@ -643,9 +652,34 @@ merged_data <- merged_data %>%
   mutate(
     key_field_replicate = if_else(                                              # rename this field to data_issues2_key_field_replicate?
       n() > 1,
-      "Replicate exists for this lake, date, transect and depth",
+      paste("Note: ", n(), " replicate surveys exist (not deleted).", sep=""),
       NA_character_)) %>%
   ungroup()
+
+cat("\nReplicate data exists for the following combinations of lake and date:\n")
+key_lake_date_transect_depth_replicates <- merged_data %>%
+# filter(key_field_replicate == "Replicate exists for this lake, date, transect and depth") %>%
+  filter(!is.na(key_field_replicate)) %>%
+  select(ats_year, lake_code, lake, survey_date, key_field_replicate, source_file) %>%
+  unique() %>%
+  print(n=Inf)
+
+# # Identify further duplicates on key fields, substituting week for survey_date to check for slight mis-match on date #### 
+# merged_data <- merged_data %>%
+#   mutate(survey_week = week(survey_date)) %>%
+#   group_by(lake_code, survey_year, survey_week, transect, depth_code) %>%
+#   mutate(
+#     key_field_replicate = if_else(                                              # rename this field to data_issues2_key_field_replicate?
+#       n() > 1,
+#       "Replicate exists for this lake, year, week, transect and depth",
+#       NA_character_)) %>%
+#   ungroup()
+
+# cat("\nKey field replicates on lake, date, transect and depth\n")
+# key_lake_week_transect_depth_replicates <- merged_data %>%
+#   filter(key_field_replicate == "Replicate exists for this lake, week, transect and depth") %>%
+#   print(n=Inf)
+
 
 #### NEED TO DEAL WITH WEATHER STILL (SE) --> NO, no need to extract weather info as long as comment line is captured in acoustic_survey_notes (which it is)
 #
@@ -743,7 +777,7 @@ merged_data_final_chk <- merged_data %>%             # flag but do not change so
   mutate(sounder_issues = ifelse(sounder_code == 1 & !str_detect(sounder_type, "FURUNO") |
                                  sounder_code == 2 & !str_detect(sounder_type, "SIMRAD") |
                                 !sounder_code %in% c(1, 2) | is.na(sounder_code), 
-                                 str_c("Sounder Code or Type error;"), sounder_issues)) %>%
+                                 str_c("Sounder Code/Type discrepancy;"), sounder_issues)) %>%
   mutate(sounder_issues = ifelse(sounder_gain > 50 | is.na(sounder_gain), 
                                  str_c(sounder_issues, "Sounder Gain missing or error;"), sounder_issues))
 
