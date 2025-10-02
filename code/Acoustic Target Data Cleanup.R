@@ -35,6 +35,7 @@ library(tictoc)       # get elapsed time
 library(tools)
 
 date_stamp <- substr(format(Sys.time(), "%Y%m%d-%H%M"), 3, 8) # 8 for date only  # Get the current date to timestamp output files
+ats_year_span <- "(1977_2007)_"
 
 # install.packages("tictoc")
 
@@ -242,7 +243,7 @@ all_target_data <- tibble()
 # toc()
 
 # Save raw import data and an inventory of surveys to csv...####
-write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", date_stamp, ".csv", sep=""))
+write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))
 # all_target_data <- read_csv(paste("./output/all_target_data_RAW_250930", ".csv", sep=""))   # use this if skipping the compilation process, above, with appropriate date of csv
 
 # output an inventory of unique surveys in the input data
@@ -250,7 +251,7 @@ raw_data_inventory <- all_target_data %>%
   select(source_file, lake, lake_code, survey_date, sounder_type, sounder_gain = gain, acoustic_survey_notes) %>%
   distinct() %>%
   arrange(source_file, lake, lake_code, survey_date)
-write_csv(raw_data_inventory, paste("./output/Target_INPUT_data_INVENTORY_", date_stamp, ".csv", sep=""))
+write_csv(raw_data_inventory, paste("./output/Target_INPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
 
 
 # Duplicate data check... ####
@@ -829,7 +830,7 @@ final_inventory <- merged_data_final_chk %>%
   distinct() %>%
   arrange(ats_year, lake, lake_code, survey_date)
 
-write_csv(final_inventory, paste("./output/Target_OUTPUT_data_inventory_", date_stamp, ".csv", sep=""))
+write_csv(final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
 
 # Output cleaned up data ####
 final_data <- merged_data_final_chk %>% 
@@ -838,9 +839,9 @@ final_data <- merged_data_final_chk %>%
          depth_max_m = depth_max,
          area_ha = area,
          transect_length_m = transect_length) %>% 
-  select(ats_year, data_issues, key_field_replicate, lake_code, lake, survey_date, survey_year, survey_month, depth_code, depth_min_m, 
-         depth_max_m, transect, transect_length_m, area_ha, targets, prop_stickleback, prop_sockeye,
-         acoustic_survey_notes, survey_comments, sounder_code, sounder_type, sounder_gain, source_file, line_number, everything(), -sounder_issues) %>%
+  select(ats_year, data_issues, key_field_replicate, lake_code, lake, survey_date, survey_year, survey_month, transect, depth_code, depth_min_m, 
+         depth_max_m, targets, transect_length_m, area_ha, sounder_code, sounder_type, sounder_gain, prop_sockeye, prop_stickleback, prop_total = total_prop,
+         acoustic_survey_notes, acoustic_survey_comments = survey_comments, acoustic_source_file = source_file, line_number, everything(), -sounder_issues, -sourcefile_year, -source_year_err) %>%
   arrange(ats_year, lake, survey_date, transect, depth_code)
 
 # Segregate adult and juvenile type surveys
@@ -850,7 +851,7 @@ adult_target_data <- final_data %>%
 juvenile_target_data <- final_data %>%
   filter(target_survey_type == "JUVENILE")
 
-write_csv(final_data, paste("./output/Target_OUTPUT_ATS_clean_", date_stamp, ".csv", sep=""))
+write_csv(final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, date_stamp, ".csv", sep=""))
 # write_csv(adult_target_data, paste("./output/Target_OUTPUT_ATS_Adult_", date_stamp, ".csv", sep=""))
 # write_csv(juvenile_target_data, paste("./output/Target_OUTPUT_ATS_Juvenile", date_stamp, ".csv", sep=""))
 
