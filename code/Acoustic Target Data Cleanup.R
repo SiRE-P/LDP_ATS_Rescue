@@ -412,7 +412,17 @@ merged_data_with_issues <- merged_data_strata %>%
   mutate(
     # create data_issues column if missing
     data_issues = "") %>%
- 
+
+  # compare ats_year with source_file year derived from TARGETyy.DAT filename
+  mutate(
+    sourcefile_year  = as.numeric(substr(source_file, 7,8)),                    # get 2-digit year from TARGETyy.DAT and... 
+    sourcefile_year  = ifelse(sourcefile_year > 70, sourcefile_year + 1900, sourcefile_year + 2000),    # convert to year
+    source_year_err  = ats_year != sourcefile_year,                             # "Source file / survey_date mis-match"), # survey in wrong TARGETyy.DAT file
+    data_issues = case_when(
+      ats_year != sourcefile_year ~
+        str_c(data_issues, "Source_file/survey_date mis-match; "),
+      TRUE ~ data_issues)) %>%
+
   # do some error checks and flag any issues in data_issues field...   
   mutate(
     
@@ -868,10 +878,10 @@ final_target_data_reduced <- merged_data_final_chk %>%  # <- this is the CLEANED
 
 # Step 2: Add source indicators
 raw_target_data_reduced <- raw_target_data_reduced %>%
-  mutate(source = "RAW_target_data")
+  mutate(source = "A_RAW_target_data")
 
 final_target_data_reduced <- final_target_data_reduced %>%
-  mutate(source = "FINAL_target_data")
+  mutate(source = "B_FINAL_target_data")
 
 # Step 3: Full join to combine both datasets
 combined1 <- full_join(raw_target_data_reduced, final_target_data_reduced,
@@ -887,9 +897,9 @@ combined1 <- full_join(raw_target_data_reduced, final_target_data_reduced,
 # Step 4: Determine final source label
 combined2 <- combined1 %>%
   mutate(source = case_when(
-    !is.na(source_all) & !is.na(source_merged) ~ "both",
-    !is.na(source_all) ~ "RAW_target_data_only",
-    !is.na(source_merged) ~ "FINAL_target_data_only"
+    !is.na(source_all) & !is.na(source_merged) ~ "C_In_Both_RAW_and_FINAL_data",
+    !is.na(source_all) ~ "A_RAW_target_data_only",
+    !is.na(source_merged) ~ "B_FINAL_target_data_only"
   )) %>%
   # Optional: clean up intermediate source columns
   select(lake_code, survey_date, lake_all, lake_merged,
