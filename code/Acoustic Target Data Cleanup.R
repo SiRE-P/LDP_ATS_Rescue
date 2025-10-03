@@ -37,6 +37,8 @@ library(tools)
 date_stamp <- substr(format(Sys.time(), "%Y%m%d-%H%M"), 3, 8) # 8 for date only  # Get the current date to timestamp output files
 ats_year_span <- "(1977_2007)_"
 
+if (!dir.exists("./output")) {dir.create("./output")}         # ensure output directory exists
+
 # install.packages("tictoc")
 
 # Functions ####
@@ -264,8 +266,12 @@ target_data_exact_duplicates <- all_target_data %>%
 # View(target_data_exact_duplicates)
 # Export to CSV
 write_csv(target_data_exact_duplicates, paste("./output/Target_CHK_exact_duplicate_records_", date_stamp, ".csv", sep=""))
+
+cat("List of duplicate surveys (same lake, same survey date)...\n") 
 target_data_exact_dups_inventory <- target_data_exact_duplicates %>%
-  select(lake, lake_code, survey_date, transect) %>% unique() %>%  print(n = Inf)
+  select(lake, lake_code, survey_date, transect) %>% unique() %>%  
+  print(n = Inf)
+cat("\n")
 
 # Remove exact duplicates from input data
 target_data_exact_dups_removed <- all_target_data %>%
@@ -824,16 +830,16 @@ print(range_issues, n = 100) # negative targets
 cat("\n")
 write_csv(range_issues, paste("./output/Target_CHK_targets_issues_", date_stamp, ".csv", sep=""))
 
-final_inventory <- merged_data_final_chk %>%
+acoustic_final_inventory <- merged_data_final_chk %>%
   select(ats_year, lake, lake_code, survey_date, sounder_code, sounder_type, source_file, 
          acoustic_survey_notes, survey_comments) %>%
   distinct() %>%
   arrange(ats_year, lake, lake_code, survey_date)
 
-write_csv(final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(acoustic_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
 
 # Output cleaned up data ####
-final_data <- merged_data_final_chk %>% 
+acoustic_final_data <- merged_data_final_chk %>% 
   mutate(data_issues = str_c(data_issues, " ", sounder_issues)) %>%  # amalgamate all data issues into the data_issues field
   rename(depth_min_m = depth_min,
          depth_max_m = depth_max,
@@ -845,15 +851,76 @@ final_data <- merged_data_final_chk %>%
   arrange(ats_year, lake, survey_date, transect, depth_code)
 
 # Segregate adult and juvenile type surveys
-adult_target_data <- final_data %>%
+adult_target_data <- acoustic_final_data %>%
   filter(target_survey_type == "ADULT")
 
-juvenile_target_data <- final_data %>%
+juvenile_target_data <- acoustic_final_data %>%
   filter(target_survey_type == "JUVENILE")
 
-write_csv(final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(acoustic_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, date_stamp, ".csv", sep=""))
 # write_csv(adult_target_data, paste("./output/Target_OUTPUT_ATS_Adult_", date_stamp, ".csv", sep=""))
 # write_csv(juvenile_target_data, paste("./output/Target_OUTPUT_ATS_Juvenile", date_stamp, ".csv", sep=""))
+
+# Visualize the frequency of acoustic surveys by Lake and ATS Year ####
+# set the lake and lake_codes to be the same for things like Heydon Lk and Heydon_2005...
+acoustic_final_inventory_tidy <- acoustic_final_inventory %>%
+  mutate(lake = str_replace(lake, "_2005", " Lk"),          # consolidate lake names
+         lake = str_replace(lake, "_2006", " Lk"),          # where they are suffixed with Year
+         lake = str_replace(lake, "_2007", " Lk"),          
+         lake = gsub("\\s*\\(.*\\)", "", lake),             # and remove (A), (B)...(D), (N), (S) 
+         lake = gsub("\\s+(ne|nw|se|sw)$", "", lake))       # and remove ne, nw, se, sw 
+
+# Get unique lakes sorted alphabetically
+lake_groups <- acoustic_final_inventory_tidy %>%  
+  distinct(lake) %>%
+  arrange(lake) %>%
+  mutate(lake_group = LETTERS[ceiling(row_number() / 9)])
+
+# Join lake group back to full dataset
+acoustic_data_visualize <- acoustic_final_inventory_tidy %>%
+  mutate(decade = paste0((ats_year %/% 10) * 10, "s")) %>%
+  left_join(lake_groups, by = "lake") %>%
+  select(lake_group, decade, ats_year, lake, lake_code, survey_date) %>%
+  arrange(lake_group, lake, decade, ats_year)
+
+# Prepare data for visualization: surveys per lake and year
+record_counts <- acoustic_data_visualize %>%
+  group_by(lake_group, decade, lake, ats_year) %>%
+  summarise(record_count = n(), .groups = "drop")
+
+# Generate one plot per lake_group
+unique_groups <- sort(unique(record_counts$lake_group))
+
+# Open a PDF document to save plots
+plotfile <- paste0("./figures/Acoustic_Survey_Freq_by_Lake_Year_", ats_year_span, date_stamp, ".pdf", sep="")
+if (!dir.exists("./figures")) {dir.create("./figures")}
+pdf(plotfile, width = 11, height = 8.5) 
+
+for (group in unique_groups) {
+  group_data <- record_counts %>% filter(lake_group == group)
+  
+  # Calculate max record_count for this group
+  max_count <- max(group_data$record_count, na.rm = TRUE)
+  
+  p <- group_data %>%
+    ggplot(aes(x = ats_year, y = record_count)) +
+    geom_bar(stat = "identity", fill = "steelblue") +
+    facet_wrap(~ lake, scales = "fixed", ncol = 3) +
+    scale_y_continuous(limits = c(0, max_count)) +
+    scale_x_continuous(breaks = seq(1977, 2007, by = 5), limits = c(1975, 2010)) +
+    labs(title = "Frequency of Acoustic Surveys by Lake and ATS-year",
+         subtitle = paste0("Date: ", format(as.Date(date_stamp, format = "%y%m%d"), "%d-%b-%Y"), sep=""), # date-stamp the plots
+         x = "", y = "") +
+    theme_minimal() +
+    theme(plot.title    = element_text(color = "steelblue", size = 14, face = "bold", hjust = 0),
+          plot.subtitle = element_text(color = "darkgray",  size = 8,  face = "bold", hjust = 0),
+          strip.text    = element_text(size = 12),
+          axis.text.x   = element_text(angle = 45, hjust = 1))
+  
+  print(p)}  # Or use ggsave() to save each plot
+
+# Close the PDF device
+dev.off()
 
 ## --------------------------------------------------------------------------
 ## Compare RAW and FINAL Acoustic Survey Dates.R
@@ -921,4 +988,3 @@ combined_raw_and_final <- combined2 %>%
   arrange(source, ats_year, lake_code, survey_date)
 
 write_csv(combined_raw_and_final, paste("./output/Target_CHK_RAW_vs_CLEAN_surveys_", date_stamp, ".csv", sep=""))
-
