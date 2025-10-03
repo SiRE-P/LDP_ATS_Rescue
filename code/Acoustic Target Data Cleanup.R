@@ -1,20 +1,24 @@
 ## --------------------------------------------------------------------------
 ## Acoustic Target Data Cleanup.R
 ##
-## Purpose: Import acoustic target data files (TARGETyy.DAT files, 1977-2007)
-##          for data cleanup and compilation into integrated CSV file(s).
+## Purpose: Import acoustic target data files (TARGETyy.DAT files, ATS-years 1977-2007)
+##          for data cleanup and compilation into integrated CSV file(s). 
+##          (An ATS-year extends from April 1, yyyy to March 31st, yyyy+1).
 ##
-##          Raw import data (pre-processing) are output to target_data_RAW_*.csv
+##          Raw import data (pre-processing) are output to Target_INPUT_data_RAW_(1977_2007)_*.csv
+##          and inventoried in Target_INPUT_data_INVENTORY_(1977_2007)_*.csv
 ##          (where * = date of program execution).
 ##
-##          All processed/cleaned data are output to target_clean_ALL_*.csv. 
-##          These data are also segregated into JUVENILE and ADULT acoustic count
-##          data as target_clean_JUVENILE_*.csv and target_clean_ADULT_*.csv.
+##          All processed/cleaned data are output to Target_OUTPUT_data_FINAL_(1977_2007)_*.csv_*.csv
+##          and inventoried in Target_OUTPUT_data_INVENTORY_(1977_2007)_*.csv
+##          (where * = date of program execution). These data are classified as JUVENILE or ADULT acoustic count
+##          data based on survey comment information, and may be distinguished by fields survey_type and survey_type_code.
 ##       
-##          Other outputs include: 
-##          - a list of exact duplicates that are removed (target_data_exact_duplicates_*.csv);
+##          Other outputs (containing CHK in the filename) include: 
+##          - a list of EXACT duplicates that are removed (Target_CHK_exact_duplicate_records_*.csv);
 ##          - a list of key field duplicates (same meta-data such as lake, date, but different 
-##            target counts) that are retained as likely replicate counts (target_data_exact_duplicates_*.csv).
+##            target counts) that are retained as likely replicate counts (Target_CHK_keyfield_duplicate_surveys_*.csv);
+##          - a list of records with data issues specific to the targets field (Target_CHK_targets_issues_*.csv).
 ##          
 ## Authors: Yuliya Shtymburski (U. Regina); Sandra Emry (UBC); H Stiff (DFO Nanaimo)
 ## Date:    September 2025
