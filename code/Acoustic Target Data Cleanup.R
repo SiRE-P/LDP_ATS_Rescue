@@ -21,7 +21,7 @@
 ##          - a list of records with data issues specific to the targets field (Target_CHK_targets_issues_*.csv).
 ##          
 ## Authors: Yuliya Shtymburski (U. Regina); Sandra Emry (UBC); H Stiff (DFO Nanaimo)
-## Date:    September 2025
+## Date:    October 2025
 ## Notes:   
 ##          
 ## --------------------------------------------------------------------------
@@ -41,7 +41,8 @@ library(tools)
 date_stamp <- substr(format(Sys.time(), "%Y%m%d-%H%M"), 3, 8) # 8 for date only  # Get the current date to timestamp output files
 ats_year_span <- "(1977_2007)_"
 
-if (!dir.exists("./output")) {dir.create("./output")}         # ensure output directory exists
+if (!dir.exists("./output")) {dir.create("./output")}         # ensure CSV output directory exists
+if (!dir.exists("./figures")) {dir.create("./figures")}       # ensure plot output directory exists
 
 # install.packages("tictoc")
 
@@ -897,7 +898,6 @@ unique_groups <- sort(unique(record_counts$lake_group))
 
 # Open a PDF document to save plots
 plotfile <- paste0("./figures/Acoustic_Survey_Freq_by_Lake_Year_", ats_year_span, date_stamp, ".pdf", sep="")
-if (!dir.exists("./figures")) {dir.create("./figures")}
 pdf(plotfile, width = 11, height = 8.5) 
 
 for (group in unique_groups) {
