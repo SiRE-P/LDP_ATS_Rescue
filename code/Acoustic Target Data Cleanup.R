@@ -316,8 +316,7 @@ data <- target_data_exact_dups_removed %>%
          survey_year = year(survey_date),
          survey_month = month(survey_date),
          survey_comments = ifelse(is.na(survey_comments) | trimws(survey_comments) == "", 
-                                  "NO SURVEY COMMENTS", 
-                                  survey_comments)) %>% 
+                                  "NA", survey_comments)) %>% 
   
   ### renaming sockeye/stickleback columns
   rename(prop_sockeye = pct_sockeye) %>% 
@@ -427,7 +426,7 @@ merged_data_with_issues <- merged_data_strata %>%
 
   # compare ats_year with source_file year derived from TARGETyy.DAT filename
   mutate(
-    sourcefile_year  = as.numeric(substr(source_file, 7,8)),                    # get 2-digit year from TARGETyy.DAT and... 
+    sourcefile_year  = as.numeric(substr(source_file, 7, 8)),                   # get 2-digit year from TARGETyy.DAT and... 
     sourcefile_year  = ifelse(sourcefile_year > 70, sourcefile_year + 1900, sourcefile_year + 2000),    # convert to year
     source_year_err  = ats_year != sourcefile_year,                             # "Source file / survey_date mis-match"), # survey in wrong TARGETyy.DAT file
     data_issues = case_when(
@@ -494,6 +493,86 @@ merged_data_with_issues <- merged_data_strata %>%
     #   TRUE ~ data_issues
     # ),
     
+    # GCL data fix for incorrect proportions at certain depths (survey_date 2006/02/16)
+    fix_gcl_props = lake_code == 1 & source_file == "TARGET05.DAT" & survey_date == ymd("2006-02-16"),
+    
+    prop_sockeye = case_when(
+      fix_gcl_props & (depth_code == 3 | depth_code == 4) ~ 0.92,
+      TRUE ~ prop_sockeye),
+    prop_stickleback = case_when(
+      fix_gcl_props & (depth_code == 3 | depth_code == 4) ~ 0.08,
+      TRUE ~ prop_stickleback),
+    
+    data_issues = case_when(
+      fix_gcl_props & (depth_code == 3 | depth_code == 4) ~ str_c(data_issues, "Revised proportions (was 0.73 sox, 0.27 stix) based on TARGET05ADJ.DAT file; "),
+      TRUE ~ data_issues
+    ),
+
+    prop_sockeye = case_when(
+      fix_gcl_props & (depth_code == 5) ~ 0.74,
+      TRUE ~ prop_sockeye),
+    prop_stickleback = case_when(
+      fix_gcl_props & (depth_code == 5) ~ 0.26,
+      TRUE ~ prop_stickleback),
+    
+    data_issues = case_when(
+      fix_gcl_props & (depth_code == 5)~ str_c(data_issues, "Revised proportions (was 0.40 sox, 0.60 stix) based on TARGET05ADJ.DAT file; "),
+      TRUE ~ data_issues
+    ),
+  
+    
+    # GCL data fix for incorrect proportions at certain depths (survey_date 2003/01/15)
+    fix_gcl_props = lake_code == 1 & source_file == "TARGET02.DAT" & survey_date == ymd("2003-01-15"),
+    
+    prop_sockeye = case_when(
+      fix_gcl_props & (depth_code == 1 | depth_code == 3) ~ 0.76,               # no changes for depth_code == 2
+      TRUE ~ prop_sockeye),
+    prop_stickleback = case_when(
+      fix_gcl_props & (depth_code == 1 | depth_code == 3) ~ 0.24,
+      TRUE ~ prop_stickleback),
+    
+    data_issues = case_when(
+      fix_gcl_props & (depth_code == 1 | depth_code == 3) ~ str_c(data_issues, "Revised proportions (was 0.23 & 0.92 sox, 0.77 & 0.08 stix) based on TARGET02ADJ.DAT file; "),
+      TRUE ~ data_issues
+    ),
+    
+    prop_sockeye = case_when(
+      fix_gcl_props & (depth_code == 4) ~ 0.86,
+      TRUE ~ prop_sockeye),
+    prop_stickleback = case_when(
+      fix_gcl_props & (depth_code == 4) ~ 0.14,
+      TRUE ~ prop_stickleback),
+    
+    data_issues = case_when(
+      fix_gcl_props & (depth_code == 4)~ str_c(data_issues, "Revised proportions (was 0.23 sox, 0.77 stix) based on TARGET02ADJ.DAT file; "),
+      TRUE ~ data_issues
+    ),
+
+    prop_sockeye = case_when(
+      fix_gcl_props & (depth_code == 5) ~ 0.94,
+      TRUE ~ prop_sockeye),
+    prop_stickleback = case_when(
+      fix_gcl_props & (depth_code == 5) ~ 0.06,
+      TRUE ~ prop_stickleback),
+    
+    data_issues = case_when(
+      fix_gcl_props & (depth_code == 5)~ str_c(data_issues, "Revised proportions (was 0.83 sox, 0.17 stix) based on TARGET02ADJ.DAT file; "),
+      TRUE ~ data_issues
+    ),
+    
+    prop_sockeye = case_when(
+      fix_gcl_props & (depth_code == 6 | depth_code == 7) ~ 1.00,
+      TRUE ~ prop_sockeye),
+    prop_stickleback = case_when(
+      fix_gcl_props & (depth_code == 6 | depth_code == 7) ~ 0.00,
+      TRUE ~ prop_stickleback),
+    
+    data_issues = case_when(
+      fix_gcl_props & (depth_code == 6 | depth_code == 7)~ str_c(data_issues, "Revised proportions (was 0.99 sox, 0.01 stix) based on TARGET02ADJ.DAT file; "),
+      TRUE ~ data_issues
+    ),
+    
+
     # SKAHA Lake date fix for invalid date (00/09/31)
     fix_skaha_date = lake_code == 241 & source_file == "TARGET00.DAT" & is.na(survey_date),
     survey_date = case_when(
@@ -601,7 +680,7 @@ merged_data_with_issues <- merged_data_strata %>%
       lake_code == 229 & survey_date == ymd("2007-02-14") ~
         str_c(data_issues, "Duplicate data dated 070215 deleted; "),
       TRUE ~ data_issues)) %>% 
-  select(data_issues, source_file, line_number, everything(), -fix_skaha_date, -fix_kca_date, -fix_muriel_date, -fix_megin_date)     # -total_prop, 
+  select(data_issues, source_file, line_number, everything(), -fix_skaha_date, -fix_kca_date, -fix_muriel_date, -fix_megin_date, -fix_gcl_props)     # -total_prop, 
 
 # finding and fixing some lake name issues 
 cat("Fixing lake name issues...\n") 
@@ -926,17 +1005,45 @@ for (group in unique_groups) {
 # Close the PDF device
 dev.off()
 
+# Identify sequential survey_date pairs for the same lake to check for data redundancy ####
+lake_survey_sequential_pairs <- acoustic_final_inventory %>%
+  group_by(lake) %>%
+  arrange(survey_date, .by_group = TRUE) %>%
+  mutate(prev_date = lag(survey_date),
+         next_date = lead(survey_date),
+         is_sequential = (as.numeric(survey_date - prev_date) == 1 |
+                            as.numeric(next_date - survey_date) == 1)) %>%
+  filter(is_sequential) %>%
+  arrange(lake, survey_date) %>%
+  mutate(pair_start = (as.numeric(survey_date - prev_date) != 1),
+        sequential_survey_pair_id = cumsum(pair_start)) %>%
+  mutate(sequential_survey_pair_id = ifelse(is.na(sequential_survey_pair_id), 99, sequential_survey_pair_id)) %>%
+  select(-prev_date, -next_date, -is_sequential, -pair_start) %>%
+  ungroup()
+
+# Select key columns from lake_survey_sequential_pairs
+lake_survey_keys <- lake_survey_sequential_pairs %>%
+  select(ats_year, lake_code, survey_date, sequential_survey_pair_id)
+
+# Perform a semi-join to keep only matching records from acoustic_final_data
+acoustic_sequential_survey_data <- acoustic_final_data %>%
+  semi_join(lake_survey_keys, by = c("ats_year", "lake_code", "survey_date")) %>%
+  select(ats_year, lake, lake_code, survey_date, transect, depth_code, targets, acoustic_source_file, line_number, acoustic_survey_notes) %>% 
+  arrange(lake, survey_date)
+
+# Optionally, add the sequential_pair_id to the final data
+acoustic_sequential_survey_data <- acoustic_sequential_survey_data %>%
+  left_join(lake_survey_keys, by = c("ats_year", "lake_code", "survey_date")) %>%
+  arrange(lake, survey_date)
+
+write_csv(acoustic_sequential_survey_data, paste("./output/Target_CHK_sequential_surveys_", date_stamp, ".csv", sep=""))
+
 ## --------------------------------------------------------------------------
 ## Compare RAW and FINAL Acoustic Survey Dates.R
 ##
 ## Purpose: Match-merge RAW and FINAL acoustic survey metadata 
 ##          (i.e., by lake and survey_date) from LDP program
-##          Acoustic Target Data Cleanup.R to ensure nothing lost in process.
-##
-## Author:  H Stiff
-## Date:    Sep 2025
-## Notes:   
-##          
+##          Acoustic Target Data Cleanup.R to ensure nothing lost in process
 ## --------------------------------------------------------------------------
 
 # Step 1: Select relevant columns and get distinct combinations
