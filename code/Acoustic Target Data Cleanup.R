@@ -39,7 +39,7 @@ library(tictoc)       # get elapsed time
 library(tools)
 
 date_stamp <- substr(format(Sys.time(), "%Y%m%d-%H%M"), 3, 8) # 8 for date only  # Get the current date to timestamp output files
-ats_year_span <- "(1977_2007)_"
+ats_year_span <- "(1977_2007)_"                               # year span of the data
 
 if (!dir.exists("./output")) {dir.create("./output")}         # ensure CSV output directory exists
 if (!dir.exists("./figures")) {dir.create("./figures")}       # ensure plot output directory exists
