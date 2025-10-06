@@ -284,7 +284,7 @@ target_data_exact_dups_removed <- all_target_data %>%
   distinct(across(!all_of(c("line_number", "source_file"))), .keep_all = TRUE) %>%
   arrange(lake, lake_code, survey_date, transect, depth)
 
-# Error-Check target data ####
+# Tidy target data ####
 data <- target_data_exact_dups_removed %>% 
   
   # filter(lake_code == 1, survey_date == as.Date("1977-09-20")) %>%
@@ -354,7 +354,7 @@ data <- target_data_exact_dups_removed %>%
   # renaming columns 
   rename(lake = lake_name) %>% 
   
-##### Addition of ats year
+# Addition of ats year
   mutate(
     ats_year = assign_ats_year(survey_date),
     .before = survey_date)  %>% 
@@ -404,7 +404,7 @@ target_data_keyfield_duplicates <- data %>%
 write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_duplicate_surveys_", date_stamp, ".csv", sep=""), row.names = FALSE) 
 # DO NOT REMOVE key field duplicates from the target_data_exact_dups_removed dataset
 
-# add in columns from lake_strata (area, length)
+# Merge in columns from lake_strata (area, length) ####
 lake_strata <- read.csv("./data/lake_strata_lengths.csv") #input the reference file 
 
 merged_data_strata <- data %>%
@@ -669,8 +669,9 @@ merged_data_with_issues <- merged_data_strata %>%
   )
   ) %>%
   # Owikeno removals
-  filter(!(lake_code == 228 & survey_date == ymd("2007-02-15"))) %>%
-  filter(!(lake_code == 229 & survey_date %in% ymd(c("2004-02-04", "2007-02-15")))) %>%
+  # filter(!(lake_code == 228 & survey_date == ymd("2007-02-15"))) %>%
+  # filter(!(lake_code == 229 & survey_date %in% ymd(c("2004-02-04", "2007-02-15")))) %>%
+  
   mutate(
     data_issues = case_when(
       lake_code == 228 & survey_date == ymd("2007-02-14") ~
@@ -753,7 +754,7 @@ merged_data <- merged_data %>%
   mutate(
     key_field_replicate = if_else(                                              # rename this field to data_issues2_key_field_replicate?
       n() > 1,
-      paste("Note: ", n(), " replicate surveys exist (not deleted).", sep=""),
+      paste("Note: ", n(), " replicate surveys exist (none deleted).", sep=""),
       NA_character_)) %>%
   ungroup()
 
@@ -765,7 +766,7 @@ key_lake_date_transect_depth_replicates <- merged_data %>%
   unique() %>%
   print(n=Inf)
 
-# # Identify further duplicates on key fields, substituting week for survey_date to check for slight mis-match on date #### 
+# # Identify further duplicates on key fields, substituting week for survey_date to check for slight mis-match on date ## 
 # merged_data <- merged_data %>%
 #   mutate(survey_week = week(survey_date)) %>%
 #   group_by(lake_code, survey_year, survey_week, transect, depth_code) %>%
@@ -798,11 +799,11 @@ key_lake_date_transect_depth_replicates <- merged_data %>%
 #   select(acoustic_survey_notes, weather) %>% 
 #   distinct() %>% View
 
+# Missing values check ####
 # Checking for NAs from depth code 
 missing_depth_code <- merged_data %>%
   filter(is.na(depth_code)) # GREAT!  # ? Not so sure: quite a few records with missing depths but targets > 0  # FIXED! {hs 250909}
 
-# Missing values check ####
 cat("\nMissing Values (NAs) Summary\n")
 cat("  Number of records should be zero for all index variables (i.e., lake, date, depth, transect) and target counts (targets), 
   but may not be 0 for proportions and meta-data variables (data_issues, key_field_replicates).\n")
