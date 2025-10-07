@@ -75,13 +75,13 @@ parse_target_dat_tracer <- function(filepath) {
     line_breaks <- str_locate_all(raw_text, "\\r?\\n")[[1]][, "start"]
     estimated_lines <- map_int(form_feed_positions[, "start"], ~ sum(line_breaks < .x) + 1)
 #   walk(estimated_lines, ~ message(sprintf("NOTE: form feed character encountered in line %d", .x))) # uncomment to log line_numbers with FF character
-     }
+    }
 
   line_numbers <- seq_along(raw_lines)       # actual line numbers in the input DAT file
  
   # Identify headers using actual line numbers
   header_indices <- which(str_detect(raw_lines, "depth / transect / targets"))
-  # print(paste("Column Headers located at: ", header_indices))
+# print(paste("Column Headers located at: ", header_indices))
   
   all_data <- list()
   
@@ -98,7 +98,7 @@ parse_target_dat_tracer <- function(filepath) {
       str_extract("\\d+(?=\\s*: lake code)") %>%
       as.numeric()
     
-    lake <- metadata_block[str_detect(metadata_block, "lake code", negate = TRUE)] %>%
+    lake <- metadata_block[str_detect(metadata_block, "lake code", negate = TRUE)] %>%  # this captures the whole lake info line, including survey comment
       .[str_detect(., "^[A-Z]")] %>%
       str_trim() %>%
       .[1]
@@ -125,8 +125,9 @@ parse_target_dat_tracer <- function(filepath) {
       as.numeric() %>%
       .[1]
     
-    acoustic_survey_notes <- metadata_block %>%
-      discard(~ str_detect(.x, "lake code|: date|FURUNO|SIMRAD|Gain|^[A-Z]")) %>%
+    acoustic_survey_notes <- metadata_block[-2] %>%                                 # ignore line 2 of the meta-data block (lake name and survey comments, which are already captured above
+    # discard(~ str_detect(.x, "lake code|: date|FURUNO|SIMRAD|Gain|^[A-Z]")) %>%   # this was discarding comment lines (6 & 7 in meta-data block) if they started with a capital letter
+      discard(~ str_detect(.x, "lake code|: date|FURUNO|SIMRAD|BIOSONICS|Gain")) %>%
       str_trim() %>%
       paste(collapse = " ") %>%
       na_if("")
@@ -190,7 +191,7 @@ parse_target_dat_tracer <- function(filepath) {
            gain,
            acoustic_survey_notes,
            everything()) %>%
-    filter(!if_any(c(transect, depth, targets), is.na)) %>% # this drops all records missing in any of three key variables, which seems to happen due to blank lines between input data blocks (HS 250908)
+    filter(!if_any(c(transect, depth, targets), is.na)) %>% # this drops all records missing in any of three key variables, which may happen due to blank lines between input data blocks (HS 250908)
     arrange(source_file, line_number)
   
   return(final_data)
@@ -760,28 +761,11 @@ merged_data <- merged_data %>%
 
 cat("\nReplicate data exists for the following combinations of lake and date:\n")
 key_lake_date_transect_depth_replicates <- merged_data %>%
-# filter(key_field_replicate == "Replicate exists for this lake, date, transect and depth") %>%
   filter(!is.na(key_field_replicate)) %>%
-  select(ats_year, lake_code, lake, survey_date, key_field_replicate, source_file) %>%
+  select(lake_code, lake, ats_year, survey_date, key_field_replicate, source_file) %>%
   unique() %>%
+  arrange(lake, survey_date, source_file, key_field_replicate) %>%
   print(n=Inf)
-
-# # Identify further duplicates on key fields, substituting week for survey_date to check for slight mis-match on date ## 
-# merged_data <- merged_data %>%
-#   mutate(survey_week = week(survey_date)) %>%
-#   group_by(lake_code, survey_year, survey_week, transect, depth_code) %>%
-#   mutate(
-#     key_field_replicate = if_else(                                              # rename this field to data_issues2_key_field_replicate?
-#       n() > 1,
-#       "Replicate exists for this lake, year, week, transect and depth",
-#       NA_character_)) %>%
-#   ungroup()
-
-# cat("\nKey field replicates on lake, date, transect and depth\n")
-# key_lake_week_transect_depth_replicates <- merged_data %>%
-#   filter(key_field_replicate == "Replicate exists for this lake, week, transect and depth") %>%
-#   print(n=Inf)
-
 
 #### NEED TO DEAL WITH WEATHER STILL (SE) --> NO, no need to extract weather info as long as comment line is captured in acoustic_survey_notes (which it is)
 #
@@ -917,7 +901,7 @@ write_csv(range_issues, paste("./output/Target_CHK_targets_issues_", date_stamp,
 
 acoustic_final_inventory <- merged_data_final_chk %>%
   select(ats_year, lake, lake_code, survey_date, sounder_code, sounder_type, source_file, 
-         acoustic_survey_notes, survey_comments) %>%
+         acoustic_survey_notes, acoustic_survey_comments = survey_comments) %>%
   distinct() %>%
   arrange(ats_year, lake, lake_code, survey_date)
 
@@ -1024,28 +1008,28 @@ lake_survey_sequential_pairs <- acoustic_final_inventory %>%
 
 # Select key columns from lake_survey_sequential_pairs
 lake_survey_keys <- lake_survey_sequential_pairs %>%
-  select(ats_year, lake_code, survey_date, sequential_survey_pair_id)
+  select(ats_year, lake_code, survey_date, sounder_type, sequential_survey_pair_id)
 
 # Perform a semi-join to keep only matching records from acoustic_final_data
 acoustic_sequential_survey_data <- acoustic_final_data %>%
   semi_join(lake_survey_keys, by = c("ats_year", "lake_code", "survey_date")) %>%
-  select(ats_year, lake, lake_code, survey_date, transect, depth_code, targets, acoustic_source_file, line_number, acoustic_survey_notes) %>% 
+  select(ats_year, lake, lake_code, survey_date, transect, depth_code, targets, target_survey_type, acoustic_source_file, line_number, 
+         acoustic_survey_comments, acoustic_survey_notes) %>% 
   arrange(lake, survey_date)
 
-# Optionally, add the sequential_pair_id to the final data
+# Optionally, add the sequential_pair_id to the final data  ### not working! sequential_survey_pair_id all changed to 1 ###
 acoustic_sequential_survey_data <- acoustic_sequential_survey_data %>%
   left_join(lake_survey_keys, by = c("ats_year", "lake_code", "survey_date")) %>%
   arrange(lake, survey_date)
 
 write_csv(acoustic_sequential_survey_data, paste("./output/Target_CHK_sequential_surveys_", date_stamp, ".csv", sep=""))
 
-## --------------------------------------------------------------------------
-## Compare RAW and FINAL Acoustic Survey Dates.R
-##
-## Purpose: Match-merge RAW and FINAL acoustic survey metadata 
-##          (i.e., by lake and survey_date) from LDP program
-##          Acoustic Target Data Cleanup.R to ensure nothing lost in process
-## --------------------------------------------------------------------------
+
+# Compare RAW and FINAL Acoustic Survey Dates ####
+#
+# Purpose: Match-merge RAW and FINAL acoustic survey metadata 
+#          (i.e., by lake and survey_date) from LDP program
+#          Acoustic Target Data Cleanup.R to ensure nothing lost in process
 
 # Step 1: Select relevant columns and get distinct combinations
 raw_target_data_reduced <- all_target_data %>%   # <- this is the RAW target data
