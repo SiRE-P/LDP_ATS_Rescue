@@ -252,7 +252,7 @@ all_target_data <- tibble()
 
 # Save raw import data and an inventory of surveys to csv...####
 write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))
-# all_target_data <- read_csv(paste("./output/all_target_data_RAW_250930", ".csv", sep=""))   # use this if skipping the compilation process, above, with appropriate date of csv
+all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, "251007", ".csv", sep=""))   # use this if skipping the compilation process, above, with appropriate date of csv
 
 # output an inventory of unique surveys in the input data
 raw_data_inventory <- all_target_data %>%
@@ -281,7 +281,6 @@ cat("\n")
 
 # Remove exact duplicates from input data
 target_data_exact_dups_removed <- all_target_data %>%
-# distinct(across(-line_number, -source_file), .keep_all = TRUE) %>%
   distinct(across(!all_of(c("line_number", "source_file"))), .keep_all = TRUE) %>%
   arrange(lake, lake_code, survey_date, transect, depth)
 
@@ -399,11 +398,11 @@ target_data_keyfield_duplicates <- data %>%
   mutate(key_field_replicate = "Replicate exists for this lake, date, transect and depth") %>%   # create new "data issues" column for keyfield replicates
   ungroup()
 
-# View the duplicate records with line numbers
+# View the duplicate records with line numbers but DO NOT REMOVE key field duplicates from the data until after inspection
 # View(target_data_keyfield_duplicates)
 # Export to CSV
 write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_duplicate_surveys_", date_stamp, ".csv", sep=""), row.names = FALSE) 
-# DO NOT REMOVE key field duplicates from the target_data_exact_dups_removed dataset
+
 
 # Merge in columns from lake_strata (area, length) ####
 lake_strata <- read.csv("./data/lake_strata_lengths.csv") #input the reference file 
@@ -521,7 +520,6 @@ merged_data_with_issues <- merged_data_strata %>%
       TRUE ~ data_issues
     ),
   
-    
     # GCL data fix for incorrect proportions at certain depths (survey_date 2003/01/15)
     fix_gcl_props = lake_code == 1 & source_file == "TARGET02.DAT" & survey_date == ymd("2003-01-15"),
     
