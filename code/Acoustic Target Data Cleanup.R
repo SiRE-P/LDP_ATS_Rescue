@@ -252,9 +252,10 @@ all_target_data <- tibble()
 
 # Save raw import data and an inventory of surveys to csv...####
 write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))
+# Import raw import data from saved CSV to skip time-consuming import of TARGET*.DAT ####
 all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, "251007", ".csv", sep=""))   # use this if skipping the compilation process, above, with appropriate date of csv
 
-# output an inventory of unique surveys in the input data
+# Output an inventory of unique surveys in the raw data
 raw_data_inventory <- all_target_data %>%
   select(source_file, lake, lake_code, survey_date, sounder_type, sounder_gain = gain, acoustic_survey_notes) %>%
   distinct() %>%
@@ -388,10 +389,10 @@ data <- data %>%
    arrange(source_file, line_number, ats_year, lake, survey_date, transect, depth_code)
 
 filter_data  <- data %>% filter(if_all(everything(), is.na))   # this captures any and all recs that were NA IN ALL COLUMNS = 0
-data_with_na <- data %>% filter(if_any(everything(), is.na))   # this captures any record with an NA in ANY column = 9,674 (HS 250903)
+data_with_na <- data %>% filter(if_any(everything(), is.na))   # this captures any record with an NA in ANY column = 20,099 (HS 251006)
 data_no_na   <- data %>% drop_na()                             # drop_na() with no arguments removes any row that has at least one NA in any column = 123,880 = 131,011 - 7,131
 
-# Identify further duplicates on key fields #### 
+# Identify further POTENTIAL duplicates that are duplicates on key fields #### 
 target_data_keyfield_duplicates <- data %>%
   group_by(lake_code, survey_date, transect, depth_code) %>%  # Key fields: lake_code, survey_date, transect, depth_code
   filter(n() > 1) %>%
@@ -403,6 +404,46 @@ target_data_keyfield_duplicates <- data %>%
 # Export to CSV
 write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_duplicate_surveys_", date_stamp, ".csv", sep=""), row.names = FALSE) 
 
+
+# Identify further POTENTIAL duplicates based on sequential survey_date pairs for the same lake ####
+lake_surveys_unique <- data %>%
+  select(ats_year, lake, lake_code, survey_date, sounder_code, sounder_type, source_file, 
+         acoustic_survey_notes, acoustic_survey_comments = survey_comments) %>%
+  distinct() %>%
+  arrange(ats_year, lake, lake_code, survey_date)
+
+lake_survey_sequential_pairs <- lake_surveys_unique %>%
+  group_by(lake) %>%
+  arrange(survey_date, .by_group = TRUE) %>%
+  mutate(prev_date = lag(survey_date),
+         next_date = lead(survey_date),
+         is_sequential = (as.numeric(survey_date - prev_date) == 1 |
+                            as.numeric(next_date - survey_date) == 1)) %>%
+  filter(is_sequential) %>%
+  arrange(lake, survey_date) %>%
+  mutate(pair_start = (as.numeric(survey_date - prev_date) != 1),
+         sequential_survey_pair_id = cumsum(pair_start)) %>%
+  mutate(sequential_survey_pair_id = ifelse(is.na(sequential_survey_pair_id), 99, sequential_survey_pair_id)) %>%
+  select(-prev_date, -next_date, -is_sequential, -pair_start) %>%
+  ungroup()
+
+# Select key columns from lake_survey_sequential_pairs
+lake_survey_keys <- lake_survey_sequential_pairs %>%
+  select(ats_year, lake_code, survey_date, sounder_type, sequential_survey_pair_id)
+
+# Perform a semi-join to keep only matching records from lake_surveys_unique  ################## PROBLEM HERE
+lake_sequential_survey_data <- data %>%
+  semi_join(lake_survey_keys, by = c("ats_year", "lake_code", "survey_date")) %>%
+  select(ats_year, lake, lake_code, survey_date, sounder_type, sounder_code, transect, depth_code, targets, prop_sockeye, target_survey_type, source_file, line_number, 
+         survey_comments, acoustic_survey_notes) %>% 
+  arrange(lake, survey_date)
+
+# # Optionally, add the sequential_pair_id to the final data  ### not working! sequential_survey_pair_id all changed to 1 ###
+# lake_sequential_survey_data <- lake_sequential_survey_data %>%
+#   left_join(lake_surveys_unique, by = c("ats_year", "lake_code", "survey_date")) %>%
+#   arrange(lake, survey_date)
+
+write_csv(lake_sequential_survey_data, paste("./output/Target_CHK_sequential_surveys_", date_stamp, ".csv", sep=""))
 
 # Merge in columns from lake_strata (area, length) ####
 lake_strata <- read.csv("./data/lake_strata_lengths.csv") #input the reference file 
@@ -419,6 +460,7 @@ merged_data_strata <- data %>%
   rename(transect_length = Length) %>% 
   relocate(lake.y, .after = lake.x)
 
+# Error checking ####
 merged_data_with_issues <- merged_data_strata %>%
   mutate(
     # create data_issues column if missing
