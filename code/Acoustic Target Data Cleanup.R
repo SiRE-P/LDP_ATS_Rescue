@@ -1,32 +1,41 @@
-## --------------------------------------------------------------------------
+# ACOUSTIC TARGET DATA CLEANUP.R  NOTES    #### ---------------------------------------------------------------------
+##
 ## Acoustic Target Data Cleanup.R
 ##
 ## Purpose: Import acoustic target data files (TARGETyy.DAT files, ATS-years 1977-2007)
 ##          for data cleanup and compilation into integrated CSV file(s). 
 ##          (An ATS-year extends from April 1, yyyy to March 31st, yyyy+1).
 ##
-##          Raw import data (pre-processing) are output to Target_INPUT_data_RAW_(1977_2007)_*.csv
-##          and inventoried in Target_INPUT_data_INVENTORY_(1977_2007)_*.csv
-##          (where * = date of program execution).
+##          Raw imported data (pre-processing) are output to Target_INPUT_data_RAW_(1977_2007)_*.csv
+##                                        and inventoried in Target_INPUT_data_INVENTORY_(1977_2007)_*.csv
+##                                        (where * = date of program execution).
 ##
-##          All processed/cleaned data are output to Target_OUTPUT_data_FINAL_(1977_2007)_*.csv_*.csv
-##          and inventoried in Target_OUTPUT_data_INVENTORY_(1977_2007)_*.csv
-##          (where * = date of program execution). These data are classified as JUVENILE or ADULT acoustic count
-##          data based on survey comment information, and may be distinguished by fields survey_type and survey_type_code.
+##          All cleaned data (post-processing) are output to Target_OUTPUT_data_FINAL_(1977_2007)_*.csv
+##                                        and inventoried in Target_OUTPUT_data_INVENTORY_(1977_2007)_*.csv
+##                                        (where * = date of program execution). 
+##
+##          Cleaned data are classified as JUVENILE or ADULT acoustic count data based on survey comment 
+##          information, and may be distinguished by fields survey_type and survey_type_code.
 ##       
-##          Other outputs (containing CHK in the filename) include: 
+##          Other data check outputs (containing CHK in the filename) include: 
 ##          - a list of EXACT duplicates that are removed (Target_CHK_exact_duplicate_records_*.csv);
-##          - a list of key field duplicates (same meta-data such as lake, date, but different 
-##            target counts) that are retained as likely replicate counts (Target_CHK_keyfield_duplicate_surveys_*.csv);
-##          - a list of records with data issues specific to the targets field (Target_CHK_targets_issues_*.csv).
+##          - a list of KEY FIELD duplicates (same lake, date)
+##            that should be cross-checked to determine whether they are actual duplicates, or
+##            replicate surveys or counts (Target_CHK_keyfield_duplicate_surveys_*.csv);
+##          - a list of SEQUENTIAL DATE same-lake replicates that should also be checked (Target_CHK_sequential_surveys_*.csv);
+##          - a list of records with data issues specific to the targets field (Target_CHK_targets_issues_*.csv); and
+##          - a comparison of the inventory of surveys that were in the raw input data versus those in the final inventory
+##            classified to source (Target_CHK_RAW_vs_CLEAN_surveys_*.csv).
 ##          
 ## Authors: Yuliya Shtymburski (U. Regina); Sandra Emry (UBC); H Stiff (DFO Nanaimo)
 ## Date:    October 2025
-## Notes:   
+##
+## Notes:   The IMPORT TARGET*.DAT files section may be commented out to skip the time-consuming (5 minutes) data-import process
+##          if that process has previously been successfully completed.  Note that this may require revision of the FILE_NAME in the 
+##          Re-IMPORT RAW IMPORT DATA section to ensure code has access to the raw import data previously saved to CSV.
 ##          
-## --------------------------------------------------------------------------
 
-# Libraries ####
+# LIBRARIES ####
 
 library(dplyr)
 library(lubridate)
@@ -34,27 +43,26 @@ library(progress)     # for progress bar
 library(purrr)
 library(stringr)
 library(tidyverse)
-library(tibble)
+library(tibble)       # install.packages("tictoc")
 library(tictoc)       # get elapsed time 
 library(tools)
 
+# INITIALIZE variables ####
 date_stamp <- substr(format(Sys.time(), "%Y%m%d-%H%M"), 3, 8) # 8 for date only  # Get the current date to timestamp output files
 ats_year_span <- "(1977_2007)_"                               # year span of the data
 
-if (!dir.exists("./output")) {dir.create("./output")}         # ensure CSV output directory exists
+if (!dir.exists("./output"))  {dir.create("./output")}        # ensure CSV output directory exists
 if (!dir.exists("./figures")) {dir.create("./figures")}       # ensure plot output directory exists
 
-# install.packages("tictoc")
-
-# Functions ####
-# function to assign ATS year based on survey date
+# FUNCTIONS ####
+# FUNCTION to assign ATS year based on survey date
 assign_ats_year <- function(survey_date) {
   if_else(month(survey_date) >= 4,
           year(survey_date),
           year(survey_date) - 1)
 } # end function
 
-# function to read input data from TARGET*.DAT files (differs from SE's version in adding line_numbers for trace-ability)
+# FUNCTION to read input data from TARGET*.DAT files (differs from SE's version in adding line_numbers for trace-ability)
 parse_target_dat_tracer <- function(filepath) {
   # Read file as a single string to manually handle form feed characters
   raw_text <- read_file(filepath)
@@ -63,7 +71,7 @@ parse_target_dat_tracer <- function(filepath) {
   
   # Split into lines using both newline and form feed as delimiters
   raw_lines <- str_split(raw_text, "\\r?\\n|\\f", simplify = FALSE)[[1]]
-# print(raw_lines)
+  # print(raw_lines)
   
   # Generate line numbers based on split
   line_numbers <- seq_along(raw_lines)
@@ -74,14 +82,14 @@ parse_target_dat_tracer <- function(filepath) {
     # Estimate line number by counting line breaks before each form feed
     line_breaks <- str_locate_all(raw_text, "\\r?\\n")[[1]][, "start"]
     estimated_lines <- map_int(form_feed_positions[, "start"], ~ sum(line_breaks < .x) + 1)
-#   walk(estimated_lines, ~ message(sprintf("NOTE: form feed character encountered in line %d", .x))) # uncomment to log line_numbers with FF character
-    }
-
+    #   walk(estimated_lines, ~ message(sprintf("NOTE: form feed character encountered in line %d", .x))) # uncomment to log line_numbers with FF character
+  }
+  
   line_numbers <- seq_along(raw_lines)       # actual line numbers in the input DAT file
- 
+  
   # Identify headers using actual line numbers
   header_indices <- which(str_detect(raw_lines, "depth / transect / targets"))
-# print(paste("Column Headers located at: ", header_indices))
+  # print(paste("Column Headers located at: ", header_indices))
   
   all_data <- list()
   
@@ -92,8 +100,8 @@ parse_target_dat_tracer <- function(filepath) {
     metadata_start <- max(1, header_index - 8)
     metadata_end <- header_index - 1
     metadata_block <- raw_lines[metadata_start:metadata_end]
-  # print(metadata_block)
-  
+    # print(metadata_block)
+    
     lake_code <- metadata_block[str_detect(metadata_block, "lake code")] %>%
       str_extract("\\d+(?=\\s*: lake code)") %>%
       as.numeric()
@@ -126,7 +134,7 @@ parse_target_dat_tracer <- function(filepath) {
       .[1]
     
     acoustic_survey_notes <- metadata_block[-2] %>%                                 # ignore line 2 of the meta-data block (lake name and survey comments, which are already captured above
-    # discard(~ str_detect(.x, "lake code|: date|FURUNO|SIMRAD|Gain|^[A-Z]")) %>%   # this was discarding comment lines (6 & 7 in meta-data block) if they started with a capital letter
+      # discard(~ str_detect(.x, "lake code|: date|FURUNO|SIMRAD|Gain|^[A-Z]")) %>%   # this was discarding comment lines (6 & 7 in meta-data block) if they started with a capital letter
       discard(~ str_detect(.x, "lake code|: date|FURUNO|SIMRAD|BIOSONICS|Gain")) %>%
       str_trim() %>%
       paste(collapse = " ") %>%
@@ -198,7 +206,7 @@ parse_target_dat_tracer <- function(filepath) {
 } # end function
 
 
-# Import TARGET*.DAT files ####
+# IMPORT TARGET*.DAT files ####
 
 # list all .dat files in the working directory
 dat_files <- list.files(
@@ -223,19 +231,19 @@ tic("Compilation time: ")     # get start time
 
 all_target_data <- tibble()
 
-  for (file in dat_files) {
-    parsed <- parse_target_dat_tracer(file)
-    parsed <- parsed %>%
-      filter(!if_all(c(transect, depth, targets), is.na)) # drops blank lines (which are missing for these variables)
-    all_target_data <- bind_rows(all_target_data, parsed) # append parsed data to all_target_data
-    pb$tick()                   # update progress bar
-    flush.console()             # force progress bar to appear immediately
+for (file in dat_files) {
+  parsed <- parse_target_dat_tracer(file)
+  parsed <- parsed %>%
+    filter(!if_all(c(transect, depth, targets), is.na)) # drops blank lines (which are missing for these variables)
+  all_target_data <- bind_rows(all_target_data, parsed) # append parsed data to all_target_data
+  pb$tick()                   # update progress bar
+  flush.console()             # force progress bar to appear immediately
   # Sys.sleep(0.1)              # optional: slow down loop to make updates visible
-    }
- 
-  cat("\n")
-  toc()                         # get finish time and post elapsed time
-  cat("\n")
+}
+
+cat("\n")
+toc()                         # get finish time and post elapsed time
+cat("\n")
 
 # tic("Compilation time: ")                                       # Sandra's method
 # all_target_data <- dat_files %>%
@@ -250,10 +258,11 @@ all_target_data <- tibble()
 #   filter(!if_all(c(transect, depth, targets), is.na))           # this drops all records missing in three key index variables, which seems to happen due to blank lines between input data blocks (HS 250908)
 # toc()
 
-# Save raw import data and an inventory of surveys to csv...####
+#   Save raw import data and an inventory of surveys to csv...####
 write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))
-# Import raw import data from saved CSV to skip time-consuming import of TARGET*.DAT ####
-all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, "251007", ".csv", sep=""))   # use this if skipping the compilation process, above, with appropriate date of csv
+#   Re-Import raw import data (assign FILE_NAME if necessary!) from saved CSV to skip time-consuming import of TARGET*.DAT ####
+all_target_data   <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
+# all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, "251020",   ".csv", sep=""))   # use this if skipping the compilation process, above, after revising the date-stamp to match the save-date of the Target_INPUT_data_RAW csv of interest
 
 # Output an inventory of unique surveys in the raw data
 raw_data_inventory <- all_target_data %>%
@@ -262,31 +271,8 @@ raw_data_inventory <- all_target_data %>%
   arrange(source_file, lake, lake_code, survey_date)
 write_csv(raw_data_inventory, paste("./output/Target_INPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
 
-
-# Duplicate data check... ####
-
-# Identify exact duplicate records ####
-target_data_exact_duplicates <- all_target_data %>%
-  filter(duplicated(select(., -line_number, -source_file))) %>% #  excluding line_number and source_file
-  arrange(lake, lake_code, survey_date, source_file, line_number, transect) %>%
-  select(lake, lake_code, survey_date, source_file, line_number, transect, depth, everything()) # re-order
-# View(target_data_exact_duplicates)
-# Export to CSV
-write_csv(target_data_exact_duplicates, paste("./output/Target_CHK_exact_duplicate_records_", date_stamp, ".csv", sep=""))
-
-cat("List of duplicate surveys (same lake, same survey date)...\n") 
-target_data_exact_dups_inventory <- target_data_exact_duplicates %>%
-  select(lake, lake_code, survey_date, transect) %>% unique() %>%  
-  print(n = Inf)
-cat("\n")
-
-# Remove exact duplicates from input data
-target_data_exact_dups_removed <- all_target_data %>%
-  distinct(across(!all_of(c("line_number", "source_file"))), .keep_all = TRUE) %>%
-  arrange(lake, lake_code, survey_date, transect, depth)
-
-# Tidy target data ####
-data <- target_data_exact_dups_removed %>% 
+# TIDY target data ####
+data <- all_target_data %>%   # target_data_exact_dups_removed %>% 
   
   # filter(lake_code == 1, survey_date == as.Date("1977-09-20")) %>%
   
@@ -311,7 +297,7 @@ data <- target_data_exact_dups_removed %>%
       is.na(survey_comments) | str_trim(survey_comments) == "" ~ "JUVENILE",
       str_detect(survey_comments, regex("adult survey", ignore_case = TRUE)) ~ "ADULT",
       TRUE ~ "JUVENILE")) %>%
-
+  
   # convert survey_date from character into a data
   mutate(survey_date = ymd(survey_date),
          survey_year = year(survey_date),
@@ -343,7 +329,7 @@ data <- target_data_exact_dups_removed %>%
   # extract(sounder_type, into = c("sounder_type", "sounder_code"), regex = "^(\\S+)\\s+(.*)$") %>% 
   # mutate(sounder_code = as.numeric(sounder_code)) %>%
   # rename(sounder_gain = gain) %>% 
-
+  
   extract(
     sounder_type,
     into = c("sounder_type", "sounder_code"),
@@ -351,104 +337,51 @@ data <- target_data_exact_dups_removed %>%
   ) %>%
   mutate(sounder_code = as.numeric(sounder_code)) %>%
   rename(sounder_gain = gain) %>%
-
+  
   # renaming columns 
   rename(lake = lake_name) %>% 
   
-# Addition of ats year
+  # Addition of ats year
   mutate(
     ats_year = assign_ats_year(survey_date),
     .before = survey_date)  %>% 
   # drop_na()  # I think this is to drop the blank rows in between the collections (SE) -- # but I am not sure why we would want to do this (HS 250903)
   filter(!if_all(c(transect, depth_code, targets), is.na))  # this drops all records missing in three key index variables, which seems to happen due to blank lines between input data blocks (HS 250908)
 
-data <- data %>%  
+tidy_data <- data %>%  
   #rearranging column order
   select(source_file,
-    line_number,
-    lake_code,
-    lake,
-    target_survey_code,
-    target_survey_type,
-    survey_date,
-    survey_year,
-    survey_month,
-    depth_code,
-    depth_min,
-    depth_max,
-    transect,
-    targets,
-    prop_sockeye,
-    prop_stickleback,
-    sounder_type,
-    sounder_code,
-    sounder_gain,
-    acoustic_survey_notes,
-    survey_comments,
-    everything()) %>% 
-   arrange(source_file, line_number, ats_year, lake, survey_date, transect, depth_code)
+         line_number,
+         lake_code,
+         lake,
+         target_survey_code,
+         target_survey_type,
+         survey_date,
+         survey_year,
+         survey_month,
+         depth_code,
+         depth_min,
+         depth_max,
+         transect,
+         targets,
+         prop_sockeye,
+         prop_stickleback,
+         sounder_type,
+         sounder_code,
+         sounder_gain,
+         acoustic_survey_notes,
+         survey_comments,
+         everything()) %>% 
+  arrange(source_file, line_number, ats_year, lake, survey_date, transect, depth_code)
 
-filter_data  <- data %>% filter(if_all(everything(), is.na))   # this captures any and all recs that were NA IN ALL COLUMNS = 0
-data_with_na <- data %>% filter(if_any(everything(), is.na))   # this captures any record with an NA in ANY column = 20,099 (HS 251006)
-data_no_na   <- data %>% drop_na()                             # drop_na() with no arguments removes any row that has at least one NA in any column = 123,880 = 131,011 - 7,131
+filter_data  <- tidy_data %>% filter(if_all(everything(), is.na))   # this captures any and all recs that were NA IN ALL COLUMNS = 0
+data_with_na <- tidy_data %>% filter(if_any(everything(), is.na))   # this captures any record with an NA in ANY column = 20,099 (HS 251006)
+data_no_na   <- tidy_data %>% drop_na()                             # drop_na() with no arguments removes any row that has at least one NA in any column = 123,880 = 131,011 - 7,131
 
-# Identify further POTENTIAL duplicates that are duplicates on key fields #### 
-target_data_keyfield_duplicates <- data %>%
-  group_by(lake_code, survey_date, transect, depth_code) %>%  # Key fields: lake_code, survey_date, transect, depth_code
-  filter(n() > 1) %>%
-  mutate(key_field_replicate = "Replicate exists for this lake, date, transect and depth") %>%   # create new "data issues" column for keyfield replicates
-  ungroup()
-
-# View the duplicate records with line numbers but DO NOT REMOVE key field duplicates from the data until after inspection
-# View(target_data_keyfield_duplicates)
-# Export to CSV
-write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_duplicate_surveys_", date_stamp, ".csv", sep=""), row.names = FALSE) 
-
-
-# Identify further POTENTIAL duplicates based on sequential survey_date pairs for the same lake ####
-lake_surveys_unique <- data %>%
-  select(ats_year, lake, lake_code, survey_date, sounder_code, sounder_type, source_file, 
-         acoustic_survey_notes, acoustic_survey_comments = survey_comments) %>%
-  distinct() %>%
-  arrange(ats_year, lake, lake_code, survey_date)
-
-lake_survey_sequential_pairs <- lake_surveys_unique %>%
-  group_by(lake) %>%
-  arrange(survey_date, .by_group = TRUE) %>%
-  mutate(prev_date = lag(survey_date),
-         next_date = lead(survey_date),
-         is_sequential = (as.numeric(survey_date - prev_date) == 1 |
-                            as.numeric(next_date - survey_date) == 1)) %>%
-  filter(is_sequential) %>%
-  arrange(lake, survey_date) %>%
-  mutate(pair_start = (as.numeric(survey_date - prev_date) != 1),
-         sequential_survey_pair_id = cumsum(pair_start)) %>%
-  mutate(sequential_survey_pair_id = ifelse(is.na(sequential_survey_pair_id), 99, sequential_survey_pair_id)) %>%
-  select(-prev_date, -next_date, -is_sequential, -pair_start) %>%
-  ungroup()
-
-# Select key columns from lake_survey_sequential_pairs
-lake_survey_keys <- lake_survey_sequential_pairs %>%
-  select(ats_year, lake_code, survey_date, sounder_type, sequential_survey_pair_id)
-
-# Perform a semi-join to keep only matching records from lake_surveys_unique  ################## PROBLEM HERE
-lake_sequential_survey_data <- data %>%
-  semi_join(lake_survey_keys, by = c("ats_year", "lake_code", "survey_date")) %>%
-  select(ats_year, lake, lake_code, survey_date, sounder_type, sounder_code, transect, depth_code, targets, prop_sockeye, target_survey_type, source_file, line_number, 
-         survey_comments, acoustic_survey_notes) %>% 
-  arrange(lake, survey_date)
-
-# # Optionally, add the sequential_pair_id to the final data  ### not working! sequential_survey_pair_id all changed to 1 ###
-# lake_sequential_survey_data <- lake_sequential_survey_data %>%
-#   left_join(lake_surveys_unique, by = c("ats_year", "lake_code", "survey_date")) %>%
-#   arrange(lake, survey_date)
-
-write_csv(lake_sequential_survey_data, paste("./output/Target_CHK_sequential_surveys_", date_stamp, ".csv", sep=""))
-
-# Merge in columns from lake_strata (area, length) ####
+#   Merge in parameters from lake_strata (area, length) ####
 lake_strata <- read.csv("./data/lake_strata_lengths.csv") #input the reference file 
 
-merged_data_strata <- data %>%
+merged_data_strata <- tidy_data %>%
   left_join(
     lake_strata %>%
       rename(lake = lk.name, lake_code = lk.code, transect = Transect) %>%
@@ -460,12 +393,12 @@ merged_data_strata <- data %>%
   rename(transect_length = Length) %>% 
   relocate(lake.y, .after = lake.x)
 
-# Error checking ####
+#   Data check and known error processing ####
 merged_data_with_issues <- merged_data_strata %>%
   mutate(
     # create data_issues column if missing
     data_issues = "") %>%
-
+  
   # compare ats_year with source_file year derived from TARGETyy.DAT filename
   mutate(
     sourcefile_year  = as.numeric(substr(source_file, 7, 8)),                   # get 2-digit year from TARGETyy.DAT and... 
@@ -475,7 +408,7 @@ merged_data_with_issues <- merged_data_strata %>%
       ats_year != sourcefile_year ~
         str_c(data_issues, "Source_file/survey_date mis-match; "),
       TRUE ~ data_issues)) %>%
-
+  
   # do some error checks and flag any issues in data_issues field...   
   mutate(
     
@@ -504,7 +437,7 @@ merged_data_with_issues <- merged_data_strata %>%
       targets == 0 & (is.numeric(prop_sockeye) | is.numeric(prop_stickleback)) ~ NA_real_,
       TRUE ~ prop_stickleback
     ),
-
+    
     total_prop = prop_stickleback + prop_sockeye,
     
     # proportion check 
@@ -520,7 +453,7 @@ merged_data_with_issues <- merged_data_strata %>%
         str_c(data_issues, "Targets < 0; "),
       TRUE ~ data_issues
     ),
-
+    
     # transect_length = 0 (lake bottom) but targets > 0
     data_issues = case_when(
       transect_length == 0 & targets > 0 ~
@@ -549,7 +482,7 @@ merged_data_with_issues <- merged_data_strata %>%
       fix_gcl_props & (depth_code == 3 | depth_code == 4) ~ str_c(data_issues, "Revised proportions (was 0.73 sox, 0.27 stix) based on TARGET05ADJ.DAT file; "),
       TRUE ~ data_issues
     ),
-
+    
     prop_sockeye = case_when(
       fix_gcl_props & (depth_code == 5) ~ 0.74,
       TRUE ~ prop_sockeye),
@@ -561,7 +494,7 @@ merged_data_with_issues <- merged_data_strata %>%
       fix_gcl_props & (depth_code == 5)~ str_c(data_issues, "Revised proportions (was 0.40 sox, 0.60 stix) based on TARGET05ADJ.DAT file; "),
       TRUE ~ data_issues
     ),
-  
+    
     # GCL data fix for incorrect proportions at certain depths (survey_date 2003/01/15)
     fix_gcl_props = lake_code == 1 & source_file == "TARGET02.DAT" & survey_date == ymd("2003-01-15"),
     
@@ -588,7 +521,7 @@ merged_data_with_issues <- merged_data_strata %>%
       fix_gcl_props & (depth_code == 4)~ str_c(data_issues, "Revised proportions (was 0.23 sox, 0.77 stix) based on TARGET02ADJ.DAT file; "),
       TRUE ~ data_issues
     ),
-
+    
     prop_sockeye = case_when(
       fix_gcl_props & (depth_code == 5) ~ 0.94,
       TRUE ~ prop_sockeye),
@@ -613,7 +546,7 @@ merged_data_with_issues <- merged_data_strata %>%
       TRUE ~ data_issues
     ),
     
-
+    
     # SKAHA Lake date fix for invalid date (00/09/31)
     fix_skaha_date = lake_code == 241 & source_file == "TARGET00.DAT" & is.na(survey_date),
     survey_date = case_when(
@@ -681,33 +614,33 @@ merged_data_with_issues <- merged_data_strata %>%
     #   TRUE ~ data_issues
     # ),
     
-  # # Muriel Lake fix - commented out as now redundant
-  # survey_date = case_when(
-  #   lake_code == 44 & survey_year == 1996 & survey_month == 3 ~ ymd("1996-03-22"),
-  #   TRUE ~ survey_date
-  # ),
-  # data_issues = case_when(
-  #   lake_code == 44 & survey_year == 1996 & survey_month == 3 ~
-  #     str_c(data_issues, "Missing or invalid survey_date, assigned from survey comment info; "),
-  #   TRUE ~ data_issues
-  # ),
-
-  # Tatsemenie fix
-  ats_year = case_when(
-    lake_code == 66 & survey_date == ymd("1992-08-01") ~ 1992L,
-    TRUE ~ ats_year
-  ),
-  data_issues = case_when(
-    lake_code == 66 & survey_date == ymd("1992-08-01") ~
-      str_c(data_issues, "Data erroneously stored in TARGET95.DAT, ats_year updated from survey_date and processed_date; "),
-    TRUE ~ data_issues
-  ),
-  # Year vs ats_year 
-  data_issues = case_when(
-    (survey_year == ats_year & survey_month > 3) |
-    (survey_year == ats_year + 1 & survey_month < 4) ~ data_issues,
-    TRUE ~ str_c(data_issues, "Survey date not in ATS Year; ")
-  )
+    # # Muriel Lake fix - commented out as now redundant
+    # survey_date = case_when(
+    #   lake_code == 44 & survey_year == 1996 & survey_month == 3 ~ ymd("1996-03-22"),
+    #   TRUE ~ survey_date
+    # ),
+    # data_issues = case_when(
+    #   lake_code == 44 & survey_year == 1996 & survey_month == 3 ~
+    #     str_c(data_issues, "Missing or invalid survey_date, assigned from survey comment info; "),
+    #   TRUE ~ data_issues
+    # ),
+    
+    # Tatsemenie fix
+    ats_year = case_when(
+      lake_code == 66 & survey_date == ymd("1992-08-01") ~ 1992L,
+      TRUE ~ ats_year
+    ),
+    data_issues = case_when(
+      lake_code == 66 & survey_date == ymd("1992-08-01") ~
+        str_c(data_issues, "Data erroneously stored in TARGET95.DAT, ats_year updated from survey_date and processed_date; "),
+      TRUE ~ data_issues
+    ),
+    # Year vs ats_year 
+    data_issues = case_when(
+      (survey_year == ats_year & survey_month > 3) |
+        (survey_year == ats_year + 1 & survey_month < 4) ~ data_issues,
+      TRUE ~ str_c(data_issues, "Survey date not in ATS Year; ")
+    )
   ) %>%
   # Owikeno removals
   # filter(!(lake_code == 228 & survey_date == ymd("2007-02-15"))) %>%
@@ -731,7 +664,7 @@ merged_data_with_issues %>%
   filter(lake.x != lake.y) %>% 
   unique() %>% 
   arrange(lake.x) # %>% 
-  # print(n = Inf)
+# print(n = Inf)
 
 # Reference table of old and new names
 lake_lookup <- tibble::tibble(
@@ -774,12 +707,12 @@ cat("\nTotal target data records:", sum(tallied_data$n), "\n") # Print the total
 # Quatse_2005 and Quatse Lk
 # Skaha_2007 and Skaha Lk
 
-merged_data <- merged_data %>% 
+merged_tidy_data <- merged_data %>% 
   select(-lake.y) %>% 
   rename(lake = lake.x) 
 
 # Count unique lake names per lake_code
-lake_check <- merged_data %>%
+lake_check <- merged_tidy_data %>%
   group_by(lake_code) %>%
   summarize(
     n_lakes = n_distinct(lake),
@@ -789,62 +722,118 @@ lake_check <- merged_data %>%
 # Show only lake_codes that have more than one name
 lake_check %>% filter(n_lakes > 1)
 
-# Identify further duplicates on key fields #### 
-merged_data <- merged_data %>%
-  group_by(lake_code, survey_date, transect, depth_code) %>%
-  mutate(
-    key_field_replicate = if_else(                                              # rename this field to data_issues2_key_field_replicate?
-      n() > 1,
-      paste("Note: ", n(), " replicate surveys exist (none deleted).", sep=""),
-      NA_character_)) %>%
+# DUPLICATES analysis ####
+#   Identify EXACT duplicate records (on all fields) for removal ####
+target_data_exact_duplicates <- merged_tidy_data %>%             # was all_target_data %>%
+  filter(duplicated(select(., -line_number, -source_file, -data_issues))) %>%  # all fields, excluding line_number and source_file
+  arrange(lake, lake_code, survey_date, source_file, line_number, transect) %>%
+  select( lake, lake_code, survey_date, source_file, line_number, transect, depth_code, everything()) # re-order
+# View(target_data_exact_duplicates)
+# Export to CSV
+write_csv(target_data_exact_duplicates, paste("./output/Target_CHK_exact_duplicate_records_", date_stamp, ".csv", sep=""))
+
+cat("List of EXACT duplicate records (same lake, same survey date)...\n") 
+target_data_exact_dups_inventory <- target_data_exact_duplicates %>%
+  select(lake, lake_code, survey_date, transect) %>% unique() %>%  
+  print(n = Inf)
+cat("\n")
+
+# Remove exact duplicates from input data
+target_data_exact_dups_removed <- merged_tidy_data %>%                          # was all_target_data %>%
+  distinct(across(!all_of(c("line_number", "source_file", "data_issues"))), .keep_all = TRUE) %>%
+  arrange(lake, lake_code, survey_date, transect, depth_code)
+  # results: merged_tidy_data - exact_dups = target_data_exact_dups_removed = 129,529 -199 = 129,330 obs 
+
+#   Flag further POTENTIAL duplicates that are duplicates on key fields #### 
+target_data_keyfield_duplicates <- target_data_exact_dups_removed %>%
+  group_by(lake_code, survey_date, transect, depth_code) %>%  # Key fields: lake_code, survey_date, transect, depth_code
+  filter(n() > 1) %>%                                         # Filter for export any records where more than one survey exists for same key fields
+  mutate(key_field_replicate = "Replicate exists for this lake, date, transect and depth") %>%   # add new data issues column for keyfield replicates
   ungroup()
 
-cat("\nReplicate data exists for the following combinations of lake and date:\n")
-key_lake_date_transect_depth_replicates <- merged_data %>%
-  filter(!is.na(key_field_replicate)) %>%
-  select(lake_code, lake, ats_year, survey_date, key_field_replicate, source_file) %>%
-  unique() %>%
-  arrange(lake, survey_date, source_file, key_field_replicate) %>%
-  print(n=Inf)
+#   Export the duplicate records with line numbers but DO NOT REMOVE key field duplicates from the data until after inspection
+write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_duplicate_surveys_", date_stamp, ".csv", sep=""), row.names = FALSE) 
 
-#### NEED TO DEAL WITH WEATHER STILL (SE) --> NO, no need to extract weather info as long as comment line is captured in acoustic_survey_notes (which it is)
-#
-# unique(merged_data$acoustic_survey_notes) %>% as_tibble()
-# 
-# merged_data %>%
-#   mutate(
-#     # Capture everything after the last number+decimal sequence (roughly where the weather notes start)
-#     weather = str_extract(acoustic_survey_notes, "(?<=\\d{1,3}\\.\\d{0,2}|\\d{1,3}\\s)[^\\d]*$"),
-#     # Trim whitespace and punctuation
-#     weather = str_trim(weather),
-#     weather = str_remove_all(weather, "[\\.,]$")
-#   ) %>% 
-#   arrange(acoustic_survey_notes) %>% 
-#   select(acoustic_survey_notes, weather) %>% 
-#   distinct() %>% View
+#   Repeat key-field duplicates check but do not filter, just flag the situation in key_field_replicate column 
+target_data_keyfield_dups_flagged <- target_data_exact_dups_removed %>%
+  group_by(lake_code, survey_date, transect, depth_code) %>%  # Key fields: lake_code, survey_date, transect, depth_code
+  mutate(key_field_replicate = ifelse(n() > 1, "Replicate exists for this lake, date, transect and depth","")) %>%   # create new "data issues" column for keyfield replicates
+  ungroup()
 
-# Missing values check ####
-# Checking for NAs from depth code 
-missing_depth_code <- merged_data %>%
-  filter(is.na(depth_code)) # GREAT!  # ? Not so sure: quite a few records with missing depths but targets > 0  # FIXED! {hs 250909}
+#   Flag further POTENTIAL duplicates based on sequential survey_date pairs for the same lake ####
+lake_surveys_unique <- target_data_keyfield_dups_flagged %>%                    # was <-data %>%
+  select(ats_year, lake, lake_code, survey_date, sounder_code, sounder_type, source_file, 
+         acoustic_survey_notes, acoustic_survey_comments = survey_comments) %>%
+  distinct() %>%                                                                # get unique lake surveys from meta-data
+  arrange(ats_year, lake, lake_code, survey_date)
+
+lake_survey_sequential_pairs <- lake_surveys_unique %>%                         # identify which lake surveys follow
+  group_by(lake) %>%                                                            # sequentially, indicating possible
+  arrange(survey_date, .by_group = TRUE) %>%                                    # replicate survey (e.g., with diff sounders)
+  mutate(prev_date = lag(survey_date),                                          # or replicate analyses (e.g., with diff software)
+         next_date = lead(survey_date),                                         # or replicate readings (e.g., with diff processors)
+         is_sequential = (as.numeric(survey_date - prev_date)   == 1 |          # or just erroneous duplicates
+                          as.numeric(next_date   - survey_date) == 1)) %>%
+  filter(is_sequential) %>%
+  arrange(lake, survey_date) %>%
+  mutate(pair_start = (as.numeric(survey_date - prev_date) != 1),
+         sequential_survey_pair_id = cumsum(pair_start)) %>%
+  mutate(sequential_survey_pair_id = ifelse(is.na(sequential_survey_pair_id), 99, sequential_survey_pair_id)) %>%
+  select(-prev_date, -next_date, -is_sequential, -pair_start) %>%
+  ungroup()
+
+# Select key columns from lake_survey_sequential_pairs
+lake_survey_keys <- lake_survey_sequential_pairs %>%
+  select(ats_year, lake_code, survey_date, sounder_type, sequential_survey_pair_id)
+
+# Perform a semi-join to keep only matching records from lake_surveys_unique
+lake_sequential_survey_data <- target_data_keyfield_dups_flagged %>%            # was <-data %>%
+  semi_join(lake_survey_keys, by = c("ats_year", "lake_code", "survey_date")) %>%
+  mutate(sequential_date_replicate = "Potential duplicate survey near this date") %>%
+  select(ats_year, lake, lake_code, survey_date, sounder_type, sounder_code, transect, depth_code, targets, prop_sockeye, target_survey_type, source_file, line_number, 
+         survey_comments, acoustic_survey_notes, sequential_date_replicate) %>% 
+  arrange(lake, survey_date)
+
+# export all surveys with same lake and sequential dates to csv for survey comparison via Excel Pivot tables
+write_csv(lake_sequential_survey_data, paste("./output/Target_CHK_sequential_surveys_", date_stamp, ".csv", sep=""))
+
+# Flag sequential surveys without merging (due to possible many-to-many match-merge) and without removal
+target_data_sequential_flagged <- target_data_keyfield_dups_flagged %>%
+  rowwise() %>%
+  mutate(sequential_date_replicate = if_else(
+    any(lake_code == lake_survey_sequential_pairs$lake_code &
+          survey_date == lake_survey_sequential_pairs$survey_date),
+    "Potential duplicate survey due to sequential date!",
+    NA_character_
+  )) %>%
+  ungroup()
+
+# MISSING/INVALID values analysis ####
 
 cat("\nMissing Values (NAs) Summary\n")
 cat("  Number of records should be zero for all index variables (i.e., lake, date, depth, transect) and target counts (targets), 
   but may not be 0 for proportions and meta-data variables (data_issues, key_field_replicates).\n")
-NA_missing_summary <- sapply(merged_data, function(x) sum(is.na(x)))
+NA_missing_summary <- sapply(target_data_sequential_flagged, function(x) sum(is.na(x)))
 print(NA_missing_summary)
 cat("\n")
 
-# Invalid date check ####
+#   Checking for NAs in depth code - especially if TARGETS > 0 
+cat("\nMissing Depth Codes when Targets > 0\n")
+missing_depth_code <- target_data_sequential_flagged %>%                        # was <-merged_data %>%
+  filter(is.na(depth_code) & targets > 0)                 # Initially numerous records with missing depths but targets > 0  # FIXED! {hs 250909}
+print(missing_depth_code)
+cat("\n")
+
+#   Invalid date check ####
 cat("\nInvalid Date Check")
-target_date_err_chk <- merged_data %>%
+target_date_err_chk <- target_data_sequential_flagged %>%
   mutate(
     parsed_date = ymd(survey_date, quiet = TRUE),
     invalid_date_flag = is.na(parsed_date),                  # Flag invalid dates
     year_mismatch_flag = year(parsed_date) != survey_year,
     future_date_flag = parsed_date > Sys.Date(),   
     line_number = row_number()) %>%
-    filter(invalid_date_flag | year_mismatch_flag | future_date_flag) %>%
+  filter(invalid_date_flag | year_mismatch_flag | future_date_flag) %>%
   dplyr::select(source_file, line_number, lake, lake_code, survey_date, depth_code, transect, targets, prop_sockeye, prop_sockeye, survey_comments, acoustic_survey_notes) %>%
   arrange(source_file, line_number, lake, depth_code, transect)
 
@@ -852,19 +841,19 @@ date_issues <- target_date_err_chk
 print(date_issues)
 cat("\n")
 
-# Metadata variable range checks ####
+#   Metadata variable range checks ####
 cat("\nNumeric Metadata Variable Check: Lake, Dates, Sounder values...")
-# Select numeric columns and summarize missing, min, and max
-target_metadata <- merged_data %>%
+#   Select numeric columns and summarize missing, min, and max
+target_metadata <- target_data_sequential_flagged %>%
   select(ats_year, lake, survey_date, sounder_type, where(is.numeric)) %>%
   select(-line_number, -targets, -prop_sockeye, -prop_stickleback, -total_prop, -depth_code, -depth_min, -depth_max, -transect, -transect_length, -area) %>%
-  mutate(survey_month = as.numeric(as.character(merged_data$survey_month))) %>%
+  mutate(survey_month = as.numeric(as.character(target_data_sequential_flagged$survey_month))) %>%
   arrange(ats_year, lake, survey_year, survey_month)
 
 target_metadata_chk <- target_metadata %>%
   distinct() %>%
   arrange(ats_year, lake, survey_year, survey_month)
-  
+
 metadata_issues <-target_metadata_chk %>%
   select(where(is.numeric)) %>%
   distinct() %>%
@@ -898,7 +887,7 @@ total_sounder_recs <- sounder_combinations %>%
   print()
 
 cat("\nSounder Code/Type/Gain Error Records\n")
-merged_data_final_chk <- merged_data %>%             # flag but do not change sounder_code and sounder_gain issues, errors
+merged_data_final_chk <- target_data_sequential_flagged %>%             # flag but do not change sounder_code and sounder_gain issues, errors
   mutate(sounder_issues = "" ) %>%
   mutate(sounder_issues = ifelse(sounder_code == 1 & !str_detect(sounder_type, "FURUNO") |
                                  sounder_code == 2 & !str_detect(sounder_type, "SIMRAD") |
@@ -918,20 +907,20 @@ merged_data_sounder_chk <- merged_data_final_chk %>%
     print(.x, n = Inf)
     cat("\n")})
 
-# Variable range checks ####
-# main numeric data issues include:
+#   Data variable range checks ####
+#   Main numeric data issues (flagged only, not changed) include:
 #      total_prop(ortion) sometimes > 1 (and as shown elsewhere, sometimes < 1)
 #      targets < 0
-# these things are flagged only, not changed
+
 cat("\nRange Check Summary for Transect, Depth, Targets and Proportions values...")
 range_issues <- merged_data_final_chk %>%
   filter(
-      # transect_length < 0 |
-      # area < 0 |
-      # depth_min > depth_max |
-      # total_prop < 0.99 & total_prop > 0 |
-      # total_prop > 1.01 |
-      targets < 0 ) %>%
+    # transect_length < 0 |
+    # area < 0 |
+    # depth_min > depth_max |
+    # total_prop < 0.99 & total_prop > 0 |
+    # total_prop > 1.01 |
+    targets < 0 ) %>%
   select(
     data_issues, source_file, line_number, lake, survey_date, 
     targets, prop_sockeye, prop_stickleback, total_prop)
@@ -939,15 +928,20 @@ print(range_issues, n = 100) # negative targets
 cat("\n")
 write_csv(range_issues, paste("./output/Target_CHK_targets_issues_", date_stamp, ".csv", sep=""))
 
-acoustic_final_inventory <- merged_data_final_chk %>%
-  select(ats_year, lake, lake_code, survey_date, sounder_code, sounder_type, source_file, 
-         acoustic_survey_notes, acoustic_survey_comments = survey_comments) %>%
+# FINAL DATA OUTPUT (Post-processing) ####
+#   Export final data inventory (unique surveys)
+acoustic_target_final_inventory <- merged_data_final_chk %>%
+  select(ats_year, lake, lake_code, survey_date, 
+         target_survey_code, target_survey_type, 
+         sounder_code, sounder_type, sounder_gain, sounder_issues, 
+         key_field_replicate, sequential_date_replicate,
+         source_file, acoustic_survey_notes, acoustic_survey_comments = survey_comments) %>%
   distinct() %>%
   arrange(ats_year, lake, lake_code, survey_date)
 
-write_csv(acoustic_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(acoustic_target_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
 
-# Output cleaned up data ####
+# Export cleaned up acoustic survey data with target data records 
 acoustic_final_data <- merged_data_final_chk %>% 
   mutate(data_issues = str_c(data_issues, " ", sounder_issues)) %>%  # amalgamate all data issues into the data_issues field
   rename(depth_min_m = depth_min,
@@ -970,108 +964,14 @@ write_csv(acoustic_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_y
 # write_csv(adult_target_data, paste("./output/Target_OUTPUT_ATS_Adult_", date_stamp, ".csv", sep=""))
 # write_csv(juvenile_target_data, paste("./output/Target_OUTPUT_ATS_Juvenile", date_stamp, ".csv", sep=""))
 
-# Visualize the frequency of acoustic surveys by Lake and ATS Year ####
-# set the lake and lake_codes to be the same for things like Heydon Lk and Heydon_2005...
-acoustic_final_inventory_tidy <- acoustic_final_inventory %>%
-  mutate(lake = str_replace(lake, "_2005", " Lk"),          # consolidate lake names
-         lake = str_replace(lake, "_2006", " Lk"),          # where they are suffixed with Year
-         lake = str_replace(lake, "_2007", " Lk"),          
-         lake = gsub("\\s*\\(.*\\)", "", lake),             # and remove (A), (B)...(D), (N), (S) 
-         lake = gsub("\\s+(ne|nw|se|sw)$", "", lake))       # and remove ne, nw, se, sw 
 
-# Get unique lakes sorted alphabetically
-lake_groups <- acoustic_final_inventory_tidy %>%  
-  distinct(lake) %>%
-  arrange(lake) %>%
-  mutate(lake_group = LETTERS[ceiling(row_number() / 9)])
-
-# Join lake group back to full dataset
-acoustic_data_visualize <- acoustic_final_inventory_tidy %>%
-  mutate(decade = paste0((ats_year %/% 10) * 10, "s")) %>%
-  left_join(lake_groups, by = "lake") %>%
-  select(lake_group, decade, ats_year, lake, lake_code, survey_date) %>%
-  arrange(lake_group, lake, decade, ats_year)
-
-# Prepare data for visualization: surveys per lake and year
-record_counts <- acoustic_data_visualize %>%
-  group_by(lake_group, decade, lake, ats_year) %>%
-  summarise(record_count = n(), .groups = "drop")
-
-# Generate one plot per lake_group
-unique_groups <- sort(unique(record_counts$lake_group))
-
-# Open a PDF document to save plots
-plotfile <- paste0("./figures/Acoustic_Survey_Freq_by_Lake_Year_", ats_year_span, date_stamp, ".pdf", sep="")
-pdf(plotfile, width = 11, height = 8.5) 
-
-for (group in unique_groups) {
-  group_data <- record_counts %>% filter(lake_group == group)
-  
-  # Calculate max record_count for this group
-  max_count <- max(group_data$record_count, na.rm = TRUE)
-  
-  p <- group_data %>%
-    ggplot(aes(x = ats_year, y = record_count)) +
-    geom_bar(stat = "identity", fill = "steelblue") +
-    facet_wrap(~ lake, scales = "fixed", ncol = 3) +
-    scale_y_continuous(limits = c(0, max_count)) +
-    scale_x_continuous(breaks = seq(1977, 2007, by = 5), limits = c(1975, 2010)) +
-    labs(title = "Frequency of Acoustic Surveys by Lake and ATS-year",
-         subtitle = paste0("Date: ", format(as.Date(date_stamp, format = "%y%m%d"), "%d-%b-%Y"), sep=""), # date-stamp the plots
-         x = "", y = "") +
-    theme_minimal() +
-    theme(plot.title    = element_text(color = "steelblue", size = 14, face = "bold", hjust = 0),
-          plot.subtitle = element_text(color = "darkgray",  size = 8,  face = "bold", hjust = 0),
-          strip.text    = element_text(size = 12),
-          axis.text.x   = element_text(angle = 45, hjust = 1))
-  
-  print(p)}  # Or use ggsave() to save each plot
-
-# Close the PDF device
-dev.off()
-
-# Identify sequential survey_date pairs for the same lake to check for data redundancy ####
-lake_survey_sequential_pairs <- acoustic_final_inventory %>%
-  group_by(lake) %>%
-  arrange(survey_date, .by_group = TRUE) %>%
-  mutate(prev_date = lag(survey_date),
-         next_date = lead(survey_date),
-         is_sequential = (as.numeric(survey_date - prev_date) == 1 |
-                            as.numeric(next_date - survey_date) == 1)) %>%
-  filter(is_sequential) %>%
-  arrange(lake, survey_date) %>%
-  mutate(pair_start = (as.numeric(survey_date - prev_date) != 1),
-        sequential_survey_pair_id = cumsum(pair_start)) %>%
-  mutate(sequential_survey_pair_id = ifelse(is.na(sequential_survey_pair_id), 99, sequential_survey_pair_id)) %>%
-  select(-prev_date, -next_date, -is_sequential, -pair_start) %>%
-  ungroup()
-
-# Select key columns from lake_survey_sequential_pairs
-lake_survey_keys <- lake_survey_sequential_pairs %>%
-  select(ats_year, lake_code, survey_date, sounder_type, sequential_survey_pair_id)
-
-# Perform a semi-join to keep only matching records from acoustic_final_data
-acoustic_sequential_survey_data <- acoustic_final_data %>%
-  semi_join(lake_survey_keys, by = c("ats_year", "lake_code", "survey_date")) %>%
-  select(ats_year, lake, lake_code, survey_date, transect, depth_code, targets, target_survey_type, acoustic_source_file, line_number, 
-         acoustic_survey_comments, acoustic_survey_notes) %>% 
-  arrange(lake, survey_date)
-
-# Optionally, add the sequential_pair_id to the final data  ### not working! sequential_survey_pair_id all changed to 1 ###
-acoustic_sequential_survey_data <- acoustic_sequential_survey_data %>%
-  left_join(lake_survey_keys, by = c("ats_year", "lake_code", "survey_date")) %>%
-  arrange(lake, survey_date)
-
-write_csv(acoustic_sequential_survey_data, paste("./output/Target_CHK_sequential_surveys_", date_stamp, ".csv", sep=""))
-
-
-# Compare RAW and FINAL Acoustic Survey Dates ####
+# COMPARE RAW and FINAL Acoustic Survey Dates ####
 #
-# Purpose: Match-merge RAW and FINAL acoustic survey metadata 
-#          (i.e., by lake and survey_date) from LDP program
-#          Acoustic Target Data Cleanup.R to ensure nothing lost in process
+#   Match-merge RAW and FINAL acoustic survey metadata 
+#   (i.e., by lake and survey_date) from LDP program
+#   Acoustic Target Data Cleanup.R to ensure nothing lost in process
 
-# Step 1: Select relevant columns and get distinct combinations
+#   Select relevant columns and get distinct combinations
 raw_target_data_reduced <- all_target_data %>%   # <- this is the RAW target data
   select(lake_code, lake, survey_date, acoustic_survey_notes, source_file) %>%
   distinct()
@@ -1080,28 +980,28 @@ final_target_data_reduced <- merged_data_final_chk %>%  # <- this is the CLEANED
   select(lake_code, lake, survey_date, acoustic_survey_notes, source_file) %>%
   distinct()
 
-# Step 2: Add source indicators
+#   Add source indicators
 raw_target_data_reduced <- raw_target_data_reduced %>%
   mutate(source = "A_RAW_target_data")
 
 final_target_data_reduced <- final_target_data_reduced %>%
   mutate(source = "B_FINAL_target_data")
 
-# Step 3: Full join to combine both datasets
+#   Full join to combine both datasets
 combined1 <- full_join(raw_target_data_reduced, final_target_data_reduced,
                        by = c("lake_code", "survey_date"),
                        suffix = c("_all", "_merged"))
-# Warning message:
-# In full_join(raw_target_data_reduced, final_target_data_reduced,  :
-# Detected an unexpected many-to-many relationship between `x` and `y`.
-# ℹ Row 132 of `x` matches multiple rows in `y`.
-# ℹ Row 991 of `y` matches multiple rows in `x`.
+#   Warning message:
+#   In full_join(raw_target_data_reduced, final_target_data_reduced,  :
+#   Detected an unexpected many-to-many relationship between `x` and `y`.
+#     ℹ Row 132 of `x` matches multiple rows in `y`.
+#     ℹ Row 991 of `y` matches multiple rows in `x`.
 
-# Step 4: Determine final source label
+#   Determine final source label
 combined2 <- combined1 %>%
   mutate(source = case_when(
     !is.na(source_all) & !is.na(source_merged) ~ "C_In_Both_RAW_and_FINAL_data",
-    !is.na(source_all) ~ "A_RAW_target_data_only",
+    !is.na(source_all)    ~ "A_RAW_target_data_only",
     !is.na(source_merged) ~ "B_FINAL_target_data_only"
   )) %>%
   # Optional: clean up intermediate source columns
@@ -1123,3 +1023,82 @@ combined_raw_and_final <- combined2 %>%
   arrange(source, ats_year, lake_code, survey_date)
 
 write_csv(combined_raw_and_final, paste("./output/Target_CHK_RAW_vs_CLEAN_surveys_", date_stamp, ".csv", sep=""))
+# VISUALIZE the frequency of acoustic surveys by Lake and ATS Year ####
+#   Set the lake and lake_codes to be the same for things like Heydon Lk and Heydon_2005...
+acoustic_target_final_inventory_tidy <- acoustic_target_final_inventory %>%
+  mutate(lake = str_replace(lake, "_2005", " Lk"),          # consolidate lake names
+         lake = str_replace(lake, "_2006", " Lk"),          # where they are suffixed with Year
+         lake = str_replace(lake, "_2007", " Lk"),          
+         lake = gsub("\\s*\\(.*\\)", "", lake),             # and remove (A), (B)...(D), (N), (S) 
+         lake = gsub("\\s+(ne|nw|se|sw)$", "", lake))       # and remove ne, nw, se, sw 
+
+# Get unique lakes sorted alphabetically
+lake_groups <- acoustic_target_final_inventory_tidy %>%  
+  distinct(lake) %>%
+  arrange(lake) %>%
+  mutate(lake_group = LETTERS[ceiling(row_number() / 9)])
+
+# Join lake group back to full dataset
+acoustic_data_visualize <- acoustic_target_final_inventory_tidy %>%
+  mutate(decade = paste0((ats_year %/% 10) * 10, "s")) %>%
+  left_join(lake_groups, by = "lake") %>%
+  select(lake_group, decade, ats_year, lake, lake_code, survey_date) %>%
+  arrange(lake_group, lake, decade, ats_year)
+
+# Prepare data for visualization: surveys per lake and year
+record_counts <- acoustic_data_visualize %>%
+  group_by(lake_group, decade, lake, ats_year) %>%
+  summarise(record_count = n(), .groups = "drop")
+
+# Generate one plot per lake_group
+unique_groups <- sort(unique(record_counts$lake_group))
+
+# Define the plot file path
+plotfile <- paste0("./figures/Acoustic_Survey_Freq_by_Lake_Year_", ats_year_span, date_stamp, ".pdf")
+
+# Check if the file exists
+if (file.exists(plotfile)) {
+  # Check if the file is currently open in R
+  if (any(grepl("pdf", names(dev.list())))) {
+    dev.off()  # Close the PDF device
+  }
+  
+  # Try to remove the file
+  tryCatch({
+    file.remove(plotfile)
+  }, warning = function(w) {
+    message("Warning: Could not delete existing file. It may be open or locked.")
+  }, error = function(e) {
+    message("Error: Unable to delete file. Check permissions or if it's open elsewhere.")
+  })
+}
+
+# Open a new PDF device
+pdf(plotfile, width = 11, height = 8.5) 
+
+for (group in unique_groups) {
+  group_data <- record_counts %>% filter(lake_group == group)
+  
+  # Calculate max record_count for this group
+  max_count <- max(group_data$record_count, na.rm = TRUE)
+  
+  p <- group_data %>%
+    ggplot(aes(x = ats_year, y = record_count)) +
+    geom_bar(stat = "identity", fill = "steelblue", color = "white") +
+    facet_wrap(~ lake, scales = "fixed", ncol = 3) +
+    scale_y_continuous(limits = c(0, max_count)) +
+    scale_x_continuous(breaks = seq(1977, 2007, by = 5), limits = c(1975, 2010)) +
+    labs(title = "Frequency of Acoustic Surveys by Lake and ATS-year",
+         subtitle = paste0("Source: Acoustic Target Data Cleanup.R  ", "Date: ", format(as.Date(date_stamp, format = "%y%m%d"), "%d-%b-%Y"), sep=""), # date-stamp the plots
+         x = "", y = "") +
+    theme_minimal() +
+    theme(plot.title    = element_text(color = "steelblue", size = 14, face = "bold", hjust = 0),
+          plot.subtitle = element_text(color = "darkgray",  size = 8,  face = "bold", hjust = 0),
+          strip.text    = element_text(size = 12),
+          axis.text.x   = element_text(angle = 45, hjust = 1))
+  
+  print(p)}  # Or use ggsave() to save each plot
+
+# Close the PDF device
+close <- dev.off()
+# close
