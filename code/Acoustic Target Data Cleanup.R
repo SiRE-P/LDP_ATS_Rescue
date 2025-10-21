@@ -1092,11 +1092,10 @@ combined1 <- full_join(raw_target_data_reduced, final_target_data_reduced,
                        by = c("lake_code", "survey_date"),
                        suffix = c("_all", "_merged"))
 # Warning message:
-#   In full_join(raw_target_data_reduced, final_target_data_reduced,  :
-#                  Detected an unexpected many-to-many relationship between `x` and `y`.
-#  ℹ Row 555 of `x` matches multiple rows in `y`.
-#  ℹ Row 551 of `y` matches multiple rows in `x`.
-#  ℹ If a many-to-many relationship is expected, set `relationship = "many-to-many"` to silence this warning.
+# In full_join(raw_target_data_reduced, final_target_data_reduced,  :
+# Detected an unexpected many-to-many relationship between `x` and `y`.
+# ℹ Row 132 of `x` matches multiple rows in `y`.
+# ℹ Row 991 of `y` matches multiple rows in `x`.
 
 # Step 4: Determine final source label
 combined2 <- combined1 %>%
