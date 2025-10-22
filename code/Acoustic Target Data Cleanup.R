@@ -36,18 +36,19 @@
 ##          
 
 # LIBRARIES ####
-
+library(beepr)
 library(dplyr)
 library(lubridate)
 library(progress)     # for progress bar
 library(purrr)
 library(stringr)
-library(tidyverse)
 library(tibble)       # install.packages("tictoc")
 library(tictoc)       # get elapsed time 
+library(tidyverse)
 library(tools)
 
 # INITIALIZE variables ####
+start_time <- Sys.time()                                                        
 date_stamp <- substr(format(Sys.time(), "%Y%m%d-%H%M"), 3, 8) # 8 for date only  # Get the current date to timestamp output files
 ats_year_span <- "(1977_2007)_"                               # year span of the data
 
@@ -55,12 +56,18 @@ if (!dir.exists("./output"))  {dir.create("./output")}        # ensure CSV outpu
 if (!dir.exists("./figures")) {dir.create("./figures")}       # ensure plot output directory exists
 
 # FUNCTIONS ####
-# FUNCTION to assign ATS year based on survey date
+#   FUNCTION to assign ATS year based on survey date
 assign_ats_year <- function(survey_date) {
   if_else(month(survey_date) >= 4,
           year(survey_date),
           year(survey_date) - 1)
 } # end function
+
+#   FUNCTION to make a sound
+make_a_sound <- function(noise, pause) {
+  beep(sound = noise)
+  Sys.sleep(pause)
+  beep(sound = noise)}
 
 # FUNCTION to read input data from TARGET*.DAT files (differs from SE's version in adding line_numbers for trace-ability)
 parse_target_dat_tracer <- function(filepath) {
@@ -753,6 +760,7 @@ target_data_keyfield_duplicates <- target_data_exact_dups_removed %>%
 
 #   Export the duplicate records with line numbers but DO NOT REMOVE key field duplicates from the data until after inspection
 write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_duplicate_surveys_", date_stamp, ".csv", sep=""), row.names = FALSE) 
+write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_duplicate_surveys_GENERIC",      ".csv", sep=""), row.names = FALSE) # dump out a generic version that is auto-read by Excel PIVOT version
 
 #   Repeat key-field duplicates check but do not filter, just flag the situation in key_field_replicate column 
 target_data_keyfield_dups_flagged <- target_data_exact_dups_removed %>%
@@ -796,6 +804,7 @@ lake_sequential_survey_data <- target_data_keyfield_dups_flagged %>%            
 
 # export all surveys with same lake and sequential dates to csv for survey comparison via Excel Pivot tables
 write_csv(lake_sequential_survey_data, paste("./output/Target_CHK_sequential_surveys_", date_stamp, ".csv", sep=""))
+write.csv(lake_sequential_survey_data, paste("./output/Target_CHK_sequential_surveys__GENERIC",     ".csv", sep=""), row.names = FALSE) # dump out a generic version that is auto-read by Excel PIVOT version
 
 # Flag sequential surveys without merging (due to possible many-to-many match-merge) and without removal
 target_data_sequential_flagged <- target_data_keyfield_dups_flagged %>%
@@ -816,6 +825,18 @@ cat("  Number of records should be zero for all index variables (i.e., lake, dat
 NA_missing_summary <- sapply(target_data_sequential_flagged, function(x) sum(is.na(x)))
 print(NA_missing_summary)
 cat("\n")
+
+# cat("\nTally Frequency of data_issues by Type\n")                             # moved to final output, below
+# summary_table <- target_data_sequential_flagged %>%
+#   filter(data_issues != "") %>%
+#   group_by(data_issues) %>%
+#   summarise(count = n(), .groups = "drop") %>%
+#   arrange(data_issues, desc(count)) %>%
+#   bind_rows(
+#     summarise(., data_issues = "TOTAL RECORDS WITH DATA ISSUES ----------------------->", 
+#               count = sum(count)))
+# print(summary_table, n = Inf)
+# cat("\n")
 
 #   Checking for NAs in depth code - especially if TARGETS > 0 
 cat("\nMissing Depth Codes when Targets > 0\n")
@@ -942,7 +963,7 @@ acoustic_target_final_inventory <- merged_data_final_chk %>%
 write_csv(acoustic_target_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
 
 # Export cleaned up acoustic survey data with target data records 
-acoustic_final_data <- merged_data_final_chk %>% 
+acoustic_target_final_data <- merged_data_final_chk %>% 
   mutate(data_issues = str_c(data_issues, " ", sounder_issues)) %>%  # amalgamate all data issues into the data_issues field
   rename(depth_min_m = depth_min,
          depth_max_m = depth_max,
@@ -953,14 +974,44 @@ acoustic_final_data <- merged_data_final_chk %>%
          acoustic_survey_notes, acoustic_survey_comments = survey_comments, acoustic_source_file = source_file, line_number, everything(), -sounder_issues, -sourcefile_year, -source_year_err) %>%
   arrange(ats_year, lake, survey_date, transect, depth_code)
 
+cat("\nTally Frequency of data_issues by Type\n")
+summary_table <- acoustic_target_final_data %>%
+  mutate(data_issues = str_trim(data_issues)) %>%  # Remove leading/trailing whitespace
+  filter(data_issues != "" & data_issues != " ") %>%
+  group_by(data_issues) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  arrange(data_issues, desc(count)) %>%
+  bind_rows(
+    summarise(., data_issues = "TOTAL RECORDS WITH DATA ISSUES ----------------------->", 
+              count = sum(count)))
+print(summary_table, n = Inf)
+cat("\n")
+
+cat("\nTally Frequency of Surveys that are potential duplicates/replicates\n")
+summary_table <- acoustic_target_final_inventory %>%
+  mutate(
+    key_field_replicate = ifelse(is.na(key_field_replicate), "", key_field_replicate),
+    sequential_date_replicate = ifelse(is.na(sequential_date_replicate), "", sequential_date_replicate),
+    replicate_issue = paste(str_trim(key_field_replicate), str_trim(sequential_date_replicate))) %>%
+  mutate(replicate_issue = str_trim(replicate_issue)) %>%
+  filter(replicate_issue != "") %>%
+  group_by(replicate_issue) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  arrange(replicate_issue, desc(count)) %>%
+  bind_rows(
+    summarise(., replicate_issue = "TOTAL SURVEYS WITH POTENTIAL DUPLICATES/REPLICATES ----------------------->", 
+              count = sum(count)))
+print(summary_table, n = Inf)
+cat("\n")
+
 # Segregate adult and juvenile type surveys
-adult_target_data <- acoustic_final_data %>%
+adult_target_data <- acoustic_target_final_data %>%
   filter(target_survey_type == "ADULT")
 
-juvenile_target_data <- acoustic_final_data %>%
+juvenile_target_data <- acoustic_target_final_data %>%
   filter(target_survey_type == "JUVENILE")
 
-write_csv(acoustic_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(acoustic_target_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, date_stamp, ".csv", sep=""))
 # write_csv(adult_target_data, paste("./output/Target_OUTPUT_ATS_Adult_", date_stamp, ".csv", sep=""))
 # write_csv(juvenile_target_data, paste("./output/Target_OUTPUT_ATS_Juvenile", date_stamp, ".csv", sep=""))
 
@@ -1102,3 +1153,10 @@ for (group in unique_groups) {
 # Close the PDF device
 close <- dev.off()
 # close
+
+# FINISH ####
+#   Calculate execution time and finish up
+end_time <- Sys.time()
+execution_time <- as.numeric(difftime(end_time, start_time, units = "mins"))
+cat("\nExecution time:", round(execution_time, 2), "minutes\n")
+make_a_sound("coin", .25)
