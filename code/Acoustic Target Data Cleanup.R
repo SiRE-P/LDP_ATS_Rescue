@@ -961,6 +961,7 @@ acoustic_target_final_inventory <- merged_data_final_chk %>%
   arrange(ats_year, lake, lake_code, survey_date)
 
 write_csv(acoustic_target_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(acoustic_target_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, "GENERIC.csv",      sep="")) # export copy for PIVOT workbook
 
 # Export cleaned up acoustic survey data with target data records 
 acoustic_target_final_data <- merged_data_final_chk %>% 
@@ -969,9 +970,9 @@ acoustic_target_final_data <- merged_data_final_chk %>%
          depth_max_m = depth_max,
          area_ha = area,
          transect_length_m = transect_length) %>% 
-  select(ats_year, data_issues, key_field_replicate, lake_code, lake, survey_date, survey_year, survey_month, transect, depth_code, depth_min_m, 
+  select(ats_year, lake_code, lake, survey_date, target_survey_code, target_survey_type, survey_year, survey_month, transect, depth_code, depth_min_m, 
          depth_max_m, targets, transect_length_m, area_ha, sounder_code, sounder_type, sounder_gain, prop_sockeye, prop_stickleback, prop_total = total_prop,
-         acoustic_survey_notes, acoustic_survey_comments = survey_comments, acoustic_source_file = source_file, line_number, everything(), -sounder_issues, -sourcefile_year, -source_year_err) %>%
+         acoustic_survey_notes, acoustic_survey_comments = survey_comments, acoustic_source_file = source_file, line_number, data_issues, key_field_replicate, sequential_date_replicate, everything(), -sounder_issues, -sourcefile_year, -source_year_err) %>%
   arrange(ats_year, lake, survey_date, transect, depth_code)
 
 cat("\nTally Frequency of data_issues by Type\n")
@@ -1012,6 +1013,8 @@ juvenile_target_data <- acoustic_target_final_data %>%
   filter(target_survey_type == "JUVENILE")
 
 write_csv(acoustic_target_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(acoustic_target_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, "GENERIC.csv",      sep="")) # export copy for PIVOT workbook
+
 # write_csv(adult_target_data, paste("./output/Target_OUTPUT_ATS_Adult_", date_stamp, ".csv", sep=""))
 # write_csv(juvenile_target_data, paste("./output/Target_OUTPUT_ATS_Juvenile", date_stamp, ".csv", sep=""))
 
