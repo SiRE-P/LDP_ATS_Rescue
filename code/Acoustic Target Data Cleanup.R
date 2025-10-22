@@ -267,9 +267,10 @@ cat("\n")
 
 #   Save raw import data and an inventory of surveys to csv...####
 write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, "GENERIC.csv",      sep="")) # save copy for import to Pivot workbook
 #   Re-Import raw import data (assign FILE_NAME if necessary!) from saved CSV to skip time-consuming import of TARGET*.DAT ####
-all_target_data   <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
-# all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, "251020",   ".csv", sep=""))   # use this if skipping the compilation process, above, after revising the date-stamp to match the save-date of the Target_INPUT_data_RAW csv of interest
+all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
+all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, "GENERIC.csv"     , sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
 
 # Output an inventory of unique surveys in the raw data
 raw_data_inventory <- all_target_data %>%
@@ -738,6 +739,7 @@ target_data_exact_duplicates <- merged_tidy_data %>%             # was all_targe
 # View(target_data_exact_duplicates)
 # Export to CSV
 write_csv(target_data_exact_duplicates, paste("./output/Target_CHK_exact_duplicate_records_", date_stamp, ".csv", sep=""))
+write_csv(target_data_exact_duplicates, paste("./output/Target_CHK_exact_duplicate_records_", "GENERIC.csv"     , sep="")) # save copy for import to Pivot workbook
 
 cat("List of EXACT duplicate records (same lake, same survey date)...\n") 
 target_data_exact_dups_inventory <- target_data_exact_duplicates %>%
