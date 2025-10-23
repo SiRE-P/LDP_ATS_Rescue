@@ -554,7 +554,15 @@ merged_data_with_issues <- merged_data_strata %>%
       TRUE ~ data_issues
     ),
     
-    
+    # set JANSEN Lk survey 860213 to ADULT by adding ADULT SURVEY to survey_comments for later tranlation to survey_type and survey_type_code
+    target_survey_code = case_when(
+      lake_code == 108 & survey_date == ymd("1986-02-13") ~ 2,
+      TRUE ~ target_survey_code),
+
+    target_survey_type = case_when(
+      lake_code == 108 & survey_date == ymd("1986-02-13") ~ "ADULT",
+      TRUE ~ target_survey_type),
+        
     # SKAHA Lake date fix for invalid date (00/09/31)
     fix_skaha_date = lake_code == 241 & source_file == "TARGET00.DAT" & is.na(survey_date),
     survey_date = case_when(
