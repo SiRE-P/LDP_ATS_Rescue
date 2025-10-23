@@ -296,15 +296,33 @@ data <- all_target_data %>%   # target_data_exact_dups_removed %>%
            fill = "right") %>% 
   
   # Assigning target_survey_type as ADULT or JUVENILE (default) -- based on text="ADULT SURVEY" in survey_comments (ignore other references to adults present, not present, etc)
+
+  # mutate(
+  #   target_survey_code = case_when(
+  #     is.na(survey_comments) | str_trim(survey_comments) == "" ~ 1,
+  #     str_detect(survey_comments, regex("adult survey", ignore_case = TRUE)) ~ 2,
+  #     TRUE ~ 1),
+  #   target_survey_type = case_when(
+  #     is.na(survey_comments) | str_trim(survey_comments) == "" ~ "JUVENILE",
+  #     str_detect(survey_comments, regex("adult survey", ignore_case = TRUE)) ~ "ADULT",
+  #     TRUE ~ "JUVENILE")) %>%
+
   mutate(
     target_survey_code = case_when(
-      is.na(survey_comments) | str_trim(survey_comments) == "" ~ 1,
-      str_detect(survey_comments, regex("adult survey", ignore_case = TRUE)) ~ 2,
+      (is.na(survey_comments) | str_trim(survey_comments) == "") &
+      (is.na(acoustic_survey_notes) | str_trim(acoustic_survey_notes) == "") ~ 1,
+      
+      str_detect(survey_comments, regex("adult survey|adult count|adult estimate|large target count",       ignore_case = TRUE)) |
+      str_detect(acoustic_survey_notes, regex("adult survey|adult count|adult estimate|large target count", ignore_case = TRUE)) ~ 2,
       TRUE ~ 1),
+    
     target_survey_type = case_when(
-      is.na(survey_comments) | str_trim(survey_comments) == "" ~ "JUVENILE",
-      str_detect(survey_comments, regex("adult survey", ignore_case = TRUE)) ~ "ADULT",
-      TRUE ~ "JUVENILE")) %>%
+      (is.na(survey_comments) | str_trim(survey_comments) == "") &
+      (is.na(acoustic_survey_notes) | str_trim(acoustic_survey_notes) == "") ~ "JUVENILE",
+      
+      str_detect(survey_comments, regex("adult survey|adult count|adult estimate|large target count",       ignore_case = TRUE)) |
+      str_detect(acoustic_survey_notes, regex("adult survey|adult count|adult estimate|large target count", ignore_case = TRUE)) ~ "ADULT",
+      TRUE ~ "JUVENILE")) %>%  
   
   # convert survey_date from character into a data
   mutate(survey_date = ymd(survey_date),
@@ -554,6 +572,16 @@ merged_data_with_issues <- merged_data_strata %>%
       TRUE ~ data_issues
     ),
     
+    # set HOBITON Lk survey 880614 to JUVENILE survey_type and survey_type_code (was classed ADULT due to text in comment, but should be juv
+    target_survey_code = case_when(
+      lake_code == 6 & survey_date == ymd("1988-06-14") ~ 1,
+      TRUE ~ target_survey_code),
+    
+    target_survey_type = case_when(
+      lake_code == 6 & survey_date == ymd("1988-06-14") ~ "JUVENILE",
+      TRUE ~ target_survey_type),
+    
+    
     # set JANSEN Lk survey 860213 to ADULT by adding ADULT SURVEY to survey_comments for later tranlation to survey_type and survey_type_code
     target_survey_code = case_when(
       lake_code == 108 & survey_date == ymd("1986-02-13") ~ 2,
@@ -780,13 +808,14 @@ target_data_keyfield_dups_flagged <- target_data_exact_dups_removed %>%
 
 #   Flag further POTENTIAL duplicates based on sequential survey_date pairs for the same lake ####
 lake_surveys_unique <- target_data_keyfield_dups_flagged %>%                    # was <-data %>%
-  select(ats_year, lake, lake_code, survey_date, sounder_code, sounder_type, source_file, 
+  select(ats_year, lake, lake_code, survey_date, target_survey_code, target_survey_type, 
+         sounder_code, sounder_type, source_file, 
          acoustic_survey_notes, acoustic_survey_comments = survey_comments) %>%
   distinct() %>%                                                                # get unique lake surveys from meta-data
   arrange(ats_year, lake, lake_code, survey_date)
 
 lake_survey_sequential_pairs <- lake_surveys_unique %>%                         # identify which lake surveys follow
-  group_by(lake) %>%                                                            # sequentially, indicating possible
+  group_by(target_survey_type, lake) %>%                                                            # sequentially, indicating possible
   arrange(survey_date, .by_group = TRUE) %>%                                    # replicate survey (e.g., with diff sounders)
   mutate(prev_date = lag(survey_date),                                          # or replicate analyses (e.g., with diff software)
          next_date = lead(survey_date),                                         # or replicate readings (e.g., with diff processors)
