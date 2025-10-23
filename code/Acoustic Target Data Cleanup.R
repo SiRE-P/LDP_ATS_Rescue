@@ -807,19 +807,19 @@ target_data_keyfield_dups_flagged <- target_data_exact_dups_removed %>%
   ungroup()
 
 #   Flag further POTENTIAL duplicates based on sequential survey_date pairs for the same lake ####
-lake_surveys_unique <- target_data_keyfield_dups_flagged %>%                    # was <-data %>%
+lake_surveys_unique <- target_data_keyfield_dups_flagged %>%                    
   select(ats_year, lake, lake_code, survey_date, target_survey_code, target_survey_type, 
          sounder_code, sounder_type, source_file, 
          acoustic_survey_notes, acoustic_survey_comments = survey_comments) %>%
   distinct() %>%                                                                # get unique lake surveys from meta-data
   arrange(ats_year, lake, lake_code, survey_date)
 
-lake_survey_sequential_pairs <- lake_surveys_unique %>%                         # identify which lake surveys follow
-  group_by(target_survey_type, lake) %>%                                                            # sequentially, indicating possible
-  arrange(survey_date, .by_group = TRUE) %>%                                    # replicate survey (e.g., with diff sounders)
-  mutate(prev_date = lag(survey_date),                                          # or replicate analyses (e.g., with diff software)
-         next_date = lead(survey_date),                                         # or replicate readings (e.g., with diff processors)
-         is_sequential = (as.numeric(survey_date - prev_date)   == 1 |          # or just erroneous duplicates
+lake_survey_sequential_pairs <- lake_surveys_unique %>%                         # identify which lake surveys follow sequentially, 
+  group_by(target_survey_type, lake) %>%                                        #  indicating possible
+  arrange(survey_date, .by_group = TRUE) %>%                                    #  replicate survey (e.g., with diff sounders), or
+  mutate(prev_date = lag(survey_date),                                          #  replicate analyses (e.g., with diff software), or
+         next_date = lead(survey_date),                                         #  replicate readings (e.g., with diff processors), or
+         is_sequential = (as.numeric(survey_date - prev_date)   == 1 |          #  just erroneous duplicates
                           as.numeric(next_date   - survey_date) == 1)) %>%
   filter(is_sequential) %>%
   arrange(lake, survey_date) %>%
@@ -834,9 +834,9 @@ lake_survey_keys <- lake_survey_sequential_pairs %>%
   select(ats_year, lake_code, survey_date, sounder_type, sequential_survey_pair_id)
 
 # Perform a semi-join to keep only matching records from lake_surveys_unique
-lake_sequential_survey_data <- target_data_keyfield_dups_flagged %>%            # was <-data %>%
+lake_sequential_survey_data <- target_data_keyfield_dups_flagged %>%            
   semi_join(lake_survey_keys, by = c("ats_year", "lake_code", "survey_date")) %>%
-  mutate(sequential_date_replicate = "Potential duplicate survey near this date") %>%
+  mutate(sequential_date_replicate = "Replicate or potential duplicate survey (sequential dates)") %>%
   select(ats_year, lake, lake_code, survey_date, sounder_type, sounder_code, transect, depth_code, targets, prop_sockeye, target_survey_type, source_file, line_number, 
          survey_comments, acoustic_survey_notes, sequential_date_replicate) %>% 
   arrange(lake, survey_date)
@@ -851,7 +851,7 @@ target_data_sequential_flagged <- target_data_keyfield_dups_flagged %>%
   mutate(sequential_date_replicate = if_else(
     any(lake_code == lake_survey_sequential_pairs$lake_code &
           survey_date == lake_survey_sequential_pairs$survey_date),
-    "Potential duplicate survey due to sequential date!",
+    "Replicate or potential duplicate survey (sequential dates)",
     NA_character_
   )) %>%
   ungroup()
