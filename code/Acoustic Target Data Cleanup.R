@@ -213,7 +213,7 @@ parse_target_dat_tracer <- function(filepath) {
 } # end function
 
 
-# IMPORT TARGET*.DAT files ####
+# IMPORT TARGET*.DAT files                                      ## COMMENT OUT to skip TARGET.DAT import process ####
 
 # list all .dat files in the working directory
 dat_files <- list.files(
@@ -265,7 +265,7 @@ cat("\n")
 #   filter(!if_all(c(transect, depth, targets), is.na))           # this drops all records missing in three key index variables, which seems to happen due to blank lines between input data blocks (HS 250908)
 # toc()
 
-#   Save raw import data and an inventory of surveys to csv...####
+#   Save raw import data and an inventory of surveys to csv...  ## COMMENT OUT to skip TARGET.DAT import process ####
 write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))
 write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, "GENERIC.csv",      sep="")) # save copy for import to Pivot workbook
 #   Re-Import raw import data (assign FILE_NAME if necessary!) from saved CSV to skip time-consuming import of TARGET*.DAT ####
@@ -312,16 +312,16 @@ data <- all_target_data %>%   # target_data_exact_dups_removed %>%
       (is.na(survey_comments) | str_trim(survey_comments) == "") &
       (is.na(acoustic_survey_notes) | str_trim(acoustic_survey_notes) == "") ~ 1,
       
-      str_detect(survey_comments, regex("adult survey|adult count|adult estimate|large target count",       ignore_case = TRUE)) |
-      str_detect(acoustic_survey_notes, regex("adult survey|adult count|adult estimate|large target count", ignore_case = TRUE)) ~ 2,
+      str_detect(survey_comments,       regex("adult survey|adult count|adult estimate|adult target estimate|adult day survey|large target count", ignore_case = TRUE)) |
+      str_detect(acoustic_survey_notes, regex("adult survey|adult count|adult estimate|adult target estimate|adult day survey|large target count", ignore_case = TRUE)) ~ 2,
       TRUE ~ 1),
     
     target_survey_type = case_when(
       (is.na(survey_comments) | str_trim(survey_comments) == "") &
       (is.na(acoustic_survey_notes) | str_trim(acoustic_survey_notes) == "") ~ "JUVENILE",
       
-      str_detect(survey_comments, regex("adult survey|adult count|adult estimate|large target count",       ignore_case = TRUE)) |
-      str_detect(acoustic_survey_notes, regex("adult survey|adult count|adult estimate|large target count", ignore_case = TRUE)) ~ "ADULT",
+      str_detect(survey_comments,       regex("adult survey|adult count|adult estimate|adult target estimate|adult day survey|large target count", ignore_case = TRUE)) |
+      str_detect(acoustic_survey_notes, regex("adult survey|adult count|adult estimate|adult target estimate|adult day survey|large target count", ignore_case = TRUE)) ~ "ADULT",
       TRUE ~ "JUVENILE")) %>%  
   
   # convert survey_date from character into a data
@@ -403,6 +403,13 @@ tidy_data <- data %>%
 filter_data  <- tidy_data %>% filter(if_all(everything(), is.na))   # this captures any and all recs that were NA IN ALL COLUMNS = 0
 data_with_na <- tidy_data %>% filter(if_any(everything(), is.na))   # this captures any record with an NA in ANY column = 20,099 (HS 251006)
 data_no_na   <- tidy_data %>% drop_na()                             # drop_na() with no arguments removes any row that has at least one NA in any column = 123,880 = 131,011 - 7,131
+
+
+# Tabulate combinations of sounder_type and sounder_code
+tidy_data %>%
+  count(sounder_type, sounder_code) %>%
+  arrange(desc(n))
+
 
 #   Merge in parameters from lake_strata (area, length) ####
 lake_strata <- read.csv("./data/lake_strata_lengths.csv") #input the reference file 
@@ -794,7 +801,14 @@ target_data_keyfield_duplicates <- target_data_exact_dups_removed %>%
   group_by(lake_code, survey_date, transect, depth_code) %>%  # Key fields: lake_code, survey_date, transect, depth_code
   filter(n() > 1) %>%                                         # Filter for export any records where more than one survey exists for same key fields
   mutate(key_field_replicate = "Replicate exists for this lake, date, transect and depth") %>%   # add new data issues column for keyfield replicates
-  ungroup()
+  ungroup() %>%
+  select(lake, lake_code, ats_year, target_survey_code, target_survey_type, survey_date, survey_year, survey_month, 
+         transect, depth_code, depth_min, depth_max, targets, prop_sockeye, prop_stickleback, total_prop,
+         transect_length, area,
+         sounder_code, sounder_type, sounder_gain,
+         data_issues, survey_comments, acoustic_survey_notes, key_field_replicate,
+         source_file, line_number, sourcefile_year, source_year_err) %>%
+  arrange(lake, ats_year, survey_date)
 
 #   Export the duplicate records with line numbers but DO NOT REMOVE key field duplicates from the data until after inspection
 write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_duplicate_surveys_", date_stamp, ".csv", sep=""), row.names = FALSE) 
@@ -815,14 +829,14 @@ lake_surveys_unique <- target_data_keyfield_dups_flagged %>%
   arrange(ats_year, lake, lake_code, survey_date)
 
 lake_survey_sequential_pairs <- lake_surveys_unique %>%                         # identify which lake surveys follow sequentially, 
-  group_by(target_survey_type, lake) %>%                                        #  indicating possible
-  arrange(survey_date, .by_group = TRUE) %>%                                    #  replicate survey (e.g., with diff sounders), or
-  mutate(prev_date = lag(survey_date),                                          #  replicate analyses (e.g., with diff software), or
+  group_by(target_survey_type, sounder_code, lake) %>%                          #  (excluding survey_type or sounder_type replicates), 
+  arrange(survey_date, .by_group = TRUE) %>%                                    #  indicating possible:
+  mutate(prev_date = lag(survey_date),                                          #  replicate analyses (e.g., with diff software, or revised spp proportions), or
          next_date = lead(survey_date),                                         #  replicate readings (e.g., with diff processors), or
-         is_sequential = (as.numeric(survey_date - prev_date)   == 1 |          #  just erroneous duplicates
+         is_sequential = (as.numeric(survey_date - prev_date)   == 1 |          #  potential erroneous duplicates.
                           as.numeric(next_date   - survey_date) == 1)) %>%
   filter(is_sequential) %>%
-  arrange(lake, survey_date) %>%
+  arrange(lake, sounder_code, survey_date) %>%
   mutate(pair_start = (as.numeric(survey_date - prev_date) != 1),
          sequential_survey_pair_id = cumsum(pair_start)) %>%
   mutate(sequential_survey_pair_id = ifelse(is.na(sequential_survey_pair_id), 99, sequential_survey_pair_id)) %>%
@@ -831,15 +845,18 @@ lake_survey_sequential_pairs <- lake_surveys_unique %>%                         
 
 # Select key columns from lake_survey_sequential_pairs
 lake_survey_keys <- lake_survey_sequential_pairs %>%
-  select(ats_year, lake_code, survey_date, sounder_type, sequential_survey_pair_id)
+  select(ats_year, lake_code, survey_date, target_survey_type, sounder_code, sequential_survey_pair_id)
 
 # Perform a semi-join to keep only matching records from lake_surveys_unique
 lake_sequential_survey_data <- target_data_keyfield_dups_flagged %>%            
   semi_join(lake_survey_keys, by = c("ats_year", "lake_code", "survey_date")) %>%
-  mutate(sequential_date_replicate = "Replicate or potential duplicate survey (sequential dates)") %>%
-  select(ats_year, lake, lake_code, survey_date, sounder_type, sounder_code, transect, depth_code, targets, prop_sockeye, target_survey_type, source_file, line_number, 
+  mutate(sequential_date_replicate = "Replicate or potential duplicate (sequential survey dates)") %>%
+  select(ats_year, lake, lake_code, survey_date, target_survey_type, 
+         sounder_type, sounder_code, 
+         transect, depth_code, targets, prop_sockeye, 
+         source_file, line_number, 
          survey_comments, acoustic_survey_notes, sequential_date_replicate) %>% 
-  arrange(lake, survey_date)
+  arrange(lake, survey_date, target_survey_type, sounder_code)
 
 # export all surveys with same lake and sequential dates to csv for survey comparison via Excel Pivot tables
 write_csv(lake_sequential_survey_data, paste("./output/Target_CHK_sequential_surveys_", date_stamp, ".csv", sep=""))
@@ -851,7 +868,7 @@ target_data_sequential_flagged <- target_data_keyfield_dups_flagged %>%
   mutate(sequential_date_replicate = if_else(
     any(lake_code == lake_survey_sequential_pairs$lake_code &
           survey_date == lake_survey_sequential_pairs$survey_date),
-    "Replicate or potential duplicate survey (sequential dates)",
+    "Replicate or potential duplicate (sequential survey dates)",
     NA_character_
   )) %>%
   ungroup()
@@ -989,19 +1006,6 @@ cat("\n")
 write_csv(range_issues, paste("./output/Target_CHK_targets_issues_", date_stamp, ".csv", sep=""))
 
 # FINAL DATA OUTPUT (Post-processing) ####
-#   Export final data inventory (unique surveys)
-acoustic_target_final_inventory <- merged_data_final_chk %>%
-  select(ats_year, lake, lake_code, survey_date, 
-         target_survey_code, target_survey_type, 
-         sounder_code, sounder_type, sounder_gain, sounder_issues, 
-         key_field_replicate, sequential_date_replicate,
-         source_file, acoustic_survey_notes, acoustic_survey_comments = survey_comments) %>%
-  distinct() %>%
-  arrange(ats_year, lake, lake_code, survey_date)
-
-write_csv(acoustic_target_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
-write_csv(acoustic_target_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, "GENERIC.csv",      sep="")) # export copy for PIVOT workbook
-
 # Export cleaned up acoustic survey data with target data records 
 acoustic_target_final_data <- merged_data_final_chk %>% 
   mutate(data_issues = str_c(data_issues, " ", sounder_issues)) %>%  # amalgamate all data issues into the data_issues field
@@ -1009,10 +1013,27 @@ acoustic_target_final_data <- merged_data_final_chk %>%
          depth_max_m = depth_max,
          area_ha = area,
          transect_length_m = transect_length) %>% 
-  select(ats_year, lake_code, lake, survey_date, target_survey_code, target_survey_type, survey_year, survey_month, transect, depth_code, depth_min_m, 
-         depth_max_m, targets, transect_length_m, area_ha, sounder_code, sounder_type, sounder_gain, prop_sockeye, prop_stickleback, prop_total = total_prop,
-         acoustic_survey_notes, acoustic_survey_comments = survey_comments, acoustic_source_file = source_file, line_number, data_issues, key_field_replicate, sequential_date_replicate, everything(), -sounder_issues, -sourcefile_year, -source_year_err) %>%
+  select(ats_year, lake_code, lake, survey_date, target_survey_code, target_survey_type, survey_year, survey_month, transect, 
+         depth_code, depth_min_m, depth_max_m, targets, prop_sockeye, prop_stickleback, prop_total = total_prop, 
+         transect_length_m, area_ha, 
+         sounder_code, sounder_type, sounder_gain, sounder_issues,
+         acoustic_survey_notes, acoustic_survey_comments = survey_comments, 
+         data_issues, key_field_replicate, sequential_date_replicate, 
+         acoustic_source_file = source_file, line_number, everything(), -sourcefile_year, -source_year_err) %>%
   arrange(ats_year, lake, survey_date, transect, depth_code)
+
+# Segregate adult and juvenile type surveys
+adult_target_data <- acoustic_target_final_data %>%
+  filter(target_survey_type == "ADULT")
+
+juvenile_target_data <- acoustic_target_final_data %>%
+  filter(target_survey_type == "JUVENILE")
+
+write_csv(acoustic_target_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(acoustic_target_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, "GENERIC.csv",      sep="")) # export copy for PIVOT workbook
+
+# write_csv(adult_target_data, paste("./output/Target_OUTPUT_ATS_Adult_", date_stamp, ".csv", sep=""))
+# write_csv(juvenile_target_data, paste("./output/Target_OUTPUT_ATS_Juvenile", date_stamp, ".csv", sep=""))
 
 cat("\nTally Frequency of data_issues by Type\n")
 summary_table <- acoustic_target_final_data %>%
@@ -1026,6 +1047,19 @@ summary_table <- acoustic_target_final_data %>%
               count = sum(count)))
 print(summary_table, n = Inf)
 cat("\n")
+
+#   Export final data inventory (unique surveys)
+acoustic_target_final_inventory <- merged_data_final_chk %>%
+  select(ats_year, lake, lake_code, survey_date, 
+         target_survey_code, target_survey_type, 
+         sounder_code, sounder_type, sounder_gain, sounder_issues, 
+         key_field_replicate, sequential_date_replicate,
+         acoustic_survey_notes, acoustic_survey_comments = survey_comments, source_file) %>%
+  distinct() %>%
+  arrange(ats_year, lake, lake_code, survey_date)
+
+write_csv(acoustic_target_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(acoustic_target_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, "GENERIC.csv",      sep="")) # export copy for PIVOT workbook
 
 cat("\nTally Frequency of Surveys that are potential duplicates/replicates\n")
 summary_table <- acoustic_target_final_inventory %>%
@@ -1043,20 +1077,6 @@ summary_table <- acoustic_target_final_inventory %>%
               count = sum(count)))
 print(summary_table, n = Inf)
 cat("\n")
-
-# Segregate adult and juvenile type surveys
-adult_target_data <- acoustic_target_final_data %>%
-  filter(target_survey_type == "ADULT")
-
-juvenile_target_data <- acoustic_target_final_data %>%
-  filter(target_survey_type == "JUVENILE")
-
-write_csv(acoustic_target_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, date_stamp, ".csv", sep=""))
-write_csv(acoustic_target_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, "GENERIC.csv",      sep="")) # export copy for PIVOT workbook
-
-# write_csv(adult_target_data, paste("./output/Target_OUTPUT_ATS_Adult_", date_stamp, ".csv", sep=""))
-# write_csv(juvenile_target_data, paste("./output/Target_OUTPUT_ATS_Juvenile", date_stamp, ".csv", sep=""))
-
 
 # COMPARE RAW and FINAL Acoustic Survey Dates ####
 #
