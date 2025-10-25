@@ -886,8 +886,8 @@ target_data_exact_dups_removed <- merged_tidy_data %>%                          
 
 #   Flag further POTENTIAL duplicates that are duplicates on key fields #### 
 target_data_keyfield_duplicates <- target_data_exact_dups_removed %>%
-  group_by(lake_code, survey_date, transect, depth_code) %>%  # Key fields: lake_code, survey_date, transect, depth_code
-  filter(n() > 1) %>%                                         # Filter for export any records where more than one survey exists for same key fields
+  group_by(lake_code, survey_date, sounder_code, transect, depth_code) %>%      # Key fields: lake_code, survey_date, sounder, transect, depth_code
+  filter(n() > 1) %>%                                                           # Filter for export any records where more than one survey exists for same key fields
   mutate(key_field_replicate = "Replicate exists for this lake, date, transect and depth") %>%   # add new data issues column for keyfield replicates
   ungroup() %>%
   select(lake, lake_code, ats_year, target_survey_code, target_survey_type, survey_date, survey_year, survey_month, 
