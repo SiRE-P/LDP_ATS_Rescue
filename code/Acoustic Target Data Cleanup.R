@@ -269,7 +269,7 @@ cat("\n")
 write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))
 write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, "GENERIC.csv",      sep="")) # save copy for import to Pivot workbook
 #   Re-Import raw import data (assign FILE_NAME if necessary!) from saved CSV to skip time-consuming import of TARGET*.DAT ####
-all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
+# all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
 all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, "GENERIC.csv"     , sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
 
 # Output an inventory of unique surveys in the raw data
@@ -427,7 +427,94 @@ merged_data_strata <- tidy_data %>%
   relocate(lake.y, .after = lake.x)
 
 #   Data check and known error processing ####
-merged_data_with_issues <- merged_data_strata %>%
+#   Filter out duplicate survey data identified in LDP Data Issues.PDF ####
+#   See "LDP Data Issues.PDF / section Key-Field Replicate Investigations" for details
+target_data_duplicates_to_remove <- merged_data_strata %>%
+  arrange(lake_code, survey_date, transect, depth_code) %>%
+  filter((lake_code == 6   & survey_date == as.Date("1990-02-22") & source_file == "TARGET90.DAT") | # Hobiton
+         (lake_code == 226 & survey_date == as.Date("1994-08-25") & source_file == "TARGET93.DAT") | # Johanson 
+       # (lake_code == 40  & survey_date == as.Date("1985-01-23") & source_file == "TARGET85.DAT") | # 3 KCA (Kenn-Clay) surveys this date - supported by three entries with this date for KCA in ALL_YEARS_MASTER_ATS_SUMMARY.xlsx - leave intact [251025] 
+         (lake_code == 229 & survey_date == as.Date("2004-02-04") & source_file == "TARGET06.DAT") | # Owikeno (B)
+         (lake_code == 225 & survey_date == as.Date("1994-08-23") & source_file == "TARGET93.DAT") | # Sustut
+         (lake_code == 64  & survey_date == as.Date("1994-09-18") & source_file == "TARGET93.DAT") | # Tahltan
+         (lake_code == 66  & survey_date == as.Date("1994-09-13") & source_file == "TARGET93.DAT") | # Tatsamenie
+         (lake_code == 66  & survey_date == as.Date("1997-06-26") & source_file == "TARGET96.DAT") | # Tatsamenie
+         (lake_code == 67  & survey_date == as.Date("1994-09-11") & source_file == "TARGET93.DAT") | # Trapper   
+         (lake_code == 67  & survey_date == as.Date("1994-09-11") & source_file == "TARGET94.DAT" & is.na(acoustic_survey_notes)) | # Trapper   
+         (lake_code == 175 & survey_date == as.Date("1994-09-02") & source_file == "TARGET93.DAT") | # Tuya   
+  
+#   Continue with removal of sequential_date replicates - See "LDP Data Issues.PDF / section Sequential Survey Dates – Potential Duplicates" for details
+         (lake_code == 161 & survey_date == as.Date("1986-04-15") & source_file == "TARGET86.DAT") | # Brannen
+         (lake_code == 25  & survey_date == as.Date("1994-09-07") & source_file == "TARGET94.DAT") | # Eden 
+         (lake_code == 1   & survey_date == as.Date("1979-12-19") & source_file == "TARGET79.DAT") | # Great Central        
+         (lake_code == 1   & survey_date == as.Date("1990-10-17") & source_file == "TARGET90.DAT") | # Great Central        
+         (lake_code == 1   & survey_date == as.Date("1991-03-05") & source_file == "TARGET90.DAT") | # Great Central        
+         (lake_code == 1   & survey_date == as.Date("1991-03-06") & source_file == "TARGET90.DAT") | # Great Central        
+         (lake_code == 1   & survey_date == as.Date("1998-12-02") & source_file == "TARGET98.DAT") | # Great Central        
+         (lake_code == 1   & survey_date == as.Date("2000-11-30") & source_file == "TARGET00.DAT") | # Great Central        
+         (lake_code == 1   & survey_date == as.Date("2001-12-04") & source_file == "TARGET01.DAT") | # Great Central        
+         (lake_code == 1   & survey_date == as.Date("2004-01-22") & source_file == "TARGET03.DAT") | # Great Central        
+         (lake_code == 3   & survey_date == as.Date("1986-09-23") & source_file == "TARGET86.DAT") | # Henderson            
+         (lake_code == 3   & survey_date == as.Date("1993-02-25") & source_file == "TARGET92.DAT") | # Henderson            
+         (lake_code == 3   & survey_date == as.Date("1993-07-16") & source_file == "TARGET93.DAT") | # Henderson            
+         (lake_code == 3   & survey_date == as.Date("1995-06-20") & source_file == "TARGET95.DAT") | # Henderson            
+         (lake_code == 3   & survey_date == as.Date("2004-03-09") & source_file == "TARGET03.DAT") | # Henderson            
+         (lake_code == 3   & survey_date == as.Date("2004-11-29") & source_file == "TARGET04.DAT") | # Henderson            
+         (lake_code == 3   & survey_date == as.Date("2004-11-30") & source_file == "TARGET04.DAT") | # Henderson            
+         (lake_code == 3   & survey_date == as.Date("2007-08-23") & source_file == "TARGET07.DAT") | # Henderson            
+         (lake_code == 50  & survey_date == as.Date("2000-11-10") & source_file == "TARGET00.DAT") | # Heydon               
+         (lake_code == 6   & survey_date == as.Date("1987-04-21") & source_file == "TARGET87.DAT") | # Hobiton            
+         (lake_code == 26  & survey_date == as.Date("2003-09-07") & source_file == "TARGET03.DAT") | # Ian    
+         (lake_code == 41  & survey_date == as.Date("1993-10-20") & source_file == "TARGET93.DAT") | # Kennedy Main            
+         (lake_code == 41  & survey_date == as.Date("1993-10-21") & source_file == "TARGET93.DAT") | # Kennedy Main         
+         (lake_code == 801 & survey_date == as.Date("2007-02-19") & source_file == "TARGET06.DAT") | # Long (A)
+         (lake_code == 801 & survey_date == as.Date("2007-11-07") & source_file == "TARGET07.DAT") | # Long (A)
+         (lake_code == 801 & survey_date == as.Date("2008-02-22") & source_file == "TARGET07.DAT") | # Long (A)
+         (lake_code == 802 & survey_date == as.Date("2007-02-19") & source_file == "TARGET06.DAT") | # Long (B)
+         (lake_code == 802 & survey_date == as.Date("2007-11-07") & source_file == "TARGET07.DAT") | # Long (B)
+         (lake_code == 802 & survey_date == as.Date("2008-02-22") & source_file == "TARGET07.DAT") | # Long (B)
+         (lake_code == 801 & survey_date == as.Date("2007-02-19") & source_file == "TARGET06.DAT") | # Long (A)
+         (lake_code == 801 & survey_date == as.Date("2007-11-07") & source_file == "TARGET07.DAT") | # Long (A)
+         (lake_code == 32  & survey_date == as.Date("1986-08-15") & source_file == "TARGET86.DAT") | # Mercer  
+         (lake_code == 43  & survey_date == as.Date("1991-08-30") & source_file == "TARGET91.DAT") | # Meziadin
+         (lake_code == 59  & survey_date == as.Date("1986-08-21") & source_file == "TARGET86.DAT") | # Phillips
+         (lake_code == 238 & survey_date == as.Date("2004-03-02") & source_file == "TARGET03.DAT") | # Osoyoos (N)
+         (lake_code == 238 & survey_date == as.Date("2005-08-04") & source_file == "TARGET05.DAT") | # Osoyoos (N)
+         (lake_code == 228 & survey_date == as.Date("2004-02-04") & source_file == "TARGET03.DAT") | # Owikeno (A)
+         (lake_code == 228 & survey_date == as.Date("2007-02-14") & source_file == "TARGET06.DAT") | # Owikeno (A)
+         (lake_code == 228 & survey_date == as.Date("2008-02-20") & source_file == "TARGET07.DAT") | # Owikeno (A)
+         (lake_code == 229 & survey_date == as.Date("2004-02-04") & source_file == "TARGET03.DAT") | # Owikeno (B)
+         (lake_code == 229 & survey_date == as.Date("2007-02-14") & source_file == "TARGET06.DAT") | # Owikeno (B)
+         (lake_code == 229 & survey_date == as.Date("2008-02-19") & source_file == "TARGET07.DAT") | # Owikeno (B)
+         (lake_code == 61  & survey_date == as.Date("2002-09-16") & source_file == "TARGET02.DAT") | # Sakinaw    
+         (lake_code == 2   & survey_date == as.Date("1995-11-20") & source_file == "TARGET95.DAT") | # Sproat     
+         (lake_code == 156 & survey_date == as.Date("1994-08-29") & source_file == "TARGET94.DAT") | # Skidegate NE
+         (lake_code == 156 & survey_date == as.Date("1994-08-31") & source_file == "TARGET94.DAT") | # Skidegate NE
+         (lake_code == 67  & survey_date == as.Date("1991-09-16") & source_file == "TARGET91.DAT") | # Trapper     
+         (lake_code == 175 & survey_date == as.Date("1996-09-09") & source_file == "TARGET96.DAT") | # Tuya
+         (lake_code == 69  & survey_date == as.Date("1998-08-14") & source_file == "TARGET98.DAT"))  # Yakoun
+           
+cat("\n Duplicate Survey Data Removed
+(see LDP Data Issues.docs for details)\n")
+removed_duplicate_records <- target_data_duplicates_to_remove %>%
+  count(lake.y, survey_date, source_file) %>%
+  arrange(lake.y)
+total_row <- removed_duplicate_records %>%
+  summarise(
+    lake.y = "TOTAL",
+    survey_date = NA,
+    source_file = NA,
+    n = sum(n))
+frequency_table_with_total <- bind_rows(removed_duplicate_records, total_row)
+print(frequency_table_with_total, n = Inf)                                      # 830 records associated with key-field duplicates removed
+cat("\n")                                                                       # 5672 records in total, including seq_date dups
+
+# Remove duplicates from merged_data_strata using source_file and line_number
+target_data_duplicates_removed <- merged_data_strata %>%
+  anti_join(target_data_duplicates_to_remove, by = c("source_file", "line_number"))
+
+#   Clean up and flag data issues in data_issues field ####
+merged_data_with_issues <- target_data_duplicates_removed %>%                   # was <-merged_data_strata %>%
   mutate(
     # create data_issues column if missing
     data_issues = "") %>%
@@ -746,7 +833,8 @@ merged_data <- merged_data_with_issues %>%
 cat("\nFinal unique lake_code and lake_name combinations...\n") 
 tallied_data <- merged_data %>%
   group_by(lake_code, lake.x) %>%
-  tally()
+  tally() %>%
+  arrange(lake.x)
 print(tallied_data, n = Inf)
 cat("\nTotal target data records:", sum(tallied_data$n), "\n") # Print the total record count
 
