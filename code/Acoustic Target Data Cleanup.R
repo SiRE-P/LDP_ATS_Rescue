@@ -897,7 +897,8 @@ target_data_exact_dups_removed <- merged_tidy_data %>%                          
 target_data_keyfield_duplicates <- target_data_exact_dups_removed %>%
   group_by(lake_code, survey_date, sounder_code, transect, depth_code) %>%      # Key fields: lake_code, survey_date, sounder, transect, depth_code
   filter(n() > 1) %>%                                                           # Filter for export any records where more than one survey exists for same key fields
-  mutate(key_field_replicate = "Replicate exists for this lake, date, transect and depth") %>%   # add new data issues column for keyfield replicates
+  mutate(key_field_replicate = 
+  "Replicate exists in the original data for this lake, date, sounder, transect and depth") %>%      # add new data issues column for keyfield replicates
   ungroup() %>%
   select(lake, lake_code, ats_year, target_survey_code, target_survey_type, survey_date, survey_year, survey_month, 
          transect, depth_code, depth_min, depth_max, targets, prop_sockeye, prop_stickleback, total_prop,
@@ -913,8 +914,9 @@ write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_d
 
 #   Repeat key-field duplicates check but do not filter, just flag the situation in key_field_replicate column 
 target_data_keyfield_dups_flagged <- target_data_exact_dups_removed %>%
-  group_by(lake_code, survey_date, transect, depth_code) %>%  # Key fields: lake_code, survey_date, transect, depth_code
-  mutate(key_field_replicate = ifelse(n() > 1, "Replicate exists for this lake, date, transect and depth","")) %>%   # create new "data issues" column for keyfield replicates
+  group_by(lake_code, survey_date, transect, depth_code) %>%                    # Key fields: lake_code, survey_date, transect, depth_code
+  mutate(key_field_replicate = ifelse(n() > 1, 
+  "Replicate exists in the original data for this lake, date, sounder, transect and depth","")) %>%  # create new "data issues" column for keyfield replicates
   ungroup()
 
 #   Flag further POTENTIAL duplicates based on sequential survey_date pairs for the same lake ####
@@ -947,7 +949,7 @@ lake_survey_keys <- lake_survey_sequential_pairs %>%
 # Perform a semi-join to keep only matching records from lake_surveys_unique
 lake_sequential_survey_data <- target_data_keyfield_dups_flagged %>%            
   semi_join(lake_survey_keys, by = c("ats_year", "lake_code", "survey_date")) %>%
-  mutate(sequential_date_replicate = "Replicate or potential duplicate (sequential survey dates)") %>%
+  mutate(sequential_date_replicate = "Replicate or potential duplicate (with sequential survey dates) exists in the original data") %>%
   select(ats_year, lake, lake_code, survey_date, target_survey_type, 
          sounder_type, sounder_code, 
          transect, depth_code, targets, prop_sockeye, 
@@ -965,7 +967,7 @@ target_data_sequential_flagged <- target_data_keyfield_dups_flagged %>%
   mutate(sequential_date_replicate = if_else(
     any(lake_code == lake_survey_sequential_pairs$lake_code &
           survey_date == lake_survey_sequential_pairs$survey_date),
-    "Replicate or potential duplicate (sequential survey dates)",
+    "Replicate or potential duplicate (with sequential survey dates) exists in the original data",
     NA_character_
   )) %>%
   ungroup()
