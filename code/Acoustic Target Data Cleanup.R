@@ -49,11 +49,13 @@ library(tools)
 
 # INITIALIZE variables ####
 start_time <- Sys.time()                                                        
-date_stamp <- substr(format(Sys.time(), "%Y%m%d-%H%M"), 3, 8) # 8 for date only  # Get the current date to timestamp output files
-ats_year_span <- "(1977_2007)_"                               # year span of the data
+date_stamp <- substr(format(Sys.time(), "%Y%m%d-%H%M"), 3, 8)   # 8 for date only  # Get the current date to timestamp output files
+ats_year_span <- "(1977_2007)"                                  # year span of the data (for file naming)
 
-if (!dir.exists("./output"))  {dir.create("./output")}        # ensure CSV output directory exists
-if (!dir.exists("./figures")) {dir.create("./figures")}       # ensure plot output directory exists
+if (!dir.exists("./output"))  {dir.create("./output")}          # ensure CSV output directory exists
+if (!dir.exists("./figures")) {dir.create("./figures")}         # ensure plot output directory exists
+if (!dir.exists("./output/ARCHIVE")) 
+                              {dir.create("./output/ARCHIVE")}  # ensure archive directory exists for storing date-stamped copy of output
 
 # FUNCTIONS ####
 #   FUNCTION to assign ATS year based on survey date
@@ -266,18 +268,19 @@ cat("\n")
 # toc()
 
 #   Save raw import data and an inventory of surveys to csv...  ## COMMENT OUT to skip TARGET.DAT import process ####
-write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))
-write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, "GENERIC.csv",      sep="")) # save copy for import to Pivot workbook
+write_csv(all_target_data,  paste("./output/ARCHIVE/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, ".csv",      sep="")) # save copy for import to Pivot workbook
 #   Re-Import raw import data (assign FILE_NAME if necessary!) from saved CSV to skip time-consuming import of TARGET*.DAT ####
 # all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
-all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, "GENERIC.csv"     , sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
+all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, ".csv"     , sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
 
 # Output an inventory of unique surveys in the raw data
 raw_data_inventory <- all_target_data %>%
   select(source_file, lake, lake_code, survey_date, sounder_type, sounder_gain = gain, acoustic_survey_notes) %>%
   distinct() %>%
   arrange(source_file, lake, lake_code, survey_date)
-write_csv(raw_data_inventory, paste("./output/Target_INPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(raw_data_inventory, paste("./output/ARCHIVE/Target_INPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(raw_data_inventory, paste("./output/Target_INPUT_data_INVENTORY_", ats_year_span, ".csv", sep=""))
 
 # TIDY target data ####
 data <- all_target_data %>%   # target_data_exact_dups_removed %>% 
@@ -570,9 +573,15 @@ merged_data_with_issues <- target_data_duplicates_removed %>%                   
     # targets < 0 
     data_issues = case_when(
       (targets < 0) ~
-        str_c(data_issues, "Targets < 0; "),
+        str_c(data_issues, "Targets < 0 (set to NA); "),
       TRUE ~ data_issues
     ),
+    targets = case_when(
+      (targets < 0) ~
+        NA_real_,
+      TRUE ~ targets
+    ),
+    
     
     # transect_length = 0 (lake bottom) but targets > 0
     data_issues = case_when(
@@ -869,8 +878,8 @@ target_data_exact_duplicates <- merged_tidy_data %>%             # was all_targe
   select( lake, lake_code, survey_date, source_file, line_number, transect, depth_code, everything()) # re-order
 # View(target_data_exact_duplicates)
 # Export to CSV
-write_csv(target_data_exact_duplicates, paste("./output/Target_CHK_exact_duplicate_records_", date_stamp, ".csv", sep=""))
-write_csv(target_data_exact_duplicates, paste("./output/Target_CHK_exact_duplicate_records_", "GENERIC.csv"     , sep="")) # save copy for import to Pivot workbook
+write_csv(target_data_exact_duplicates, paste("./output/ARCHIVE/Target_CHK_exact_duplicate_records_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(target_data_exact_duplicates, paste("./output/Target_CHK_exact_duplicate_records_", ats_year_span, ".csv"     , sep="")) # save copy for import to Pivot workbook
 
 cat("List of EXACT duplicate records (same lake, same survey date)...\n") 
 target_data_exact_dups_inventory <- target_data_exact_duplicates %>%
@@ -899,8 +908,8 @@ target_data_keyfield_duplicates <- target_data_exact_dups_removed %>%
   arrange(lake, ats_year, survey_date)
 
 #   Export the duplicate records with line numbers but DO NOT REMOVE key field duplicates from the data until after inspection
-write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_duplicate_surveys_", date_stamp, ".csv", sep=""), row.names = FALSE) 
-write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_duplicate_surveys_GENERIC",      ".csv", sep=""), row.names = FALSE) # dump out a generic version that is auto-read by Excel PIVOT version
+write.csv(target_data_keyfield_duplicates, paste("./output/ARCHIVE/Target_CHK_keyfield_duplicate_surveys_", ats_year_span, date_stamp, ".csv", sep=""), row.names = FALSE) 
+write.csv(target_data_keyfield_duplicates, paste("./output/Target_CHK_keyfield_duplicate_surveys_", ats_year_span,                     ".csv", sep=""), row.names = FALSE) # dump out a generic version that is auto-read by Excel PIVOT version
 
 #   Repeat key-field duplicates check but do not filter, just flag the situation in key_field_replicate column 
 target_data_keyfield_dups_flagged <- target_data_exact_dups_removed %>%
@@ -947,8 +956,8 @@ lake_sequential_survey_data <- target_data_keyfield_dups_flagged %>%
   arrange(lake, survey_date, target_survey_type, sounder_code)
 
 # export all surveys with same lake and sequential dates to csv for survey comparison via Excel Pivot tables
-write_csv(lake_sequential_survey_data, paste("./output/Target_CHK_sequential_surveys_", date_stamp, ".csv", sep=""))
-write.csv(lake_sequential_survey_data, paste("./output/Target_CHK_sequential_surveys__GENERIC",     ".csv", sep=""), row.names = FALSE) # dump out a generic version that is auto-read by Excel PIVOT version
+write_csv(lake_sequential_survey_data, paste("./output/ARCHIVE/Target_CHK_sequential_surveys_", ats_year_span, date_stamp, ".csv", sep=""))
+write.csv(lake_sequential_survey_data, paste("./output/Target_CHK_sequential_surveys_", ats_year_span,                     ".csv", sep=""), row.names = FALSE) # dump out a generic version that is auto-read by Excel PIVOT version
 
 # Flag sequential surveys without merging (due to possible many-to-many match-merge) and without removal
 target_data_sequential_flagged <- target_data_keyfield_dups_flagged %>%
@@ -1091,7 +1100,8 @@ range_issues <- merged_data_final_chk %>%
     targets, prop_sockeye, prop_stickleback, total_prop)
 print(range_issues, n = 100) # negative targets 
 cat("\n")
-write_csv(range_issues, paste("./output/Target_CHK_targets_issues_", date_stamp, ".csv", sep=""))
+write_csv(range_issues, paste("./output/ARCHIVE/Target_CHK_targets_issues_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(range_issues, paste("./output/Target_CHK_targets_issues_", ats_year_span, ".csv", sep=""))
 
 # FINAL DATA OUTPUT (Post-processing) ####
 # Export cleaned up acoustic survey data with target data records 
@@ -1117,11 +1127,11 @@ adult_target_data <- acoustic_target_final_data %>%
 juvenile_target_data <- acoustic_target_final_data %>%
   filter(target_survey_type == "JUVENILE")
 
-write_csv(acoustic_target_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, date_stamp, ".csv", sep=""))
-write_csv(acoustic_target_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, "GENERIC.csv",      sep="")) # export copy for PIVOT workbook
+write_csv(acoustic_target_final_data, paste("./output/ARCHIVE/Target_OUTPUT_data_FINAL_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(acoustic_target_final_data, paste("./output/Target_OUTPUT_data_FINAL_", ats_year_span, ".csv",      sep="")) # export copy for PIVOT workbook
 
-# write_csv(adult_target_data, paste("./output/Target_OUTPUT_ATS_Adult_", date_stamp, ".csv", sep=""))
-# write_csv(juvenile_target_data, paste("./output/Target_OUTPUT_ATS_Juvenile", date_stamp, ".csv", sep=""))
+# write_csv(adult_target_data, paste("./output/ARCHIVE/Target_OUTPUT_ATS_Adult_", ats_year_span, date_stamp, ".csv", sep=""))
+# write_csv(juvenile_target_data, paste("./output/ARCHIVE/Target_OUTPUT_ATS_Juvenile_", ats_year_span, date_stamp, ".csv", sep=""))
 
 cat("\nTally Frequency of data_issues by Type\n")
 summary_table <- acoustic_target_final_data %>%
@@ -1146,8 +1156,8 @@ acoustic_target_final_inventory <- merged_data_final_chk %>%
   distinct() %>%
   arrange(ats_year, lake, lake_code, survey_date)
 
-write_csv(acoustic_target_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
-write_csv(acoustic_target_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, "GENERIC.csv",      sep="")) # export copy for PIVOT workbook
+write_csv(acoustic_target_final_inventory, paste("./output/ARCHIVE/Target_OUTPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(acoustic_target_final_inventory, paste("./output/Target_OUTPUT_data_INVENTORY_", ats_year_span, ".csv",      sep="")) # export copy for PIVOT workbook
 
 cat("\nTally Frequency of Surveys that are potential duplicates/replicates\n")
 summary_table <- acoustic_target_final_inventory %>%
@@ -1223,7 +1233,9 @@ combined_raw_and_final <- combined2 %>%
   select(source, ats_year, lake_code, survey_date, everything()) %>%
   arrange(source, ats_year, lake_code, survey_date)
 
-write_csv(combined_raw_and_final, paste("./output/Target_CHK_RAW_vs_CLEAN_surveys_", date_stamp, ".csv", sep=""))
+write_csv(combined_raw_and_final, paste("./output/ARCHIVE/Target_CHK_RAW_vs_CLEAN_surveys_", ats_year_span, date_stamp, ".csv", sep=""))
+write_csv(combined_raw_and_final, paste("./output/Target_CHK_RAW_vs_CLEAN_surveys_", ats_year_span, ".csv", sep=""))
+
 # VISUALIZE the frequency of acoustic surveys by Lake and ATS Year ####
 #   Set the lake and lake_codes to be the same for things like Heydon Lk and Heydon_2005...
 acoustic_target_final_inventory_tidy <- acoustic_target_final_inventory %>%
@@ -1255,7 +1267,7 @@ record_counts <- acoustic_data_visualize %>%
 unique_groups <- sort(unique(record_counts$lake_group))
 
 # Define the plot file path
-plotfile <- paste0("./figures/Acoustic_Survey_Freq_by_Lake_Year_", ats_year_span, date_stamp, ".pdf")
+plotfile <- paste0("./figures/Acoustic_Survey_Freq_by_Lake_Year_", ats_year_span, ".pdf")
 
 # Check if the file exists
 if (file.exists(plotfile)) {
@@ -1302,7 +1314,6 @@ for (group in unique_groups) {
 
 # Close the PDF device
 close <- dev.off()
-# close
 
 # FINISH ####
 #   Calculate execution time and finish up
