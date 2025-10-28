@@ -1,4 +1,4 @@
-# ACOUSTIC TARGET DATA CLEANUP.R  NOTES    #### ---------------------------------------------------------------------
+# ACOUSTIC TARGET DATA CLEANUP.R  NOTES #### ---------------------------------------------------------------------
 ##
 ## Acoustic Target Data Cleanup.R
 ##
@@ -52,6 +52,7 @@ start_time <- Sys.time()
 date_stamp <- substr(format(Sys.time(), "%Y%m%d-%H%M"), 3, 8)   # 8 for date only  # Get the current date to timestamp output files
 ats_year_span <- "(1977_2007)"                                  # year span of the data (for file naming)
 
+# setwd("C:/DFO-MPO/OneDriveOneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/LDP_ATS_Rescue")
 if (!dir.exists("./output"))  {dir.create("./output")}          # ensure CSV output directory exists
 if (!dir.exists("./figures")) {dir.create("./figures")}         # ensure plot output directory exists
 if (!dir.exists("./output/ARCHIVE")) 
@@ -270,9 +271,9 @@ cat("\n")
 #   Save raw import data and an inventory of surveys to csv...  ## COMMENT OUT to skip TARGET.DAT import process ####
 write_csv(all_target_data,  paste("./output/ARCHIVE/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))
 write_csv(all_target_data,  paste("./output/Target_INPUT_data_RAW_", ats_year_span, ".csv",      sep="")) # save copy for import to Pivot workbook
-#   Re-Import raw import data (assign FILE_NAME if necessary!) from saved CSV to skip time-consuming import of TARGET*.DAT ####
+# RE-IMPORT raw import data (assign FILE_NAME if necessary!) from saved CSV to skip time-consuming IMPORT of TARGET*.DAT ####
 # all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
-all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, ".csv"     , sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
+all_target_data <- read_csv(paste("./output/Target_INPUT_data_RAW_", ats_year_span, ".csv"     , sep=""))            # use this if skipping the compilation process, above, using latest generic csv (not date-stamped)
 
 # Output an inventory of unique surveys in the raw data
 raw_data_inventory <- all_target_data %>%
@@ -1135,7 +1136,7 @@ write_csv(acoustic_target_final_data, paste("./output/Target_OUTPUT_data_FINAL_"
 # write_csv(adult_target_data, paste("./output/ARCHIVE/Target_OUTPUT_ATS_Adult_", ats_year_span, date_stamp, ".csv", sep=""))
 # write_csv(juvenile_target_data, paste("./output/ARCHIVE/Target_OUTPUT_ATS_Juvenile_", ats_year_span, date_stamp, ".csv", sep=""))
 
-cat("\nTally Frequency of data_issues by Type\n")
+cat("\nTally Frequency of Data Issues by Type\n")
 summary_table <- acoustic_target_final_data %>%
   mutate(data_issues = str_trim(data_issues)) %>%  # Remove leading/trailing whitespace
   filter(data_issues != "" & data_issues != " ") %>%
