@@ -2,30 +2,33 @@
 ##
 ## Acoustic Target Data Cleanup.R
 ##
-## Purpose: Import acoustic target data files (TARGETyy.DAT files, ATS-years 1977-2007)
-##          for data cleanup and compilation into integrated CSV file(s). 
-##          (An ATS-year extends from April 1, yyyy to March 31st, yyyy+1).
+## Purpose: One program to:
+##          Import annual acoustic target data files (TARGETyy.DAT files, ATS-years 1977-2007)
+##          for data cleanup, duplicates analysis, and compilation into integrated CSV file(s).
 ##
-##          Raw imported data (pre-processing) are output to Target_INPUT_data_RAW_(1977_2007)_*.csv
-##                                        and inventoried in Target_INPUT_data_INVENTORY_(1977_2007)_*.csv
-##                                        (where * = date of program execution).
+##          (Note: An ATS-year extends from April 1, yyyy to March 31st, yyyy+1).
 ##
-##          All cleaned data (post-processing) are output to Target_OUTPUT_data_FINAL_(1977_2007)_*.csv
-##                                        and inventoried in Target_OUTPUT_data_INVENTORY_(1977_2007)_*.csv
-##                                        (where * = date of program execution). 
+##          INPUTS: TARGET*.DAT files; lake-code lookup tables and depth-stratum/area parameters.
+##          Raw imported data (pre-processing) are output to Target_INPUT_data_RAW_(1977_2007).csv
+##                                        and inventoried in Target_INPUT_data_INVENTORY_(1977_2007).csv.
 ##
-##          Cleaned data are classified as JUVENILE or ADULT acoustic count data based on survey comment 
-##          information, and may be distinguished by fields survey_type and survey_type_code.
+##          OUTPUTS:
+##          All cleaned data (post-processing) are output to Target_OUTPUT_data_FINAL_(1977_2007).csv
+##                                        and inventoried in Target_OUTPUT_data_INVENTORY_(1977_2007).csv
+##
+##            Cleaned data are classified as juvenile or adult acoustic counts based on survey comment 
+##            information, and distinguished in fields survey_type (as JUVENILE or ADULT) and 
+##            survey_type_code (1 or 2, respectively).
 ##       
-##          Other data check outputs (containing CHK in the filename) include: 
-##          - a list of EXACT duplicates that are removed (Target_CHK_exact_duplicate_records_*.csv);
-##          - a list of KEY FIELD duplicates (same lake, date)
-##            that should be cross-checked to determine whether they are actual duplicates, or
-##            replicate surveys or counts (Target_CHK_keyfield_duplicate_surveys_*.csv);
-##          - a list of SEQUENTIAL DATE same-lake replicates that should also be checked (Target_CHK_sequential_surveys_*.csv);
-##          - a list of records with data issues specific to the targets field (Target_CHK_targets_issues_*.csv); and
+##          DATA CHECKS: outputs containing CHK in the filename include: 
+##          - a list of EXACT duplicates that are removed (Target_CHK_exact_duplicate_records_(1977_2007).csv);
+##          - a list of KEY FIELD duplicates (same lake, date, sounder, survey_type, transect, depth)
+##            to be cross-checked to determine whether they are actual duplicates, or
+##            replicate surveys or counts (Target_CHK_keyfield_duplicate_surveys_(1977_2007).csv);
+##          - a list of SEQUENTIAL DATE same-lake replicates that should also be checked (Target_CHK_sequential_surveys_(1977_2007).csv);
+##          - a list of records with data issues specific to the targets field (Target_CHK_targets_issues_(1977_2007).csv); and
 ##          - a comparison of the inventory of surveys that were in the raw input data versus those in the final inventory
-##            classified to source (Target_CHK_RAW_vs_CLEAN_surveys_*.csv).
+##            classified to source (Target_CHK_RAW_vs_CLEAN_surveys_(1977_2007).csv).
 ##          
 ## Authors: Yuliya Shtymburski (U. Regina); Sandra Emry (UBC); H Stiff (DFO Nanaimo)
 ## Date:    October 2025
