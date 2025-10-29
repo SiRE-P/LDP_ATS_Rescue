@@ -1,0 +1,494 @@
+source("C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/LDP_ATS_Rescue/ACOUSTIC_TARGETS/code/Acoustic Target Data Cleanup.R")
+
+Acoustic Target Data files to process: 1: ACOUSTIC_TARGETS/data/TARGET00.DAT
+ 2: ACOUSTIC_TARGETS/data/TARGET01.DAT
+ 3: ACOUSTIC_TARGETS/data/TARGET02.DAT
+ 4: ACOUSTIC_TARGETS/data/TARGET03.DAT
+ 5: ACOUSTIC_TARGETS/data/TARGET04.DAT
+ 6: ACOUSTIC_TARGETS/data/TARGET05.DAT
+ 7: ACOUSTIC_TARGETS/data/TARGET06.DAT
+ 8: ACOUSTIC_TARGETS/data/TARGET07.DAT
+ 9: ACOUSTIC_TARGETS/data/TARGET77.DAT
+10: ACOUSTIC_TARGETS/data/TARGET78.DAT
+11: ACOUSTIC_TARGETS/data/TARGET79.DAT
+12: ACOUSTIC_TARGETS/data/TARGET80.DAT
+13: ACOUSTIC_TARGETS/data/TARGET81.DAT
+14: ACOUSTIC_TARGETS/data/TARGET82.DAT
+15: ACOUSTIC_TARGETS/data/TARGET83.DAT
+16: ACOUSTIC_TARGETS/data/TARGET84.DAT
+17: ACOUSTIC_TARGETS/data/TARGET85.DAT
+18: ACOUSTIC_TARGETS/data/TARGET86.DAT
+19: ACOUSTIC_TARGETS/data/TARGET87.DAT
+20: ACOUSTIC_TARGETS/data/TARGET88.DAT
+21: ACOUSTIC_TARGETS/data/TARGET89.DAT
+22: ACOUSTIC_TARGETS/data/TARGET90.DAT
+23: ACOUSTIC_TARGETS/data/TARGET91.DAT
+24: ACOUSTIC_TARGETS/data/TARGET92.DAT
+25: ACOUSTIC_TARGETS/data/TARGET93.DAT
+26: ACOUSTIC_TARGETS/data/TARGET94.DAT
+27: ACOUSTIC_TARGETS/data/TARGET95.DAT
+28: ACOUSTIC_TARGETS/data/TARGET96.DAT
+29: ACOUSTIC_TARGETS/data/TARGET97.DAT
+30: ACOUSTIC_TARGETS/data/TARGET98.DAT
+31: ACOUSTIC_TARGETS/data/TARGET99.DAT
+
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET00.DAT"
+  Parsing [>-----------------------------]   3% (1/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET01.DAT"
+  Parsing [=>----------------------------]   6% (2/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET02.DAT"
+  Parsing [==>---------------------------]  10% (3/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET03.DAT"
+  Parsing [===>--------------------------]  13% (4/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET04.DAT"
+  Parsing [====>-------------------------]  16% (5/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET05.DAT"
+  Parsing [=====>------------------------]  19% (6/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET06.DAT"
+  Parsing [======>-----------------------]  23% (7/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET07.DAT"
+  Parsing [=======>----------------------]  26% (8/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET77.DAT"
+  Parsing [========>---------------------]  29% (9/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET78.DAT"
+  Parsing [========>--------------------]  32% (10/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET79.DAT"
+  Parsing [=========>-------------------]  35% (11/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET80.DAT"
+  Parsing [==========>------------------]  39% (12/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET81.DAT"
+  Parsing [===========>-----------------]  42% (13/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET82.DAT"
+  Parsing [============>----------------]  45% (14/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET83.DAT"
+  Parsing [=============>---------------]  48% (15/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET84.DAT"
+  Parsing [==============>--------------]  52% (16/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET85.DAT"
+  Parsing [===============>-------------]  55% (17/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET86.DAT"
+  Parsing [================>------------]  58% (18/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET87.DAT"
+  Parsing [=================>-----------]  61% (19/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET88.DAT"
+  Parsing [==================>----------]  65% (20/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET89.DAT"
+  Parsing [===================>---------]  68% (21/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET90.DAT"
+  Parsing [====================>--------]  71% (22/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET91.DAT"
+  Parsing [=====================>-------]  74% (23/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET92.DAT"
+  Parsing [=====================>-------]  77% (24/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET93.DAT"
+  Parsing [======================>------]  81% (25/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET94.DAT"
+  Parsing [=======================>-----]  84% (26/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET95.DAT"
+  Parsing [========================>----]  87% (27/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET96.DAT"
+  Parsing [=========================>---]  90% (28/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET97.DAT"
+  Parsing [==========================>--]  94% (29/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET98.DAT"
+  Parsing [===========================>-]  97% (30/31 files)
+[1] "Processing data in file: ACOUSTIC_TARGETS/data/TARGET99.DAT"
+  Parsing [=============================] 100% (31/31 files)
+
+Compilation time: : 282.5 sec elapsed
+
+Rows: 129529 Columns: 13                                                                                                                                                    
+── Column specification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (5): source_file, lake, depth, sounder_type, acoustic_survey_notes
+dbl  (7): line_number, lake_code, transect, targets, pct_sockeye, pct_stickleback, gain
+date (1): survey_date
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+                                                                                                                                       
+ Duplicate Survey Data Removed
+(see LDP Data Issues.docs for details)
+# A tibble: 58 × 4
+   lake.y             survey_date source_file      n
+   <chr>              <date>      <chr>        <int>
+ 1 Brannen Lk         1986-04-15  TARGET86.DAT    30
+ 2 EDEN LAKE          1994-09-07  TARGET94.DAT    40
+ 3 GREAT CENTRAL LAKE 1979-12-19  TARGET79.DAT    78
+ 4 GREAT CENTRAL LAKE 1990-10-17  TARGET90.DAT    78
+ 5 GREAT CENTRAL LAKE 1991-03-05  TARGET90.DAT    78
+ 6 GREAT CENTRAL LAKE 1991-03-06  TARGET90.DAT    78
+ 7 GREAT CENTRAL LAKE 1998-12-02  TARGET98.DAT    78
+ 8 GREAT CENTRAL LAKE 2000-11-30  TARGET00.DAT    78
+ 9 GREAT CENTRAL LAKE 2001-12-04  TARGET01.DAT    78
+10 GREAT CENTRAL LAKE 2004-01-22  TARGET03.DAT    78
+11 HENDERSON LAKE     1986-09-23  TARGET86.DAT   180
+12 HENDERSON LAKE     1993-02-25  TARGET92.DAT   180
+13 HENDERSON LAKE     1993-07-16  TARGET93.DAT   180
+14 HENDERSON LAKE     1995-06-20  TARGET95.DAT   180
+15 HENDERSON LAKE     2004-03-09  TARGET03.DAT   180
+16 HENDERSON LAKE     2004-11-29  TARGET04.DAT   180
+17 HENDERSON LAKE     2004-11-30  TARGET04.DAT   180
+18 HENDERSON LAKE     2007-08-23  TARGET07.DAT   180
+19 HOBITON LAKE       1987-04-21  TARGET87.DAT    99
+20 HOBITON LAKE       1990-02-22  TARGET90.DAT    99
+21 Heydon Lk          2000-11-10  TARGET00.DAT    64
+22 Ian Lk             2003-09-07  TARGET03.DAT    90
+23 Johanson Lk        1994-08-25  TARGET93.DAT    48
+24 KMA                1993-10-20  TARGET93.DAT   150
+25 KMA                1993-10-21  TARGET93.DAT   150
+26 LONGA              2007-02-19  TARGET06.DAT    90
+27 LONGA              2007-11-07  TARGET07.DAT    90
+28 LONGA              2008-02-22  TARGET07.DAT    90
+29 LONGB              2007-02-19  TARGET06.DAT    70
+30 LONGB              2007-11-07  TARGET07.DAT    70
+31 LONGB              2008-02-22  TARGET07.DAT    70
+32 MERCER LAKE        1986-08-15  TARGET86.DAT    42
+33 MEZIADIN LAKE      1991-08-30  TARGET91.DAT    54
+34 Osoyoos Lk (N)     2004-03-02  TARGET03.DAT    70
+35 Osoyoos Lk (N)     2005-08-04  TARGET05.DAT    70
+36 Owikeno Lk (A)     2004-02-04  TARGET03.DAT   169
+37 Owikeno Lk (A)     2007-02-14  TARGET06.DAT   169
+38 Owikeno Lk (A)     2008-02-20  TARGET07.DAT   169
+39 Owikeno Lk (B)     2004-02-04  TARGET03.DAT   104
+40 Owikeno Lk (B)     2004-02-04  TARGET06.DAT   104
+41 Owikeno Lk (B)     2007-02-14  TARGET06.DAT   104
+42 Owikeno Lk (B)     2008-02-19  TARGET07.DAT   104
+43 Phillips Lk        1986-08-21  TARGET86.DAT    72
+44 SPROAT             1995-11-20  TARGET95.DAT   121
+45 Sakinaw Lk         2002-09-16  TARGET02.DAT   112
+46 Skidegate Lk ne    1994-08-29  TARGET94.DAT    35
+47 Skidegate Lk ne    1994-08-31  TARGET94.DAT    35
+48 Sustut Lk          1994-08-23  TARGET93.DAT    25
+49 TAHLTAN LK         1994-09-18  TARGET93.DAT    98
+50 Tatsamenie Lk      1994-09-13  TARGET93.DAT    63
+51 Tatsamenie Lk      1997-06-26  TARGET96.DAT    63
+52 Trapper Lk         1991-09-16  TARGET91.DAT    45
+53 Trapper Lk         1994-09-11  TARGET93.DAT    45
+54 Trapper Lk         1994-09-11  TARGET94.DAT    45
+55 Tuya Lk            1994-09-02  TARGET93.DAT    80
+56 Tuya Lk            1996-09-09  TARGET96.DAT    80
+57 Yakoun Lk          1998-08-14  TARGET98.DAT   120
+58 TOTAL              NA          NA            5512
+
+Fixing lake name issues...
+
+Final unique lake_code and lake_name combinations...
+# A tibble: 82 × 3
+# Groups:   lake_code [82]
+   lake_code lake.x                         n
+       <dbl> <chr>                      <int>
+ 1        12 Alastair Lk                   90
+ 2        27 Awun Lk                      440
+ 3        16 Bear Lk                       54
+ 4        31 Bonilla Lk                   256
+ 5       161 Brannen Lk                    30
+ 6       107 Cheewhat Lk                 1800
+ 7        28 Curtis Lk                    280
+ 8        38 Damdochax Lk                  20
+ 9        29 Devon Lk                     770
+10        25 Eden Lk                      480
+11       181 Ellerslie Lk                 252
+12        11 Fred Wright Lk                64
+13       248 Fulmore_2005                  64
+14       120 Glendale Lk                   48
+15         1 Great Central Lk            5538
+16         3 Henderson Lk               14402
+17       119 Hesquiat Lk                   48
+18        50 Heydon Lk                    256
+19       250 Heydon_2005                   64
+20         6 Hobiton Lk                 15642
+21        26 Ian Lk                      1800
+22       182 Ingram Lk                     54
+23       108 Jansen Lk                    240
+24       226 Johanson Lk                   48
+25        40 Kennedy Lk (Clayoquot Arm) 16800
+26        41 Kennedy Lk (Main Arm)       9600
+27       236 Khtada Lk                    182
+28        52 Kingsalmon Lk                 56
+29        17 Kitlope Lk                   160
+30       227 Kitwanga Lk                   24
+31       213 Kwinageese Lk                 80
+32       176 L Trapper Lk                  75
+33       180 Link Lk                      180
+34       801 Long Lk (A)                 4862
+35       802 Long Lk (B)                 3850
+36        20 Lowe Lk                      324
+37       111 Maggie Lk                     96
+38        55 Mathers Lk                   144
+39       118 Megin Lk                     384
+40        32 Mercer Lk                    252
+41        43 Meziadin Lk                   54
+42        56 Morrison Lk                   63
+43        45 Muchalat Lk                  540
+44        44 Muriel Lk                   3520
+45       153 Nahmint Lk                   270
+46       121 Nahwitti Lk                  200
+47       247 Nahwitti_2005                 64
+48       224 Nakina Lk                     98
+49        21 Nimpkish Lk                 3080
+50       239 Osoyoos Lk (C)                60
+51       238 Osoyoos Lk (N)              2520
+52       240 Osoyoos Lk (S)               192
+53       251 Osoyoos_2005                 392
+54       228 Owikeno Lk (A)              1261
+55       229 Owikeno Lk (B)               780
+56       230 Owikeno Lk (C)                22
+57       231 Owikeno Lk (D)               121
+58        59 Phillips Lk                  288
+59       249 Phillips_2005                 64
+60       110 Port John Lk                  40
+61       157 Power LK                      42
+62       122 Quatse Lk                    200
+63       252 Quatse_2005                   35
+64       246 Ruby Lk                       63
+65        61 Sakinaw Lk                   112
+66        24 Schoen Lk                    396
+67       241 Skaha Lk                    2880
+68       255 Skaha_2007                   300
+69       156 Skidegate Lk ne              630
+70       155 Skidegate Lk sw              162
+71         2 Sproat Lk                   8107
+72       225 Sustut Lk                     25
+73        13 Swan Lk                       72
+74        64 Tahltan Lk                   784
+75        65 Takla Lk                     117
+76        66 Tatsamenie Lk               3213
+77        67 Trapper Lk                   225
+78       175 Tuya Lk                      960
+79        23 Vernon Lk                   2304
+80       253 Village Bay_2005              80
+81        22 Woss Lk                     6512
+82        69 Yakoun Lk                   3360
+
+Total target data records: 124017 
+List of EXACT duplicate records (same lake, same survey date)...                                                                       
+# A tibble: 37 × 4
+   lake            lake_code survey_date transect
+   <chr>               <dbl> <date>         <dbl>
+ 1 Henderson Lk            3 1986-08-30         1
+ 2 Henderson Lk            3 1986-08-30         2
+ 3 Henderson Lk            3 1986-08-30         3
+ 4 Henderson Lk            3 1986-08-30         4
+ 5 Henderson Lk            3 1986-08-30         5
+ 6 Henderson Lk            3 1986-08-30         6
+ 7 Henderson Lk            3 1986-08-30         7
+ 8 Henderson Lk            3 1986-08-30         8
+ 9 Henderson Lk            3 1986-08-30         9
+10 Henderson Lk            3 1986-08-30        10
+11 Henderson Lk            3 1986-08-30        11
+12 Henderson Lk            3 1986-08-30        12
+13 Henderson Lk            3 1986-08-30        13
+14 Henderson Lk            3 1986-08-30        14
+15 Henderson Lk            3 1986-08-30        15
+16 Henderson Lk            3 1986-08-30        16
+17 Henderson Lk            3 1986-08-30        17
+18 Henderson Lk            3 1986-08-30        18
+19 Henderson Lk            3 1990-06-20        15
+20 Henderson Lk            3 1990-10-05        15
+21 Long Lk (A)           801 1983-07-18         5
+22 Long Lk (A)           801 1983-08-24         5
+23 Owikeno Lk (D)        231 1995-08-23         4
+24 Skidegate Lk ne       156 1990-08-19         6
+25 Skidegate Lk ne       156 1990-08-19         7
+26 Tatsamenie Lk          66 1995-09-18         8
+27 Tatsamenie Lk          66 1995-09-18         9
+28 Tatsamenie Lk          66 1995-09-18        10
+29 Tatsamenie Lk          66 1995-09-18        11
+30 Tatsamenie Lk          66 1995-09-18        12
+31 Tatsamenie Lk          66 1995-09-18        13
+32 Tatsamenie Lk          66 1995-09-18        14
+33 Tatsamenie Lk          66 1995-09-18        15
+34 Tatsamenie Lk          66 1995-09-18        16
+35 Tatsamenie Lk          66 1999-10-14        14
+36 Tatsamenie Lk          66 1999-10-14        15
+37 Tatsamenie Lk          66 1999-10-14        16
+
+                                                                                                                                       
+Missing Values (NAs) Summary
+  Number of records should be zero for all index variables (i.e., lake, date, depth, transect) and target counts (targets), 
+  but may not be 0 for proportions and meta-data variables (data_issues, key_field_replicates).
+              data_issues               source_file               line_number                 lake_code                      lake 
+                        0                         0                         0                         0                         0 
+       target_survey_code        target_survey_type               survey_date               survey_year              survey_month 
+                        0                         0                         0                         0                         0 
+               depth_code                 depth_min                 depth_max                  transect                   targets 
+                        0                         0                         0                         0                         2 
+             prop_sockeye          prop_stickleback              sounder_type              sounder_code              sounder_gain 
+                    64057                     64057                         0                         0                      4430 
+    acoustic_survey_notes           survey_comments                  ats_year                      area           transect_length 
+                    15223                         0                         0                         0                         0 
+          sourcefile_year           source_year_err                total_prop       key_field_replicate sequential_date_replicate 
+                        0                       348                     64057                         0                    109945 
+
+
+Missing Depth Codes when Targets > 0
+# A tibble: 0 × 30
+# ℹ 30 variables: data_issues <chr>, source_file <chr>, line_number <dbl>, lake_code <dbl>, lake <chr>, target_survey_code <dbl>,
+#   target_survey_type <chr>, survey_date <date>, survey_year <dbl>, survey_month <dbl>, depth_code <dbl>, depth_min <int>,
+#   depth_max <int>, transect <dbl>, targets <dbl>, prop_sockeye <dbl>, prop_stickleback <dbl>, sounder_type <chr>, sounder_code <dbl>,
+#   sounder_gain <dbl>, acoustic_survey_notes <chr>, survey_comments <chr>, ats_year <dbl>, area <dbl>, transect_length <dbl>,
+#   sourcefile_year <dbl>, source_year_err <lgl>, total_prop <dbl>, key_field_replicate <chr>, sequential_date_replicate <chr>
+
+
+Invalid Date Check# A tibble: 0 × 11
+# ℹ 11 variables: source_file <chr>, line_number <int>, lake <chr>, lake_code <dbl>, survey_date <date>, depth_code <dbl>,
+#   transect <dbl>, targets <dbl>, prop_sockeye <dbl>, survey_comments <chr>, acoustic_survey_notes <chr>
+
+
+Numeric Metadata Variable Check: Lake, Dates, Sounder values...# A tibble: 8 × 4
+  variable           missing   min   max
+  <chr>                <dbl> <dbl> <dbl>
+1 ats_year                 0  1977  2007
+2 lake_code                0     1   802
+3 sounder_code             0     1     2
+4 sounder_gain            38     1   500
+5 sourcefile_year          0  1977  2007
+6 survey_month             0     1    12
+7 survey_year              0  1977  2008
+8 target_survey_code       0     1     2
+
+Sounder Code Check (Code 1 = FURUNO; 2 = SIMRAD; ? = BIOSONICS)
+# A tibble: 13 × 3
+   sounder_code sounder_type            n_occurrences
+   <chr>        <chr>                           <int>
+ 1 1            "FURUNO FM 22         "           275
+ 2 1            "FURUNO FM22          "             8
+ 3 1            "FURUNO               "             5
+ 4 1            "BIOSONICS G12        "             3
+ 5 1            "FURUNO FE 501        "             1
+ 6 1            "FURUNO FG 200        "             1
+ 7 1            "FURUNO FG 21         "             1
+ 8 1            "FURUNO FM  22        "             1
+ 9 2            "SIMRAD               "          1026
+10 2            "FURUNO   FM 22       "             1
+11 2            "FURUNO FE 501        "             1
+12 2            "FURUNO FM22          "             1
+13 TOTAL        ""                               1324
+
+Sounder Code/Type/Gain Error Records
+
+--- Sounder Code/Type discrepancy; Check Survey Trip Reports (STRs)? ---
+# A tibble: 6 × 8
+  sounder_issues                 sounder_code sounder_type            sounder_gain lake_code survey_date source_file  line_number
+  <chr>                                 <dbl> <chr>                          <dbl>     <dbl> <date>      <chr>              <dbl>
+1 Sounder Code/Type discrepancy;            1 "BIOSONICS G12        "           12         6 1991-07-22  TARGET91.DAT        1809
+2 Sounder Code/Type discrepancy;            1 "BIOSONICS G12        "           12         1 1993-02-12  TARGET92.DAT         459
+3 Sounder Code/Type discrepancy;            1 "BIOSONICS G12        "           12        23 1998-02-06  TARGET97.DAT        4076
+4 Sounder Code/Type discrepancy;            2 "FURUNO   FM 22       "           10        29 1980-09-20  TARGET80.DAT         161
+5 Sounder Code/Type discrepancy;            2 "FURUNO FE 501        "            9        26 1979-07-27  TARGET79.DAT         676
+6 Sounder Code/Type discrepancy;            2 "FURUNO FM22          "           10        26 1980-07-24  TARGET80.DAT        1081
+
+
+--- Sounder Gain missing or error; Check Survey Trip Reports (STRs)? ---
+# A tibble: 47 × 8
+   sounder_issues                 sounder_code sounder_type            sounder_gain lake_code survey_date source_file  line_number
+   <chr>                                 <dbl> <chr>                          <dbl>     <dbl> <date>      <chr>              <dbl>
+ 1 Sounder Gain missing or error;            1 "FURUNO FM 22         "           NA         3 2007-01-20  TARGET06.DAT         684
+ 2 Sounder Gain missing or error;            2 "SIMRAD               "           NA         6 1988-06-14  TARGET88.DAT         954
+ 3 Sounder Gain missing or error;            2 "SIMRAD               "           NA        66 1998-08-06  TARGET98.DAT        1726
+ 4 Sounder Gain missing or error;            2 "SIMRAD               "           NA       238 2003-05-26  TARGET03.DAT        1075
+ 5 Sounder Gain missing or error;            2 "SIMRAD               "           NA       802 2003-11-25  TARGET03.DAT         891
+ 6 Sounder Gain missing or error;            2 "SIMRAD               "           NA        23 2004-08-17  TARGET04.DAT        2171
+ 7 Sounder Gain missing or error;            2 "SIMRAD               "           NA        22 2004-10-19  TARGET04.DAT        2826
+ 8 Sounder Gain missing or error;            2 "SIMRAD               "          500       241 2005-05-24  TARGET05.DAT        2415
+ 9 Sounder Gain missing or error;            2 "SIMRAD               "           NA         3 2005-06-28  TARGET05.DAT         105
+10 Sounder Gain missing or error;            2 "SIMRAD               "           NA       241 2005-08-02  TARGET05.DAT        2621
+11 Sounder Gain missing or error;            2 "SIMRAD               "           NA       238 2005-08-05  TARGET05.DAT        1901
+12 Sounder Gain missing or error;            2 "SIMRAD               "          500       241 2005-09-12  TARGET05.DAT        2724
+13 Sounder Gain missing or error;            2 "SIMRAD               "          500       238 2005-09-13  TARGET05.DAT        1984
+14 Sounder Gain missing or error;            2 "SIMRAD               "          500        22 2005-09-18  TARGET05.DAT        3731
+15 Sounder Gain missing or error;            2 "SIMRAD               "          500        23 2005-09-19  TARGET05.DAT        3427
+16 Sounder Gain missing or error;            2 "SIMRAD               "           NA         3 2005-09-27  TARGET05.DAT         491
+17 Sounder Gain missing or error;            2 "SIMRAD               "          500        23 2005-10-04  TARGET05.DAT        3503
+18 Sounder Gain missing or error;            2 "SIMRAD               "          500        22 2005-10-05  TARGET05.DAT        3898
+19 Sounder Gain missing or error;            2 "SIMRAD               "           NA        23 2005-11-01  TARGET05.DAT        3579
+20 Sounder Gain missing or error;            2 "SIMRAD               "           NA        22 2005-11-02  TARGET05.DAT        4065
+21 Sounder Gain missing or error;            2 "SIMRAD               "          500       241 2005-11-22  TARGET05.DAT        2930
+22 Sounder Gain missing or error;            2 "SIMRAD               "          500       238 2005-11-28  TARGET05.DAT        2067
+23 Sounder Gain missing or error;            2 "SIMRAD               "           NA       801 2005-12-07  TARGET05.DAT        1549
+24 Sounder Gain missing or error;            2 "SIMRAD               "           NA       802 2005-12-07  TARGET05.DAT        1652
+25 Sounder Gain missing or error;            2 "SIMRAD               "           NA        23 2005-12-12  TARGET05.DAT        3655
+26 Sounder Gain missing or error;            2 "SIMRAD               "           NA        22 2005-12-14  TARGET05.DAT        4232
+27 Sounder Gain missing or error;            2 "SIMRAD               "           NA         2 2006-01-04  TARGET05.DAT        3136
+28 Sounder Gain missing or error;            2 "SIMRAD               "           NA         3 2006-01-09  TARGET05.DAT         684
+29 Sounder Gain missing or error;            2 "SIMRAD               "           NA       241 2006-01-17  TARGET05.DAT        3033
+30 Sounder Gain missing or error;            2 "SIMRAD               "           NA       238 2006-01-18  TARGET05.DAT        2150
+31 Sounder Gain missing or error;            2 "SIMRAD               "           NA       228 2006-01-25  TARGET05.DAT        2233
+32 Sounder Gain missing or error;            2 "SIMRAD               "           NA        41 2006-02-21  TARGET05.DAT        1386
+33 Sounder Gain missing or error;            2 "SIMRAD               "           NA        40 2006-02-22  TARGET05.DAT        1050
+34 Sounder Gain missing or error;            2 "SIMRAD               "           NA       238 2006-05-17  TARGET06.DAT        1585
+35 Sounder Gain missing or error;            2 "SIMRAD               "           NA         3 2006-06-21  TARGET06.DAT         105
+36 Sounder Gain missing or error;            2 "SIMRAD               "           NA        23 2006-06-28  TARGET06.DAT        3103
+37 Sounder Gain missing or error;            2 "SIMRAD               "           NA         3 2006-07-20  TARGET06.DAT         298
+38 Sounder Gain missing or error;            2 "SIMRAD               "           NA        23 2006-08-22  TARGET06.DAT        3179
+39 Sounder Gain missing or error;            2 "SIMRAD               "           NA        22 2006-08-23  TARGET06.DAT        3498
+40 Sounder Gain missing or error;            2 "SIMRAD               "           NA         3 2006-09-19  TARGET06.DAT         491
+41 Sounder Gain missing or error;            2 "SIMRAD               "           NA        22 2006-11-02  TARGET06.DAT        3665
+42 Sounder Gain missing or error;            2 "SIMRAD               "           NA        23 2006-11-05  TARGET06.DAT        3255
+43 Sounder Gain missing or error;            2 "SIMRAD               "           NA       238 2006-11-22  TARGET06.DAT        1668
+44 Sounder Gain missing or error;            2 "SIMRAD               "           NA       241 2006-11-23  TARGET06.DAT        2763
+45 Sounder Gain missing or error;            2 "SIMRAD               "           NA       228 2007-02-15  TARGET06.DAT        2244
+46 Sounder Gain missing or error;            2 "SIMRAD               "           NA       801 2007-02-20  TARGET06.DAT        1399
+47 Sounder Gain missing or error;            2 "SIMRAD               "           NA       802 2007-02-20  TARGET06.DAT        1502
+
+
+Range Check Summary for Transect, Depth, Targets and Proportions values...# A tibble: 0 × 9
+# ℹ 9 variables: data_issues <chr>, source_file <chr>, line_number <dbl>, lake <chr>, survey_date <date>, targets <dbl>,
+#   prop_sockeye <dbl>, prop_stickleback <dbl>, total_prop <dbl>
+
+                                                                                                                                       
+Tally Frequency of Data Issues by Type
+# A tibble: 37 × 2
+   data_issues                                                                                                                      count
+   <chr>                                                                                                                            <int>
+ 1 Missing or invalid survey_date (31-Jun-85), assigned (01-Jul-85) from survey comment info;                                          38
+ 2 Missing or invalid survey_date (31-Sep-00), assigned (01-Oct-00) from survey comment info;                                          26
+ 3 Missing or invalid survey_date (96/03/--), assigned (960320) from survey comment info;                                              34
+ 4 Missing or invalid survey_date (96/03/--), assigned (960322) from survey comment info;                                              46
+ 5 Prop_sockeye and prop_stickleback set to NA because targets == 0;                                                                58925
+ 6 Prop_sockeye and prop_stickleback set to NA because targets == 0;  Sounder Code/Type discrepancy;                                  275
+ 7 Prop_sockeye and prop_stickleback set to NA because targets == 0;  Sounder Gain missing or error;                                 2479
+ 8 Prop_sockeye and prop_stickleback set to NA because targets == 0; Missing or invalid survey_date (31-Jun-85), assigned (01-Jul-…   122
+ 9 Prop_sockeye and prop_stickleback set to NA because targets == 0; Missing or invalid survey_date (31-Sep-00), assigned (01-Oct-…    33
+10 Prop_sockeye and prop_stickleback set to NA because targets == 0; Missing or invalid survey_date (96/03/--), assigned (960320) …    12
+11 Prop_sockeye and prop_stickleback set to NA because targets == 0; Missing or invalid survey_date (96/03/--), assigned (960322) …    34
+12 Revised proportions (was 0.23 & 0.92 sox, 0.77 & 0.08 stix) based on TARGET02ADJ.DAT file;                                          12
+13 Revised proportions (was 0.23 sox, 0.77 stix) based on TARGET02ADJ.DAT file;                                                         6
+14 Revised proportions (was 0.40 sox, 0.60 stix) based on TARGET05ADJ.DAT file;                                                         6
+15 Revised proportions (was 0.73 sox, 0.27 stix) based on TARGET05ADJ.DAT file;                                                        12
+16 Revised proportions (was 0.83 sox, 0.17 stix) based on TARGET02ADJ.DAT file;                                                         6
+17 Revised proportions (was 0.99 sox, 0.01 stix) based on TARGET02ADJ.DAT file;                                                        12
+18 Sounder Code/Type discrepancy;                                                                                                     188
+19 Sounder Gain missing or error;                                                                                                    2778
+20 Source_file/survey_date mis-match;                                                                                                1798
+21 Source_file/survey_date mis-match; Data erroneously stored in TARGET95.DAT, ats_year updated from survey_date and processed_dat…    29
+22 Source_file/survey_date mis-match; Prop_sockeye and prop_stickleback set to NA because targets == 0;                              2020
+23 Source_file/survey_date mis-match; Prop_sockeye and prop_stickleback set to NA because targets == 0; Data erroneously stored in…   115
+24 Source_file/survey_date mis-match; Prop_sockeye and prop_stickleback set to NA because targets == 0; This was a duplicate, othe…    42
+25 Source_file/survey_date mis-match; Species proportions do not add to 1;                                                              1
+26 Source_file/survey_date mis-match; This was a duplicate, other copy deleted; probable true date Feb 14, 2007, from acoustic_sur…    62
+27 Source_file/survey_date mis-match; Transect Length = 0 but #Targets > 0;                                                            22
+28 Species proportions do not add to 1;                                                                                               651
+29 Species proportions do not add to 1;  Sounder Gain missing or error;                                                                 2
+30 Species proportions do not add to 1; Missing or invalid survey_date (31-Sep-00), assigned (01-Oct-00) from survey comment info;      1
+31 Species proportions do not add to 1; Targets < 0 (set to NA);                                                                        1
+32 Species proportions do not add to 1; Transect Length = 0 but #Targets > 0;                                                          13
+33 Targets < 0 (set to NA);                                                                                                             1
+34 Transect Length = 0 but #Targets > 0;                                                                                              500
+35 Transect Length = 0 but #Targets > 0;  Sounder Gain missing or error;                                                               15
+36 Transect Length = 0 but #Targets > 0; Missing or invalid survey_date (96/03/--), assigned (960320) from survey comment info;         2
+37 TOTAL RECORDS WITH DATA ISSUES ----------------------->                                                                          70319
+
+                                                                                                                                       
+Tally Frequency of Surveys that are potential duplicates/replicates
+# A tibble: 3 × 2
+  replicate_issue                                                                             count
+  <chr>                                                                                       <int>
+1 Replicate exists in the original data for this lake, date, sounder, transect and depth          5
+2 Replicate or potential duplicate (with sequential survey dates) exists in the original data   135
+3 TOTAL SURVEYS WITH POTENTIAL DUPLICATES/REPLICATES ----------------------->                   140
+
+                                                                                                                                       
+Execution time: 6.27 minutes
+There were 50 or more warnings (use warnings() to see the first 50)
