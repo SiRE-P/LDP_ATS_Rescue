@@ -33,9 +33,9 @@
 ## Authors: Yuliya Shtymburski (U. Regina); Sandra Emry (UBC); H Stiff (DFO Nanaimo)
 ## Date:    October 2025
 ##
-## Notes:   The IMPORT TARGET*.DAT files section may be commented out to skip the time-consuming (5 minutes) data-import process
+## Notes:   The IMPORT TARGET*.DAT files section may be commented out to skip the time-consuming (~5 minutes) data-import process
 ##          if that process has previously been successfully completed.  Note that this may require revision of the FILE_NAME in the 
-##          Re-IMPORT RAW IMPORT DATA section to ensure code has access to the raw import data previously saved to CSV.
+##          RE-IMPORT RAW IMPORT DATA section to ensure code has access to the raw import data previously saved to CSV.
 ##          
 
 # LIBRARIES ####
@@ -219,7 +219,7 @@ parse_target_dat_tracer <- function(filepath) {
 } # end function
 
 
-# IMPORT TARGET*.DAT files                                      ## COMMENT OUT to skip TARGET.DAT import process ####
+# IMPORT TARGET*.DAT files                                              ## COMMENT OUT to skip TARGET.DAT import process ####
 
 # list all .dat files in the working directory
 dat_files <- list.files(
@@ -273,7 +273,7 @@ cat("\n")
 #   filter(!if_all(c(transect, depth, targets), is.na))           # this drops all records missing in three key index variables, which seems to happen due to blank lines between input data blocks (HS 250908)
 # toc()
 
-#   Save raw import data and an inventory of surveys to csv...  ## COMMENT OUT to skip TARGET.DAT import process ####
+#   Save raw import data and an inventory of surveys to csv...          ## COMMENT OUT to skip TARGET.DAT import process ####
 write_csv(all_target_data,  paste("./ACOUSTIC_TARGETS/output/ARCHIVE/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))
 write_csv(all_target_data,  paste("./ACOUSTIC_TARGETS/output/Target_INPUT_data_RAW_", ats_year_span, ".csv",      sep="")) # save copy for import to Pivot workbook
 # RE-IMPORT raw import data (assign FILE_NAME if necessary!) from saved CSV to skip time-consuming IMPORT of TARGET*.DAT ####
@@ -515,8 +515,8 @@ total_row <- removed_duplicate_records %>%
     source_file = NA,
     n = sum(n))
 frequency_table_with_total <- bind_rows(removed_duplicate_records, total_row)
-print(frequency_table_with_total, n = Inf)                                      # 830 records associated with key-field duplicates removed
-cat("\n")                                                                       # 5672 records in total, including seq_date dups
+print(frequency_table_with_total, n = Inf)                                      # 830  records associated with key-field duplicates removed [25-10-28]
+cat("\n")                                                                       # 5672 records in total, including seq_date dups            [25-10-28]
 
 # Remove duplicates from merged_data_strata using source_file and line_number
 target_data_duplicates_removed <- merged_data_strata %>%
