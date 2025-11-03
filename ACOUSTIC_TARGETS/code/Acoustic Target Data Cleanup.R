@@ -52,8 +52,8 @@ library(tools)
 
 # INITIALIZE variables ####
 start_time <- Sys.time() 
-today      <- format(ymd(paste0("20", date_stamp)), "%d-%b-%Y")
 date_stamp <- substr(format(Sys.time(), "%Y%m%d-%H%M"), 3, 8)   # 8 for date only  # Get the current date to timestamp output files
+today      <- format(ymd(paste0("20", date_stamp)), "%d-%b-%Y")
 ats_year_span <- "(1977_2007)"                                  # year span of the time-series (for file naming)
 
 # setwd("C:/DFO-MPO/OneDriveOneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/LDP_ATS_Rescue")
