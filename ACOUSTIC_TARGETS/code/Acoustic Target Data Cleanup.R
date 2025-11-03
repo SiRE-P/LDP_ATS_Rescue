@@ -51,9 +51,10 @@ library(tidyverse)
 library(tools)
 
 # INITIALIZE variables ####
-start_time <- Sys.time()                                                        
+start_time <- Sys.time() 
+today      <- format(ymd(paste0("20", date_stamp)), "%d-%b-%Y")
 date_stamp <- substr(format(Sys.time(), "%Y%m%d-%H%M"), 3, 8)   # 8 for date only  # Get the current date to timestamp output files
-ats_year_span <- "(1977_2007)"                                  # year span of the data (for file naming)
+ats_year_span <- "(1977_2007)"                                  # year span of the time-series (for file naming)
 
 # setwd("C:/DFO-MPO/OneDriveOneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/LDP_ATS_Rescue")
 if (!dir.exists("./ACOUSTIC_TARGETS/output"))         {dir.create("./output")}          # ensure CSV output directory exists
@@ -306,16 +307,6 @@ data <- all_target_data %>%   # target_data_exact_dups_removed %>%
   
   # Assigning target_survey_type as ADULT or JUVENILE (default) -- based on text="ADULT SURVEY" in survey_comments (ignore other references to adults present, not present, etc)
 
-  # mutate(
-  #   target_survey_code = case_when(
-  #     is.na(survey_comments) | str_trim(survey_comments) == "" ~ 1,
-  #     str_detect(survey_comments, regex("adult survey", ignore_case = TRUE)) ~ 2,
-  #     TRUE ~ 1),
-  #   target_survey_type = case_when(
-  #     is.na(survey_comments) | str_trim(survey_comments) == "" ~ "JUVENILE",
-  #     str_detect(survey_comments, regex("adult survey", ignore_case = TRUE)) ~ "ADULT",
-  #     TRUE ~ "JUVENILE")) %>%
-
   mutate(
     target_survey_code = case_when(
       (is.na(survey_comments) | str_trim(survey_comments) == "") &
@@ -413,17 +404,22 @@ filter_data  <- tidy_data %>% filter(if_all(everything(), is.na))   # this captu
 data_with_na <- tidy_data %>% filter(if_any(everything(), is.na))   # this captures any record with an NA in ANY column = 20,099 (HS 251006)
 data_no_na   <- tidy_data %>% drop_na()                             # drop_na() with no arguments removes any row that has at least one NA in any column = 123,880 = 131,011 - 7,131
 
-
 # Tabulate combinations of sounder_type and sounder_code
 tidy_data %>%
   count(sounder_type, sounder_code) %>%
   arrange(desc(n))
 
-
 #   Merge in parameters from lake_strata (area, length) ####
 lake_strata <- read.csv("./ACOUSTIC_TARGETS/data/lake_strata_lengths.csv") #input the reference file 
 
 merged_data_strata <- tidy_data %>%
+  
+  # mutate(lake_code = case_when(
+  #   lake_code == 40  & survey_date == ymd("1985-01-23") & source_file == "TARGET85.DAT" ~ # first revise lake_code from 40 to 41 (KCA to KMA) for 850123 survey in TARGET85.DAT
+  #     41, TRUE ~ lake_code)) %>%
+  # mutate(lake = case_when(
+  #   lake_code == 41 & survey_date == ymd("1985-01-23") ~ "Kennedy L (Main)", TRUE ~ lake)) %>%
+
   left_join(
     lake_strata %>%
       rename(lake = lk.name, lake_code = lk.code, transect = Transect) %>%
@@ -433,16 +429,19 @@ merged_data_strata <- tidy_data %>%
   ) %>% 
   rename(area = Area) %>% 
   rename(transect_length = Length) %>% 
-  relocate(lake.y, .after = lake.x)
+  relocate(lake.y, .after = lake.x) 
+
+# check <- merged_data_strata %>% filter(lake_code == 41 & survey_date == ymd("1985-01-23"))
 
 #   Data check and known error processing ####
 #   Filter out duplicate survey data identified in LDP Data Issues.PDF ####
 #   See "LDP Data Issues.PDF / section Key-Field Replicate Investigations" for details
 target_data_duplicates_to_remove <- merged_data_strata %>%
   arrange(lake_code, survey_date, transect, depth_code) %>%
+  
   filter((lake_code == 6   & survey_date == as.Date("1990-02-22") & source_file == "TARGET90.DAT") | # Hobiton
          (lake_code == 226 & survey_date == as.Date("1994-08-25") & source_file == "TARGET93.DAT") | # Johanson 
-       # (lake_code == 40  & survey_date == as.Date("1985-01-23") & source_file == "TARGET85.DAT") | # 3 KCA (Kenn-Clay) surveys this date - supported by three entries with this date for KCA in ALL_YEARS_MASTER_ATS_SUMMARY.xlsx - leave intact [251025] 
+#        (lake_code == 40  & survey_date == as.Date("1985-01-23") & source_file == "TARGET85.DAT") | # 3 KCA surveys this date! including suspicious survey in wrong TARGET file w very diff targets - possible KMA but supported as KCA by no. of transects and 3 summary entries with this date in ALL_YEARS_MASTER_ATS_SUMMARY.xlsx - do not omit here but flag in LDP Data Issues [251025] 
          (lake_code == 229 & survey_date == as.Date("2004-02-04") & source_file == "TARGET06.DAT") | # Owikeno (B)
          (lake_code == 225 & survey_date == as.Date("1994-08-23") & source_file == "TARGET93.DAT") | # Sustut
          (lake_code == 64  & survey_date == as.Date("1994-09-18") & source_file == "TARGET93.DAT") | # Tahltan
@@ -502,7 +501,8 @@ target_data_duplicates_to_remove <- merged_data_strata %>%
          (lake_code == 67  & survey_date == as.Date("1991-09-16") & source_file == "TARGET91.DAT") | # Trapper     
          (lake_code == 175 & survey_date == as.Date("1996-09-09") & source_file == "TARGET96.DAT") | # Tuya
          (lake_code == 69  & survey_date == as.Date("1998-08-14") & source_file == "TARGET98.DAT"))  # Yakoun
-           
+       
+#   List duplicate surveys removed from cleanup ####    
 cat("\n Duplicate Survey Data Removed
 (see LDP Data Issues.docs for details)\n")
 removed_duplicate_records <- target_data_duplicates_to_remove %>%
@@ -518,7 +518,7 @@ frequency_table_with_total <- bind_rows(removed_duplicate_records, total_row)
 print(frequency_table_with_total, n = Inf)                                      # 830  records associated with key-field duplicates removed [25-10-28]
 cat("\n")                                                                       # 5672 records in total, including seq_date dups            [25-10-28]
 
-# Remove duplicates from merged_data_strata using source_file and line_number
+#   Remove duplicates from merged_data_strata using source_file and line_number ####
 target_data_duplicates_removed <- merged_data_strata %>%
   anti_join(target_data_duplicates_to_remove, by = c("source_file", "line_number"))
 
@@ -691,7 +691,7 @@ merged_data_with_issues <- target_data_duplicates_removed %>%                   
       TRUE ~ target_survey_type),
     
     
-    # set JANSEN Lk survey 860213 to ADULT by adding ADULT SURVEY to survey_comments for later tranlation to survey_type and survey_type_code
+    # set JANSEN Lk survey 860213 to ADULT by adding ADULT SURVEY to survey_comments for later translation to survey_type and survey_type_code
     target_survey_code = case_when(
       lake_code == 108 & survey_date == ymd("1986-02-13") ~ 2,
       TRUE ~ target_survey_code),
@@ -795,20 +795,186 @@ merged_data_with_issues <- target_data_duplicates_removed %>%                   
       TRUE ~ str_c(data_issues, "Survey date not in ATS Year; ")
     )
   ) %>%
-  # Owikeno removals
-  # filter(!(lake_code == 228 & survey_date == ymd("2007-02-15"))) %>%
-  # filter(!(lake_code == 229 & survey_date %in% ymd(c("2004-02-04", "2007-02-15")))) %>%
-  
+
+#   Document survey omissions identified in LDP Data Issues.docx with additions to data_issues field ####
   mutate(
     data_issues = case_when(
-      lake_code == 228 & survey_date == ymd("2007-02-14") ~
-        str_c(data_issues, "Duplicate data dated 070215 deleted; "),
-      lake_code == 229 & survey_date == ymd("2004-02-14") ~
-        str_c(data_issues, "This was a duplicate, other copy deleted; probable true date Feb 14, 2007, from acoustic_survey_notes, data found in TARGET06.DAT; unknown why the target numbers are different than for date 070214; "),
-      lake_code == 229 & survey_date == ymd("2007-02-14") ~
-        str_c(data_issues, "Duplicate data dated 070215 deleted; "),
+      lake_code == 161 & survey_date == ymd("1986-04-16") ~                                 # BRANNEN
+        str_c(data_issues, "Replicate with unadjusted spp comp. dated 860415 omitted; "),
+      
+      lake_code == 25  & survey_date == ymd("1994-09-08") ~                                 # EDEN
+        str_c(data_issues, "Replicate with unadjusted spp comp. dated 940907 omitted; "),
+
+      lake_code == 1   & survey_date == ymd("1979-12-20") ~                                 # GREAT CENTRAL
+        str_c(data_issues, "Adj. for size bias. Orig. replicate dated 791219 omitted;"),
+      
+      lake_code == 1   & survey_date == ymd("1991-03-07") ~                                 # GREAT CENTRAL
+        str_c(data_issues, "Adj. for size bias. Orig. replicates dated 910305 & 910306 omitted;"), 
+      
+      lake_code == 1   & survey_date == ymd("1998-12-03") ~                                 # GREAT CENTRAL
+        str_c(data_issues, "Replicate with unadjusted spp comp. dated 981202 omitted;"),
+      
+      lake_code == 1   & survey_date == ymd("2000-11-29") ~                                 # GREAT CENTRAL
+        str_c(data_issues, "Adj. for size bias. Orig. replicate dated 2000-11-30 omitted;"),
+      
+      lake_code == 1   & survey_date == ymd("2001-12-05") ~                                 # GREAT CENTRAL
+        str_c(data_issues, "Adj. for size bias. Orig. replicate dated 2001-12-04 omitted;"),
+      
+      lake_code == 1   & survey_date == ymd("2004-01-23") ~                                 # GREAT CENTRAL
+        str_c(data_issues, "Adj. for size bias. Orig. replicate dated 2004-01-22 omitted;"),
+      
+      lake_code == 3   & survey_date == ymd("1986-09-24") ~                                 # HENDERSON    
+        str_c(data_issues, "Adjusted data. Orig. replicate dated 860923 omitted;"),
+      
+      lake_code == 3   & survey_date == ymd("1993-02-26") ~                                 # HENDERSON    
+        str_c(data_issues, "Adjusted data. Orig. replicate dated 930225 omitted;"),
+      
+      lake_code == 3   & survey_date == ymd("1993-07-17") ~                                 # HENDERSON    
+        str_c(data_issues, "Adjusted data. Orig. replicate dated 930716 omitted;"),
+      
+      lake_code == 3   & survey_date == ymd("1995-06-21") ~                                 # HENDERSON    
+        str_c(data_issues, "Adjusted data. Orig. replicate dated 950620 omitted;"),
+      
+      lake_code == 3   & survey_date == ymd("2004-03-10") ~                                 # HENDERSON    
+        str_c(data_issues, "Adjusted for size bias. Prev. survey dated 2004-03-09 omitted; "),
+      
+      lake_code == 3   & survey_date == ymd("2004-11-28") ~                                 # HENDERSON    
+        str_c(data_issues, "Adjusted for size bias. Other surveys dated 2004-11-29 & 2004-11-30 omitted; "),
+      
+      lake_code == 3   & survey_date == ymd("2007-08-24") ~                                 # HENDERSON    
+        str_c(data_issues, "Adjusted for size bias. Prev. survey dated 2007-08-23 omitted; "),
+      
+      lake_code == 50  & survey_date == ymd("2004-11-09") ~                                 # HEYDON    
+        str_c(data_issues, "Near-duplicate survey dated 2004-11-10 incomplete, omitted; "),
+      
+      lake_code == 250                                    ~                                 # HEYDON_2005
+        str_c(data_issues, "NOTE: This lake code (250) may be synonymous with 50 (Heydon); "),
+      
+      lake_code == 6   & survey_date == ymd("1987-04-20") ~                                 # HOBITON 
+        str_c(data_issues, "Near duplicate survey date 870421 incomplete, omitted; "),
+      
+      lake_code == 6   & survey_date == ymd("1990-02-22") & source_file == "TARGET89.DAT" ~ # HOBITON 
+        str_c(data_issues, "Apparent duplicate data in TARGET90.DAT omitted; "),
+      
+      lake_code == 26  & survey_date == ymd("2003-09-08") ~                                 # IAN
+        str_c(data_issues, "Replicate with unadjusted spp comp. dated 2003-09-07 omitted; "),
+      
+      lake_code == 226 & survey_date == ymd("1994-08-25") & source_file == "TARGET94.DAT" ~ # JOHANSON
+        str_c(data_issues, "Apparent duplicate data in TARGET93.DAT omitted; "),
+      
+      lake_code == 40  & survey_date == ymd("1985-01-23") & source_file == "TARGET85.DAT" ~ # KCA triplicate survey 
+          str_c(data_issues, "Suspicious replicate of KCA surveys in TARGET84.DAT; may be erroneous lake or date; "),
+
+      lake_code == 40  & survey_date == ymd("1993-10-22") ~                                 # KCA     
+        str_c(data_issues, "Replicates with unadjusted spp comp. dated 931020 & 931021 omitted; "),
+
+      lake_code == 801 & survey_date == ymd("2007-02-20") ~                                 # LONG (A)
+        str_c(data_issues, "Duplicate dated 2007-02-19 omitted; "),
+      
+      lake_code == 801 & survey_date == ymd("2007-11-08") ~                                 # LONG (A)
+        str_c(data_issues, "Replicate with unadjusted spp comp. dated 2007-11-07 omitted; "),
+      
+      lake_code == 801 & survey_date == ymd("2008-02-23") ~                                 # LONG (A)
+        str_c(data_issues, "Replicate with unadjusted spp comp. dated 2008-02-22 omitted; "),
+      
+      lake_code == 802 & survey_date == ymd("2007-02-20") ~                                 # LONG (B)
+        str_c(data_issues, "Duplicate dated 2007-02-19 omitted; "),
+      
+      lake_code == 802 & survey_date == ymd("2007-11-08") ~                                 # LONG (B)
+        str_c(data_issues, "Replicate with unadjusted spp comp. dated 2007-11-07 omitted; "),
+      
+      lake_code == 802 & survey_date == ymd("2008-02-23") ~                                 # LONG (B)
+        str_c(data_issues, "Replicate with unadjusted spp comp. dated 2008-02-22 omitted; "),
+      
+      lake_code == 32  & survey_date == ymd("1986-08-14") ~                                 # MERCER 
+        str_c(data_issues, "Near duplicate survey date 860815 incomplete, omitted; "),
+      
+      lake_code == 43  & survey_date == ymd("1991-08-31") ~                                 # MEZIADIN
+        str_c(data_issues, "Near duplicate survey date 910830 incomplete, omitted; "),
+      
+      lake_code == 247                                    ~                                 # NAHWITTI_2005 
+        str_c(data_issues, "NOTE: This lake code (247) may be synonymous with 121 (Nahwitti); "),
+
+      lake_code == 238 & survey_date == ymd("2004-03-03") ~                                 # OSOYOOS (N)  
+        str_c(data_issues, "Adjusted for size bias. Prev. survey dated 2004-03-02 omitted; "),
+      
+      lake_code == 238 & survey_date == ymd("2005-08-05") ~                                 # OSOYOOS (N)  
+        str_c(data_issues, "Adjusted for size bias. Prev. survey dated 2005-08-04 omitted; "),
+      
+      lake_code == 251                                    ~                                 # OSOYOOS_2005 
+        str_c(data_issues, "NOTE: This lake code (251) may be synonymous with 238 (Osoyoos (N)); "),
+      
+      lake_code == 59  & survey_date == ymd("1986-08-22") ~                                 # PHILLIPS
+        str_c(data_issues, "Near duplicate survey date 860821 incomplete, omitted; "),
+
+      lake_code == 249                                    ~                                 # PHILLIPS_2005 
+        str_c(data_issues, "NOTE: This lake code (249) may be synonymous with 59 (Phillips); "),
+      
+      lake_code == 252                                    ~                                 # QUATSE_2005 
+        str_c(data_issues, "NOTE: This lake code (252) may be synonymous with 122 (Quatse); "),
+      
+      lake_code == 228 & survey_date == ymd("2004-02-05") ~                                 # OWIKENO A
+        str_c(data_issues, "Adj. for size bias. Orig. replicate dated 2004-02-04 omitted; "),
+      lake_code == 228 & survey_date == ymd("2007-02-15") ~
+        str_c(data_issues, "Apparent duplicate data dated 2007-02-14 omitted; "),
+      lake_code == 228 & survey_date == ymd("2008-02-21") ~
+        str_c(data_issues, "Adj. for size bias. Orig. replicate dated 2008-02-20 omitted; "),
+      
+      lake_code == 229 & survey_date == ymd("2004-02-05") ~                                 # OWIKENO B
+        str_c(data_issues, "Adj. for size bias. Orig. replicate dated 2004-02-04 omitted;"),
+      lake_code == 229 & survey_date == ymd("2007-02-15") ~
+        str_c(data_issues, "Apparent duplicate data dated 2007-02-14 omitted; "),
+      lake_code == 229 & survey_date == ymd("2008-02-20") ~                                 
+        str_c(data_issues, "Adj. for size bias. Orig. replicate dated 2008-02-19 omitted;"),
+      
+      lake_code == 61  & survey_date == ymd("2002-09-17") ~                                 # SAKINAW
+        str_c(data_issues, "Replicate with different spp comp. dated 2008-09-16 omitted; "),
+
+      lake_code == 255                                    ~                                 # SKAHA_2007    
+        str_c(data_issues, "NOTE: This lake code (255) may be synonymous with 241 (Skaha); "),
+      
+      lake_code == 2   & survey_date == ymd("1995-11-21") ~                                 # SPROAT 
+        str_c(data_issues, "Replicate with different spp comp. dated 1995-11-20 omitted; "),
+      
+      lake_code == 156 & survey_date == ymd("1994-08-30") ~                                 # SKIDEGATE NE
+        str_c(data_issues, "Replicates with different targets & spp comp. dated 940829 & 940831 omitted; "),
+      
+      lake_code == 225 & survey_date == ymd("1994-08-23") & source_file == "TARGET94.DAT" ~ # SUSTUT
+        str_c(data_issues, "Apparent duplicate data in TARGET93.DAT omitted; "),
+ 
+      lake_code == 64  & survey_date == ymd("1994-09-18") & source_file == "TARGET94.DAT" ~ # TAHLTAN
+        str_c(data_issues, "Apparent duplicate data in TARGET93.DAT omitted; "),
+      
+      lake_code == 66  & survey_date == ymd("1994-09-13") & source_file == "TARGET94.DAT" ~ # TATSAMENIE
+        str_c(data_issues, "Apparent duplicate data in TARGET93.DAT omitted; "),
+      lake_code == 66  & survey_date == ymd("1997-06-26") & source_file == "TARGET97.DAT" ~             
+        str_c(data_issues, "Apparent duplicate data in TARGET96.DAT omitted; "),
+
+      lake_code == 67  & survey_date == ymd("1991-09-17")  ~                                # TRAPPER   
+        str_c(data_issues, "Apparent duplicate data date 910916 omitted; "),
+      
+      lake_code == 67  & survey_date == ymd("1994-09-11") & source_file == "TARGET94.DAT" ~ # TRAPPER   
+        str_c(data_issues, "Apparent duplicate data in TARGET93.DAT & TARGET94.DAT omitted; "),
+      
+      lake_code ==175  & survey_date == ymd("1994-09-02") & source_file == "TARGET94.DAT" ~ # TATSAMENIE
+        str_c(data_issues, "Apparent duplicate data in TARGET93.DAT omitted; "),
+
+      lake_code == 175 & survey_date == ymd("1996-09-10") ~                                 # TUYA   
+        str_c(data_issues, "Replicate with different spp comp. dated 1996-09-09 omitted; "),
+      
+      lake_code == 69  & survey_date == ymd("1998-08-15") ~                                 # YAKOUN   
+        str_c(data_issues, "Near duplicate with minor diff in targets dated 1998-08-14 omitted; "),
+      
       TRUE ~ data_issues)) %>% 
+  
   select(data_issues, source_file, line_number, everything(), -fix_skaha_date, -fix_kca_date, -fix_muriel_date, -fix_megin_date, -fix_gcl_props)     # -total_prop, 
+
+check_some_data_issues <- merged_data_with_issues %>%
+# filter(lake_code == 40) %>%
+  select(lake.y, lake_code, survey_date, sounder_code, source_file, data_issues) %>%
+  distinct() %>%
+  arrange(lake.y) %>%
+  filter(!is.na(data_issues) & data_issues != "")
 
 # finding and fixing some lake name issues 
 cat("Fixing lake name issues...\n") 
@@ -816,8 +982,8 @@ merged_data_with_issues %>%
   select(lake.x, lake.y) %>% 
   filter(lake.x != lake.y) %>% 
   unique() %>% 
-  arrange(lake.x) # %>% 
-# print(n = Inf)
+  arrange(lake.x) %>% 
+ print(n = Inf)
 
 # Reference table of old and new names
 lake_lookup <- tibble::tibble(
@@ -1327,5 +1493,6 @@ close <- dev.off()
 #   Calculate execution time and finish up
 end_time <- Sys.time()
 execution_time <- as.numeric(difftime(end_time, start_time, units = "mins"))
-cat("\nExecution time:", round(execution_time, 2), "minutes\n")
+cat(paste("\nAcoustic Target Data Cleanup program complete.\n",
+     "Execution time:", round(execution_time, 2), "minutes [", trimws(today), "]\n"), sep="")
 make_a_sound("coin", .25)
