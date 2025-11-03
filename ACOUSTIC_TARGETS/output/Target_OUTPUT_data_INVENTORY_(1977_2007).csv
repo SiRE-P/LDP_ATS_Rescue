@@ -1,5 +1,5 @@
 ats_year,lake,lake_code,survey_date,target_survey_code,target_survey_type,sounder_code,sounder_type,sounder_gain,sounder_issues,key_field_replicate,sequential_date_replicate,acoustic_survey_notes,acoustic_survey_comments,source_file
-1977,Great Central Lk,1,1977-09-20,1,JUVENILE,1,FURUNO FM 22         ,10,,,NA,1-5 M. NOT COUNTED,20-21 1977 NIGHT SURVEY,TARGET77.DAT
+1977,Great Central Lk,1,1977-09-20,1,JUVENILE,1,FURUNO FM 22         ,10,,,NA ,1-5 M. NOT COUNTED,20-21 1977 NIGHT SURVEY,TARGET77.DAT
 1977,Great Central Lk,1,1977-11-07,1,JUVENILE,1,FURUNO FM 22         ,10,,,NA,NA,NOVEMBER 7 1977 NIGHT SURVEY,TARGET77.DAT
 1977,Henderson Lk,3,1977-10-04,1,JUVENILE,1,FURUNO FM 22         ,10,,,NA,NO TRAWLS DONE. #OF SOCKEYE=#OF FISH,1977,TARGET77.DAT
 1977,Henderson Lk,3,1978-03-13,1,JUVENILE,1,FURUNO FM 22         ,10,,,NA,NO TRAWLS DONE. #OF SOCKEYE=#OF FISH,"13-14, 1978",TARGET77.DAT
