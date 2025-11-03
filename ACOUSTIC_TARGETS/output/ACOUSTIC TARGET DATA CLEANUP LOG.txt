@@ -1,6 +1,8 @@
-source("C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - Living_Data_Project/LDP_ATS_Rescue/ACOUSTIC_TARGETS/code/Acoustic Target Data Cleanup.R")
+source("C:/DFO-MPO/OneDrive/OneDrive - DFO-MPO/PROJECTS/LDP - 
+        Living_Data_Project/LDP_ATS_Rescue/ACOUSTIC_TARGETS/code/Acoustic Target Data Cleanup.R")
 
-Acoustic Target Data files to process: 1: ACOUSTIC_TARGETS/data/TARGET00.DAT
+Acoustic Target Data files to process: 
+ 1: ACOUSTIC_TARGETS/data/TARGET00.DAT
  2: ACOUSTIC_TARGETS/data/TARGET01.DAT
  3: ACOUSTIC_TARGETS/data/TARGET02.DAT
  4: ACOUSTIC_TARGETS/data/TARGET03.DAT
@@ -489,6 +491,6 @@ Tally Frequency of Surveys that are potential duplicates/replicates
 2 Replicate or potential duplicate (with sequential survey dates) exists in the original data   135
 3 TOTAL SURVEYS WITH POTENTIAL DUPLICATES/REPLICATES ----------------------->                   140
 
-                                                                                                                                       
-Execution time: 6.27 minutes
+Acoustic Target Data Cleanup program complete.
+ Execution time: 5.88 minutes [0-Nov-2025]                                                                                                                                       
 There were 50 or more warnings (use warnings() to see the first 50)
