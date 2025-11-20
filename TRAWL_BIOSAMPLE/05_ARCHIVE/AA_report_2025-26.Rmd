@@ -1,0 +1,88 @@
+---
+title: "LDP_internship_report"
+author: "Alice Assmar"
+date: "2025-11-17"
+output: pdf_document
+---
+
+# Introduction
+
+
+
+
+# Timeline
+
+## Week 1 (November 3-9th, 2025)
+Meeting with David Hunt (Wed 5th)
+
+-> Folder structure - separate intermediate output from final, cleaned output
+
+-> If possible, use SAS files instead of looping the lines of the .dat files
+
+-> I started working with the .dat files because there were missing informations in the SAS data files. Howard sent the SAS metadata on Fri, 7th, then I started working on them.
+
+-> Ask Howard -> Should SAS files and .dat have the same info? HS - Yes, they should, but they haven't.
+
+-> David mentioned there probably are floating point error in some of the columns
+
+-> Add unique IDs for trawls and fishes
+    - trawl unique ID - date, lake_code, trawl_number 
+    - fish unique ID - date, lake_code, trawl_number, fish_id
+    
+## Week 2 (November 10-16th, 2025)
+-> Columns trawl_location, sample_type and sample_number are not present in the SAS files
+    - Howard said sample_type and sample_number are probably same for all rows
+    - Athena expressed concerns about the trawl_location, and I will try to maintain the info in the final matrix
+
+-> We will remove the processor/observer names because of privacy purpose - add the justification to the data_dictionary
+
+-> NA should be left as is
+
+-> Round numbers to two decimals after point suring quality check period.
+
+-> There are more rows in the SAS data file than in the .dat file. for year '84
+
+-> "comment" column appears to be empty, if that is the case for all years, it should be removed
+
+-> Create a summary table - compare SAS and .dat files - survey by day (e.g. lake 3, date - compare info)
+    - recommended match and merge
+    - cross check lake in every year - summarize command - count # lakes in that year
+    - Count # of rows per lake, date, species and trawl.
+    
+-> Apple data cross checking confirmation for '77-99
+    - check if there are original files to all years - looks like we don't
+
+Meeting with David Hunt, Athena Ogden, Howard Stiff (Wed 12th)
+
+## Week 3 (November 17-23th, 2025)
+-> SAS files   "trawl85.sas7bdat", 
+               "trawl86.sas7bdat",
+               "trawl87.sas7bdat",
+               "trawl94.sas7bdat",
+               "trawl97.sas7bdat",
+               "trawl98.sas7bdat"
+Contain wrongly formatted information in the metadata. It jeopardized the table merging.
+
+-> Yulia's script worked well for .dat files from '84-'86. However, I had to adapt the script to the other years because the loop was assigning values to the wrong columns. For the year '88, I modified the "start_end_time" cleaning script, and for the '87 and '90-'99, I let the empty lines to county as missing data and modified the loop to account for it.
+
+-> Create a summary scrip to compare SAS and DAT files
+    - some of the .dat have still issues with the loop - '89
+
+Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
+
+-> Next steps after the meeting:
+    - check duplicates
+    - correct loop year '89
+    - How many records have missing duration? Calculate the duration for the missing ones
+    - Commit changes as branch
+    - Assemble all datasets into one giant table
+    - Separate juvenile/adults
+    - Add line number to source files (.dat)
+    - clean name of source file (original name without path)
+    - check with inventory Howard uploaded to gitHub
+    - Send corrupted SAS files to David decode
+    - Compile missing info in these corrupted files and send to Athena and Howard
+
+
+
+
