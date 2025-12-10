@@ -70,7 +70,7 @@ Contain wrongly formatted information in the metadata. It jeopardized the table 
 
 Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
 
--> Next steps after the meeting:
+-> Next steps after the (Mon 17th) meeting:
     - check duplicates
     - correct loop year '89
     - How many records have missing duration? Calculate the duration for the missing ones
@@ -83,6 +83,61 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
     - Send corrupted SAS files to David decode
     - Compile missing info in these corrupted files and send to Athena and Howard
 
+## Week 4 (November 24-30th, 2025)
+-> Steps performed after the (Mon 17th) meeting:
+    - corrected loop year '89 - adapted script 88-99
+    - Fixed problems with '87 (three and four lines mixed, spaces between metadata) - separate script to it
+    - .dat '86 has different time format for different data blocks. Also, Missing metadata info for samples in lines 1253 - 1962 (blocks of empty lines). 
+    - Commit changes as branch
+    - Assemble all datasets into one giant table
+    - Add line number to source files (.dat)
+    - clean name of source file (original name without path)
+    - check with inventory Howard uploaded to gitHub
+    - Send corrupted SAS files to David decode
+    - year '98 dat - last block of data is not being added (?) - fixed by adding a new line at the end of .dat file
+    - reverse order of name and code in year '88 dat file for depth_m
+        
+-> Issues found:
+    - preservative code 11 (98-99), there is no info on weight conversion or the name of it, formalin 0% ?
+        - "0  0% FORMALIN - WGHD AFT 5 WKS" - written as a comment in the preservative column
+        - can I add this in the preservative lookup table?
+    - '99 "PROCESSED BY ALAN HIRST. COMPUTER WILL NOT ACCEPT 00 FOR DATE OF PROCESSING SO I'AM USING 99."
+    - '84 .dat file with huge amount of missing data when compared to equivalent SAS file.
+    - IMPORTANT: Trawl number SAS file '91 is "999" while it is "99" in equivalent .dat file!!!
+    
+-> Steps to be performed during quality check phase:
+    - Compile missing info in these corrupted files and send to Athena and Howard
+    - Check duplicates
+    - How many records have missing duration? Calculate the duration for the missing ones
+    - Separate juvenile/adults
 
+-> Meeting with David Hunt, Athena Ogden, Howard Stiff (Wed 26th)
+    - Use fish unique ID to combine datasets - use "update_values" command of full_join - joyn package
+    - Formalin info should be different depending on the concetration. Add info to different columns
+    - Check how many preservative codes there are in the data (unique()) to correct the "11" in the '98-99 data files
+    - y2k bug - convert '99 to 2000 in the processing date of '99 file and flag it in the metadata and in the data frame.
+    - Add to the metadata that there were data loss in .dat '84, not only in '83 and before.
+    - Try standardizing columns and using cbind to concatenate same year data. Use fishID to do it and exclude duplicates later, ignoring source file column.
+    - I had an issue with the pushing/pulling things from GitHub. David will help me later with this.
+    
+## Week 5 (December 01-07th, 2025)
+-> to do:
+    - Seems like there are duplicates in fish unique ID. Maybe add species code to the fishID
+    - Fish total in SAS files has weird format, they are not integers. Check the original file and make it an integer.
+    - y2k bug - convert '99 to 2000 in the processing date of '99 file
 
-
+-> Issues found:
+    - When I was converting the fish total in SAS file, I noticed that SAS '84 presented different numbers of "fish total" and "fish_id" in the metadata and trawl file. There are more fishes in the trawl file than the number reported in the metadata. e.g. sample date 1984-05-29
+    - even with the species code in the fish unique ID, the codes are not unique.
+    
+-> Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 01st)
+    - We discussed the possible ways of making the fish unique ID actually unique
+    - Fish ID is an arbitrary number, and blocks of data with the same metadata, but separated in the data files, will be displayed as duplicates.
+    - Use fish length and weight in the ID instead of the fish id
+    - Check duplicates before combining the databases
+    
+## Week 6 (December 08-14th, 2025)
+-> Done:
+    - Removed duplicates in the individual dataframes
+    - Corrected y2k bug in the '99 trawl dat file
+    
