@@ -1,0 +1,143 @@
+---
+title: "LDP_internship_report"
+author: "Alice Assmar"
+date: "2025-11-17"
+output: pdf_document
+---
+
+# Introduction
+
+
+
+
+# Timeline
+
+## Week 1 (November 3-9th, 2025)
+Meeting with David Hunt (Wed 5th)
+
+-> Folder structure - separate intermediate output from final, cleaned output
+
+-> If possible, use SAS files instead of looping the lines of the .dat files
+
+-> I started working with the .dat files because there were missing informations in the SAS data files. Howard sent the SAS metadata on Fri, 7th, then I started working on them.
+
+-> Ask Howard -> Should SAS files and .dat have the same info? HS - Yes, they should, but they haven't.
+
+-> David mentioned there probably are floating point error in some of the columns
+
+-> Add unique IDs for trawls and fishes
+    - trawl unique ID - date, lake_code, trawl_number 
+    - fish unique ID - date, lake_code, trawl_number, fish_id
+    
+## Week 2 (November 10-16th, 2025)
+-> Columns trawl_location, sample_type and sample_number are not present in the SAS files
+    - Howard said sample_type and sample_number are probably same for all rows
+    - Athena expressed concerns about the trawl_location, and I will try to maintain the info in the final matrix
+
+-> We will remove the processor/observer names because of privacy purpose - add the justification to the data_dictionary
+
+-> NA should be left as is
+
+-> Round numbers to two decimals after point suring quality check period.
+
+-> There are more rows in the SAS data file than in the .dat file. for year '84
+
+-> "comment" column appears to be empty, if that is the case for all years, it should be removed
+
+-> Create a summary table - compare SAS and .dat files - survey by day (e.g. lake 3, date - compare info)
+    - recommended match and merge
+    - cross check lake in every year - summarize command - count # lakes in that year
+    - Count # of rows per lake, date, species and trawl.
+    
+-> Apple data cross checking confirmation for '77-99
+    - check if there are original files to all years - looks like we don't
+
+Meeting with David Hunt, Athena Ogden, Howard Stiff (Wed 12th)
+
+## Week 3 (November 17-23th, 2025)
+-> SAS files   "trawl85.sas7bdat", 
+               "trawl86.sas7bdat",
+               "trawl87.sas7bdat",
+               "trawl94.sas7bdat",
+               "trawl97.sas7bdat",
+               "trawl98.sas7bdat"
+Contain wrongly formatted information in the metadata. It jeopardized the table merging.
+
+-> Yulia's script worked well for .dat files from '84-'86. However, I had to adapt the script to the other years because the loop was assigning values to the wrong columns. For the year '88, I modified the "start_end_time" cleaning script, and for the '87 and '90-'99, I let the empty lines to county as missing data and modified the loop to account for it.
+
+-> Create a summary scrip to compare SAS and DAT files
+    - some of the .dat have still issues with the loop - '89
+
+Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
+
+-> Next steps after the (Mon 17th) meeting:
+    - check duplicates
+    - correct loop year '89
+    - How many records have missing duration? Calculate the duration for the missing ones
+    - Commit changes as branch
+    - Assemble all datasets into one giant table
+    - Separate juvenile/adults
+    - Add line number to source files (.dat)
+    - clean name of source file (original name without path)
+    - check with inventory Howard uploaded to gitHub
+    - Send corrupted SAS files to David decode
+    - Compile missing info in these corrupted files and send to Athena and Howard
+
+## Week 4 (November 24-30th, 2025)
+-> Steps performed after the (Mon 17th) meeting:
+    - corrected loop year '89 - adapted script 88-99
+    - Fixed problems with '87 (three and four lines mixed, spaces between metadata) - separate script to it
+    - .dat '86 has different time format for different data blocks. Also, Missing metadata info for samples in lines 1253 - 1962 (blocks of empty lines). 
+    - Commit changes as branch
+    - Assemble all datasets into one giant table
+    - Add line number to source files (.dat)
+    - clean name of source file (original name without path)
+    - check with inventory Howard uploaded to gitHub
+    - Send corrupted SAS files to David decode
+    - year '98 dat - last block of data is not being added (?) - fixed by adding a new line at the end of .dat file
+    - reverse order of name and code in year '88 dat file for depth_m
+        
+-> Issues found:
+    - preservative code 11 (98-99), there is no info on weight conversion or the name of it, formalin 0% ?
+        - "0  0% FORMALIN - WGHD AFT 5 WKS" - written as a comment in the preservative column
+        - can I add this in the preservative lookup table?
+    - '99 "PROCESSED BY ALAN HIRST. COMPUTER WILL NOT ACCEPT 00 FOR DATE OF PROCESSING SO I'AM USING 99."
+    - '84 .dat file with huge amount of missing data when compared to equivalent SAS file.
+    - IMPORTANT: Trawl number SAS file '91 is "999" while it is "99" in equivalent .dat file!!!
+    
+-> Steps to be performed during quality check phase:
+    - Compile missing info in these corrupted files and send to Athena and Howard
+    - Check duplicates
+    - How many records have missing duration? Calculate the duration for the missing ones
+    - Separate juvenile/adults
+
+-> Meeting with David Hunt, Athena Ogden, Howard Stiff (Wed 26th)
+    - Use fish unique ID to combine datasets - use "update_values" command of full_join - joyn package
+    - Formalin info should be different depending on the concetration. Add info to different columns
+    - Check how many preservative codes there are in the data (unique()) to correct the "11" in the '98-99 data files
+    - y2k bug - convert '99 to 2000 in the processing date of '99 file and flag it in the metadata and in the data frame.
+    - Add to the metadata that there were data loss in .dat '84, not only in '83 and before.
+    - Try standardizing columns and using cbind to concatenate same year data. Use fishID to do it and exclude duplicates later, ignoring source file column.
+    - I had an issue with the pushing/pulling things from GitHub. David will help me later with this.
+    
+## Week 5 (December 01-07th, 2025)
+-> to do:
+    - Seems like there are duplicates in fish unique ID. Maybe add species code to the fishID
+    - Fish total in SAS files has weird format, they are not integers. Check the original file and make it an integer.
+    - y2k bug - convert '99 to 2000 in the processing date of '99 file
+
+-> Issues found:
+    - When I was converting the fish total in SAS file, I noticed that SAS '84 presented different numbers of "fish total" and "fish_id" in the metadata and trawl file. There are more fishes in the trawl file than the number reported in the metadata. e.g. sample date 1984-05-29
+    - even with the species code in the fish unique ID, the codes are not unique.
+    
+-> Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 01st)
+    - We discussed the possible ways of making the fish unique ID actually unique
+    - Fish ID is an arbitrary number, and blocks of data with the same metadata, but separated in the data files, will be displayed as duplicates.
+    - Use fish length and weight in the ID instead of the fish id
+    - Check duplicates before combining the databases
+    
+## Week 6 (December 08-14th, 2025)
+-> Done:
+    - Removed duplicates in the individual dataframes
+    - Corrected y2k bug in the '99 trawl dat file
+    
