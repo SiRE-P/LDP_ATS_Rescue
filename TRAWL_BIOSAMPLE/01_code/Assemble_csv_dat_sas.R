@@ -151,8 +151,12 @@ Trawl_96_dat <- Trawl_96_dat %>%
 #Trawl_84[Trawl_84$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ]
 #
 # If I do not use all column names, it will keep duplicates of all columns
-#Trawl_84 <- full_join(Trawl_84_sas, Trawl_84_dat,  suffix = c(".sas", ".dat"),
-#                      by = c("fish_unique_ID", "fish_total"))
+Trawl_84_rows <- joyn::full_join(Trawl_84_sas, Trawl_84_dat,  suffix = c(".sas", ".dat"),
+                      by = c("fish_unique_ID", "fish_total"), update_values = TRUE)
+
+Trawl_84_rows <- joyn::full_join(Trawl_84_sas, Trawl_84_dat,  suffix = c(".sas", ".dat"),
+                                 by = c("fish_unique_ID", "fish_total"), update_values = TRUE)
+
 
 # combining several columns
 Trawl_84 <- joyn::full_join(Trawl_84_sas, Trawl_84_dat, suffix = c(".sas", ".dat"),
@@ -229,6 +233,13 @@ Trawl_93 <- joyn::full_join(Trawl_93_sas, Trawl_93_dat,  suffix = c(".sas", ".da
 
 # Remove duplicates
 Trawl_95_dat <- Trawl_95_dat[!duplicated(Trawl_95_dat$fish_unique_ID), ]
+Trawl_95_rows <- joyn::full_join(Trawl_95_sas, Trawl_95_dat,  suffix = c(".sas", ".dat"),
+                                 by = "fish_unique_ID", update_values = TRUE)
+
+Trawl_95_rows <- dplyr::full_join(Trawl_95_sas, Trawl_95_dat,  suffix = c(".sas", ".dat"),
+                                 by = "fish_unique_ID")
+
+
 Trawl_95 <- joyn::full_join(Trawl_95_sas, Trawl_95_dat,  suffix = c(".sas", ".dat"),
                       by = c("process_date", "trawl_date", "fish_total",
                              "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
