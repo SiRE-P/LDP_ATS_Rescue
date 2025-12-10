@@ -111,6 +111,11 @@ for (f in files) {
   metadata_yy <- sub(name_pattern, "\\1", basename(f))
   metadata_trawl <- read_sas(file.path(data_folder, paste0("trlinf", metadata_yy, ".sas7bdat")))
   
+  metadata_trawl <- metadata_trawl %>%
+    mutate(
+      nmbrfish = as.integer(nmbrfish)
+    )
+  
   # Combine the metadata matrix with trawl information
   # Some rows have no observer, so it is better to not use them as a matching column
   final_df <- full_join(metadata_trawl, trawlyy, by = c("date", "trwlnmbr", "system", "depth", "fspecies"))
@@ -149,10 +154,6 @@ for (f in files) {
     
   }
     
-  ### Creating unique IDs for fishes and Trawls
-  final_df$trawl_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, sep = "_")
-  final_df$fish_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$fish_id, sep = "_")
-  
   ### save table in csv 
   write.csv(final_df, paste0(intermediate_out_folder,"/trawl", metadata_yy, "_SAS.csv"), row.names = FALSE)
 
@@ -160,85 +161,126 @@ for (f in files) {
 ################################  Step 3  #####################################
 ################### Create look up tables to organize data ####################
 
-final_df <- read.csv(paste0(intermediate_out_folder,"/trawl", metadata_yy, "_SAS.csv"))
-
-  # check and add new columns to standardize the columns in the spreadsheet
-  new_columns <- c("process_date", "sample_number", 
-                  "scale", "scale_book",
-                  "age", "aging_technique")
+  final_df <- read.csv(paste0(intermediate_out_folder,"/trawl", metadata_yy, "_SAS.csv"))
   
-  for (columns in new_columns) {
-    if (!columns %in% names(final_df)) {
-      final_df[[columns]] <- NA 
+    # check and add new columns to standardize the columns in the spreadsheet
+    new_columns <- c("process_date", "sample_number", 
+                    "scale", "scale_book",
+                    "age", "aging_technique", "species_code_comment")
+    
+    for (columns in new_columns) {
+      if (!columns %in% names(final_df)) {
+        final_df[[columns]] <- NA 
+    }
   }
+  ### load your look-up tables
+  fish_species_code_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/fish_species_code_lookup_table.csv")
+  
+  preservative_code_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/preservative_code_lookup_table.csv") 
+  
+  preservative_code_weight_conversion_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/preservative_code_weight_conv_lookup_table.csv")
+  
+  lake_name_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_name_table.csv")
+  
+  aging_technique_lookup_table <- data.frame(aging_technique = as.integer(c(0, 1, 2, 3, 4, 5)), 
+                                             aging_technique_name = c("No scale", "Scale & aged", "Scale - Poor", "Scale - Regen.", 
+                                                   "Scale - Unsure", "Defaulted"))
+  
+  ### make sure the types of data match
+  final_df <- final_df %>%
+    mutate(
+      preservative_code = as.character(preservative_code),
+      lake_code = as.character(lake_code)
+    )
+  
+  fish_species_code_lookup_table <- fish_species_code_lookup_table %>%
+    mutate(species_code = as.integer(species_code))
+  
+  preservative_code_lookup_table <- preservative_code_lookup_table %>%
+    mutate(preservative_code = as.character(preservative_code))
+  
+  preservative_code_weight_conversion_lookup_table <- preservative_code_weight_conversion_lookup_table %>%
+    mutate(preservative_code = as.character(preservative_code))
+  
+  lake_name_lookup_table <- lake_name_lookup_table %>%
+    mutate(lake_code = as.character(lake_code))
+  
+  ### join the tables
+  final_df <- final_df %>%
+    left_join(fish_species_code_lookup_table, by = "species_code") %>%
+    left_join(preservative_code_lookup_table, by = "preservative_code") %>%
+    left_join(preservative_code_weight_conversion_lookup_table, by = "preservative_code") %>%
+    left_join(lake_name_lookup_table, by = "lake_code") %>%
+    left_join(aging_technique_lookup_table, by = "aging_technique")
+  
+  ### processor column removing comments
+  final_df <- final_df %>%
+    mutate(
+      ### extract the digits at the start
+      processor_clean = str_extract(processor, "^\\d{1,2}"),
+      ### convert number to integer (optional, based on your needs)
+      processor = as.integer(processor_clean)
+    ) %>%
+    select(-processor_clean)
+  
+  ### add a source file 
+  final_df <- final_df %>%
+    mutate(source_file = paste0("trawl", metadata_yy, ".sas7bdat"))
+  
+  ### adding a column and populating with my info 
+  final_df <- final_df %>%
+    mutate(program_notes = "AA - Living Data Program - 2025")
+  
+  ### Round the columns
+  final_df$standardized_weight_g <- round(final_df$standardized_weight_g, digits = 2)
+  final_df$fish_weight_g <- round(final_df$fish_weight_g, digits = 2)
+  final_df$fish_length_mm <- round(final_df$fish_length_mm, digits = 2)
+  
+  ### Convert the types of data match
+  final_df <- final_df %>%
+    mutate(
+      #scale = as.logical(scale),
+      scale_book = as.character(scale_book),
+      #age = as.logical(age),
+      #aging_technique = as.logical(aging_technique),
+      #aging_technique_name = as.logical(aging_technique_name),
+      species_code_comment = as.character(species_code_comment),
+      duration_mi = as.character(duration_mi)
+    )
+  
+  ### Creating unique IDs for fishes and Trawls
+  #final_df$trawl_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, sep = "_")
+  #final_df$fish_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, final_df$fish_id, final_df$species_code, sep = "_")
+  
+  ### Creating unique IDs for fishes and Trawls, actually avoiding duplicates
+  final_df$trawl_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, sep = "_")
+  final_df$fish_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, final_df$species_code, final_df$fish_id, final_df$fish_weight_g, final_df$fish_length_mm, sep = "_")
+  
+  # Reorganize columns order
+  final_df <- final_df %>% 
+    relocate(process_date, processor,  
+             lake_code, lake_name = lake, trawl_date,
+             start_time, end_time, duration_mi, depth_m,  
+             trawl_number, fish_total, fish_id, species_code, fish_description,
+             fish_length_mm, fish_weight_g, weight_conversion_formula, 
+             preservative_code, preservative_description, sample_number, 
+             scale, scale_book, age, aging_technique, aging_technique_name, source_file)
+  
+  ### adding ats_year and trawl_month
+  final_df <- final_df %>%
+    mutate(
+      trawl_date = ymd(trawl_date),
+      trawl_month = month(trawl_date),
+      ats_year = year(trawl_date)
+    )
+  
+ # Remove duplicates
+  final_df <- final_df %>% 
+    distinct(select(., -c(trawl_unique_ID, fish_unique_ID)), .keep_all = TRUE)
+  
+  ### save table in csv 
+  write.csv(final_df, paste0(intermediate_out_folder,"/trawl", metadata_yy, "_SAS.csv"), row.names = FALSE)
 }
-### load your look-up tables
-fish_species_code_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/fish_species_code_lookup_table.csv")
-
-preservative_code_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/preservative_code_lookup_table.csv") 
-
-preservative_code_weight_conversion_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/preservative_code_weight_conv_lookup_table.csv")
-
-lake_name_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_name_table.csv")
-
-aging_technique_lookup_table <- data.frame(aging_technique = as.integer(c(0, 1, 2, 3, 4, 5)), 
-                                           aging_technique_name = c("No scale", "Scale & aged", "Scale - Poor", "Scale - Regen.", 
-                                                 "Scale - Unsure", "Defaulted"))
-
-#aging_technique_lookup_table <- as.table(c())
-### make sure the types of data match
-final_df <- final_df %>%
-  mutate(
-    preservative_code = as.character(preservative_code),
-    lake_code = as.character(lake_code)
-  )
-
-fish_species_code_lookup_table <- fish_species_code_lookup_table %>%
-  mutate(species_code = as.integer(species_code))
-
-preservative_code_lookup_table <- preservative_code_lookup_table %>%
-  mutate(preservative_code = as.character(preservative_code))
-
-preservative_code_weight_conversion_lookup_table <- preservative_code_weight_conversion_lookup_table %>%
-  mutate(preservative_code = as.character(preservative_code))
-
-lake_name_lookup_table <- lake_name_lookup_table %>%
-  mutate(lake_code = as.character(lake_code))
-
-### join the tables
-final_df <- final_df %>%
-  left_join(fish_species_code_lookup_table, by = "species_code") %>%
-  left_join(preservative_code_lookup_table, by = "preservative_code") %>%
-  left_join(preservative_code_weight_conversion_lookup_table, by = "preservative_code") %>%
-  left_join(lake_name_lookup_table, by = "lake_code") %>%
-  left_join(aging_technique_lookup_table, by = "aging_technique")
-
-# Reorganize columns order
-final_df <- final_df %>% 
-  relocate(process_date, processor, 
-           lake_code, lake_name = lake, trawl_date,
-           start_time, end_time, duration_mi, depth_m,  
-           trawl_number, fish_total, fish_id, species_code, fish_description,
-           fish_length_mm, fish_weight_g, standardized_weight_g, weight_conversion_formula, 
-           preservative_code, preservative_description, sample_number, 
-           scale, scale_book, comment, 
-           age, aging_technique, aging_technique_name)
-
-### add a source file 
-final_df <- final_df %>%
-  mutate(source_file = f)
-
-### adding a column and populating with my info 
-final_df <- final_df %>%
-  mutate(program_notes = "AA - Living Data Program - 2025")
-
-### save table in csv 
-write.csv(final_df, paste0(intermediate_out_folder,"/trawl", metadata_yy, "_SAS.csv"), row.names = FALSE)
-}
-
-
-
-
 
 
 

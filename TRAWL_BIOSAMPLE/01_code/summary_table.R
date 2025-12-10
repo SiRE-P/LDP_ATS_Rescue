@@ -35,37 +35,42 @@ install.packages(setdiff(packages, row.names(installed.packages())))
 
 #### Read csv tables
 intermediate_out_folder <- "./TRAWL_BIOSAMPLE/02_intermediate_out"
-trawl_file <- "trawl88"
+trawl_file <- "Trawl96"
 # Some files has upper case names that I must correct, for now, use this when necessary
-#trawl_file_dat <- "TRAWL96"
+trawl_file_dat <- "TRAWL96"
 
-final_csv_dat <- read.csv(paste0(intermediate_out_folder,"/", trawl_file, "_DAT.csv"))
+final_csv_dat <- read.csv(paste0(intermediate_out_folder,"/", trawl_file_dat, "_DAT.csv"))
 final_csv_sas <- read.csv(paste0(intermediate_out_folder,"/", trawl_file, "_SAS.csv"))
 
 #### Summarize dat and SAS tables
 summary(final_csv_dat)
 summary(final_csv_sas)
-# How many date the lake was surveyed
+# How many dates the lake was surveyed
 aggregate(trawl_date ~ lake_code, data = final_csv_dat, FUN = function(x) length(unique(x)))
 aggregate(trawl_date ~ lake_code, data = final_csv_sas, FUN = function(x) length(unique(x)))
 
-# How many date the lake was surveyed
+# How many dates the lake was surveyed and number of trawls
 aggregate(cbind(trawl_date, trawl_number) ~ lake_code, data = final_csv_dat, FUN = function(x) length(unique(x)))
 aggregate(cbind(trawl_date, trawl_number) ~ lake_code, data = final_csv_sas, FUN = function(x) length(unique(x)))
 
-# Check how many column match
+# Check how many columns match
 # create a data set with the info I want to check
-df_dat <- tibble(unique = unique(paste(final_csv_dat$fish_unique_ID, final_csv_dat$lake_code, final_csv_dat$trawl_number, final_csv_dat$trawl_date, final_csv_dat$fish_id))) 
-df_sas <- tibble(unique = unique(paste(final_csv_sas$fish_unique_ID, final_csv_sas$lake_code, final_csv_sas$trawl_number, final_csv_sas$trawl_date, final_csv_sas$fish_id)))
+df_dat <- tibble(unique = unique(paste(final_csv_dat$fish_unique_ID, final_csv_dat$lake_code, final_csv_dat$trawl_number, final_csv_dat$trawl_date, final_csv_dat$fish_weight_g, final_csv_dat$duration_mi))) 
+df_sas <- tibble(unique = unique(paste(final_csv_sas$fish_unique_ID, final_csv_sas$lake_code, final_csv_sas$trawl_number, final_csv_sas$trawl_date, final_csv_sas$fish_weight_g, final_csv_sas$duration_mi)))
+
+# create a data set with the info I want to check
+#df_dat <- tibble(unique = paste(final_csv_dat$fish_unique_ID, final_csv_dat$lake_code, final_csv_dat$trawl_number, final_csv_dat$trawl_date, final_csv_dat$fish_id)) 
+#df_sas <- tibble(unique = paste(final_csv_sas$fish_unique_ID, final_csv_sas$lake_code, final_csv_sas$trawl_number, final_csv_sas$trawl_date, final_csv_sas$fish_id))
+
 
 df_dat <- df_dat %>%
-  separate(col = unique, into = c("fish_unique_ID","lake_code", "trawl_number","trawl_date", "fish_id"), sep = " ")
+  separate(col = unique, into = c("fish_unique_ID","lake_code", "trawl_number","trawl_date", "fish_weight_g", "duration_mi"), sep = " ")
 
 df_sas <- df_sas %>%
-  separate(col = unique, into = c("fish_unique_ID", "lake_code", "trawl_number", "trawl_date", "fish_id"), sep = " ")
+  separate(col = unique, into = c("fish_unique_ID", "lake_code", "trawl_number", "trawl_date", "fish_weight_g", "duration_mi"), sep = " ")
 
 # line up identical rows
-columns <- c("lake_code", "trawl_number", "trawl_date", "fish_id")
+columns <- c("lake_code", "trawl_number", "trawl_date", "fish_weight_g", "duration_mi")
 
 # Check for leading/trailing whitespace
 for (col in columns) {
@@ -116,7 +121,7 @@ merged_df <- merged_df %>%
 # Save final table in csv
 write.csv(merged_df, paste0(intermediate_out_folder, "/", trawl_file, "_inventory.csv"), row.names = FALSE)
 
-# Count number of matchs
+# Count number of match
 sum(merged_df$match == "MATCH", na.rm = TRUE)
 sum(merged_df$match == "NOT MATCH", na.rm = TRUE)
 

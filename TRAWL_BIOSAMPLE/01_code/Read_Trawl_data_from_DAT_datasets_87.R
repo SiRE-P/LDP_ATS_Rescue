@@ -1,5 +1,5 @@
 ###############################################################################
-##############            TRAWL data code 1984-1986         ###################
+##############           TRAWL data code 1987.              ###################
 ##############    Converting and cleaning SAS trawl files   ###################
 ############## Authors: Alice Assmar (McGill Uni.), David   ###################
 ############## Hunt (McGill Uni.),  Yuliya Shtymburski      ###################
@@ -78,7 +78,7 @@ if (!dir.exists("./TRAWL_BIOSAMPLE/05_ARCHIVE")) {dir.create("./TRAWL_BIOSAMPLE/
 # Create variable to hold output directory and the target file
 input_folder <- "./TRAWL_BIOSAMPLE/00_raw_data/01_DAT"
 intermediate_out_folder <- "./TRAWL_BIOSAMPLE/02_intermediate_out"
-trawl_file <- "trawl86"
+trawl_file <- "trawl87"
 
 ################################  Step 2  #####################################
 ################### Read dat and loop over data files #########################
@@ -86,10 +86,9 @@ trawl_file <- "trawl86"
 ### input the dat file you are interested in cleaning
 lines <- readLines(paste0(input_folder, "/", trawl_file,".dat"))
 
-### remove empty lines and trim whitespace
-## Do not run the following two lanes when working with trawl '86
-lines <- lines[str_trim(lines) != ""]  # Do not run this lane when working with trawl '86
-lines <- lines[str_trim(lines) != "--"]  # Do not run this lane when working with trawl '86
+### remove empty lines and trim whitespace, except for years 86-99
+#lines <- lines[str_trim(lines) != ""] 
+#lines <- lines[str_trim(lines) != "--"] 
 
 ### function to remove comments and trim
 clean_line <- function(line) {
@@ -100,7 +99,6 @@ clean_line <- function(line) {
 records <- list()
 i <- 1
 line_count <- length(lines)
-
 
 ### loop through the file
 while (i <= line_count) {
@@ -127,18 +125,30 @@ while (i <= line_count) {
   
   ### check if there is a line for num_fish
   if (i > line_count) break
-  num_fish <- as.integer(clean_line(lines[i]))
+  first_number <- clean_line(sub(" .*", "", lines[i])) # Trawl89 has two numbers for total of fish, added this to select only the first number.
+
+  #num_fish <- as.integer(clean_line(lines[i]))
+  num_fish <- as.integer(first_number)
   if (is.na(num_fish)) num_fish <- 0
   i <- i + 1
   
   ### check if enough lines remain for all fish data
-  if (i + 3*num_fish - 1 > line_count) break
+  if (i + 4*num_fish - 1 > line_count) break
   
   for (j in 1:num_fish) {
     length_mm    <- clean_line(lines[i])
-    line_index   <- i # Add a line count
+    line_index   <- i
     weight_g     <- clean_line(lines[i + 1])
     scale_number <- clean_line(lines[i + 2])
+    # Working aroung the blocks of data with only three lines instead of four
+    fish_letter  <- ifelse(is.na(clean_line(lines[i + 3])) | grepl("[[:alpha:]]|^\\d$", clean_line(lines[i + 3])), clean_line(lines[i + 3]), NA)
+    # If the fourth line is missing, then ask the loop to return one line, so when it sums up at the end, it will be the correct line
+    is_missing   <- ifelse(!is.na(clean_line(lines[i + 3])) & grepl("\\d{2,}", clean_line(lines[i + 3])), TRUE, FALSE) 
+    if (is_missing == TRUE) {
+      i <- i - 1
+    }
+    
+    #fish_letter <- ifelse(!is.na(clean_line(lines[i + 3])) & grepl("[:alpha:]", clean_line(lines[i + 3])), clean_line(lines[i + 3]), NA)
     
     records[[length(records) + 1]] <- tibble(
       process_date, processor, lake_code, trawl_date, sample_number,
@@ -149,12 +159,14 @@ while (i <= line_count) {
       scale_book  = scale_number,
       fish_id     = j,
       fish_total  = num_fish,
+      scale_book_letter = as.character(fish_letter),
       source_line = line_index
     )
     
-    i <- i + 3 # the fish data is in sets of three
+    i <- i + 4 # the fish data is in sets of four
   }
 }
+
 ### If step 3 has a lot of errors, that means that the format of the .dat file is 
 ### inconsistent. Meaning that the format of the .dat file is not 13 lines 
 ### of metadata and 3 sets of data per fish. Issues that cause errors in code include:
@@ -166,13 +178,14 @@ final_df <- bind_rows(records)
 write.csv(final_df, paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"), row.names = FALSE)
 
 ###############################################################################
-######## Part II: Editing of the version 1 of the csv ########################
+######## Step 3: Editing of the version 1 of the csv ########################
 ### This code is meant to edit the first converted version of the .csv file, splitting 
 #### columns and data cleaning, etc. 
 
 final_df <- read.csv(paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"))
 
 ### trawl number column removing comments and placing into separate column 
+
 final_df <- final_df %>%
   mutate(
     ### extract the digits at the start
@@ -202,8 +215,8 @@ final_df <- final_df %>%
     
     ### replace missing/empty comments with ""
     trawl_date_comment = if_else(trawl_date_comment == "" | is.na(trawl_date_comment),
-                                   "",
-                                   trawl_date_comment),
+                                 "",
+                                 trawl_date_comment),
     
     ### convert number to integer (optional, based on your needs)
     trawl_date = as.integer(trawl_date_clean)
@@ -221,36 +234,8 @@ final_df <- final_df %>%
     trawl_date  = format(trawl_date, "%Y-%m-%d")
   )
 
-### Standardize start and end time
-# Separate column
-final_df <- final_df %>%
-  separate(col = start_end_time, into = c("start_end_time", "comments"), sep = "<--",  fill = "right", remove = TRUE) %>%
-  separate(col = start_end_time, into = c("start_time", "end_time"), sep = "-", 
-           fill = "right", remove = TRUE)
-
-#### start_end_date code column removing comments and placing into separate column
-final_df <- final_df %>%
-  mutate(
-    ### extract the digits at the start
-    end_time_clean = str_extract(end_time, "^\\d+"),
-    
-    ### extract the rest of the string as comment
-    time_comment = str_trim(str_remove(end_time, "^\\d+")),
-    
-    time_comment = paste0(time_comment, comments),
-    ### replace missing/empty comments with ""
-    time_comment = if_else(time_comment == "NA" | is.na(time_comment),
-                                        "",
-                                     time_comment),
-    
-    ### convert number to integer (optional, based on your needs)
-    end_time = as.character(end_time_clean)
-  ) %>%
-  select(-end_time_clean, -comments)
-
-# Convert the hour "HHMM" into "HH:MM:SS" as in the SAS files
-final_df$start_time <- sprintf("%s:%s:00", substr(final_df$start_time, 1, 2), substr(final_df$start_time, 3, 4))
-final_df$end_time <- sprintf("%s:%s:00", substr(final_df$end_time, 1, 2), substr(final_df$end_time, 3, 4))
+## Convert the hour "HHMM" into "HH:MM:SS" as in the SAS files
+final_df$start_end_time <- sprintf("%s:%s:00", substr(final_df$start_end_time, 1, 2), substr(final_df$start_end_time, 3, 4))
 
 ### species code column removing comments and placing into separate column
 final_df <- final_df %>%
@@ -281,7 +266,7 @@ final_df <- final_df %>%
     ### extract the rest of the string as comment
     preservative_code_comment = str_trim(str_remove(preservative_code, "^\\d{1,2}")),
     
-    ### replace missing/empty comments with ""
+    ### replace missing/empty comments with NA
     preservative_code_comment = if_else(preservative_code_comment == "" | is.na(preservative_code_comment),
                                         "",
                                         preservative_code_comment),
@@ -316,8 +301,8 @@ final_df <- final_df %>%
     
     ### replace missing/empty comments with NA
     depth_m_comment = if_else(depth_m_comment == "" | is.na(depth_m_comment),
-                              "",
-                              depth_m_comment),
+                                        "",
+                                        depth_m_comment),
     
     ### convert number to integer (optional, based on your needs)
     depth_m = as.integer(depth_m_clean)
@@ -344,7 +329,7 @@ aging_technique_lookup_table <- data.frame(aging_technique = as.character(c(0, 1
 # check and add new columns to standardize the columns in the spreadsheet
 new_columns <- c("process_date", "sample_number", 
                  "scale", "scale_book",
-                 "age", "aging_technique")
+                 "age", "aging_technique", "end_time")
 
 for (columns in new_columns) {
   if (!columns %in% names(final_df)) {
@@ -373,7 +358,6 @@ preservative_code_weight_conversion_lookup <- preservative_code_weight_conversio
 
 lake_name <- lake_name %>%
   mutate(lake_code = as.character(lake_code))
-
 
 ### join the tables
 final_df <- final_df %>%
@@ -404,7 +388,8 @@ rename_map <- c("process_date" = "procdate",
                 "trawl_date" = "date", 
                 "sample_number" = "sample", 
                 "trawl_number" = "trwlnmbr", 
-                "start_time" = "statime", 
+                "start_time" = "statime",
+                "start_time" = "start_end_time",
                 "end_time" = "endtime",
                 "duration_mi" = "duration_min", 
                 "depth_m" = "depth", 
@@ -432,7 +417,6 @@ final_df <- final_df %>%
     trawl_month = month(trawl_date),
     ats_year = year(trawl_date)
   )
-
 
 ### Creating unique IDs for fishes and Trawls
 final_df$trawl_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, sep = "_")
@@ -462,12 +446,10 @@ duplicate_rows_indices <- duplicated(final_df[, cols_to_include])
 unique(duplicate_rows_indices)
 final_df[duplicate_rows_indices, ]
 
-# Remove duplicates
-final_df <- final_df %>% 
-  distinct(select(., -c(trawl_unique_ID, fish_unique_ID)), .keep_all = TRUE)
-
 ### save 
 write.csv(final_df, paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"), row.names = FALSE)
+
+
 
 
 
