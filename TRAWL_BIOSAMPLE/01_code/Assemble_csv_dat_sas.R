@@ -77,12 +77,13 @@ working_directory <- "./TRAWL_BIOSAMPLE/02_intermediate_out/"
   Trawl_99     <- read.csv(paste0(working_directory, "TRAWL99_DAT.csv"))
 }
 
-## Combining data frames by year
-
 # check head names to combine them properly
 names(Trawl_84_sas)
 
 # Check if they have the same class
+summary(Trawl_84_dat)
+summary(Trawl_84_sas)
+
 sapply(Trawl_84_sas[names(Trawl_84_sas)], class)
 sapply(Trawl_84_dat[names(Trawl_84_dat)], class)
 
@@ -151,11 +152,11 @@ Trawl_96_dat <- Trawl_96_dat %>%
 #Trawl_84[Trawl_84$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ]
 #
 # If I do not use all column names, it will keep duplicates of all columns
-Trawl_84_rows <- joyn::full_join(Trawl_84_sas, Trawl_84_dat,  suffix = c(".sas", ".dat"),
-                      by = c("fish_unique_ID", "fish_total"), update_values = TRUE)
+#Trawl_84_rows <- joyn::full_join(Trawl_84_sas, Trawl_84_dat,  suffix = c(".sas", ".dat"),
+#                      by = c("fish_unique_ID", "fish_total"), update_values = TRUE)
 
-Trawl_84_rows <- joyn::full_join(Trawl_84_sas, Trawl_84_dat,  suffix = c(".sas", ".dat"),
-                                 by = c("fish_unique_ID", "fish_total"), update_values = TRUE)
+#Trawl_84_rows <- joyn::full_join(Trawl_84_sas, Trawl_84_dat,  suffix = c(".sas", ".dat"),
+#                                 by = c("fish_unique_ID", "fish_total"))
 
 
 # combining several columns
@@ -167,8 +168,7 @@ Trawl_84 <- joyn::full_join(Trawl_84_sas, Trawl_84_dat, suffix = c(".sas", ".dat
                                    "preservative_code", "duration_mi", "depth_m", "fish_id",
                                    "fish_description", "preservative_description", "weight_conversion_formula",
                                    "sample_number", "fish_weight_g", "aging_technique_name",
-                                   "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
-
+                                   "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"), update_values = TRUE)
 
 # Combining Trawl of the following years
 Trawl_88 <- joyn::full_join(Trawl_88_dat, Trawl_88_sas,suffix = c(".sas", ".dat"),
@@ -179,7 +179,7 @@ Trawl_88 <- joyn::full_join(Trawl_88_dat, Trawl_88_sas,suffix = c(".sas", ".dat"
                                    "preservative_code", "duration_mi", "depth_m", "fish_id",
                                    "fish_description", "preservative_description", "weight_conversion_formula",
                                    "sample_number", "fish_weight_g", "aging_technique_name",
-                                   "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+                                   "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"), update_values = TRUE)
 
 Trawl_89 <- joyn::full_join(Trawl_89_sas, Trawl_89_dat,  suffix = c(".sas", ".dat"),
                       by = c("process_date", "trawl_date", "fish_total",
@@ -189,7 +189,7 @@ Trawl_89 <- joyn::full_join(Trawl_89_sas, Trawl_89_dat,  suffix = c(".sas", ".da
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
-                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"), update_values = TRUE)
 
 Trawl_90 <- joyn::full_join(Trawl_90_sas, Trawl_90_dat,  suffix = c(".sas", ".dat"),
                       by = c("process_date", "trawl_date", "fish_total",
@@ -199,7 +199,7 @@ Trawl_90 <- joyn::full_join(Trawl_90_sas, Trawl_90_dat,  suffix = c(".sas", ".da
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
-                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"), update_values = TRUE)
 
 Trawl_91 <- joyn::full_join(Trawl_91_sas, Trawl_91_dat,  suffix = c(".sas", ".dat"),
                       by = c("process_date", "trawl_date", "fish_total",
@@ -209,7 +209,7 @@ Trawl_91 <- joyn::full_join(Trawl_91_sas, Trawl_91_dat,  suffix = c(".sas", ".da
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
-                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"), update_values = TRUE)
 
 Trawl_92 <- joyn::full_join(Trawl_92_sas, Trawl_92_dat, suffix = c(".sas", ".dat"),
                       by = c("process_date", "trawl_date", "fish_total",
@@ -219,7 +219,7 @@ Trawl_92 <- joyn::full_join(Trawl_92_sas, Trawl_92_dat, suffix = c(".sas", ".dat
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
-                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"), update_values = TRUE)
 
 Trawl_93 <- joyn::full_join(Trawl_93_sas, Trawl_93_dat,  suffix = c(".sas", ".dat"),
                       by = c("process_date", "trawl_date", "fish_total",
@@ -229,16 +229,12 @@ Trawl_93 <- joyn::full_join(Trawl_93_sas, Trawl_93_dat,  suffix = c(".sas", ".da
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
-                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"), update_values = TRUE)
 
 # Remove duplicates
 Trawl_95_dat <- Trawl_95_dat[!duplicated(Trawl_95_dat$fish_unique_ID), ]
-Trawl_95_rows <- joyn::full_join(Trawl_95_sas, Trawl_95_dat,  suffix = c(".sas", ".dat"),
-                                 by = "fish_unique_ID", update_values = TRUE)
-
-Trawl_95_rows <- dplyr::full_join(Trawl_95_sas, Trawl_95_dat,  suffix = c(".sas", ".dat"),
-                                 by = "fish_unique_ID")
-
+#Trawl_95_rows <- joyn::full_join(Trawl_95_sas, Trawl_95_dat,  suffix = c(".sas", ".dat"),
+#                                 by = "fish_unique_ID", update_values = TRUE)
 
 Trawl_95 <- joyn::full_join(Trawl_95_sas, Trawl_95_dat,  suffix = c(".sas", ".dat"),
                       by = c("process_date", "trawl_date", "fish_total",
@@ -248,7 +244,7 @@ Trawl_95 <- joyn::full_join(Trawl_95_sas, Trawl_95_dat,  suffix = c(".sas", ".da
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
-                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"), update_values = TRUE)
 
 Trawl_96 <- joyn::full_join(Trawl_96_sas, Trawl_96_dat,  suffix = c(".sas", ".dat"),
                       by = c("process_date", "trawl_date", "fish_total",
@@ -258,7 +254,7 @@ Trawl_96 <- joyn::full_join(Trawl_96_sas, Trawl_96_dat,  suffix = c(".sas", ".da
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
-                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+                             "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"), update_values = TRUE)
 
 
 # Identify vectors to remove all unnecessary vectors using a pattern
@@ -323,9 +319,9 @@ rm(list = vectors_to_remove)
 ################################  Step 5  #####################################
 ################### Cleaning the columns and combining rows #########################
 
-df_joined[df_joined$fish_unique_ID == "1984-06-26_40_6_6_2_1_2.52_63", ]
-df_joined[df_joined$fish_unique_ID == "1984-05-01_40_1_2_2_6_0.22_32", ]
-df_joined[df_joined$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ]
+# Check duplicated values in fish unique ID
+table(df_joined$fish_unique_ID)
+df_joined_dup <- df_joined[duplicated(df_joined$fish_unique_ID), ]
 
 # Correct the total number of fish when they differ between source-SAS and source-DAT files
 # group by unique ID to display the putative duplicates.
@@ -334,85 +330,156 @@ df_joined <- df_joined %>%
   mutate(
     fish_total_updated = fish_total[which(!is.na(source_file.dat))][1],
     # Update total number of fish in the source-SAS rows only if it is not NA in both rows.
-    fish_total = if_else(!is.na(source_file.sas) & any(!is.na(source_file.dat)), fish_total_updated, fish_total)
+    fish_total = if_else(!is.na(source_file.sas) & any(is.na(source_file.dat)), fish_total_updated, fish_total)
   ) %>%
   select(-fish_total_updated)  %>%
   ungroup()
 
-#df_joined <- as.data.frame(df_joined)
+df_joined <- as.data.frame(df_joined)
 
-# Collapse duplicated rows into one row, but keep rows separated if conflict appears
-# Function to merge one group
-merge_group <- function(df_group, group_col) {
-  cols_to_check <- setdiff(names(df_group), group_col)
+# Collapse duplicated rows into one row, and keep .dat row values if conflict appears
+# Function to resolve the conflicts/similarities among the columns
+
+resolve_column <- function(values, source) {
+  # Extract unique non-NA values
+  non_na_values <- unique(values[!is.na(values)])
   
-  # Check if any column has conflicting non-NA values
-  compatible <- all(sapply(df_group[cols_to_check], function(col) length(unique(na.omit(col))) <= 1))
-  
-  if (compatible) {
-    # Take the first non-NA value in each column
-    merged <- map_dfc(df_group, ~ first(na.omit(.x)))
-    return(merged)
-  } else {
-    # Keep rows as-is
-    return(df_group)
+  # All values are NA
+  if (length(non_na_values) == 0) {
+    return(list(value = NA, status = "No change"))
   }
+  
+  #  Only one unique non-NA value, NA fill
+  if (length(non_na_values) == 1) {
+    return(list(
+      value  = non_na_values[1],
+      status = ifelse(any(is.na(values)), "NA updates", "No change")
+    ))
+  }
+  # in case of conflict, prefer .dat source (ignore NA)
+  has_dat <- any(endsWith(source, ".dat"), na.rm = TRUE)
+  
+  if (has_dat) {
+    dat_value <- values[
+      !is.na(source) &
+        endsWith(source, ".dat") &
+        !is.na(values)
+    ][1]
+    return(list(value = dat_value, status = "Conflict within"))
+  }
+  # Conflict but no info from .dat files
+  list(value = values[1], status = "No change")
 }
 
-# Apply to all groups
-group_col <- "fish_unique_ID" 
-df_joined_checked <- df_joined %>%
-  group_split(.data[[group_col]]) %>%
-  map_dfr(~ merge_group(.x, group_col))
-
-
-
-# Function to check if a group is compatible
-to_include <- names(df_joined[-c(11,32,49)])
-df_joined_checked <- df_joined %>%
-  select(-.joyn) %>%
-  group_by(fish_unique_ID) %>% 
-  summarise(across(all_of(to_include))) %>% 
-  ungroup()
-
-
-df_joined_checked[df_joined_checked$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ]
-
-######
-
-table(df_joined$fish_unique_ID)
-
-df_joined_dup <- df_joined[duplicated(df_joined$fish_unique_ID), ]
-df_joined_dup
-
-
-# Combine source_file source_file.sas and source_file.dat into a new 'source_files' column
+## Collapse the data and create a column to flag the changes
 df_final <- df_joined %>%
-  mutate(source_files = coalesce(source_file, source_file.sas, source_file.dat)) %>%
-  select(-source_file, -source_file.sas, -source_file.dat)
+  group_by(fish_unique_ID, fish_total) %>%
+  summarise(
+    # Keep source column explicitly
+    source_file.dat = first(source_file.dat),
+    # Compute flags and add to a column called "merging_update_type"
+    merging_update_type = {
+      # Single-row group
+      if (n() == 1) {
+        "Single-row"
+      } else {
+        flags <- map_chr(
+          #cur_data() %>% select(-source_file.dat), # this deletes the source_file.dat column 
+          pick(-source_file.dat),
+          ~ resolve_column(.x, source_file.dat)$status
+        )
+        # State priorities
+        if ("Conflict within" %in% flags) {
+          "Conflict within"
+        } else if ("NA updates" %in% flags) {
+          "NA updates"
+        } else {
+          "No change"
+        }
+      }
+    },
+    # Resolve all other columns
+    across(
+      -source_file.dat,
+      ~ resolve_column(.x, source_file.dat)$value
+    ),
+  
+    .groups = "drop"
+  )
 
-unique(df_final$source_files)
+# Is there still duplicates? 
+df_final_dup <- df_final[duplicated(df_final$fish_unique_ID), ]
+
+### Example of conflicting rows to test
+# Before concatenation of rows
+df_joined[df_joined$fish_unique_ID == "1984-06-26_40_6_6_2_1_2.52_63", ] # seems duplicates, but it isn't
+df_joined[df_joined$fish_unique_ID == "1984-05-01_40_1_2_2_6_0.22_32", ] # duplicates
+df_joined[df_joined$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ] # duplicates
+df_joined[df_joined$fish_unique_ID == "1989-06-01_41_3_0_2_1_1.72_59", ] # 
+df_joined[df_joined$fish_unique_ID == "1984-10-02_2_4_15_1_3_2.6_65", ] # start time problems
+df_joined[df_joined$fish_unique_ID == "1989-07-29_107_4_9_7_15_0.38_33", ] # start time problems
+df_joined[df_joined$fish_unique_ID == "1989-05-14_62_7_6_7_2_0.21_28", ] # start time problems
+
+# After concatenation
+unique(df_final$merging_update_type)
+table(df_final$merging_update_type)
+df_final <- as.data.frame(df_final)
+df_final[df_final$fish_unique_ID == "1984-06-26_40_6_6_2_1_2.52_63", ]
+df_final[df_final$fish_unique_ID == "1984-05-01_40_1_2_2_6_0.22_32", ]
+df_final[df_final$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ]
+
+### Combine source_file, source_file.sas and source_file.dat into a new 'source_files' column
+df_final <- df_final %>%
+  unite(col = "source_files", source_file, source_file.sas, source_file.dat, sep = ", ")
+
+replacement_pattern <- c("^NA, " = "",
+                         "NA, " = "",
+                         ", NA, NA" = "",
+                         ", NA" = "")
+df_final$source_files <- str_replace_all(df_final$source_files, replacement_pattern)
+
+### Combine start_time.sas and .dat into a new 'start_time' column - .sas files have the time set better formated
+# First standardize midnight times: instead of 24, represent it as 00
+# Remove decimals from .sas time columns
+df_final <- df_final %>%
+  mutate(across(c(start_time.dat, end_time.dat, start_time.sas, end_time.sas, start_time, end_time), 
+                ~ str_replace_all(.x, pattern = "^24", replacement = "00"))) %>%
+  mutate(across(c(start_time.sas, end_time.sas), 
+                ~ str_replace_all(.x, pattern = ".\\d{5}$", replacement = "")))
+
+## Before combining columns, flag the ones with errors and correct them
+# Define the regex pattern for HH:MM:SS format
+time_pattern <- "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
+
+# Use grepl() to create a logical vector indicating valid formats in .dat time
+is_valid_dat <- ifelse(is.na(df_final$start_time.dat), NA, grepl(time_pattern, df_final$start_time.dat))
+is_valid_sas <- ifelse(is.na(df_final$start_time.sas), NA, grepl(time_pattern, df_final$start_time.sas))
+is_valid <- ifelse(is.na(df_final$start_time), NA, grepl(time_pattern, df_final$start_time))
+
+# Add a new column to the data frame to flag invalid entries
+df_final$invalid_start_time <- if_else(is_valid_sas & is_valid_dat & is_valid, "Valid", "Invalid format")
+
+# Check number of problematic rows
+sum(df_final$dat_invalid_start_time == "Invalid format", na.rm = TRUE)
+
+# 
+unique(df_test$start_time.sas)
+
+### Correct .dat column time with invalid format, and merge all start_time and end_time columns
+df_final <- df_final %>%
+  mutate(
+    ### replace the invalid values with the .sas info
+    start_time.dat = if_else(dat_invalid_start_time == "Invalid" & is_valid_sas,
+                             start_time.sas,
+                             start_time.dat))
+
+### Join start_time.dat/.sas and end_time.dat/.sas
+
+
+
+### Drop unnecessary columns and reorganize column order.
 
 # Save combined data frame
 write.csv(df_final, paste0(working_directory, "/combined_df_trawl.csv"), row.names = FALSE)
 
-
-
-
-
-
-
-
-### tests
-
-# Combine the source file columns
-#df_joined <- distinct(df_joined)
-
-unique(df_final$fish_unique_ID)
-
-df_final[3,"fish_unique_ID"]
-
-duplicates <- duplicated(df_joined)
-duplicates_id <- duplicated(df_joined[, c("fish_unique_ID", "species_code")])
-duplicates<- df_joined[duplicates_id, ]
 
