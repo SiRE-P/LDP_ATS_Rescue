@@ -140,4 +140,34 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
 -> Done:
     - Removed duplicates in the individual dataframes
     - Corrected y2k bug in the '99 trawl dat file
+    - Combined data frames keeping rows as duplicates
+    - Fish unique ID is: TrawlDate_LakeCode_TrawlNumber_Depth_SpeciesCode_FishID_Weight_Length
+    
+-> Meeting with David Hunt, Athena Ogden, Howard Stiff (Wed 10th)
+    - David was going to try to find a simpler way of combining the data frames because the "full_join" function was not combing all columns and rows. It combined or columns or rows.
+    
+## Week 7 (December 15-21th, 2025)
+-> Done:
+    - Collapsed duplicated rows keeping the .dat info when conflict existed
+    - Flagged problematic time rows across start_time columns in .dat files (column "dat_invalid_start_time")
+    - Collapse source_file columns into one
+
+-> Needs to be done:
+    - Relocate columns
+    - How many records have missing duration? Calculate the duration for the missing ones
+    - Separate juvenile/adults
+    - Check how many preservative codes there are in the data (unique()) to correct the "11" in the '98-99 data files
+    
+-> Meeting with David Hunt, Athena Ogden, Howard Stiff (Wed 17th)
+    - Midnight should be 00 or 24
+    - Return to the .dat file script because there is an issue when converting the format of the time
+    - Have one script calling other scripts
+    - Create a 03_errors folder on GitHub and upload .csv files with the flagged errors
+        - duplicates in the final combined data frame
+        - flag which species have different "fish_total" between .sas and .dat files.
+        - Errors with the start_time, end_time and duration_mi
+
+-> Issues:
+    - fish_unique_ID == "1986-04-16_161_4_15_1_4_3.73_68" - record present in both trawl85.dat and trawl86.dat. The current code keep only the first time the record appears, deleting the second row. So, the Trawl86.dat record is not kept (scale_book is different between these files). Should I keep it like that, as they seem to be duplicates, or should I keep them separately?
+    - For the trawl92.sas file, the "100:MM:SS" is in the original file. It is absence in the .dat file.
     
