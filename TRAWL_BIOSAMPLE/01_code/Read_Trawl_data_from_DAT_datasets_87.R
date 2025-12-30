@@ -182,7 +182,7 @@ write.csv(final_df, paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv")
 ### This code is meant to edit the first converted version of the .csv file, splitting 
 #### columns and data cleaning, etc. 
 
-final_df <- read.csv(paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"))
+#final_df <- read.csv(paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"))
 
 ### trawl number column removing comments and placing into separate column 
 

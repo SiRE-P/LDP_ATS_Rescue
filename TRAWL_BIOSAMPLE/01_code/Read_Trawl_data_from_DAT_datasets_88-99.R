@@ -1,5 +1,5 @@
 ###############################################################################
-##############           TRAWL data code 1988-1999          ###################
+##############           TRAWL data code 1988-1997          ###################
 ##############    Converting and cleaning SAS trawl files   ###################
 ############## Authors: Alice Assmar (McGill Uni.), David   ###################
 ############## Hunt (McGill Uni.),  Yuliya Shtymburski      ###################
@@ -78,7 +78,7 @@ if (!dir.exists("./TRAWL_BIOSAMPLE/05_ARCHIVE")) {dir.create("./TRAWL_BIOSAMPLE/
 # Create variable to hold output directory and the target file
 input_folder <- "./TRAWL_BIOSAMPLE/00_raw_data/01_DAT"
 intermediate_out_folder <- "./TRAWL_BIOSAMPLE/02_intermediate_out"
-trawl_file <- "TRAWL99"
+trawl_file <- "trawl88"
 
 ################################  Step 2  #####################################
 ################### Read dat and loop over data files #########################
@@ -174,7 +174,7 @@ write.csv(final_df, paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv")
 ### This code is meant to edit the first converted version of the .csv file, splitting 
 #### columns and data cleaning, etc. 
 
-final_df <- read.csv(paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"))
+#final_df <- read.csv(paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"))
 
 ### trawl number column removing comments and placing into separate column 
 
@@ -444,9 +444,9 @@ final_df <- final_df %>%
   distinct(select(., -c(trawl_unique_ID, fish_unique_ID)), .keep_all = TRUE)
 
 ### for trawl year '99 only. Correcting Y2K bug:
-final_df$process_date <- as.Date(final_df$process_date) + 
-  years(if_else(year(final_df$process_date) == 1999, 1, 0))
-final_df$process_date <- as.character(final_df$process_date)
+#final_df$process_date <- as.Date(final_df$process_date) + 
+#  years(if_else(year(final_df$process_date) == 1999, 1, 0))
+#final_df$process_date <- as.character(final_df$process_date)
 
 ### save 
 write.csv(final_df, paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"), row.names = FALSE)
