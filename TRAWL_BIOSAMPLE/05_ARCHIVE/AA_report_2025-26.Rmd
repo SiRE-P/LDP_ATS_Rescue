@@ -140,4 +140,79 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
 -> Done:
     - Removed duplicates in the individual dataframes
     - Corrected y2k bug in the '99 trawl dat file
+    - Combined data frames keeping rows as duplicates
+    - Fish unique ID is: TrawlDate_LakeCode_TrawlNumber_Depth_SpeciesCode_FishID_Weight_Length
+    
+-> Meeting with David Hunt, Athena Ogden, Howard Stiff (Wed 10th)
+    - David was going to try to find a simpler way of combining the data frames because the "full_join" function was not combing all columns and rows. It combined or columns or rows.
+    
+## Week 7 (December 15-21th, 2025)
+-> Done:
+    - Collapsed duplicated rows keeping the .dat info when conflict existed
+    - Flagged problematic time rows across start_time columns in .dat files (column "dat_invalid_start_time")
+    - Collapse source_file columns into one
+
+-> Needs to be done:
+    - Relocate columns
+    - How many records have missing duration? Calculate the duration for the missing ones
+    - Separate juvenile/adults
+    - Check how many preservative codes there are in the data (unique()) to correct the "11" in the '98-99 data files
+    
+-> Meeting with David Hunt, Athena Ogden, Howard Stiff (Wed 17th)
+    - Midnight should be 00 or 24
+    - Return to the .dat file script because there is an issue when converting the format of the time
+    - Have one script calling other scripts
+    - Create a 03_errors folder on GitHub and upload .csv files with the flagged errors
+        - duplicates in the final combined data frame
+        - flag which species have different "fish_total" between .sas and .dat files.
+        - Errors with the start_time, end_time and duration_mi
+
+-> Issues:
+    - fish_unique_ID == "1986-04-16_161_4_15_1_4_3.73_68" - record present in both trawl85.dat and trawl86.dat. The current code keep only the first time the record appears, deleting the second row. So, the Trawl86.dat record is not kept (scale_book is different between these files). Should I keep it like that, as they seem to be duplicates, or should I keep them separately?
+    - For the trawl92.sas file, the "100:MM:SS" is in the original file. It is absent in the .dat file.
+    
+## Week 8 (December 22-28th, 2025)
+-> Done:
+    - Return to the .dat file script because there is an issue when converting the format of the time
+      - The issue was when re-opening the table as csv. I removed that step and saved as csv only at the end.
+      - 10247 rows with wrong format.
+    - Relocate columns
+    - Separate juvenile/adults in fish_description
+    - Check how many preservative codes there are in the data (unique()) to correct the "11" in the '98-99 data files
+
+## Week 9 (December 29, 2025 - January 4th, 2026)
+-> Done:
+    - How many records have missing duration? Calculate the duration for the missing ones
+    - Errors with the start_time, end_time and duration_mi
+
+-> Issues:
+    - Processor "99" should be replaced by "NA"? Replace all "999" by "NA"
+    - preservative codes "9" and "98" mean "unknown", should I keep both? all become NA
+    - preservative code 11 in trawl 96 = "0 0% FORMALIN - WGHD AFT 5 WKS" - does this mean "fresh"?
+    - preservative code 350 = 0 0% OH - WGHD AFT 5 WKS
+    - preservative code 270 = 0 0 % OH - WGHD AFTER 5 WKS
+    - fish_unique_ID == 1997-09-17_69_9_15_7_1_1.35_49 - duration_min, is the "0203" = end_time?
+      - correct the end time and calculate the duration
+    - fish_unique_ID == "1986-04-16_161_4_15_1_4_3.73_68" - record present in both trawl85.dat and trawl86.dat. The current code keep only the first time the record appears, deleting the second row. So, the Trawl86.dat record is not kept (scale_book is different between these files). Should I keep it like that, as they seem to be duplicates, or should I keep them separately?
+
+-> Needs to be done:
+    - Combine start_time and end_time columns
+    - change order .dat and .sas
+    - Replace all "999" or "99" by "NA" in all columns
+    - correct the end time and calculate the duration - everything with 0203 - fish_unique_ID == 1997-09-17_69_9_15_7_1_1.35_49
+    - 11 -> 1 - preservative code
+    - add a column duration_mi_comment
+    - collapse all comments columns into one. e.g.: Duration_min: "changed from 1500?, PR 23Mar2000". include "trawl_location"
+      - move Ethanol 95% as preservative_comment but keep the comment - report the change in a general comment column
+        - check the frequency
+        - info from trawl_location column
+    - preservative code 350 = 0 0% OH - WGHD AFT 5 WKS - code 3 (typo error)
+    - preservative code 270 = 0 0 % OH - WGHD AFTER 5 WKS - code 2 (typo error)
+    - season - April 1st to March 31st - Check the books and season times
+    - Wrong hours format that are also wrong in the original .sas and .dat files replace them by NA
+    - Two columns for species: genera and species
+    - standardize species_code_comment column
+    - export the rows with no fish_description
+    - if between FRY and Juvenile - keep Fry
+    
     

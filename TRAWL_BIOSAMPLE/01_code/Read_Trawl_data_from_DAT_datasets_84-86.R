@@ -1,5 +1,5 @@
 ###############################################################################
-##############            TRAWL data code 1984-1986         ###################
+##############            TRAWL data code 1984-1985         ###################
 ##############    Converting and cleaning SAS trawl files   ###################
 ############## Authors: Alice Assmar (McGill Uni.), David   ###################
 ############## Hunt (McGill Uni.),  Yuliya Shtymburski      ###################
@@ -68,9 +68,9 @@ install.packages(setdiff(packages, row.names(installed.packages())))
 # Create the directories to hold output files
 if (!dir.exists("./TRAWL_BIOSAMPLE/02_intermediate_out")) {dir.create("./TRAWL_BIOSAMPLE/02_intermediate_out")
 } else {message("Directory already exists.")} # ensure CSV output directory exists
-if (!dir.exists("./TRAWL_BIOSAMPLE/03_final_output")) {dir.create("./TRAWL_BIOSAMPLE/03_final_output")
-} else {message("Directory already exists.")}  # ensure plot output directory exists
-if (!dir.exists("./TRAWL_BIOSAMPLE/04_figures")) {dir.create("./TRAWL_BIOSAMPLE/04_figures")
+if (!dir.exists("./TRAWL_BIOSAMPLE/03_errors_out")) {dir.create("./TRAWL_BIOSAMPLE/03_errors_out")
+} else {message("Directory already exists.")} # ensure CSV output directory exists
+if (!dir.exists("./TRAWL_BIOSAMPLE/04_final_output")) {dir.create("./TRAWL_BIOSAMPLE/04_final_output")
 } else {message("Directory already exists.")}  # ensure plot output directory exists
 if (!dir.exists("./TRAWL_BIOSAMPLE/05_ARCHIVE")) {dir.create("./TRAWL_BIOSAMPLE/05_ARCHIVE")
 }  else {message("Directory already exists.")} # ensure archive directory exists for storing date-stamped copy of output
@@ -78,7 +78,7 @@ if (!dir.exists("./TRAWL_BIOSAMPLE/05_ARCHIVE")) {dir.create("./TRAWL_BIOSAMPLE/
 # Create variable to hold output directory and the target file
 input_folder <- "./TRAWL_BIOSAMPLE/00_raw_data/01_DAT"
 intermediate_out_folder <- "./TRAWL_BIOSAMPLE/02_intermediate_out"
-trawl_file <- "trawl86"
+trawl_file <- "trawl84"
 
 ################################  Step 2  #####################################
 ################### Read dat and loop over data files #########################
@@ -170,7 +170,7 @@ write.csv(final_df, paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv")
 ### This code is meant to edit the first converted version of the .csv file, splitting 
 #### columns and data cleaning, etc. 
 
-final_df <- read.csv(paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"))
+#final_df <- read.csv(paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"))
 
 ### trawl number column removing comments and placing into separate column 
 final_df <- final_df %>%

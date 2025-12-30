@@ -68,9 +68,9 @@ install.packages(setdiff(packages, row.names(installed.packages())))
 # Create the directories to hold output files
 if (!dir.exists("./TRAWL_BIOSAMPLE/02_intermediate_out")) {dir.create("./TRAWL_BIOSAMPLE/02_intermediate_out")
 } else {message("Directory already exists.")} # ensure CSV output directory exists
-if (!dir.exists("./TRAWL_BIOSAMPLE/03_final_output")) {dir.create("./TRAWL_BIOSAMPLE/03_final_output")
-} else {message("Directory already exists.")}  # ensure plot output directory exists
-if (!dir.exists("./TRAWL_BIOSAMPLE/04_figures")) {dir.create("./TRAWL_BIOSAMPLE/04_figures")
+if (!dir.exists("./TRAWL_BIOSAMPLE/03_errors_out")) {dir.create("./TRAWL_BIOSAMPLE/03_errors_out")
+} else {message("Directory already exists.")} # ensure CSV output directory exists
+if (!dir.exists("./TRAWL_BIOSAMPLE/04_final_output")) {dir.create("./TRAWL_BIOSAMPLE/04_final_output")
 } else {message("Directory already exists.")}  # ensure plot output directory exists
 if (!dir.exists("./TRAWL_BIOSAMPLE/05_ARCHIVE")) {dir.create("./TRAWL_BIOSAMPLE/05_ARCHIVE")
 }  else {message("Directory already exists.")} # ensure archive directory exists for storing date-stamped copy of output
@@ -182,7 +182,7 @@ write.csv(final_df, paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv")
 ### This code is meant to edit the first converted version of the .csv file, splitting 
 #### columns and data cleaning, etc. 
 
-final_df <- read.csv(paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"))
+#final_df <- read.csv(paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"))
 
 ### trawl number column removing comments and placing into separate column 
 
