@@ -243,8 +243,10 @@ Trawl_95_dat <- Trawl_95_dat[!duplicated(Trawl_95_dat$fish_unique_ID), ]
 #Trawl_95_rows <- joyn::full_join(Trawl_95_sas, Trawl_95_dat,  suffix = c(".sas", ".dat"),
 #                                 by = "fish_unique_ID", update_values = TRUE)
 
+
 #Trawl_95 <- joyn::full_join(Trawl_95_sas, Trawl_95_dat,  suffix = c(".sas", ".dat"),
 Trawl_95 <- joyn::full_join(Trawl_95_dat, Trawl_95_sas, suffix = c(".dat", ".sas"),
+
                       by = c("process_date", "trawl_date", "fish_total",
                              "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
                              "trawl_number", "processor", "lake_code", "lake_name",
@@ -339,10 +341,12 @@ df_sas_total_fish_error <- df_joined %>%
   filter(n() > 1) %>%
   distinct(fish_total, .keep_all = TRUE) %>%
   filter(n() > 1) %>%
+
   arrange(fish_unique_ID) %>%
   ungroup()
 
-# Save the errors in the  until here
+# Save the erros in the  until here
+
 write.csv(df_sas_total_fish_error, paste0(error_directory, "/sas_total_fish_errors.csv"), row.names = FALSE)
 
 # Correct the total number of fish when they differ between source-SAS and source-DAT files
@@ -356,6 +360,8 @@ df_joined <- df_joined %>%
   ) %>%
   select(-fish_total_updated)  %>%
   ungroup()
+
+df_joined <- as.data.frame(df_joined)
 
 # Collapse duplicated rows into one row, and keep .dat row values if conflict appears
 # Function to resolve the conflicts/similarities among the columns
@@ -395,7 +401,9 @@ df_final <- df_joined %>%
   group_by(fish_unique_ID, fish_total) %>%
   summarise(
     # Keep source column explicitly
+    
     source_file.dat2 = first(source_file.dat),
+
     # Compute flags and add to a column called "merging_update_type"
     merging_update_type = {
       # Single-row group
@@ -404,8 +412,10 @@ df_final <- df_joined %>%
       } else {
         flags <- map_chr(
           #cur_data() %>% select(-source_file.dat), # this deletes the source_file.dat column 
+
           pick(-source_file.dat2),
           ~ resolve_column(.x, source_file.dat2)$status
+
         )
         # State priorities
         if ("Conflict within" %in% flags) {
@@ -419,8 +429,10 @@ df_final <- df_joined %>%
     },
     # Resolve all other columns
     across(
+
       -source_file.dat2,
       ~ resolve_column(.x, source_file.dat2)$value
+
     ),
   
     .groups = "drop"
@@ -428,8 +440,10 @@ df_final <- df_joined %>%
 
 ### Combine source_file, source_file.sas and source_file.dat into a new 'source_files' column
 df_final <- df_final %>%
+
   unite(col = "source_files", source_file, source_file.sas, source_file.dat, sep = ", ") %>%
   select(-source_file.dat2)
+
 
 # Remove NAs that were added to the rows
 replacement_pattern <- c("^NA, " = "",
@@ -442,8 +456,10 @@ df_final$source_files <- str_replace_all(df_final$source_files, replacement_patt
 df_final <- df_final %>% 
   relocate(trawl_date, trawl_location, lake_code, lake_name, process_date, processor,
            start_time, end_time, start_time.sas, end_time.sas, start_time.dat, end_time.dat, duration_mi, depth_m,  
+
            trawl_number, sample_type, species_code, fish_description, species_code_comment, fish_length_mm, fish_weight_g, 
            weight_conversion_formula, standardized_weight_g, fish_total, fish_id, 
+
            preservative_code, preservative_description, sample_number, scale, scale_book,scale_book_letter, age, 
            aging_technique, aging_technique_name, source_files, source_line, trawl_unique_ID, fish_unique_ID, 
            trawl_month, ats_year, comment,
@@ -459,7 +475,9 @@ all_duplicates <- df_final %>%
 # Save duplicated rows until here
 write.csv(all_duplicates, paste0(error_directory, "/duplicated_df_trawl.csv"), row.names = FALSE)
 
+
 ### Combine start_time.sas and .dat into a new 'start_time' column - .sas files have the time set better formatted
+
 # First standardize midnight times: instead of 24, represent it as 00
 # Remove decimals from .sas time columns
 df_final <- df_final %>%
@@ -487,6 +505,7 @@ df_final <- df_final %>%
 
 # Check number of problematic rows
 sum(df_final$invalid_start_time == "Invalid format", na.rm = TRUE)
+
 
 # Save errors in start and end time in separate document
 start_time_errors <- df_final[df_final$invalid_start_time == "Invalid format", na.rm = TRUE]
@@ -608,7 +627,6 @@ unique(df_final$duration_mi)
 unique(final_df_try$duration_mi)
 df_final <- as.data.frame(df_final)
 df_final[df_final$duration_mi == "535.94091796875", ]
-
 
 
 

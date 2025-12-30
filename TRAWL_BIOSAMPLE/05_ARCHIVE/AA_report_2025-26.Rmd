@@ -169,6 +169,7 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
 
 -> Issues:
     - fish_unique_ID == "1986-04-16_161_4_15_1_4_3.73_68" - record present in both trawl85.dat and trawl86.dat. The current code keep only the first time the record appears, deleting the second row. So, the Trawl86.dat record is not kept (scale_book is different between these files). Should I keep it like that, as they seem to be duplicates, or should I keep them separately?
+
     - For the trawl92.sas file, the "100:MM:SS" is in the original file. It is absent in the .dat file.
     
 ## Week 8 (December 22-28th, 2025)
@@ -214,5 +215,4 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
     - standardize species_code_comment column
     - export the rows with no fish_description
     - if between FRY and Juvenile - keep Fry
-    
-    
+
