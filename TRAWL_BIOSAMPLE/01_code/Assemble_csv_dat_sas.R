@@ -246,7 +246,6 @@ Trawl_95_dat <- Trawl_95_dat[!duplicated(Trawl_95_dat$fish_unique_ID), ]
 
 #Trawl_95 <- joyn::full_join(Trawl_95_sas, Trawl_95_dat,  suffix = c(".sas", ".dat"),
 Trawl_95 <- joyn::full_join(Trawl_95_dat, Trawl_95_sas, suffix = c(".dat", ".sas"),
-
                       by = c("process_date", "trawl_date", "fish_total",
                              "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
                              "trawl_number", "processor", "lake_code", "lake_name",
@@ -329,6 +328,8 @@ rm(list = vectors_to_remove)
 
 ################################  Step 5  #####################################
 ################### Cleaning the columns and combining rows #########################
+# Save raw combined column
+write.csv(df_joined, paste0(working_directory, "/combined_raw_df_trawl.csv"), row.names = FALSE)
 
 # Check the table 
 table(df_joined$fish_unique_ID)
@@ -341,11 +342,10 @@ df_sas_total_fish_error <- df_joined %>%
   filter(n() > 1) %>%
   distinct(fish_total, .keep_all = TRUE) %>%
   filter(n() > 1) %>%
-
   arrange(fish_unique_ID) %>%
   ungroup()
 
-# Save the erros in the  until here
+# Save the errors in the fish_total
 
 write.csv(df_sas_total_fish_error, paste0(error_directory, "/sas_total_fish_errors.csv"), row.names = FALSE)
 
@@ -440,7 +440,6 @@ df_final <- df_joined %>%
 
 ### Combine source_file, source_file.sas and source_file.dat into a new 'source_files' column
 df_final <- df_final %>%
-
   unite(col = "source_files", source_file, source_file.sas, source_file.dat, sep = ", ") %>%
   select(-source_file.dat2)
 
@@ -456,10 +455,8 @@ df_final$source_files <- str_replace_all(df_final$source_files, replacement_patt
 df_final <- df_final %>% 
   relocate(trawl_date, trawl_location, lake_code, lake_name, process_date, processor,
            start_time, end_time, start_time.sas, end_time.sas, start_time.dat, end_time.dat, duration_mi, depth_m,  
-
            trawl_number, sample_type, species_code, fish_description, species_code_comment, fish_length_mm, fish_weight_g, 
            weight_conversion_formula, standardized_weight_g, fish_total, fish_id, 
-
            preservative_code, preservative_description, sample_number, scale, scale_book,scale_book_letter, age, 
            aging_technique, aging_technique_name, source_files, source_line, trawl_unique_ID, fish_unique_ID, 
            trawl_month, ats_year, comment,
@@ -474,7 +471,6 @@ all_duplicates <- df_final %>%
 
 # Save duplicated rows until here
 write.csv(all_duplicates, paste0(error_directory, "/duplicated_df_trawl.csv"), row.names = FALSE)
-
 
 ### Combine start_time.sas and .dat into a new 'start_time' column - .sas files have the time set better formatted
 
@@ -511,13 +507,22 @@ sum(df_final$invalid_start_time == "Invalid format", na.rm = TRUE)
 start_time_errors <- df_final[df_final$invalid_start_time == "Invalid format", na.rm = TRUE]
 write.csv(df_final, paste0(error_directory, "/start_time_errors.csv"), row.names = FALSE)
 
-###
+# Manually fix some of the errors identified
+#  everything with 0203 - fish_unique_ID == 1997-09-17_69_9_15_7_1_1.35_49
+df_final <- df_final %>%
+  mutate(
+    end_time = ifelse(duration_mi == "0203", "02:03:00", end_time),
+    time_comment = ifelse(duration_mi == "0203", "0203 error in duration_mi was end_time - corrected", time_comment),
+    duration_mi = ifelse(duration_mi == "0203", "16", duration_mi)
+  )
+    
 ### Combine start_time and end_time columns
 
 
 ###
 
 ### Separate columns with fish descriptions and common name
+
 # Cleaning the columns
 df_final <- df_final %>%
   # compare fish_description and species_code_comments columns
@@ -527,17 +532,19 @@ df_final <- df_final %>%
     ### Delete the duplicates from the species_code_comment
     species_code_comment = ifelse(species_code_comment_match == "TRUE", "", species_code_comment)
     ) %>%
+  
   # Fish description column removing comments and placing into separate column 
   mutate(
     ### extract the description at the end
-    fish_description_clean = str_extract(fish_description, "\\s\\(\\w+\\)$"),
+    fish_description_clean = str_extract(fish_description, "\\s\\([:graph:]+\\)$"),
     
     ### extract the rest of the string as the common name of the fish
-    fish_description = str_trim(str_remove(fish_description, "\\s\\(\\w+\\)$")),
+    fish_description = str_trim(str_remove(fish_description, "\\s\\([:graph:]+\\)$")),
     
     ### Save the stage description in the fish_description column
     fish_name = as.character(fish_description_clean)
     ) %>%
+  
   unite(species_code_comment, species_code_comment, fish_name, sep = ",") %>%
   ### extract the description at the end
   select(-species_code_comment_match, -fish_description_clean)
@@ -550,6 +557,113 @@ replacement_pattern <- c("NA, " = "",
                          "^, \\(" = "\\(")
   
 df_final$species_code_comment <- str_replace_all(df_final$species_code_comment, replacement_pattern)
+
+# Standardize comments in the species_code_comment column
+replacement_pattern <- c("\\(COHO FRY\\), \\(Fry\\)" = "Fry",
+                         "\\(Fry\\)" = "Fry",
+                         "\\(COHO SMOLT\\), \\(Smolt\\)" = "Smolt",
+                         "\\(Smolt\\)" = "Smolt",
+                         "COHO \\(SMLT\\), \\(Smolt\\)" = "Smolt",
+                         "COHO \\(SMLT\\), Smolt"  = "Smolt",
+                         "\\(PEAMOUTH CHUB\\)" = "",
+                         "PINKS" = "",
+                         "\\(SOCKEYE FRY\\), \\(Fry\\)" = "Fry",
+                         "\\(SOCKEYE FRY\\), Fry" = "Fry",
+                         "SOCKEYE  \\(JUV\\), \\(Juvenile\\)" = "Juvenile",
+                         "SOCKEYE \\(JUV\\), \\(Juvenile\\)" = "Juvenile",
+                         "SOCKEYE FRY, \\(Juvenile\\)" = "Juvenile",
+                         "SOCKEYE JUVENILE, \\(Juvenile\\)" = "Juvenile",
+                         "SOCKEYE, \\(Juvenile\\)" = "Juvenile",
+                         "\\(SOCKEYE\\), Juvenile" = "Juvenile",
+                         "SOCKEYE  \\(JUV\\), Juvenile" = "Juvenile",
+                         "SOCKEYE \\(JUV\\), Juvenile" = "Juvenile",
+                         "SOCKEYE JUVENILE, Juvenile" = "Juvenile",
+                         "SOCKEYE, Juvenile" = "Juvenile",
+                         "SUCKER \\(CATOSTOMUS SP.\\), \\(Catostomus\\)" = "",
+                         "WHITEFISH \\(COREGONUS SP.\\), \\(Coregonus\\)" = "",
+                         "REDSIDED SHINER\\(RICHARDSONIUS SP.\\)" = "")
+
+df_final <- df_final %>%
+  mutate(species_code_comment = str_replace_all(species_code_comment, replacement_pattern))
+
+replacement_pattern <- c("\\(1\\+\\)" = "1+",
+                         "\\(1\\+\\+\\+\\+\\)" = "1+",
+                         "\\(2\\+\\)" = "2+",
+                         "SOCKEYE, \\(Fry\\)" = "Fry",
+                         "FRY, \\(Juvenile\\)" = "Fry",
+                         "SOCKEYE FRY, \\(Fry\\)" = "Fry",
+                         "SOCKEYE Fry" = "Fry",
+                         "\\(SOCKEYE\\), \\(Juvenile\\)" = "Juvenile",
+                         "\\(2 STICKLEBACK ADULTS\\)" = "Adult",
+                         "\\(ADULT STICKLE\\)" = "Adult",
+                         "\\(STICKLE ADULTS\\)" = "Adult",
+                         "\\(STICKLEBACK FRY\\), Fry" = "Fry",
+                         "\\(STICKLEBACK SUBADULTS\\), \\(Sub-adult\\)" = "Subadult",
+                         "\\(STICKLEBACK SUBADULTSS\\), \\(Sub-adult\\)" = "Subadult",
+                         "\\(SUBADULT STICKLES\\), \\(Sub\\-adult\\)" = "Subadult",
+                         "ADULT FEMALES" = "Adult female",
+                         "STICKLEBACK \\(SUBADULT\\), \\(Sub-adult\\)" = "Subadult",
+                         "STICKLEBACK SUBADULTS, \\(Sub-adult\\)" = "Subadult",
+                         "STICKLEBACK SUBADULTSS, \\(Sub-adult\\)" = "Subadult")
+
+df_final <- df_final %>%
+  mutate(species_code_comment = str_replace_all(species_code_comment, replacement_pattern))
+
+replacement_pattern <- c("GRAVID FEMALES" = "Gravid female",
+                         "STICKLE ADULTS" = "Adult",
+                         "STICKLEBACK ADULTS" = "Adult",
+                         "STICKLEBACK FRY, Fry" = "Fry",
+                         "STICKLEBACK GRAVID FEMALE" =  "Gravid female",
+                         "STICKLEBACK, \\(Sub-adult\\)" = "Subadult",
+                         "STICKLEBACK, Fry" = "Fry",
+                         "SOCKEYE FRY, Fry" = "Fry",
+                         "SOCKEYE, Fry" = "Fry",
+                         "STICKLEBACK, (Sub-adult)" = "Subadult")
+
+df_final <- df_final %>%
+  mutate(species_code_comment = str_replace_all(species_code_comment, replacement_pattern))
+
+replacement_pattern <- c("\\(Adult\\)" = "Adult",
+                         "\\(Juvenile\\)" = "Juvenile",
+                         "\\(STICKLE FRY\\)" = "Fry",
+                         "\\(STICKLE SUBADULTS\\)" = "Subadult",
+                         "\\(STICKLE SUBADULT\\)" = "Subadult",
+                         "\\(STICKLEBACK\\)" = "",
+                         "\\(Sub-adult\\)" = "Subadult",
+                         "GRAVID FEMALE" =  "Gravid female",
+                         "STICKLE ADULT" = "Adult",
+                         "SUB ADULTS" = "Subadult")
+
+df_final <- df_final %>%
+  mutate(species_code_comment = str_replace_all(species_code_comment, replacement_pattern))
+
+replacement_pattern <- c("\\(STICKLES\\)" = "",
+                         "\\(STICKLE\\)" = "",
+                         "ADULTS" = "Adult",
+                         "ADULT" = "Adult",
+                         "STICKLE" = "",
+                         "FRY" = "Fry")
+
+df_final <- df_final %>%
+  mutate(species_code_comment = str_replace_all(species_code_comment, replacement_pattern))
+
+
+
+
+### Create Look up table and add a column with fish scientific names
+# Red-sided Shiner = Richardsonius sp.
+# Sucker= Catostomus sp.
+# WHITEFISH (COREGONUS SP.), (Coregonus)
+
+df_try <- df_final
+
+unique(paste(df_final$fish_description, df_final$species_code_comment, sep = " / "))
+
+#paste(df_final$fish_description, df_final$species_code_comment, sep = " / ") %>%
+df_final %>%
+  group_by(fish_description, species_code_comment) %>%
+  summarise(count = n()) -> summary_table
+
 
 #### Work on the duration_mi column. Remove "Min" in the duration column
 df_final <- df_final %>%
@@ -580,15 +694,8 @@ df_joined <- as.data.frame(df_joined)
 df_final[df_final$fish_unique_ID == "1991-09-14_66_99_10_7_1_0.72_43",]
 df_joined[df_joined$fish_unique_ID == "1991-09-14_66_99_10_7_1_0.72_43",]
 
-unique(df_joined$species_code_comment)
-df_joined[df_joined$species_code_comment == "STICKLEBACK GRAVID FEMALE",]
 
-unique(paste(df_final$fish_description, df_final$species_code_comment, sep = " / "))
 
-#paste(df_final$fish_description, df_final$species_code_comment, sep = " / ") %>%
-df_final %>%
-  group_by(fish_description, species_code_comment) %>%
-  summarise(count = n()) -> summary_table
 
 
 #### Work on the preservative_code columun.

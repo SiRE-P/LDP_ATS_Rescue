@@ -216,3 +216,17 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
     - export the rows with no fish_description
     - if between FRY and Juvenile - keep Fry
 
+## Weeks 10-11 (January 5-18th, 2026)
+-> Done:
+    - Checked overlap between years. 
+      - Trawl '85 has all data of Trawl '86 for April, only. 394 rows overlap
+      - Trawl '90 has data from Trawl '85. 79 rows overlap
+      - Trawl '97 has four rows with trawl date "31-01-1996", which should be in Trawl '95, but there is no records for January 1996 in          Trawl '95 file. Neither on trawl '96 file.
+      - All other Trawl files are between April 1st and March 31st of the following year
+    - corrected the end time - everything with 0203
+    - standardize species_code_comment column
+      
+-> Issues:
+  - Trawl '92 start time: example for date "140792", DAT shows "331", "57", "424", do these mean 03:31, 00:57, 04:24 ?
+  
+-> Needs to be done:
