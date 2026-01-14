@@ -220,14 +220,14 @@ parse_target_dat_tracer <- function(filepath) {
 } # end function
 
 
-# IMPORT TARGET*.DAT files                                              ## COMMENT OUT to skip TARGET.DAT import process ####
-
+# IMPORT TARGET*.DAT files  ####                                            
+#   COMMENT OUT this section to skip TARGET.DAT import process #
 # list all .dat files in the working directory
 dat_files <- list.files(
-  path = "ACOUSTIC_TARGETS/data",              # look in the data/ folder
-  pattern = "\\.dat$",        # only .dat files
+  path = "ACOUSTIC_TARGETS/data", # look in the data/ folder
+  pattern = "\\.dat$",            # only .dat files
   ignore.case = TRUE,
-  full.names = TRUE)          # include full path so read_lines() works
+  full.names = TRUE)              # include full path so read_lines() works
 
 # list the import DAT files (TARGET*.DAT)
 cat("\nAcoustic Target Data files to process:\n")
@@ -261,22 +261,11 @@ cat("\n")
 toc()                         # get finish time and post elapsed time
 cat("\n")
 
-# tic("Compilation time: ")                                       # Sandra's method
-# all_target_data <- dat_files %>%
-#   set_names(~ tools::file_path_sans_ext(basename(.x))) %>%
-# # map_dfr(parse_target_dat_tracer, .id = "source_file") %>%     # modified function and call to add source file and line no's for traceability (HS 25-09-08)
-#
-#   map_dfr(function(file) {
-#     pb$tick()
-#     parse_target_dat_tracer(file)
-#   }, .id = "source_file") %>%
-#
-#   filter(!if_all(c(transect, depth, targets), is.na))           # this drops all records missing in three key index variables, which seems to happen due to blank lines between input data blocks (HS 250908)
-# toc()
-
-#   Save raw import data and an inventory of surveys to csv...          ## COMMENT OUT to skip TARGET.DAT import process ####
+#   COMMENT OUT this section to skip export of imported raw TARGET.DAT file #
+#   Save raw import data and an inventory of surveys to csv...         
 write_csv(all_target_data,  paste("./ACOUSTIC_TARGETS/output/ARCHIVE/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))
 write_csv(all_target_data,  paste("./ACOUSTIC_TARGETS/output/Target_INPUT_data_RAW_", ats_year_span, ".csv",      sep="")) # save copy for import to Pivot workbook
+     
 # RE-IMPORT raw import data (assign FILE_NAME if necessary!) from saved CSV to skip time-consuming IMPORT of TARGET*.DAT ####
 # all_target_data <- read_csv(paste("./ACOUSTIC_TARGETS/output/Target_INPUT_data_RAW_", ats_year_span, date_stamp, ".csv", sep=""))   # use this if skipping the compilation process, above, using csv labelled with current date-stamp
 all_target_data   <- read_csv(paste("./ACOUSTIC_TARGETS/output/Target_INPUT_data_RAW_", ats_year_span, ".csv"     , sep=""))            # use this if skipping the compilation process, above, using latest generic csv (not date-stamped)
@@ -286,6 +275,7 @@ raw_data_inventory <- all_target_data %>%
   select(source_file, lake, lake_code, survey_date, sounder_type, sounder_gain = gain, acoustic_survey_notes) %>%
   distinct() %>%
   arrange(source_file, lake, lake_code, survey_date)
+
 write_csv(raw_data_inventory, paste("./ACOUSTIC_TARGETS/output/ARCHIVE/Target_INPUT_data_INVENTORY_", ats_year_span, date_stamp, ".csv", sep=""))
 write_csv(raw_data_inventory, paste("./ACOUSTIC_TARGETS/output/Target_INPUT_data_INVENTORY_", ats_year_span, ".csv", sep=""))
 
