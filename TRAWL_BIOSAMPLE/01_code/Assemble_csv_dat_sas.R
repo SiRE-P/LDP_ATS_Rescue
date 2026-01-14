@@ -463,7 +463,7 @@ df_final <- df_final %>%
            time_comment, preservative_code_comment, depth_m_comment, trawl_date_comment, trawl_number_comment, 
            program_notes,  merging_update_type, .joyn)
 
-# Is there still duplicates? There are some rows with equal fish_unique_id but are not the same record
+# Are there still duplicates? There are some rows with equal fish_unique_id but are not the same record
 all_duplicates <- df_final %>%
   group_by(fish_unique_ID) %>%
   filter(n() > 1) %>%
@@ -505,7 +505,7 @@ sum(df_final$invalid_start_time == "Invalid format", na.rm = TRUE)
 
 # Save errors in start and end time in separate document
 start_time_errors <- df_final[df_final$invalid_start_time == "Invalid format", na.rm = TRUE]
-write.csv(df_final, paste0(error_directory, "/start_time_errors.csv"), row.names = FALSE)
+write.csv(start_time_errors, paste0(error_directory, "/start_time_errors.csv"), row.names = FALSE)
 
 # Manually fix some of the errors identified
 #  everything with 0203 - fish_unique_ID == 1997-09-17_69_9_15_7_1_1.35_49
@@ -522,7 +522,6 @@ df_final <- df_final %>%
 ###
 
 ### Separate columns with fish descriptions and common name
-
 # Cleaning the columns
 df_final <- df_final %>%
   # compare fish_description and species_code_comments columns
@@ -618,7 +617,7 @@ replacement_pattern <- c("GRAVID FEMALES" = "Gravid female",
                          "STICKLEBACK, Fry" = "Fry",
                          "SOCKEYE FRY, Fry" = "Fry",
                          "SOCKEYE, Fry" = "Fry",
-                         "STICKLEBACK, (Sub-adult)" = "Subadult")
+                         "STICKLEBACK, \\(Sub-adult\\)" = "Subadult")
 
 df_final <- df_final %>%
   mutate(species_code_comment = str_replace_all(species_code_comment, replacement_pattern))
@@ -647,23 +646,24 @@ replacement_pattern <- c("\\(STICKLES\\)" = "",
 df_final <- df_final %>%
   mutate(species_code_comment = str_replace_all(species_code_comment, replacement_pattern))
 
+### Create Look up table to correct lakes and fish names
+# add a column with fish scientific names: genus and species
+fish_scientific_name_lookup_table <- data.frame(fish_description = as.character(c("Chinook", "Coho", "Dolly Varden", "Lamprey", "Peamouth Chub", "Pink", "Red-sided Shiner", "Sculpin", "Sockeye", "Stickleback", "Sucker", "Whitefish")), 
+                                                fish_scientific_genus = c("Oncorhynchus", "Oncorhynchus", "Salvelinus", "Lampreta", "Mylocheilus","Oncorhynchus", "Richardsonius", "Cottus", "Oncorhynchus", "Gasterosteus", "Catostomus", "Coregonus"),
+                                                fish_scientific_species = c("tshawytscha", "kisutch", "malma", "macrostoma", "caurinus", "gorbuscha", "", "", "nerka", "aculeatus", "",""))
 
+# Remove abbreviations in the name of the lakes by importing the lookup table
+lake_name <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv")
 
-
-### Create Look up table and add a column with fish scientific names
-# Red-sided Shiner = Richardsonius sp.
-# Sucker= Catostomus sp.
-# WHITEFISH (COREGONUS SP.), (Coregonus)
-
-df_try <- df_final
-
-unique(paste(df_final$fish_description, df_final$species_code_comment, sep = " / "))
-
-#paste(df_final$fish_description, df_final$species_code_comment, sep = " / ") %>%
-df_final %>%
-  group_by(fish_description, species_code_comment) %>%
-  summarise(count = n()) -> summary_table
-
+# Join the tables
+df_final <- df_final %>%
+  dplyr::left_join(fish_scientific_name_lookup_table, by = "fish_description") %>%
+  select(-lake_name) %>%
+  dplyr::left_join(lake_name, by = "lake_code")
+  
+# Save error table with the rows with empty names for fish species.
+no_species_record_rows <- df_final[is.na(df_final$fish_description),]
+write.csv(no_species_record_rows, paste0(error_directory, "/no_species_record_rows.csv"), row.names = FALSE)
 
 #### Work on the duration_mi column. Remove "Min" in the duration column
 df_final <- df_final %>%
@@ -684,76 +684,59 @@ sum(df_final$invalid_duration_time == "Invalid format", na.rm = TRUE)
 
 # Save errors in duration in separate document
 duration_mi_errors <- df_final[df_final$invalid_duration_time == "Invalid format", na.rm = TRUE]
-write.csv(df_final, paste0(error_directory, "/duration_mi_errors.csv"), row.names = FALSE)
+write.csv(duration_mi_errors, paste0(error_directory, "/duration_mi_errors.csv"), row.names = FALSE)
 
+# Replace all "99" and "999" by NA across all columns
+df_final <- df_final %>%
+  mutate(across(c(duration_mi, processor, depth_m), ~ str_replace_all(.x, pattern = "999", replacement = ""))) %>%
+  mutate(across(c(duration_mi, processor, depth_m), ~ str_replace_all(.x, pattern = "99", replacement = ""))) %>%
+  mutate(duration_mi = as.integer(duration_mi)) 
 
-unique(df_joined$duration_mi)
-unique(df_final$duration_mi)
-df_final <- as.data.frame(df_final)
-df_joined <- as.data.frame(df_joined)
-df_final[df_final$fish_unique_ID == "1991-09-14_66_99_10_7_1_0.72_43",]
-df_joined[df_joined$fish_unique_ID == "1991-09-14_66_99_10_7_1_0.72_43",]
+# Correct values "365" and "535" in duration_mi
 
-
-
-
-
-#### Work on the preservative_code columun.
-unique(df_final$preservative_code)
-unique(df_joined$preservative_code)
-df_final <- as.data.frame(df_final)
-df_final[df_final$preservative_code == "270", ]
-
-
-#  preservative_code	preservative_description
-#  0	Fresh
-#  1	Formalin/5weeks
-#  2	70% ETOH/5weeks
-#  3	50% ETOH/5weeks
-#  4	Formalin/>5months
-#  9	Unknown
-#  95	Formalin/1-2days
-#  96	Formalin/3weeks
-#  97	Formalin/4weeks
-#  98	Unknown
-#  99	Formalin/Assumed
+# Correct values "98.10938", "14.83203", "188", "200", "12.50000", "17.50000" in the depth_m
 
 
 
-######## in progress #############
+#### Correct errors in preservative_code column
+df_final <- df_final %>%
+  mutate(preservative_code = as.character(preservative_code)) %>%
+  mutate(preservative_code = case_when(preservative_code == "98" ~ "",
+                                       preservative_code == "971" ~ "97",
+                                       preservative_code == "9" ~ "",
+                                       preservative_code == "270" ~ "2",
+                                       preservative_code == "350" ~ "3",
+                                       preservative_code == "11" ~ "1",
+                                       preservative_code == "35" ~ "3",
+                                       TRUE ~ preservative_code)) %>%
+  mutate(preservative_code = as.integer(preservative_code)) %>%
+  # Clean the preservative_code_comment column, removing extra spaces and tabs from rows
+  mutate(preservative_code_comment = str_squish(preservative_code_comment))
+
+# Fill up the missing values using a lookup table
+preservative_code_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/preservative_code_lookup_table.csv")
+df_final <- rows_patch(df_final, preservative_code_lookup_table, by = "preservative_code", unmatched = "ignore")
+
+# Check if preservative_description match preservative_code
+df_final %>%
+  group_by(preservative_code, preservative_description, preservative_code_comment) %>%
+  summarise(count = n()) -> summary_table
+
 # Save document until here
 write.csv(df_final, paste0(working_directory, "/combined_inprogress_df_trawl.csv"), row.names = FALSE)
 
+######## in progress #############
 
-
-
-
+#paste(df_final$fish_description, df_final$species_code_comment, sep = " / ") 
+df_final %>%
+  group_by(fish_description, species_code_comment) %>%
+  summarise(count = n()) -> summary_table
 
 unique(df_final$duration_mi)
 
 unique(final_df_try$duration_mi)
 df_final <- as.data.frame(df_final)
 df_final[df_final$duration_mi == "535.94091796875", ]
-
-
-
-### Correct .dat column time with invalid format, and merge start_time.dat/.sas and end_time.dat/.sas
-
-df <- df_final
-is_valid_sas <- grepl(time_pattern, df_final$start_time.sas)
-df <- df %>%
-  mutate(
-    ### replace the invalid values with the .sas info
-    start_time.dat = if_else(is_valid_sas & invalid_start_time == "Invalid format",
-                             start_time.dat,
-                             start_time.sas))
-
-### Drop unnecessary columns and reorganize column order.
-
-# Save combined data frame
-write.csv(df_final, paste0(working_directory, "/combined_df_trawl.csv"), row.names = FALSE)
-
-
 
 ### Example of conflicting rows to test
 # Before concatenation of rows

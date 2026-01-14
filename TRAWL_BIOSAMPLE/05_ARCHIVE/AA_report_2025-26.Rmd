@@ -218,15 +218,32 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
 
 ## Weeks 10-11 (January 5-18th, 2026)
 -> Done:
-    - Checked overlap between years. 
+    - Checked season overlap between years. 
       - Trawl '85 has all data of Trawl '86 for April, only. 394 rows overlap
       - Trawl '90 has data from Trawl '85. 79 rows overlap
-      - Trawl '97 has four rows with trawl date "31-01-1996", which should be in Trawl '95, but there is no records for January 1996 in          Trawl '95 file. Neither on trawl '96 file.
+      - Trawl '97 has four rows with trawl date "31-01-1996", which should be in Trawl '95, but there is no records for January 1996 in Trawl '95 file. Neither on trawl '96 file.
       - All other Trawl files are between April 1st and March 31st of the following year
     - corrected the end time - everything with 0203
     - standardize species_code_comment column
+    - Replace all "999" or "99" by "NA" in all columns
+    - Two columns for species: genera and species
+    - preservative code 350 = 0 0% OH - WGHD AFT 5 WKS - code 3 (typo error)
+    - preservative code 270 = 0 0 % OH - WGHD AFTER 5 WKS - code 2 (typo error)
+    - 11 -> 1 - preservative code
+    - add a column duration_mi_comment - comments added to "time_comment" column
+    - export the rows with no fish_description
+    - if between FRY and Juvenile - keep Fry
       
 -> Issues:
   - Trawl '92 start time: example for date "140792", DAT shows "331", "57", "424", do these mean 03:31, 00:57, 04:24 ?
+  - Preservative_code: 35 NA  0 0% ALCOHOL - WGHD AFT 5 WKS
+                       35 NA  0 0% OH - WGHD AFT 5 WKS
   
 -> Needs to be done:
+    - Combine start_time and end_time columns
+    - collapse all comments columns into one. e.g.: Duration_min: "changed from 1500?, PR 23Mar2000". include "trawl_location"
+      - move Ethanol 95% as preservative_comment but keep the comment - report the change in a general comment column
+        - check the frequency
+        - info from trawl_location column
+    - Wrong hours format that are also wrong in the original .sas and .dat files replace them by NA
+
