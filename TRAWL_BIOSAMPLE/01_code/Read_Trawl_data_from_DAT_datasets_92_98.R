@@ -1,11 +1,13 @@
 ###############################################################################
-##############           TRAWL data code 1992, 1998         ###################
+##############           TRAWL data code 1989, 1992, 1998   ###################
 ##############    Converting and cleaning SAS trawl files   ###################
 ############## Authors: Alice Assmar (McGill Uni.), David   ###################
 ############## Hunt (McGill Uni.),  Yuliya Shtymburski      ###################
 ############## (U. Regina), Howard Stiff (DFO Nanaimo)      ###################
 ##############        Athena Ogden (DFO Nanaimo)            ###################
 ###############################################################################
+
+# THIS SCRIPT WORKS FOR TRAWL FILES '89, '92 AND '98 ONLY
 
 # getwd()
 # setwd("/LDP_ATS_Rescue")
@@ -78,7 +80,7 @@ if (!dir.exists("./TRAWL_BIOSAMPLE/05_ARCHIVE")) {dir.create("./TRAWL_BIOSAMPLE/
 # Create variable to hold output directory and the target file
 input_folder <- "./TRAWL_BIOSAMPLE/00_raw_data/01_DAT"
 intermediate_out_folder <- "./TRAWL_BIOSAMPLE/02_intermediate_out"
-trawl_file <- "TRAWL92"
+trawl_file <- "trawl89"
 
 ################################  Step 2  #####################################
 ################### Read dat and loop over data files #########################
@@ -86,7 +88,7 @@ trawl_file <- "TRAWL92"
 ### input the dat file you are interested in cleaning
 lines <- readLines(paste0(input_folder, "/", trawl_file,".dat"))
 # if you receive an error "incomplete final line found on", just add two new line at the end of your trawl file
-lines <- c(lines, "") # trawl 98 and 92
+lines <- c(lines, "") # trawl 89, 92 and 98
 
 ### remove empty lines and trim whitespace, except for years 86-99
 #lines <- lines[str_trim(lines) != ""]
@@ -225,6 +227,9 @@ final_df <- final_df %>%
     process_date = format(process_date, "%Y-%m-%d"),
     trawl_date  = format(trawl_date, "%Y-%m-%d")
   )
+
+## Add leading '0' that were removed by the software used to write the .dat files
+final_df$start_end_time <- str_pad(final_df$start_end_time, 4, "left", pad = "0")
 
 ## Convert the hour "HHMM" into "HH:MM:SS" as in the SAS files
 final_df$start_end_time <- sprintf("%s:%s:00", substr(final_df$start_end_time, 1, 2), substr(final_df$start_end_time, 3, 4))
@@ -426,22 +431,14 @@ final_df <- final_df %>%
            scale, scale_book, age, aging_technique, aging_technique_name, source_file, source_line)
 
 ### Checking for duplicates
-# Columns to exclude from duplicate check
-cols_to_exclude <- c("trawl_unique_ID", "fish_unique_ID")
-
-# Get column names to include in the check
-cols_to_include <- setdiff(names(final_df), cols_to_exclude)
-
 # Check for duplicates based on selected columns
-duplicate_rows_indices <- duplicated(final_df[, cols_to_include])
+duplicate_rows_indices <- final_df[duplicated(final_df$fish_unique_ID), ]
 
 # View the duplicate rows
-unique(duplicate_rows_indices)
-final_df[duplicate_rows_indices, ]
+print(duplicate_rows_indices)
 
 # Remove duplicates
-final_df <- final_df %>% 
-  distinct(select(., -c(trawl_unique_ID, fish_unique_ID)), .keep_all = TRUE)
+final_df <- final_df[!duplicated(final_df$fish_unique_ID), ]
 
 ### for trawl year '99 only. Correcting Y2K bug:
 #final_df$process_date <- as.Date(final_df$process_date) + 
