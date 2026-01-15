@@ -517,6 +517,10 @@ df_final <- df_final %>%
   )
     
 ### Combine start_time and end_time columns
+df_try <- df_try %>%
+  filter(invalid_start_time == "Invalid format") %>%
+  group_by(start_time, start_time.sas, start_time.dat) %>%
+  summarise(count = n()) -> summary_table_time
 
 
 ###
@@ -650,7 +654,7 @@ df_final <- df_final %>%
 # add a column with fish scientific names: genus and species
 fish_scientific_name_lookup_table <- data.frame(fish_description = as.character(c("Chinook", "Coho", "Dolly Varden", "Lamprey", "Peamouth Chub", "Pink", "Red-sided Shiner", "Sculpin", "Sockeye", "Stickleback", "Sucker", "Whitefish")), 
                                                 fish_scientific_genus = c("Oncorhynchus", "Oncorhynchus", "Salvelinus", "Lampreta", "Mylocheilus","Oncorhynchus", "Richardsonius", "Cottus", "Oncorhynchus", "Gasterosteus", "Catostomus", "Coregonus"),
-                                                fish_scientific_species = c("tshawytscha", "kisutch", "malma", "macrostoma", "caurinus", "gorbuscha", "", "", "nerka", "aculeatus", "",""))
+                                                fish_scientific_species = c("tshawytscha", "kisutch", "", "macrostoma", "caurinus", "gorbuscha", "", "", "nerka", "aculeatus", "", ""))
 
 # Remove abbreviations in the name of the lakes by importing the lookup table
 lake_name <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv")
@@ -664,6 +668,9 @@ df_final <- df_final %>%
 # Save error table with the rows with empty names for fish species.
 no_species_record_rows <- df_final[is.na(df_final$fish_description),]
 write.csv(no_species_record_rows, paste0(error_directory, "/no_species_record_rows.csv"), row.names = FALSE)
+
+# Delete rows with no species info from the final matrix
+df_final <- df_final[!is.na(df_final$fish_description), ]
 
 #### Work on the duration_mi column. Remove "Min" in the duration column
 df_final <- df_final %>%

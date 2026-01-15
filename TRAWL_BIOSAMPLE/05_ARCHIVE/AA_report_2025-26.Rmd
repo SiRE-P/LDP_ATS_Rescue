@@ -238,12 +238,22 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
   - Trawl '92 start time: example for date "140792", DAT shows "331", "57", "424", do these mean 03:31, 00:57, 04:24 ?
   - Preservative_code: 35 NA  0 0% ALCOHOL - WGHD AFT 5 WKS
                        35 NA  0 0% OH - WGHD AFT 5 WKS
+  - Trawl #99 
+  - duration_mi max 
+  - depth_m max
   
 -> Needs to be done:
+    - Add "0" in the start_time. Leading 0 problems
+      - Pad funcion: https://stringr.tidyverse.org/reference/str_pad.html
     - Combine start_time and end_time columns
+    - Compare the duration and start_time/end_time and flag the problematic rows
     - collapse all comments columns into one. e.g.: Duration_min: "changed from 1500?, PR 23Mar2000". include "trawl_location"
       - move Ethanol 95% as preservative_comment but keep the comment - report the change in a general comment column
         - check the frequency
         - info from trawl_location column
     - Wrong hours format that are also wrong in the original .sas and .dat files replace them by NA
+    - Check fishes lengths and weights - weird combination likely outlier
+      - data dictionary - 95% range of the data is XX (species specific) - sockeye  
+    - Add a note to the comment column: fish_description: Dolly Varden
+        - Salvelinus malma and S. confluentus - might have unsolved taxonomic issues 
 
