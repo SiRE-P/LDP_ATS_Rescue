@@ -78,7 +78,7 @@ if (!dir.exists("./TRAWL_BIOSAMPLE/05_ARCHIVE")) {dir.create("./TRAWL_BIOSAMPLE/
 # Create variable to hold output directory and the target file
 input_folder <- "./TRAWL_BIOSAMPLE/00_raw_data/01_DAT"
 intermediate_out_folder <- "./TRAWL_BIOSAMPLE/02_intermediate_out"
-trawl_file <- "trawl84"
+trawl_file <- "trawl85"
 
 ################################  Step 2  #####################################
 ################### Read dat and loop over data files #########################
@@ -460,12 +460,12 @@ duplicate_rows_indices <- final_df[duplicated(final_df$fish_unique_ID), ]
 print(duplicate_rows_indices)
 
 all_duplicates <- final_df %>%
-  group_by(fish_unique_ID) %>%
+  group_by(fish_unique_ID, species_code_comment) %>%
   filter(n() > 1) %>%
   ungroup()
 
 # Remove duplicates
-#final_df <- final_df[!duplicated(final_df$fish_unique_ID), ]
+final_df <- final_df[!duplicated(final_df[c("fish_unique_ID", "species_code_comment")]), ]
 
 ### save 
 write.csv(final_df, paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"), row.names = FALSE)

@@ -515,12 +515,34 @@ df_final <- df_final %>%
     time_comment = ifelse(duration_mi == "0203", "0203 error in duration_mi was end_time - corrected", time_comment),
     duration_mi = ifelse(duration_mi == "0203", "16", duration_mi)
   )
-    
-### Combine start_time and end_time columns
-df_try <- df_try %>%
+
+# Summary of start_time with wrong format    
+df_final %>%
   filter(invalid_start_time == "Invalid format") %>%
   group_by(start_time, start_time.sas, start_time.dat) %>%
   summarise(count = n()) -> summary_table_time
+
+# Clean the invalid numbers. Replace them by NA.
+# start_time column substitution patterns
+replacement_pattern <- c("08:65:00" = "",
+                         "14:69:00" = "",
+                         "15:92:00" = "",
+                         "21:89:00" = "")
+df_final <- df_final %>%
+  mutate(start_time = str_replace_all(start_time, replacement_pattern)) 
+
+# start_time.sas column substitution patterns
+replacement_pattern <- c("99:40:13" = "", "100:38:24" = "")
+df_final <- df_final %>%
+  mutate(start_time.sas = str_replace_all(start_time.sas, replacement_pattern)) 
+
+# start_time.dat column substitution patterns
+replacement_pattern <- c("99:99:00" = "", "00:0\\?:00" = "")
+df_final <- df_final %>%
+  mutate(start_time.dat = str_replace_all(start_time.dat, replacement_pattern)) 
+
+### Combine start_time and end_time columns
+
 
 
 ###
