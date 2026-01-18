@@ -542,10 +542,25 @@ df_final <- df_final %>%
   mutate(start_time.dat = str_replace_all(start_time.dat, replacement_pattern)) 
 
 ### Combine start_time and end_time columns
+# First combine start_time.dat and start_time.sas, prioritizing values for the .dat column when both are present
+# Then combine everything in the start_time column and delete unnecessary columns
+df_final$start_time_combined <- coalesce(df_final$start_time.dat, df_final$start_time.sas)
+df_final$start_time_combined <- trimws(df_final$start_time_combined)
+df_final$start_time <- coalesce(df_final$start_time, df_final$start_time_combined)
+df_final <- df_final %>%
+  select(-start_time.dat, -start_time.sas, -start_time_combined) 
 
+# First clean invalid format. Combine end_time.dat and end_time.sas, prioritizing values for the .dat column when both are present
+# Then combine everything in the end_time column and delete unnecessary columns
+replacement_pattern <- c("NA:NA:00" = "")
+df_final <- df_final %>%
+  mutate(end_time = str_replace_all(end_time, replacement_pattern)) 
 
-
-###
+df_final$end_time_combined <- coalesce(df_final$end_time.dat, df_final$end_time.sas)
+df_final$end_time_combined <- trimws(df_final$end_time_combined)
+df_final$end_time <- coalesce(df_final$end_time, df_final$end_time_combined)
+df_final <- df_final %>%
+  select(-end_time.dat, -end_time.sas, -end_time_combined) 
 
 ### Separate columns with fish descriptions and common name
 # Cleaning the columns
@@ -717,11 +732,15 @@ write.csv(duration_mi_errors, paste0(error_directory, "/duration_mi_errors.csv")
 
 # Replace all "99" and "999" by NA across all columns
 df_final <- df_final %>%
-  mutate(across(c(duration_mi, processor, depth_m), ~ str_replace_all(.x, pattern = "999", replacement = ""))) %>%
-  mutate(across(c(duration_mi, processor, depth_m), ~ str_replace_all(.x, pattern = "99", replacement = ""))) %>%
+  mutate(across(c(duration_mi, processor, depth_m, trawl_number), ~ str_replace_all(.x, pattern = "999", replacement = ""))) %>%
+  mutate(across(c(duration_mi, processor, depth_m, trawl_number), ~ str_replace_all(.x, pattern = "99", replacement = ""))) %>%
   mutate(duration_mi = as.integer(duration_mi)) 
 
 # Correct values "365" and "535" in duration_mi
+df_try <- df_final
+unique(df_final$duration_mi)
+
+
 
 # Correct values "98.10938", "14.83203", "188", "200", "12.50000", "17.50000" in the depth_m
 
@@ -750,6 +769,22 @@ df_final <- rows_patch(df_final, preservative_code_lookup_table, by = "preservat
 df_final %>%
   group_by(preservative_code, preservative_description, preservative_code_comment) %>%
   summarise(count = n()) -> summary_table
+
+# To combine in general_comment
+# create a new column for the scale_book columns, scale_book comment
+# trawl_location, comment, time_comment, preservative_code_comment, depth_m_comment, trawl_date_comment, trawl_number_comment,  
+# merging_update_type
+
+# Reorganize columns
+df_final <- df_final %>% 
+  relocate(trawl_date, lake_code, lake_name, lake_latitude, lake_longitude, process_date, processor,
+           start_time, end_time, duration_mi, depth_m, trawl_number, sample_type, species_code, fish_description, 
+           fish_scientific_genus, fish_scientific_species, species_code_comment, fish_length_mm, fish_weight_g, 
+           weight_conversion_formula, standardized_weight_g, fish_total, fish_id, 
+           preservative_code, preservative_description, sample_number, scale, scale_book, scale_book_letter, age, 
+           aging_technique, aging_technique_name, trawl_unique_ID, fish_unique_ID, source_files, source_line, 
+           trawl_month, ats_year, general_comment) %>%
+  select(-.joyn, -program_notes)
 
 # Save document until here
 write.csv(df_final, paste0(working_directory, "/combined_inprogress_df_trawl.csv"), row.names = FALSE)
