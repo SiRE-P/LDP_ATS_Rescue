@@ -159,7 +159,7 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
     - Check how many preservative codes there are in the data (unique()) to correct the "11" in the '98-99 data files
     
 -> Meeting with David Hunt, Athena Ogden, Howard Stiff (Wed 17th)
-    - Midnight should be 00 or 24
+    - Midnight should be 00
     - Return to the .dat file script because there is an issue when converting the format of the time
     - Have one script calling other scripts
     - Create a 03_errors folder on GitHub and upload .csv files with the flagged errors
@@ -236,7 +236,8 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
     - Add "0" in the start_time. Leading 0 problems
       - Pad funcion: https://stringr.tidyverse.org/reference/str_pad.html
     - Combine start_time and end_time columns
-    
+    - Wrong hours format that are also wrong in the original .sas and .dat files replace them by NA
+
 -> Issues:
   - Trawl '92 start time: example for date "140792", DAT shows "331", "57", "424", do these mean 03:31, 00:57, 04:24 ?
       - corrected adding leading 0 in the dat file conversion
@@ -252,12 +253,38 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
       - move Ethanol 95% as preservative_comment but keep the comment - report the change in a general comment column
         - check the frequency
         - info from trawl_location column
-    - Wrong hours format that are also wrong in the original .sas and .dat files replace them by NA
     - Check fishes lengths and weights - weird combination likely outlier
       - data dictionary - 95% range of the data is XX (species specific) - sockeye  
     - Add a note to the comment column: fish_description: Dolly Varden
         - Salvelinus malma and S. confluentus - might have unsolved taxonomic issues 
 
 ## Weeks 12 (January 19-25th, 2026)
+-> Done:
+    - collapse all comments columns into one. e.g.: Duration_min: "changed from 1500?, PR 23Mar2000". include "trawl_location"
+    - Removed values greater than 20 from the scale_book column as they were sequences of value equal to the fishID count.
+    - Cleaned duration_mi and depth_m columns
+    - Compare the duration and start_time/end_time and flag the problematic rows
+    - Add a note to the comment column: fish_description: Dolly Varden
+        - Salvelinus malma and S. confluentus - might have unsolved taxonomic issues 
 
+-> Issues:
+  - What are the max values:
+    - depth_m max - I believe "188" and "200" are actually "18" and "20" meters.
+  - Fish ID = 1986-09-01_6_2_12_1_1_58_48
+    - fish_length_mm: 48, fish_weight_g = 58, scale_book = 1.86
+    - This is the info present in the trawl86.dat file. 
+    - 1.86 is probably the weigth, but what is the length?
+    - fish lengths range from ~38-63, but the ones larger than 49 mm, weight 1g or more. So probably 58mm?
+    - Most fish in the same record is from scale_book '0'
+  - KOKANEE - fish_unique_id 1996-07-24_2_6_14_32_1_47.98_160
+    - Oncorhynchus nerka (?) - same as Sockeye?
+    - code 32 nonexistent - code 25 is Kokanee, should I replace?
 
+-> Needs to be done:
+    - Replace end_time by start_time + duration_min and flag the problematic rows
+      - Fix erroneous dutation_mi
+    - move Ethanol 95% as preservative_comment but keep the comment - report the change in a general comment column
+        - check the frequency
+        - info from trawl_location column
+    - Check fishes lengths and weights - weird combination likely outlier
+      - data dictionary - 95% range of the data is XX (species specific) - sockeye  
