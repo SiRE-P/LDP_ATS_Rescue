@@ -774,13 +774,16 @@ df_final <- df_final %>%
       !is.na(duration_mi) & !is.na(duration_from_times) &
         abs(duration_mi - duration_from_times) >= 1 ~ "unchanged (does NOT match start_time and end_time)",
       # duration calculated from times
-      is.na(duration_mi) & !is.na(duration_from_times) ~ "calculated from start_time, end_time",
+      is.na(duration_mi) & !is.na(duration_from_times) ~ "duration not provided, calculated from start_time, end_time",
       # nothing possible
       TRUE ~ "duration could not be calculated"))
 
 df_final %>%
   group_by(start_time, end_time, duration_mi, duration_from_times, duration_comment) %>%
   summarise(count = n()) -> summary_table
+
+hist(df_final$duration_mi)
+hist(df_final$duration_from_times)
 
 # Check number of problematic rows
 sum(df_final$duration_comment == "unchanged (does NOT match start_time and end_time)", na.rm = TRUE)
@@ -938,6 +941,11 @@ write.csv(df_final, paste0(working_directory, "/combined_inprogress_df_trawl.csv
 
 #paste(df_final$fish_description, df_final$species_code_comment, sep = " / ") 
 df_final %>%
+  group_by(species_code, fish_description, species_code_comment) %>%
+  summarise(count = n()) -> summary_table
+
+#paste(df_final$fish_description, df_final$species_code_comment, sep = " / ") 
+df_final %>%
   group_by(fish_description, species_code_comment) %>%
   summarise(count = n()) -> summary_table
 
@@ -962,7 +970,7 @@ df_joined[df_joined$fish_unique_ID == "1989-05-14_62_7_6_7_2_0.21_28", ] # start
 unique(df_final$merging_update_type)
 table(df_final$merging_update_type)
 df_final <- as.data.frame(df_final)
-df_final[df_final$fish_unique_ID == "1984-06-26_40_6_6_2_1_2.52_63", ]
+df_final[df_final$fish_unique_ID == "1996-07-24_2_6_14_32_1_47.98_160", ]
 df_final[df_final$fish_unique_ID == "1984-05-01_40_1_2_2_6_0.22_32", ]
 df_final[df_final$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ]
 
@@ -982,5 +990,6 @@ df_final <- as.data.frame(df_final)
 
 df_final[df_final$fish_unique_ID == "1986-04-16_161_4_15_1_4_3.73_68", ]
 df_final[df_final$fish_unique_ID == "1995-10-03_16_14_22_6_1_1.94_56", ]
+
 
 

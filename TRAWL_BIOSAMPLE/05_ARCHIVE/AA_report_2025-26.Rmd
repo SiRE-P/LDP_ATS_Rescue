@@ -271,13 +271,13 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
   - What are the max values:
     - depth_m max - I believe "188" and "200" are actually "18" and "20" meters.
   - Fish ID = 1986-09-01_6_2_12_1_1_58_48
-    - fish_length_mm: 48, fish_weight_g = 58, scale_book = 1.86
+    - fish_length_mm: 48, fish_weight_g = 58, scale_book = 1.86 -> 58 mm and 1.86 g - add a comment about the change
     - This is the info present in the trawl86.dat file. 
-    - 1.86 is probably the weigth, but what is the length?
+    - 1.86 is probably the weight, but what is the length?
     - fish lengths range from ~38-63, but the ones larger than 49 mm, weight 1g or more. So probably 58mm?
     - Most fish in the same record is from scale_book '0'
   - KOKANEE - fish_unique_id 1996-07-24_2_6_14_32_1_47.98_160
-    - Oncorhynchus nerka (?) - same as Sockeye?
+    - Oncorhynchus nerka (?) - same as Sockeye? - different ecotype - Sockeye are anadromous (both marine and freshwater), Kokanee freshwater
     - code 32 nonexistent - code 25 is Kokanee, should I replace?
 
 -> Needs to be done:
@@ -288,3 +288,23 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
         - info from trawl_location column
     - Check fishes lengths and weights - weird combination likely outlier
       - data dictionary - 95% range of the data is XX (species specific) - sockeye  
+
+-> Meeting:      
+      - duration_mi column
+      -comment e.g. start_time end do not match duration_final, unkown explanation
+        - start_time end do not match duration_final, start_time likely an error, probably at night
+        - add comment on NA replaced by duration calculated from start_t and end_t
+      - ggplot commands
+        - duration across lakes 
+      - depth_m max - I believe "188" and "200" are actually "18" and "20" meters. - change and add a comment likely typo
+            - Plot the depth_m across lakes
+      - Keep calculated time column, but include the info in the data_dictionary and explain it very clearly
+      - Re-calculation of std_weight - 'calc' - calculated from the data.
+      - "scale_book > 20, possible error", but do not deleted them (?) - 
+        - where the physical fish scale is - add to the data_dictionary file.
+        - Include a picture in the metadata
+      - Create a .csv lookup table (chk Horward's email) to standardize species_code
+        - 32 - unknown life stage Kokanee
+
+## Weeks 13 (January 26th, 2026)
+
