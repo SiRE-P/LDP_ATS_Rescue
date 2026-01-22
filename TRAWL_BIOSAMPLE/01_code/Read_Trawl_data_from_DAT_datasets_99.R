@@ -226,6 +226,9 @@ final_df <- final_df %>%
     trawl_date  = format(trawl_date, "%Y-%m-%d")
   )
 
+## Add leading '0' that were removed by the software used to write the .dat files
+final_df$start_end_time <- str_pad(final_df$start_end_time, 4, "left", pad = "0")
+
 ## Convert the hour "HHMM" into "HH:MM:SS" as in the SAS files
 final_df$start_end_time <- sprintf("%s:%s:00", substr(final_df$start_end_time, 1, 2), substr(final_df$start_end_time, 3, 4))
 
@@ -426,22 +429,14 @@ final_df <- final_df %>%
            scale, scale_book, age, aging_technique, aging_technique_name, source_file, source_line)
 
 ### Checking for duplicates
-# Columns to exclude from duplicate check
-cols_to_exclude <- c("trawl_unique_ID", "fish_unique_ID")
-
-# Get column names to include in the check
-cols_to_include <- setdiff(names(final_df), cols_to_exclude)
-
 # Check for duplicates based on selected columns
-duplicate_rows_indices <- duplicated(final_df[, cols_to_include])
+duplicate_rows_indices <- final_df[duplicated(final_df$fish_unique_ID), ]
 
 # View the duplicate rows
-unique(duplicate_rows_indices)
-final_df[duplicate_rows_indices, ]
+print(duplicate_rows_indices)
 
 # Remove duplicates
-final_df <- final_df %>% 
-  distinct(select(., -c(trawl_unique_ID, fish_unique_ID)), .keep_all = TRUE)
+final_df <- final_df[!duplicated(final_df$fish_unique_ID), ]
 
 ### for trawl year '99 only. Correcting Y2K bug:
 final_df$process_date <- as.Date(final_df$process_date) + 
