@@ -1,0 +1,11 @@
+﻿preservative_code,weight_conversion_formula,calc_value
+0,std weight = weight,1
+1,std weight = weight/1.115100,1.1151
+2,std weight = weight/0.868429,0.868429
+3,std weight = weight/0.832408,0.832408
+4,std weight = weight /1.075312,1.075312
+95,std weight = . /* No standard (010884) */,
+96,std weight = weight /1.116898,1.116898
+97,std weight = weight /1.075312,1.075312
+98,std weight = . /* No standard (010884) */,
+99,std weight = weight /1.115100,1.1151

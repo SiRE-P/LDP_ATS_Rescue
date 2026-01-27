@@ -1,0 +1,36 @@
+species_info_code,species_common_name,life_stage,age_class,species_code,genus_name,species_name
+1,Sockeye,Fry,,1,Oncorhynchus,nerka
+7,Sockeye,Fry,,1,Oncorhynchus,nerka
+8,Sockeye,Adult,,1,Oncorhynchus,nerka
+16,Sockeye,Fry,1,1,Oncorhynchus,nerka
+17,Sockeye,Fry,2,1,Oncorhynchus,nerka
+2,Stickleback,,,2,Gasterosteus,aculeatus
+26,Stickleback,Fry,,2,Gasterosteus,aculeatus
+27,Stickleback,Subadult,,2,Gasterosteus,aculeatus
+13,Coho,Fry,,3,Oncorhynchus,kisutch
+4,Coho,Adult,,3,Oncorhynchus,kisutch
+14,Coho,Smolt,,3,Oncorhynchus,kisutch
+11,Chinook,,,4,Oncorhynchus,tshawytscha
+19,Chum,Fry,,5,Oncorhynchus,keta
+24,Chum,Adult,,5,Oncorhynchus,keta
+22,Pink,,,6,Oncorhynchus,gorbuscha
+10,Steelhead,Adult,,7,Oncorhynchus,mykiss
+15,Steelhead,Juvenile,,7,Oncorhynchus,mykiss
+18,Cutthroat,,,8,Oncorhynchus,clarkii
+21,Rainbow,Adult,,9,Oncorhynchus,mykiss
+23,Rainbow,Juvenile,,9,Oncorhynchus,mykiss
+25,Kokanee,Adult,,10,Oncorhynchus,nerka
+32,Kokanee,,,10,Oncorhynchus,nerka
+6,Dolly Varden,,,11,Salvelinus,
+5,Sculpin,,,12,Cottus,
+3,Peamouth Chub,,,13,Mylocheilus,caurinus
+29,Whitefish,,,14,Coregonus,
+31,Northern Pikeminnow,,,15,Ptychocheilus,oregonensis
+30,Red-sided Shiner,,,16,Richardsonius,
+9,Lamprey,,,17,Lampreta,
+36,Lamprey,,,17,Lampreta,
+28,Sucker,,,18,Catostomus,
+20,Crayfish,,,19,,
+12,Non-Sockeye,,,99,Unknown,
+-1,Unknown,,,,,
+99,Unknown,,,,,
