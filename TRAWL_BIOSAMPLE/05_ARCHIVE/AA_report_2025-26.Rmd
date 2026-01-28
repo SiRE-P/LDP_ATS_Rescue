@@ -4,12 +4,6 @@ author: "Alice Assmar"
 date: "2025-11-17"
 output: pdf_document
 ---
-
-# Introduction
-
-
-
-
 # Timeline
 
 ## Week 1 (November 3-9th, 2025)
@@ -19,9 +13,9 @@ Meeting with David Hunt (Wed 5th)
 
 -> If possible, use SAS files instead of looping the lines of the .dat files
 
--> I started working with the .dat files because there were missing informations in the SAS data files. Howard sent the SAS metadata on Fri, 7th, then I started working on them.
+-> I started working with the .dat files because there were missing information in the SAS data files. Howard sent the SAS metadata on Fri, 7th, then I started working on them.
 
--> Ask Howard -> Should SAS files and .dat have the same info? HS - Yes, they should, but they haven't.
+-> Ask Howard -> Should SAS files and .dat have the same info? HS - Yes, they should, but they do not have.
 
 -> David mentioned there probably are floating point error in some of the columns
 
@@ -30,19 +24,19 @@ Meeting with David Hunt (Wed 5th)
     - fish unique ID - date, lake_code, trawl_number, fish_id
     
 ## Week 2 (November 10-16th, 2025)
--> Columns trawl_location, sample_type and sample_number are not present in the SAS files
-    - Howard said sample_type and sample_number are probably same for all rows
-    - Athena expressed concerns about the trawl_location, and I will try to maintain the info in the final matrix
+-> Columns trawl_location, sample_type and sample_number are not present in the SAS files.  
+    - Howard said sample_type and sample_number are probably same for all rows.  
+    - Athena expressed concerns about the trawl_location, and I will try to maintain the info in the final matrix.  
 
--> We will remove the processor/observer names because of privacy purpose - add the justification to the data_dictionary
+-> We will remove the processor/observer names because of privacy purpose - add the justification to the data_dictionary   
 
--> NA should be left as is
+-> NA should be left as is.  
 
--> Round numbers to two decimals after point suring quality check period.
+-> Round numbers to two decimals after point during quality check period.  
 
--> There are more rows in the SAS data file than in the .dat file. for year '84
+-> There are more rows in the SAS data file than in the .dat file. for year '84.  
 
--> "comment" column appears to be empty, if that is the case for all years, it should be removed
+-> "comment" column appears to be empty, if that is the case for all years, it should be removed.  
 
 -> Create a summary table - compare SAS and .dat files - survey by day (e.g. lake 3, date - compare info)
     - recommended match and merge
@@ -55,17 +49,17 @@ Meeting with David Hunt (Wed 5th)
 Meeting with David Hunt, Athena Ogden, Howard Stiff (Wed 12th)
 
 ## Week 3 (November 17-23th, 2025)
--> SAS files   "trawl85.sas7bdat", 
-               "trawl86.sas7bdat",
-               "trawl87.sas7bdat",
-               "trawl94.sas7bdat",
-               "trawl97.sas7bdat",
-               "trawl98.sas7bdat"
+-> SAS files   "trawl85.sas7bdat",  
+               "trawl86.sas7bdat",  
+               "trawl87.sas7bdat",  
+               "trawl94.sas7bdat",  
+               "trawl97.sas7bdat",  
+               "trawl98.sas7bdat".  
 Contain wrongly formatted information in the metadata. It jeopardized the table merging.
 
--> Yulia's script worked well for .dat files from '84-'86. However, I had to adapt the script to the other years because the loop was assigning values to the wrong columns. For the year '88, I modified the "start_end_time" cleaning script, and for the '87 and '90-'99, I let the empty lines to county as missing data and modified the loop to account for it.
+-> Yulia's script worked well for .dat files from '84-'85. However, I had to adapt the script to the other years because the loop was assigning values to the wrong columns. For the year '88, I modified the "start_end_time" cleaning script, and for the '87 and '90-'99, I kept the empty lines as missing data and modified the loop to account for it.
 
--> Create a summary scrip to compare SAS and DAT files
+-> Create a summary script to compare SAS and DAT files
     - some of the .dat have still issues with the loop - '89
 
 Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
@@ -113,7 +107,7 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
 
 -> Meeting with David Hunt, Athena Ogden, Howard Stiff (Wed 26th)
     - Use fish unique ID to combine datasets - use "update_values" command of full_join - joyn package
-    - Formalin info should be different depending on the concetration. Add info to different columns
+    - Formalin info should be different depending on the concentration. Add info to different columns
     - Check how many preservative codes there are in the data (unique()) to correct the "11" in the '98-99 data files
     - y2k bug - convert '99 to 2000 in the processing date of '99 file and flag it in the metadata and in the data frame.
     - Add to the metadata that there were data loss in .dat '84, not only in '83 and before.
@@ -258,7 +252,7 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
     - Add a note to the comment column: fish_description: Dolly Varden
         - Salvelinus malma and S. confluentus - might have unsolved taxonomic issues 
 
-## Weeks 12 (January 19-25th, 2026)
+## Week 12 (January 19-25th, 2026)
 -> Done:
     - collapse all comments columns into one. e.g.: Duration_min: "changed from 1500?, PR 23Mar2000". include "trawl_location"
     - Removed values greater than 20 from the scale_book column as they were sequences of value equal to the fishID count.
@@ -282,7 +276,7 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
 
 -> Needs to be done:
     - Replace end_time by start_time + duration_min and flag the problematic rows
-      - Fix erroneous dutation_mi
+      - Fix erroneous duration_mi
     - move Ethanol 95% as preservative_comment but keep the comment - report the change in a general comment column
         - check the frequency
         - info from trawl_location column
@@ -290,21 +284,38 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
       - data dictionary - 95% range of the data is XX (species specific) - sockeye  
 
 -> Meeting:      
-      - duration_mi column
-      -comment e.g. start_time end do not match duration_final, unkown explanation
+    - duration_mi column
+    - comment e.g. start_time end_time calc do not match duration_final, unknown explanation
         - start_time end do not match duration_final, start_time likely an error, probably at night
         - add comment on NA replaced by duration calculated from start_t and end_t
-      - ggplot commands
-        - duration across lakes 
-      - depth_m max - I believe "188" and "200" are actually "18" and "20" meters. - change and add a comment likely typo
-            - Plot the depth_m across lakes
-      - Keep calculated time column, but include the info in the data_dictionary and explain it very clearly
-      - Re-calculation of std_weight - 'calc' - calculated from the data.
-      - "scale_book > 20, possible error", but do not deleted them (?) - 
+    - ggplot commands
+        - duration across lakes
+        - Plot the depth_m across lakes
+    - depth_m max - I believe "188" and "200" are actually "18" and "20" meters. - change and add a comment likely typo
+    - Keep calculated time column, but include the info in the data_dictionary and explain it very clearly
+    - Re-calculation of std_weight - 'calc' - calculated from the data.
+    - "scale_book > 20, likely error", but do not deleted them 
         - where the physical fish scale is - add to the data_dictionary file.
         - Include a picture in the metadata
-      - Create a .csv lookup table (chk Horward's email) to standardize species_code
+    - Create a .csv lookup table (chk Horward's email) to standardize species_code
         - 32 - unknown life stage Kokanee
 
-## Weeks 13 (January 26th, 2026)
+-> done:
+  - depth_m max - I believe "188" and "200" are actually "18" and "20" meters. - change and add a comment likely typo
+  - Keep calculated time column, but include the info in the data_dictionary and explain it very clearly
+  - Create a .csv lookup table (chk Horward's email) to standardize species_code
+  - calculated end_time based on start_time and duration_mi
+  - Fish ID = 1986-09-01_6_2_12_1_1_58_48
+      - fish_length_mm: 48, fish_weight_g = 58, scale_book = 1.86 -> 58 mm and 1.86 g - add a comment about the change
+
+## Week 13 (January 26th-February 01st, 2026)
+-> Done:
+  - move Ethanol 95% as preservative_comment but keep the comment - report the change in a general comment column
+        - check the frequency - 351 rows with "95% Ethanol" - preservative_code = 99 Unknown.
+        - Preservative_description replaced by info from trawl_location column
+  - Re-calculation of std_weight - 'calc' - calculated from the data.
+
+-> Metadata:
+  - Check fishes lengths and weights - weird combination likely outlier
+    - data dictionary - 95% range of the data is XX (species specific) - sockeye
 
