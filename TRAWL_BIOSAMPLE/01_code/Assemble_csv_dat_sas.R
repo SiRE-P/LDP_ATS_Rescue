@@ -332,7 +332,6 @@ rm(list = vectors_to_remove)
 write.csv(df_joined, paste0(working_directory, "/combined_raw_df_trawl.csv"), row.names = FALSE)
 
 # Check the table 
-table(df_joined$fish_unique_ID)
 df_joined_dup <- df_joined[duplicated(df_joined$fish_unique_ID), ]
 summary(df_joined)
 
@@ -346,7 +345,6 @@ df_sas_total_fish_error <- df_joined %>%
   ungroup()
 
 # Save the errors in the fish_total
-
 write.csv(df_sas_total_fish_error, paste0(error_directory, "/sas_total_fish_errors.csv"), row.names = FALSE)
 
 # Correct the total number of fish when they differ between source-SAS and source-DAT files
@@ -470,7 +468,6 @@ all_duplicates <- df_final %>%
 write.csv(all_duplicates, paste0(error_directory, "/duplicated_df_trawl.csv"), row.names = FALSE)
 
 ### Combine start_time.sas and .dat into a new 'start_time' column
-
 # First standardize midnight times: instead of 24, represent it as 00
 # Remove decimals from .sas time columns
 df_final <- df_final %>%
@@ -489,7 +486,6 @@ is_valid_sas <- ifelse(is.na(df_final$start_time.sas), NA, grepl(time_pattern, d
 is_valid <- ifelse(is.na(df_final$start_time), NA, grepl(time_pattern, df_final$start_time))
 
 # Add a new column to the data frame to flag invalid entries
-#df_final$invalid_start_time <- ifelse(is_valid_sas & is_valid_dat, "Valid", "Invalid format")
 df_final <- df_final %>%
   mutate(invalid_start_time = case_when(is_valid_sas == "TRUE" ~ "Valid",
                                         is_valid_dat == "TRUE" ~ "Valid",
@@ -890,7 +886,7 @@ df_final <- df_final %>%
                                   TRUE ~ NA_character_)) %>%
   mutate(depth_m = case_when(depth_m == 188 ~ 18,
                              depth_m == 200 ~ 20,
-                             TRUE ~ NA_real_)) %>%
+                             TRUE ~ depth_m)) %>%
   unite("depth_m_comments", depth_m_flag, depth_m_comment, sep = ", ", na.rm = TRUE)
 
 ### Clean scale, scale_book and scale_book_letter columns
@@ -964,7 +960,7 @@ df_final <- df_final %>%
                                    TRUE ~ fish_weight_g))
 
 # Detect preservation comments in the trawl location column
-ethanol_trawl_location<- grepl("ethanol", df_final$trawl_location, ignore.case = TRUE)
+ethanol_trawl_location <- grepl("ethanol", df_final$trawl_location, ignore.case = TRUE)
 sum(ethanol_trawl_location == "TRUE", na.rm = TRUE)
 
 df_final %>%
@@ -984,7 +980,7 @@ df_final <- df_final %>%
 # Save document until here
 write.csv(df_final, paste0(working_directory, "/combined_inprogress_df_trawl.csv"), row.names = FALSE)
 
-# Combine all comments in a general_comments column, skiping the column when it is NA
+# Combine all comments in a general_comments column, skip the row when it is NA
 df_final <- df_final %>%
 rowwise() %>%
   mutate(general_comments = paste(
@@ -1024,62 +1020,5 @@ df_final <- df_final %>%
 
 # Save document until here
 write.csv(df_final, paste0(final_directory, "/Trawl_data_FINAL_1977-1999.csv"), row.names = FALSE)
-
-######## in progress #############
-
-#paste(df_final$fish_description, df_final$species_code_comment, sep = " / ") 
-df_final %>%
-  group_by(species_code, fish_description, species_code_comment) %>%
-  summarise(count = n()) -> summary_table
-
-#paste(df_final$fish_description, df_final$species_code_comment, sep = " / ") 
-df_final %>%
-  group_by(fish_description, species_code_comment) %>%
-  summarise(count = n()) -> summary_table
-
-unique(df_final$duration_mi)
-
-unique(final_df_try$duration_mi)
-df_final <- as.data.frame(df_final)
-df_final[df_final$duration_mi == "535.94091796875", ]
-
-### Example of conflicting rows to test
-# Before concatenation of rows
-df_joined[df_joined$fish_unique_ID == "1984-06-26_40_6_6_2_1_2.52_63", ]# seems duplicates, but it isn't
-df_joined[df_joined$fish_unique_ID == "1984-06-26_40_6_6_2_3_2.09_59", ]
-df_joined[df_joined$fish_unique_ID == "1984-05-01_40_1_2_2_6_0.22_32", ] # duplicates
-df_joined[df_joined$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ] # duplicates
-df_joined[df_joined$fish_unique_ID == "1989-06-01_41_3_0_2_1_1.72_59", ] # 
-df_joined[df_joined$fish_unique_ID == "1984-10-02_2_4_15_1_3_2.6_65", ] # start time problems
-df_joined[df_joined$fish_unique_ID == "1989-07-29_107_4_9_7_15_0.38_33", ] # start time problems
-df_joined[df_joined$fish_unique_ID == "1989-05-14_62_7_6_7_2_0.21_28", ] # start time problems
-
-# After concatenation
-unique(df_final$merging_update_type)
-table(df_final$merging_update_type)
-df_final <- as.data.frame(df_final)
-df_final[df_final$fish_unique_ID == "1996-07-24_2_6_14_32_1_47.98_160", ]
-df_final[df_final$fish_unique_ID == "1984-05-01_40_1_2_2_6_0.22_32", ]
-df_final[df_final$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ]
-
-
-
-unique(sas_total_fish_error$fish_description)
-
-df_sas_total_fish_error <- as.data.frame(df_sas_total_fish_error)
-df_sas_total_fish_error[df_sas_total_fish_error$fish_unique_ID == "1984-05-29_40_1_0_2_1_1.4_54", ]
-df_joined[df_joined$fish_unique_ID == "1984-05-29_40_1_0_2_1_1.4_54", ]
-
-sas_total_fish_error[sas_total_fish_error$fish_unique_ID == "1995-10-03_16_14_22_6_1_1.94_56", ]
-non_unique_data[non_unique_data$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ]
-sas_total_fish_error[sas_total_fish_error$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ]
-
-df_final <- as.data.frame(df_final)
-
-df_final[df_final$fish_unique_ID == "1986-09-01_6_2_12_1_1_58_48", ]
-df_joined[df_joined$fish_unique_ID == "1984-06-13_40_4_9_1_11_0.61_39", ]
-class(df_final$fish_weight_g)
-df_final[df_final$fish_unique_ID == "1995-10-03_16_14_22_6_1_1.94_56", ]
-
 
 
