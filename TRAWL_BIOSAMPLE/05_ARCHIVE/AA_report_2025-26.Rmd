@@ -318,4 +318,13 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
 -> Metadata:
   - Check fishes lengths and weights - weird combination likely outlier
     - data dictionary - 95% range of the data is XX (species specific) - sockeye
+    
+-> Meeting
+  - Add a preservative code #5 for 95% Ethanol - describe this change in the data dictionary
+  - Change the name of "trawl_location" comment to "trawl_comment" - originally named "xx", including general trawl location, but there is additional info
+  - Gear_code - new field. grep "SEIN"  and copy to a new column. beach seine <- accurate, 
+  - end_time - flag if there were errors in the end_time
+  - Howard will send a list of the order of the column for the final matrix
+  - Depth_m facet_wrap by lake
+  - separate issues/flags from the general comments
 
