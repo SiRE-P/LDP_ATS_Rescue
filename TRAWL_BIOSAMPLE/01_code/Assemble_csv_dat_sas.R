@@ -393,7 +393,7 @@ resolve_column <- function(values, source) {
 }
 
 ## Collapse the data and create a column to flag the changes
-df_final <- df_joined %>%
+df_final_no_dup <- df_joined %>%
   group_by(fish_unique_ID, fish_total) %>%
   summarise(
     # Keep source column explicitly
@@ -435,7 +435,7 @@ df_final <- df_joined %>%
   )
 
 ### Combine source_file, source_file.sas and source_file.dat into a new 'source_files' column
-df_final <- df_final %>%
+df_final <- df_final_no_dup %>%
   unite(col = "source_files", source_file, source_file.sas, source_file.dat, sep = ", ") %>%
   select(-source_file.dat2)
 
@@ -448,7 +448,7 @@ df_final$source_files <- str_replace_all(df_final$source_files, replacement_patt
 
 # Reorganize columns
 df_final <- df_final %>% 
-  relocate(trawl_date, trawl_location, lake_code, lake_name, process_date, processor,
+  relocate(trawl_date, "trawl_comment" = trawl_location, lake_code, lake_name, process_date, processor,
            start_time, end_time, start_time.sas, end_time.sas, start_time.dat, end_time.dat, duration_mi, depth_m,  
            trawl_number, sample_type, species_code, fish_description, species_code_comment, fish_length_mm, fish_weight_g, 
            weight_conversion_formula, standardized_weight_g, fish_total, fish_id, 
@@ -490,14 +490,36 @@ df_final <- df_final %>%
   mutate(invalid_start_time = case_when(is_valid_sas == "TRUE" ~ "Valid",
                                         is_valid_dat == "TRUE" ~ "Valid",
                                         is_valid == "TRUE" ~ "Valid",
+                                        is.na(is_valid_sas) & is.na(is_valid_dat) & is.na(is_valid) ~ NA_character_,
                                         TRUE ~ "Invalid format"))
 
 # Check number of problematic rows
 sum(df_final$invalid_start_time == "Invalid format", na.rm = TRUE)
 
 # Save errors in start and end time in separate document
-start_time_errors <- df_final[df_final$invalid_start_time == "Invalid format", na.rm = TRUE]
+start_time_errors <- df_final[!is.na(df_final$invalid_start_time) & df_final$invalid_start_time == "Invalid format",]
 write.csv(start_time_errors, paste0(error_directory, "/start_time_errors.csv"), row.names = FALSE)
+
+## Flagging errors in the end time
+# Use grepl() to create a logical vector indicating valid formats
+is_valid_end_time_dat <- ifelse(is.na(df_final$end_time.dat), NA, grepl(time_pattern, df_final$end_time.dat))
+is_valid_end_time_sas <- ifelse(is.na(df_final$end_time.sas), NA, grepl(time_pattern, df_final$end_time.sas))
+is_valid_end_time <- ifelse(is.na(df_final$end_time), NA, grepl(time_pattern, df_final$end_time))
+
+# Add a new column to the data frame to flag invalid entries
+df_final <- df_final %>%
+  mutate(invalid_end_time = case_when(is_valid_end_time_sas == "TRUE" ~ "Valid",
+                                      is_valid_end_time_dat == "TRUE" ~ "Valid",
+                                      is_valid_end_time == "TRUE" ~ "Valid",
+                                      is.na(is_valid_end_time_sas) & is.na(is_valid_end_time_dat) & is.na(is_valid_end_time) ~ NA_character_,
+                                        TRUE ~ "Invalid format"))
+
+# Check number of problematic rows
+sum(df_final$invalid_end_time == "Invalid format", na.rm = TRUE)
+
+# Save errors in start and end time in separate document
+end_time_errors <- df_final[!is.na(df_final$invalid_end_time) & df_final$invalid_end_time == "Invalid format",]
+write.csv(end_time_errors, paste0(error_directory, "/end_time_errors.csv"), row.names = FALSE)
 
 # Manually fix some of the errors identified
 #  everything with 0203 - fish_unique_ID == 1997-09-17_69_9_15_7_1_1.35_49
@@ -556,7 +578,7 @@ df_final <- df_final %>%
 
 ### Separate columns with fish descriptions and common name
 # Cleaning the columns
-df_final <- df_final %>%
+df_final_clean_time <- df_final %>%
   # Fish description column removing comments and placing into separate column 
   mutate(
     ### extract the description at the end
@@ -596,7 +618,7 @@ replacement_pattern <- c("\\(COHO FRY\\), \\(Fry\\)" = "Fry",
                          "WHITEFISH \\(COREGONUS SP.\\), \\(Coregonus\\)" = "",
                          "REDSIDED SHINER\\(RICHARDSONIUS SP.\\)" = "")
 
-df_final <- df_final %>%
+df_final_clean_time <- df_final_clean_time %>%
   mutate(species_code_comment = str_replace_all(species_code_comment, replacement_pattern))
 
 replacement_pattern <- c("SOCKEYE \\(1\\+\\), \\(1\\+\\)" = "1+",
@@ -619,7 +641,7 @@ replacement_pattern <- c("SOCKEYE \\(1\\+\\), \\(1\\+\\)" = "1+",
                          "STICKLEBACK SUBADULTS, \\(Sub-adult\\)" = "Subadult",
                          "STICKLEBACK SUBADULTSS, \\(Sub-adult\\)" = "Subadult")
 
-df_final <- df_final %>%
+df_final_clean_time <- df_final_clean_time %>%
   mutate(species_code_comment = str_replace_all(species_code_comment, replacement_pattern))
 
 replacement_pattern <- c("GRAVID FEMALES" = "Gravid female",
@@ -638,7 +660,7 @@ replacement_pattern <- c("GRAVID FEMALES" = "Gravid female",
                          "SOCKEYE, Fry" = "Fry",
                          "STICKLEBACK, \\(Sub-adult\\)" = "Subadult")
 
-df_final <- df_final %>%
+df_final_clean_time <- df_final_clean_time %>%
   mutate(species_code_comment = str_replace_all(species_code_comment, replacement_pattern))
 
 replacement_pattern <- c(", \\(Adult\\)" = "Adult",
@@ -652,7 +674,7 @@ replacement_pattern <- c(", \\(Adult\\)" = "Adult",
                          "STICKLE ADULT" = "Adult",
                          "SUB ADULTS" = "Subadult")
 
-df_final <- df_final %>%
+df_final_clean_time <- df_final_clean_time %>%
   mutate(species_code_comment = str_replace_all(species_code_comment, replacement_pattern))
 
 replacement_pattern <- c("\\(STICKLES\\)" = "",
@@ -674,7 +696,7 @@ replacement_pattern <- c("\\(STICKLES\\)" = "",
                          "SCULPIN" = "",
                          "BACK" = "")
 
-df_final <- df_final %>%
+df_final_clean_time <- df_final_clean_time %>%
   mutate(species_code_comment = str_replace_all(species_code_comment, replacement_pattern))
 
 ### Create Look up table to correct lakes and fish names
@@ -682,13 +704,13 @@ df_final <- df_final %>%
 fish_scientific_name_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/03_AA_look_up_tables/AA_fish_scientific_name_lookup.csv")
 
 # Add a comment for Dolly Varden - taxonomic issues 
-df_final$comment <- ifelse(df_final$fish_description == "Dolly Varden", "Salvelinus malma and S. confluentus - might have unsolved taxonomic issues", df_final$comment)
+df_final_clean_time$comment <- ifelse(df_final_clean_time$fish_description == "Dolly Varden", "Salvelinus malma and S. confluentus - might have unsolved taxonomic issues", df_final$comment)
 
 # Remove abbreviations in the name of the lakes by importing the lookup table
 lake_name <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv")
 
 # Join the tables
-df_final <- df_final %>%
+df_final_clean_time <- df_final_clean_time %>%
   rename("species_info_code" = species_code) %>%
   dplyr::left_join(fish_scientific_name_lookup_table, by = "species_info_code") %>%
   select(-lake_name) %>%
@@ -697,19 +719,19 @@ df_final <- df_final %>%
   mutate(species_code_comment = ifelse(species_code_comment == "Juvenile", life_stage, species_code_comment)) %>%
   select(-species_common_name, -age_class, -life_stage)
   
-df_final %>%
+df_final_clean_time %>%
   group_by(fish_description, species_code_comment, age, genus_name, species_name) %>%
   summarise(count = n()) -> summary_table
 
 # Save error table with the rows with empty names for fish species.
-no_species_record_rows <- df_final[is.na(df_final$fish_description),]
+no_species_record_rows <- df_final_clean_time[is.na(df_final_clean_time$fish_description),]
 write.csv(no_species_record_rows, paste0(error_directory, "/no_species_record_rows.csv"), row.names = FALSE)
 
 # Delete rows with no species info from the final matrix
-df_final <- df_final[!is.na(df_final$fish_description), ]
+df_final_clean_species <- df_final_clean_time[!is.na(df_final_clean_time$fish_description), ]
 
 #### Work on the duration_mi column. Remove "Min" from the column
-df_final <- df_final %>%
+df_final_clean_species <- df_final_clean_species %>%
   mutate(
     ### extract the digits at the start
     duration_mi_clean = str_extract(duration_mi, "^\\d+"),
@@ -719,44 +741,44 @@ df_final <- df_final %>%
   select(-duration_mi_clean)
 
 # Flag problematic rows on duration_mi
-df_final <- df_final %>%
+df_final_clean_species <- df_final_clean_species %>%
   mutate(invalid_duration_time = case_when(duration_mi < 60 ~ "Valid",
                                         TRUE ~ "Greater than 60 min, likely error"))
 # Check number of problematic rows
-sum(df_final$invalid_duration_time == "Greater than 60 min, likely error", na.rm = TRUE)
+sum(df_final_clean_species$invalid_duration_time == "Greater than 60 min, likely error", na.rm = TRUE)
 
 # Save errors in duration in separate document
-duration_mi_errors <- df_final[df_final$invalid_duration_time == "Greater than 60 min, likely error", na.rm = TRUE]
+duration_mi_errors <- df_final_clean_species[df_final_clean_species$invalid_duration_time == "Greater than 60 min, likely error",]
 write.csv(duration_mi_errors, paste0(error_directory, "/duration_mi_errors.csv"), row.names = FALSE)
 
 ## In the duration_mi columns, correct values "365" and "535" 
-df_final <- df_final %>%
+df_final_clean_species <- df_final_clean_species %>%
   mutate(duration_mi = as.character(duration_mi)) %>%
   mutate(duration_mi = case_when(duration_mi == "365" ~ NA_character_,
                                  duration_mi == "535" ~ NA_character_,
                                  TRUE ~ duration_mi))
-df_final$duration_mi <- as.integer(df_final$duration_mi)
+df_final_clean_species$duration_mi <- as.integer(df_final_clean_species$duration_mi)
 
 # Replace all "99" and "999" by NA across all columns
-df_final <- df_final %>%
+df_final_clean_species <- df_final_clean_species %>%
   mutate(across(c(duration_mi, processor, depth_m, scale, trawl_number), ~ str_replace_all(.x, pattern = "999", replacement = NA_character_))) %>%
   mutate(across(c(duration_mi, processor, depth_m, trawl_number), ~ str_replace_all(.x, pattern = "99", replacement = NA_character_))) %>%
   mutate(duration_mi = as.integer(duration_mi)) 
 
 ## Calculate duration_mi from the difference of the start_time and end_time columns
-df_final <- df_final %>%
+df_final_calc_duration <- df_final_clean_species %>%
   mutate(across(c(start_time, end_time), 
                 ~ str_replace_all(.x, pattern = "^00", replacement = "24")))
   
 # Make sure all rows have the same format
-df_final <- df_final %>%
+df_final_calc_duration <- df_final_calc_duration %>%
   mutate(start_t = hms(start_time),
          end_t  = hms(end_time)) %>%
   mutate(across(c(start_time, end_time), 
                 ~ str_replace_all(.x, pattern = "^24", replacement = "00")))
 
 # Create a column with the calculated duration in minutes
-df_final <- df_final %>%
+df_final_calc_duration <- df_final_calc_duration %>%
   mutate(calc_duration_time = if_else(!is.na(start_t) & !is.na(end_t), 
                                       if_else(as.numeric(end_t) < as.numeric(start_t),
                                               (as.numeric(end_t) + 24*60*60 - as.numeric(start_t)) / 60,
@@ -764,7 +786,7 @@ df_final <- df_final %>%
   mutate(calc_duration_time = round(calc_duration_time, 1))
 
 # Final duration column
-df_final <- df_final %>%
+df_final_calc_duration <- df_final_calc_duration %>%
   mutate(duration_final = case_when(!is.na(duration_mi) ~ duration_mi,
                                     is.na(duration_mi) & !is.na(calc_duration_time) ~ calc_duration_time,
                                     TRUE ~ NA_real_),
@@ -780,20 +802,20 @@ df_final <- df_final %>%
       # nothing possible
       TRUE ~ "duration could not be calculated"))
 
-df_final %>%
+df_final_calc_duration %>%
   group_by(start_time, start_t, end_time, end_t, duration_mi, calc_duration_time, duration_comment) %>%
   summarise(count = n()) -> summary_table
 
 # Check number of problematic rows
-sum(df_final$duration_comment == "does NOT match calculated start_time and end_time, likely end_time error", na.rm = TRUE)
-sum(df_final$duration_comment == "duration not provided, calculated from start_time, end_time", na.rm = TRUE)
+sum(df_final_calc_duration$duration_comment == "does NOT match calculated start_time and end_time, likely end_time error", na.rm = TRUE)
+sum(df_final_calc_duration$duration_comment == "duration not provided, calculated from start_time, end_time", na.rm = TRUE)
 
 # Save mismatches in duration in separate document
-duration_mismatch <- df_final[df_final$duration_comment == "does NOT match calculated start_time and end_time, likely end_time error", na.rm = TRUE]
+duration_mismatch <- df_final_calc_duration[!is.na(df_final_calc_duration$duration_comment) & df_final_calc_duration$duration_comment == "does NOT match calculated start_time and end_time, likely end_time error",]
 write.csv(duration_mismatch, paste0(error_directory, "/duration_mismatch.csv"), row.names = FALSE)
 
-# calculate missing end_time values
-df_final <- df_final %>%
+## calculate missing end_time values
+df_final_calc_end <- df_final_calc_duration %>%
   mutate(calc_end_time = as.numeric(start_t) + as.numeric(duration_mi) * 60,
          calc_end_time_comment = case_when(!is.na(end_time) ~ "end_time provided",
                                           TRUE ~ "end_time calculated from start_time and duration_mi")) %>%
@@ -801,23 +823,23 @@ df_final <- df_final %>%
 
 # Convert seconds to hms format
 seconds_to_hms <- function(x) {sprintf("%02d:%02d:%02d", x %/% 3600, (x %% 3600) %/% 60, x %% 60)} 
-df_final$calc_end_time <- seconds_to_hms(df_final$calc_end_time)     
+df_final_calc_end$calc_end_time <- seconds_to_hms(df_final_calc_end$calc_end_time)     
 # Remove NA rows
-df_final <- df_final %>%
+df_final_calc_end <- df_final_calc_end %>%
   mutate(calc_end_time = ifelse(calc_end_time == "NA:NA:NA", NA, calc_end_time)) %>%
   mutate(calc_end_time = str_replace_all(calc_end_time, pattern = "^24", replacement = "00"))  %>%
   mutate(calc_end_time = str_replace_all(calc_end_time, pattern = "^25", replacement = "01"))
 
-# Check number of problematic rows
-sum(df_final$calc_end_time_comment == "end_time calculated from start_time and duration_mi", na.rm = TRUE)
+# Check number of calculated end time rows
+sum(df_final_calc_end$calc_end_time_comment == "end_time calculated from start_time and duration_mi", na.rm = TRUE)
 
 #### Correct errors in preservative_code column
 code = c("971", "270", "350", "11", "35")
-df_final <- df_final %>%
+df_final_calc_end <- df_final_calc_end %>%
   mutate(preservative_code = as.character(preservative_code)) %>%
   mutate(preservative_code_comment = ifelse(preservative_code %in% code, 
                                             ifelse(is.na(preservative_code_comment) | preservative_code_comment == "",
-                                                   "typo error corrected",
+                                                   "corrected typo error in preservative_code",
                                                    paste("typo error corrected", preservative_code_comment, sep = "; ")),
                                             preservative_code_comment)) %>%
   mutate(preservative_code = case_when(preservative_code == "98" ~ NA_character_,
@@ -832,25 +854,44 @@ df_final <- df_final %>%
   # Clean the preservative_code_comment column, removing extra spaces and tabs from rows
   mutate(preservative_code_comment = str_squish(preservative_code_comment))
 
+# Detect preservation comments in the trawl_comment column
+ethanol_trawl_location <- grepl("ethanol", df_final_calc_end$trawl_comment, ignore.case = TRUE)
+sum(ethanol_trawl_location == "TRUE", na.rm = TRUE)
+
+df_final_calc_end %>%
+  filter(ethanol_trawl_location) %>%
+  group_by(fish_unique_ID, trawl_comment, preservative_code, preservative_description, preservative_code_comment) %>%
+  summarise(count = n()) -> summary_table
+
+# Replace preservative_description by the info from trawl_comment
+df_final_calc_end <- df_final_calc_end %>%
+  mutate(preservative_description = ifelse(ethanol_trawl_location =="TRUE", "95% Ethanol", preservative_description),
+         preservative_code = ifelse(ethanol_trawl_location == "TRUE", 5, preservative_code),
+         preservative_code_comment = if_else(ethanol_trawl_location == "TRUE",
+                                             if_else(is.na(preservative_code_comment) | preservative_code_comment == "",
+                                                     "Preservative description provided in trawl_comment column", 
+                                                     paste(preservative_code_comment, "Preservative description provided in trawl_comment column", 
+                                                           sep = "; ")), preservative_code_comment))
+
 # Fill up the missing values using a lookup table
 preservative_code_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/preservative_code_lookup_table.csv")
-df_final <- rows_patch(df_final, preservative_code_lookup_table, by = "preservative_code", unmatched = "ignore")
+df_final_calc_end <- rows_patch(df_final_calc_end, preservative_code_lookup_table, by = "preservative_code", unmatched = "ignore")
 
 # Check if preservative_description match preservative_code
-df_final %>%
+df_final_calc_end %>%
   group_by(preservative_code, preservative_description, preservative_code_comment) %>%
   summarise(count = n()) -> summary_table
 
 # Calculate standardized weight using a lookup table
 standardized_weight_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/03_AA_look_up_tables/AA_calc_std_weight.csv")
-df_final <- df_final %>%
+df_final_calc_std_weight <- df_final_calc_end %>%
   dplyr::left_join(standardized_weight_lookup_table, by = c("preservative_code", "weight_conversion_formula")) %>%
   mutate(calc_std_weight_g = fish_weight_g / calc_value)
 
 # Round the new column, calc_std_weight_g, to two decimal places
-df_final$calc_std_weight_g <- round(df_final$calc_std_weight_g, digits = 2)
+df_final_calc_std_weight$calc_std_weight_g <- round(df_final_calc_std_weight$calc_std_weight_g, digits = 2)
 # Compare them to the existing standardized_weight_g column
-df_final <- df_final %>%
+df_final_calc_std_weight <- df_final_calc_std_weight %>%
   mutate(std_weight_g_comment = case_when(
            # standardized_weight_g exists and matches calc_std_weight_g
            !is.na(standardized_weight_g) & !is.na(calc_std_weight_g) &
@@ -864,22 +905,26 @@ df_final <- df_final %>%
            TRUE ~ "standardized weight could not be calculated"))
 
 # Check number of problematic rows
-sum(df_final$std_weight_g_comment == "does NOT match calculated standardized weight", na.rm = TRUE)
-sum(df_final$std_weight_g_comment == "standardized_weight_g calculated from standardized weight formula", na.rm = TRUE)
-sum(df_final$std_weight_g_comment == "standardized weight could not be calculated", na.rm = TRUE)
+sum(df_final_calc_std_weight$std_weight_g_comment == "does NOT match calculated standardized weight", na.rm = TRUE)
+sum(df_final_calc_std_weight$std_weight_g_comment == "standardized_weight_g calculated from standardized weight formula", na.rm = TRUE)
+sum(df_final_calc_std_weight$std_weight_g_comment == "standardized weight could not be calculated", na.rm = TRUE)
+
+# Export errors in standardized weight
+std_weight_errors <- df_final_calc_std_weight[!is.na(df_final_calc_std_weight$std_weight_g_comment) & df_final_calc_std_weight$std_weight_g_comment == "does NOT match calculated standardized weight",]
+write.csv(std_weight_errors, paste0(error_directory, "/std_weight_errors.csv"), row.names = FALSE)
 
 # Convert Trawl_number to integer instead of character
-df_final$trawl_number <- as.integer(df_final$trawl_number)
+df_final_calc_std_weight$trawl_number <- as.integer(df_final_calc_std_weight$trawl_number)
 
 ### In the depth_m columns, correct values "98.109375", "14.83203125"
-df_final <- df_final %>%
+df_final_clean_depth <- df_final_calc_std_weight %>%
   mutate(depth_m = case_when(depth_m == "98.109375" ~ NA_character_,
                              depth_m == "14.83203125" ~ NA_character_,
                               TRUE ~ depth_m))
 
 # Flag any value greater than "100" and add the comment to a new column
 # Correct rows with values "188" and "200" meters
-df_final <- df_final %>%
+df_final_clean_depth <- df_final_clean_depth %>%
   mutate(depth_m = as.numeric(depth_m)) %>%
   mutate(depth_m_flag = case_when(depth_m == 188 ~ "Likely typo, corrected from 188 m to 18 m",
                                   depth_m == 200 ~ "Likely typo, corrected from 200 m to 20 m",
@@ -891,14 +936,14 @@ df_final <- df_final %>%
 
 ### Clean scale, scale_book and scale_book_letter columns
 # Replace wrong data scale_book data for the correct number
-df_final <- df_final %>%
+df_final_clean_depth <- df_final_clean_depth %>%
   mutate(scale_book = case_when(scale_book == "1.86" ~ "0",
                                 scale_book == "0.49" ~ "0",
                                 scale_book == "0.21" ~ "0",
                                  TRUE ~ scale_book))
 
 # Transfer scale book letters from scale_book column to scale_book_letter
-df_final <- df_final %>%
+df_final_clean_depth <- df_final_clean_depth %>%
   # Detect if there is a letter in the row and remove them
   mutate(
     scale_book_is_letter = str_detect(scale_book, "^[A-Za-z]$"),
@@ -916,7 +961,7 @@ df_final <- df_final %>%
   select(-scale_book_flag_letter, -scale_book_flag_letter, -scale_book_is_letter, -letters_match)
 
 # Create a new column for the scale_book comments, scale_book_comment
-df_final <- df_final %>%
+df_final_clean_depth <- df_final_clean_depth %>%
   mutate(
     ### extract the digits at the start
     scale_book_clean = str_extract(scale_book, "^\\w{1,3}"),
@@ -933,7 +978,7 @@ df_final <- df_final %>%
   select(-scale_book_clean)
 
 ### Comment values greater than 20 in the scale_book_comment column
-df_final <- df_final  %>% 
+df_final_clean_depth <- df_final_clean_depth  %>% 
   mutate(scale_book_comment2 = case_when(scale_book > 20 ~ "scale_book > 20, possible error",
                                TRUE ~ scale_book_comment),
          scale_book_comment = scale_book_comment2) %>% 
@@ -941,84 +986,112 @@ df_final <- df_final  %>%
 
 # Add comment for the corrected rows 
 rows = c(93221, 92368, 93251)
-df_final <- df_final %>%
+df_final_clean_depth <- df_final_clean_depth %>%
   mutate(scale_book_comment = if_else(row_number() %in% rows,
                                       if_else(is.na(scale_book_comment) | scale_book_comment == "",
                                               "Wrong weight entry replaced with scale_book code 0", 
                                               paste(scale_book_comment, "Wrong weight entry replaced with scale_book code 0", sep = "; ")),
                                       scale_book_comment))
 
-df_final %>%
+df_final_clean_depth %>%
   group_by(scale, scale_book, scale_book_letter, scale_book_comment) %>%
   summarise(count = n()) -> summary_table
 
 # Correct fish_unique_ID 1986-09-01_6_2_12_1_1_58_48 length and weight
-df_final <- df_final %>%
+nearly_final_dataframe <- df_final_clean_depth %>%
   mutate(fish_length_mm = case_when(fish_unique_ID == "1986-09-01_6_2_12_1_1_58_48" ~ 58,
                                 TRUE ~ fish_length_mm),
          fish_weight_g = case_when(fish_unique_ID == "1986-09-01_6_2_12_1_1_58_48" ~ 1.86,
                                    TRUE ~ fish_weight_g))
 
-# Detect preservation comments in the trawl location column
-ethanol_trawl_location <- grepl("ethanol", df_final$trawl_location, ignore.case = TRUE)
-sum(ethanol_trawl_location == "TRUE", na.rm = TRUE)
+# Detect seine comments in the trawl_comment column
+sein_info_trawl_location <- grepl("sein", nearly_final_dataframe$trawl_comment, ignore.case = TRUE)
+sum(sein_info_trawl_location == "TRUE", na.rm = TRUE)
 
-df_final %>%
-  filter(ethanol_trawl_location) %>%
-  group_by(fish_unique_ID, trawl_location, preservative_code, preservative_description, preservative_code_comment) %>%
+# Create a new column to store seine info nested in trawl_comment column
+nearly_final_dataframe <- nearly_final_dataframe %>%
+  mutate(gear_type = ifelse(sein_info_trawl_location =="TRUE", trawl_comment, NA_character_),
+         # Clean the gear_type column to keep only seine info
+         gear_type_clean = str_trim(str_remove(gear_type, "NO TIME OR DURATION TIME.NO DEPTH.")),
+         gear_type = gear_type_clean) %>%
+  select(-gear_type_clean)
+
+nearly_final_dataframe %>%
+  filter(sein_info_trawl_location) %>%
+  group_by(fish_unique_ID, gear_type) %>%
   summarise(count = n()) -> summary_table
 
-# Replace preservative_description by the info from trawl_location
-df_final <- df_final %>%
-  mutate(preservative_description = ifelse(ethanol_trawl_location =="TRUE", "95% Ethanol", preservative_description),
-        preservative_code_comment = if_else(ethanol_trawl_location == "TRUE",
-                                            if_else(is.na(preservative_code_comment) | preservative_code_comment == "",
-                                              "Preservative description provided in trawl_location column", 
-                                              paste(preservative_code_comment, "Preservative description provided in trawl_location column", 
-                                                    sep = "; ")), preservative_code_comment))
+# Clean trawl_comment column
+final_dataframe <- nearly_final_dataframe %>%
+  mutate(trawl_comment = str_trim(str_remove(trawl_comment, "XXXXXXXXXXXXXXXXXXXXXXXXXXXX")),
+         trawl_comment = gsub("\\s+", " ", trawl_comment),
+         time_comment = ifelse(time_comment == "NANA", NA_character_, time_comment))
 
 # Save document until here
-write.csv(df_final, paste0(working_directory, "/combined_inprogress_df_trawl.csv"), row.names = FALSE)
+write.csv(final_dataframe, paste0(working_directory, "/combined_inprogress_df_trawl.csv"), row.names = FALSE)
 
-# Combine all comments in a general_comments column, skip the row when it is NA
-df_final <- df_final %>%
-rowwise() %>%
-  mutate(general_comments = paste(
-      c(if (!is.na(trawl_location) & trawl_location != "") paste0("trawl_location: ", trawl_location),
+# Combine columns flagging issue in a data_issue column and general comments in a general_comments column, 
+# skip the row when it is NA
+final_dataframe <- final_dataframe %>%
+  rowwise() %>%
+  mutate(data_issues = paste(
+      c(if (!is.na(trawl_comment) & trawl_comment != "") paste0("trawl_comment: ", trawl_comment),
         if (!is.na(comment) & comment != "") paste0("comment: ", comment),
         if (!is.na(time_comment) & time_comment != "") paste0("time_comment: ", time_comment),
-        if (!is.na(duration_comment) & duration_comment != "") paste0("duration_comment: ", duration_comment),
+        if (duration_comment == "does NOT match calculated start_time and end_time, likely end_time error") paste0("duration_comment: ", duration_comment),
         if (!is.na(preservative_code_comment) & preservative_code_comment != "") paste0("preservative_code_comment: ", preservative_code_comment),
         if (!is.na(depth_m_comments) & depth_m_comments != "") paste0("depth_m_comments: ", depth_m_comments),
         if (!is.na(trawl_date_comment) & trawl_date_comment != "") paste0("trawl_date_comment: ", trawl_date_comment),
         if (!is.na(trawl_number_comment) & trawl_number_comment != "") paste0("trawl_number_comment: ", trawl_number_comment),
-        if (!is.na(merging_update_type) & merging_update_type != "") paste0("merging_update_type: ", merging_update_type),
         if (!is.na(scale_book_comment) & scale_book_comment != "") paste0("scale_book_comment: ", scale_book_comment),
-        if (!is.na(invalid_duration_time) & invalid_duration_time != "") paste0("invalid_duration_time: ", invalid_duration_time),
-        if (!is.na(invalid_start_time) & invalid_start_time != "") paste0("invalid_start_time: ", invalid_start_time),
-        if (!is.na(calc_end_time_comment) & calc_end_time_comment != "") paste0("calc_end_time_comment: ", calc_end_time_comment),
-        if (!is.na(std_weight_g_comment) & std_weight_g_comment != "") paste0("std_weight_g_comment: ", std_weight_g_comment)),
-      collapse = "; "
+        if (std_weight_g_comment == "does NOT match calculated standardized weight") paste0("std_weight_g_comment: ", std_weight_g_comment)),
+        if (calc_end_time_comment == "end_time calculated from start_time and duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),      collapse = "; "
     )) %>%
+  mutate(general_comments = paste(
+    c(if (!is.na(merging_update_type) & merging_update_type != "") paste0("merging_update_type: ", merging_update_type),
+      if (duration_comment != "does NOT match calculated start_time and end_time, likely end_time error") paste0("duration_comment: ", duration_comment),
+      if (!is.na(invalid_duration_time) & invalid_duration_time != "") paste0("invalid_duration_time: ", invalid_duration_time),
+      if (calc_end_time_comment != "end_time calculated from start_time and duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),
+      if (std_weight_g_comment != "does NOT match calculated standardized weight") paste0("std_weight_g_comment: ", std_weight_g_comment),
+      if (!is.na(invalid_start_time) & invalid_start_time != "") paste0("invalid_start_time: ", invalid_start_time),
+      if (!is.na(invalid_end_time) & invalid_end_time != "") paste0("invalid_end_time: ", invalid_end_time)
+      ),
+    collapse = "; "
+  )) %>%
   ungroup()  %>%
-  select(-trawl_location, -comment, -time_comment, -preservative_code_comment, -depth_m_comments, 
+  select(-trawl_comment, -comment, -time_comment, -preservative_code_comment, -depth_m_comments, -invalid_end_time,
         -trawl_date_comment, -trawl_number_comment, -merging_update_type, -scale_book_comment, -calc_value,
         -duration_comment, -invalid_duration_time, -invalid_start_time, -calc_end_time_comment, -duration_final, -std_weight_g_comment)
 
+# Get the time stamp to record when the data was rescued
+time_stamp <- format(Sys.time(), "%d-%b-%Y %H:%M") # get time-stamp to indicate when data rescued
+
 # Reorganize and rename columns
-df_final <- df_final %>% 
-  relocate(trawl_date, lake_code, lake_name, lake_latitude, lake_longitude, process_date, processor,
-           start_time, end_time, calc_end_time, "duration_minutes" = duration_mi, calc_duration_time, depth_m, trawl_number, sample_type, 
-           species_code, "species_common_name" = fish_description, 
-           genus_name, species_name, "life_stage" = species_code_comment, "age_class" = age, 
-           aging_technique, aging_technique_name, fish_length_mm, fish_weight_g, 
-           preservative_code, preservative_description, weight_conversion_formula, standardized_weight_g, calc_std_weight_g, 
-           fish_total, fish_id, sample_number, scale, scale_book, scale_book_letter, 
-           species_info_code, trawl_unique_ID, fish_unique_ID, source_files, source_line,
-           trawl_month, ats_year, general_comments) %>%
-  select(-.joyn, -program_notes)
+final_dataframe <- final_dataframe %>%
+  mutate(time_stamp = time_stamp) %>%
+  unite("program_notes", program_notes, time_stamp, sep = ". Data rescued: ", na.rm = TRUE) %>%
+  dplyr::select(ats_year, lake_code, lake_name, trawl_date, trawl_month, 
+              trawl_number, sample_type, gear_type,
+              depth_m, start_time, end_time, calc_end_time, 
+              "duration_minutes" = duration_mi, calc_duration_time, 
+              fish_id, species_code, "species_common_name" = fish_description,  
+              "life_stage" = species_code_comment, species_info_code, 
+              fish_length_mm, fish_weight_g, standardized_weight_g, calc_std_weight_g,
+              preservative_code, preservative_description, weight_conversion_formula,
+              "age_class" = age, aging_technique, aging_technique_name,
+              scale, scale_book, scale_book_letter,
+              general_comments, data_issues,
+              source_files, source_line,
+              trawl_unique_ID, fish_unique_ID,
+              genus_name, species_name, 
+              lake_latitude, lake_longitude,
+              processor, process_date,
+              everything(),                    
+              program_notes,     # timestamp when data was rescued
+              -.joyn) %>%
+  arrange(ats_year, lake_name, trawl_date, trawl_number, fish_id)
 
 # Save document until here
-write.csv(df_final, paste0(final_directory, "/Trawl_data_FINAL_1977-1999.csv"), row.names = FALSE)
+write.csv(final_dataframe, paste0(final_directory, "/Trawl_data_FINAL_1977-1999.csv"), row.names = FALSE)
 
 

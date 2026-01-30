@@ -314,6 +314,7 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
         - check the frequency - 351 rows with "95% Ethanol" - preservative_code = 99 Unknown.
         - Preservative_description replaced by info from trawl_location column
   - Re-calculation of std_weight - 'calc' - calculated from the data.
+  - cleaned spaces from trawl_comment (former trawl_location) column
 
 -> Metadata:
   - Check fishes lengths and weights - weird combination likely outlier
@@ -322,7 +323,7 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
 -> Meeting
   - Add a preservative code #5 for 95% Ethanol - describe this change in the data dictionary
   - Change the name of "trawl_location" comment to "trawl_comment" - originally named "xx", including general trawl location, but there is additional info
-  - Gear_code - new field. grep "SEIN"  and copy to a new column. beach seine <- accurate, 
+  - Gear_type - new field. grep "SEIN"  and copy to a new column. beach seine <- accurate, 
   - end_time - flag if there were errors in the end_time
   - Howard will send a list of the order of the column for the final matrix
   - Depth_m facet_wrap by lake
