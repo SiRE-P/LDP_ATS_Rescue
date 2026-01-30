@@ -470,7 +470,7 @@ write.csv(all_duplicates, paste0(error_directory, "/duplicated_df_trawl.csv"), r
 ### Combine start_time.sas and .dat into a new 'start_time' column
 # First standardize midnight times: instead of 24, represent it as 00
 # Remove decimals from .sas time columns
-df_final <- df_final %>%
+df_final_chk_time <- df_final %>%
   mutate(across(c(start_time.dat, end_time.dat, start_time.sas, end_time.sas, start_time, end_time), 
                 ~ str_replace_all(.x, pattern = "^24", replacement = "00"))) %>%
   mutate(across(c(start_time.sas, end_time.sas), 
@@ -481,12 +481,12 @@ df_final <- df_final %>%
 time_pattern <- "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
 
 # Use grepl() to create a logical vector indicating valid formats in .dat time
-is_valid_dat <- ifelse(is.na(df_final$start_time.dat), NA, grepl(time_pattern, df_final$start_time.dat))
-is_valid_sas <- ifelse(is.na(df_final$start_time.sas), NA, grepl(time_pattern, df_final$start_time.sas))
-is_valid <- ifelse(is.na(df_final$start_time), NA, grepl(time_pattern, df_final$start_time))
+is_valid_dat <- ifelse(is.na(df_final_chk_time$start_time.dat), NA, grepl(time_pattern, df_final_chk_time$start_time.dat))
+is_valid_sas <- ifelse(is.na(df_final_chk_time$start_time.sas), NA, grepl(time_pattern, df_final_chk_time$start_time.sas))
+is_valid <- ifelse(is.na(df_final_chk_time$start_time), NA, grepl(time_pattern, df_final_chk_time$start_time))
 
 # Add a new column to the data frame to flag invalid entries
-df_final <- df_final %>%
+df_final_chk_time <- df_final_chk_time %>%
   mutate(invalid_start_time = case_when(is_valid_sas == "TRUE" ~ "Valid",
                                         is_valid_dat == "TRUE" ~ "Valid",
                                         is_valid == "TRUE" ~ "Valid",
@@ -494,20 +494,20 @@ df_final <- df_final %>%
                                         TRUE ~ "Invalid format"))
 
 # Check number of problematic rows
-sum(df_final$invalid_start_time == "Invalid format", na.rm = TRUE)
+sum(df_final_chk_time$invalid_start_time == "Invalid format", na.rm = TRUE)
 
 # Save errors in start and end time in separate document
-start_time_errors <- df_final[!is.na(df_final$invalid_start_time) & df_final$invalid_start_time == "Invalid format",]
+start_time_errors <- df_final_chk_time[!is.na(df_final_chk_time$invalid_start_time) & df_final_chk_time$invalid_start_time == "Invalid format",]
 write.csv(start_time_errors, paste0(error_directory, "/start_time_errors.csv"), row.names = FALSE)
 
 ## Flagging errors in the end time
 # Use grepl() to create a logical vector indicating valid formats
-is_valid_end_time_dat <- ifelse(is.na(df_final$end_time.dat), NA, grepl(time_pattern, df_final$end_time.dat))
-is_valid_end_time_sas <- ifelse(is.na(df_final$end_time.sas), NA, grepl(time_pattern, df_final$end_time.sas))
-is_valid_end_time <- ifelse(is.na(df_final$end_time), NA, grepl(time_pattern, df_final$end_time))
+is_valid_end_time_dat <- ifelse(is.na(df_final_chk_time$end_time.dat), NA, grepl(time_pattern, df_final_chk_time$end_time.dat))
+is_valid_end_time_sas <- ifelse(is.na(df_final_chk_time$end_time.sas), NA, grepl(time_pattern, df_final_chk_time$end_time.sas))
+is_valid_end_time <- ifelse(is.na(df_final_chk_time$end_time), NA, grepl(time_pattern, df_final_chk_time$end_time))
 
 # Add a new column to the data frame to flag invalid entries
-df_final <- df_final %>%
+df_final_flag_time <- df_final_chk_time %>%
   mutate(invalid_end_time = case_when(is_valid_end_time_sas == "TRUE" ~ "Valid",
                                       is_valid_end_time_dat == "TRUE" ~ "Valid",
                                       is_valid_end_time == "TRUE" ~ "Valid",
@@ -515,15 +515,15 @@ df_final <- df_final %>%
                                         TRUE ~ "Invalid format"))
 
 # Check number of problematic rows
-sum(df_final$invalid_end_time == "Invalid format", na.rm = TRUE)
+sum(df_final_flag_time$invalid_end_time == "Invalid format", na.rm = TRUE)
 
 # Save errors in start and end time in separate document
-end_time_errors <- df_final[!is.na(df_final$invalid_end_time) & df_final$invalid_end_time == "Invalid format",]
+end_time_errors <- df_final_flag_time[!is.na(df_final_flag_time$invalid_end_time) & df_final_flag_time$invalid_end_time == "Invalid format",]
 write.csv(end_time_errors, paste0(error_directory, "/end_time_errors.csv"), row.names = FALSE)
 
 # Manually fix some of the errors identified
 #  everything with 0203 - fish_unique_ID == 1997-09-17_69_9_15_7_1_1.35_49
-df_final <- df_final %>%
+df_final_flag_time <- df_final_flag_time %>%
   mutate(
     end_time = ifelse(duration_mi == "0203", "02:03:00", end_time),
     time_comment = ifelse(duration_mi == "0203", "0203 error in duration_mi was end_time - corrected", time_comment),
@@ -531,7 +531,7 @@ df_final <- df_final %>%
   )
 
 # Summary of start_time with wrong format    
-df_final %>%
+df_final_flag_time %>%
   filter(invalid_start_time == "Invalid format") %>%
   group_by(start_time, start_time.sas, start_time.dat) %>%
   summarise(count = n()) -> summary_table_time
@@ -542,43 +542,43 @@ replacement_pattern <- c("08:65:00" = NA_character_,
                          "14:69:00" = NA_character_,
                          "15:92:00" = NA_character_,
                          "21:89:00" = NA_character_)
-df_final <- df_final %>%
+df_final_raw <- df_final_flag_time %>%
   mutate(start_time = str_replace_all(start_time, replacement_pattern)) 
 
 # start_time.sas column substitution patterns
 replacement_pattern <- c("99:40:13" = NA_character_, "100:38:24" = NA_character_)
-df_final <- df_final %>%
+df_final_raw <- df_final_raw %>%
   mutate(start_time.sas = str_replace_all(start_time.sas, replacement_pattern)) 
 
 # start_time.dat column substitution patterns
 replacement_pattern <- c("99:99:00" = NA_character_, "00:0\\?:00" = NA_character_)
-df_final <- df_final %>%
+df_final_raw <- df_final_raw %>%
   mutate(start_time.dat = str_replace_all(start_time.dat, replacement_pattern)) 
 
 ### Combine start_time and end_time columns
 # First combine start_time.dat and start_time.sas, prioritizing values for the .dat column when both are present
 # Then combine everything in the start_time column and delete unnecessary columns
-df_final$start_time_combined <- coalesce(df_final$start_time.dat, df_final$start_time.sas)
-df_final$start_time_combined <- trimws(df_final$start_time_combined)
-df_final$start_time <- coalesce(df_final$start_time, df_final$start_time_combined)
-df_final <- df_final %>%
+df_final_raw$start_time_combined <- coalesce(df_final_raw$start_time.dat, df_final_raw$start_time.sas)
+df_final_raw$start_time_combined <- trimws(df_final_raw$start_time_combined)
+df_final_raw$start_time <- coalesce(df_final_raw$start_time, df_final_raw$start_time_combined)
+df_final_raw <- df_final_raw %>%
   select(-start_time.dat, -start_time.sas, -start_time_combined) 
 
 # First clean invalid format. Combine end_time.dat and end_time.sas, prioritizing values for the .dat column when both are present
 # Then combine everything in the end_time column and delete unnecessary columns
 replacement_pattern <- c("NA:NA:00" = NA_character_)
-df_final <- df_final %>%
+df_final_raw <- df_final_raw %>%
   mutate(end_time = str_replace_all(end_time, replacement_pattern)) 
 
-df_final$end_time_combined <- coalesce(df_final$end_time.dat, df_final$end_time.sas)
-df_final$end_time_combined <- trimws(df_final$end_time_combined)
-df_final$end_time <- coalesce(df_final$end_time, df_final$end_time_combined)
-df_final <- df_final %>%
+df_final_raw$end_time_combined <- coalesce(df_final_raw$end_time.dat, df_final_raw$end_time.sas)
+df_final_raw$end_time_combined <- trimws(df_final_raw$end_time_combined)
+df_final_raw$end_time <- coalesce(df_final_raw$end_time, df_final_raw$end_time_combined)
+df_final_raw <- df_final_raw %>%
   select(-end_time.dat, -end_time.sas, -end_time_combined) 
 
 ### Separate columns with fish descriptions and common name
 # Cleaning the columns
-df_final_clean_time <- df_final %>%
+df_final_clean_time <- df_final_raw %>%
   # Fish description column removing comments and placing into separate column 
   mutate(
     ### extract the description at the end

@@ -33,40 +33,6 @@ install.packages(setdiff(packages, row.names(installed.packages())))
 ################################  Step 1  #####################################
 ########################## Organize the directory #############################
 
-# Uncomment this section if you'd like to rename the folders
-# Renaming existing directory if it is not standardized.
-# Be careful to not delete the current script
-#if (!dir.exists("./TRAWL_BIOSAMPLE/01_code")) {
-#  if(dir.exists("./TRAWL_BIOSAMPLE/code")) {
-#    renaming_folder <- file.rename("./TRAWL_BIOSAMPLE/code", "./TRAWL_BIOSAMPLE/01_code")
-#    if (renaming_folder){
-#      message("Directory renamed successfully.") 
-#    } else {
-#      warning("Failed to rename directory")
-#    }
-#  } else {
-#    warning("Old directory does not exist.")
-#  }
-#} else {
-#  message("New directory already exists.")
-#}
-#
-## Renaming raw data folder
-#if (!dir.exists("./TRAWL_BIOSAMPLE/00_raw_data")) {
-#  if(dir.exists("./TRAWL_BIOSAMPLE/data")) {
-#    renaming_folder <- file.rename("./TRAWL_BIOSAMPLE/data", "./TRAWL_BIOSAMPLE/00_raw_data")
-#    if (renaming_folder){
-#      message("Directory renamed successfully.") 
-#    } else {
-#      warning("Failed to rename directory")
-#    }
-#  } else {
-#    warning("Old directory does not exist.")
-#  }
-#} else {
-#  message("New directory already exists.")
-#}
-
 # Create the directories to hold output files
 if (!dir.exists("./TRAWL_BIOSAMPLE/02_intermediate_out")) {dir.create("./TRAWL_BIOSAMPLE/02_intermediate_out")
 } else {message("Directory already exists.")} # ensure CSV output directory exists
@@ -76,6 +42,8 @@ if (!dir.exists("./TRAWL_BIOSAMPLE/04_final_output")) {dir.create("./TRAWL_BIOSA
 } else {message("Directory already exists.")}  # ensure plot output directory exists
 if (!dir.exists("./TRAWL_BIOSAMPLE/05_ARCHIVE")) {dir.create("./TRAWL_BIOSAMPLE/05_ARCHIVE")
 }  else {message("Directory already exists.")} # ensure archive directory exists for storing date-stamped copy of output
+if (!dir.exists("./TRAWL_BIOSAMPLE/06_Figures")) {dir.create("./TRAWL_BIOSAMPLE/06_Figures")
+}  else {message("Directory already exists.")} # ensure figure directory exists for storing plots and tables
 
 # Regex pattern to automate file processing (loop over all SAS files)
 name_pattern <- "trawl([[:digit:]][[:digit:]])\\.sas7bdat$"
