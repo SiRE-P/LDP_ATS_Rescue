@@ -1,5 +1,5 @@
 ###############################################################################
-## TRAWL data — Refactored pipeline (SAS & DAT across years, 1977–1999)
+## TRAWL data - Refactored pipeline (SAS & DAT across years, 1977–1999)
 ## Authors (original workflow): Alice Assmar, David Hunt, Howard Stiff, Athena Ogden
 ## Refactor: efficiency + maintainability; same scientific rules
 ## Source:   CoPilot Artificial Intelligence Program 04-Feb-2026
