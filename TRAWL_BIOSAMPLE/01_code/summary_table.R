@@ -2,8 +2,8 @@
 ##############                  TRAWL data                  ###################
 ##############     summarizing SAS and .dat trawl files     ###################
 ############## Authors: Alice Assmar (McGill Uni.), David   ###################
-############## Hunt (McGill Uni.),  Yuliya Shtymburski      ###################
-############## (U. Regina), Howard Stiff (DFO Nanaimo),     ###################
+##############             Hunt (McGill Uni.),              ###################
+##############          Howard Stiff (DFO Nanaimo),         ###################
 ##############        Athena Ogden (DFO Nanaimo)            ###################
 ###############################################################################
 
@@ -36,7 +36,7 @@ install.packages(setdiff(packages, row.names(installed.packages())))
 #### Read csv tables
 intermediate_out_folder <- "./TRAWL_BIOSAMPLE/02_intermediate_out"
 trawl_file <- "Trawl96"
-# Some files has upper case names that I must correct, for now, use this when necessary
+# Some .dat files has upper case names
 trawl_file_dat <- "TRAWL96"
 
 final_csv_dat <- read.csv(paste0(intermediate_out_folder,"/", trawl_file_dat, "_DAT.csv"))

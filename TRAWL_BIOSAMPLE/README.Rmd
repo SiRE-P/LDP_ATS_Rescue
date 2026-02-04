@@ -1,0 +1,58 @@
+---
+title: "Living Data Program Internship - Lakes Data In British Columbia - Trawl Biosample
+  1977-1999"
+author: "Alice Assmar"
+date: "2026-01-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Agency Supervisors** Athena Ogden ([athena.ogden\@dfo-mpo.gc.ca](mailto:athena.ogden@dfo-mpo.gc.ca){.email}) Howard Stiff ([Howard.Stiff\@dfo-mpo.gc.ca](mailto:Howard.Stiff@dfo-mpo.gc.ca){.email}) Patrick Thompson ([Patrick.Thompson\@dfo-mpo.gc.ca](mailto:Patrick.Thompson@dfo-mpo.gc.ca){.email})
+
+**CIEE LDP supervisor** David Hunt (LDP Post-Doc, McGill University)
+
+## Introduction
+
+Fisheries and Oceans Canada conducted the Lake Enrichment Program and subsequent projects from 1980-2015. The extensive limnological database includes, among other information, fish data collected using trawls in water bodies located in British Columbia, Canada, from 1977 to 1999. Some species of fish have abundance and sampling data such as length, weight and life stage. The data exists in several formats, such as within published DFO reports, Excel spreadsheets, MS Access databases, as well as SAS and DAT original formats. This folder (TRAWL_BIOSAMPLE) includes folders organized during the Living Data Project (LDP) internship and the goal was to combine as many variables as possible from these databases into a single dataset with consistent formatting and reporting standards to be made publicly available for all Canadians and scientists.
+
+## Folder structure
+
+-   **00_raw_data** contains folders with raw files separated by their formats. It also includes look-up tables as references for the codes. A data dictionary is provided in this folder to explain the variables.
+
+    -   **01_DAT** original .dat formatted trawl biosample databases from 1977-1999. Files from 1977 to 1983 especially, but also from 1984 lost considerable amount of data. In addition, the former files are presented as columns, without the. Files from 1984 to 1999 are lists and present one variable in each line.
+    -   **02_SAS_Data** includes .dat files converted to .sas format. Trawlyy.sas7bdat files include fish data, while trlinfyy.sas7bdat files include trawl information.
+    -   **03_AA_look_up_tables** .csv tables one with preservative formulas to calculate standardized weight and another one with reference to fish scientific names.
+    -   **04_YS_look_up_tables** .csv tables to reference lake names, fish species codes, preservative coes and weight conversion.
+
+-   **01_code** includes the R codes to convert .sas and .dat files to .csv and to compare each year's tables. In addition, it includes a code to assemble all databases into one dataset, clean the columns in the final unified table and export .csv files reporting problematic rows.
+
+-   **02_intermediate_out** includes raw individual data for each trawl year in .csv, originated from both .dat and .sas files. In addition, it includes raw combined datasets in .csv, saved before clean up process. A data dictionary is provided in this folder to explain the variables.
+
+-   **03_errors_out** contains .csv tables with errors flagged during data cleaning steps. These tables contain only the rows presenting the errors. A data dictionary is provided in this folder to explain the variables.
+
+-   **04_final_output** contains the final, cleaned dataset in .csv. A data dictionary is provided in this folder to explain the variables.
+
+-   **05_ARCHIVE** includes the report, in .Rmd and .pdf, created by Alice Assmar during the Living Data Program Internship.
+
+-   **06_Figures** includes all figures and tables created to
+
+-   **code** is the former code folder that includes data conversion from .dat to .csv and to read .sas and .access files.
+
+-   **data** is the former data folder including only original .dat files and lookup tables for lake names and trawl inventories.
+
+## How to use the codes
+
+-   The easiest way of using this pipeline is to open the *00_run_pipeline.R* code, located in the *01_code* folder using the *LDP_ATS_RESCUE.Rproj* and click run. This code will create all necessary folder, if applicable, and run all subsequent scripts. 
+    - This pipeline starts by exporting .sas and .dat databases from *00_raw_data* folder as converted .csv tables to the *02_intermediate_out* folder. 
+    - Subsequently, it creates summary tables comparing the data from tables of the same year, but from different source files (.sas or .dat). 
+    - Lastly, it assembles all .csv tables, cleans duplicates, export raw combined tables to *02_intermediate_out*, flags invalid or mismatch information, export error tables to *03_errors_out* and export the final, cleaned table to the *04_final_output* folder.
+
+
+-   Another option is to run all scripts individually. This is advantageous if some of the steps have been previously completed because it will save you some time. Any of the following steps can be skipped or modified as needed. Please, guarantee that your working directory is set to the *LDP_ATS_Rescue* folder.
+    -   Firstly, the original files should be converted to .csv tables to facilitate downstream steps. Open the *Read_Trawl_data_from_SAS_datasets.R* code, located in the *01_code* folder using the *LDP_ATS_RESCUE.Rproj* and click run. It creates all necessary folders, if they are absent from the directory, and it exports all .sas files as .csv in the *02_intermediate_out* folder. 
+    -   Run all six *Read_Trawl_data_from_DAT_datasets_YYYY.R* scripts in any order you judge appropriate. It converts the .dat files in the *00_raw_data* and save them in the *02_intermediate_out* folder.
+    -   Run the *summary_table.R* script for the desired year comparison, by changing the name of the trawl file in the script.
+    -   Open the *Assemble_csv_dat_sas.R* script and run it. The final, cleaned dataframe is exported to the *04_final_output* folder.

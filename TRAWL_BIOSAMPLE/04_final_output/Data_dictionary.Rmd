@@ -1,0 +1,133 @@
+---
+title: "LDP internship - Data dictionary - Trawl biosample final dataset"
+author: "Alice Assmar"
+date: "2026-01-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+### Data collection
+
+Trawl biosample data collected using trawling method in water bodies located in British Columbia, Canada, from 1977 to 1999 by researchers from Fisheries and Oceans Canada.
+
+### Description of variables
+
+**trawl_date:** Trawl sampling date converted to ISO format (YYYY-MM-DD).\
+**lake_code:** Numerical code reference for sampled lakes in original file. This code is used to join the lake name and geographical coordinate information using a look-up table.\
+**lake_name:** Name of the lake where the sample was collected.\
+**lake_latitude:** Latitudinal geographical coordinates in degree and minutes.\
+**lake_longitude:** Longitudinal geographical coordinates in degree and minutes.\
+**process_date:** The day the record was included in the database. ISO Formatted in YYY-MM-DD.\
+**processor:** Code referent to the researcher who databased the trawl record. For privacy purposes, the name of the researcher is not disclaimed.\
+**start_time:** Standardized start time of the trawl sampling rescued from .sas and .dat files. The format is "HH:MM:SS" in Pacific Time Zone (UTC−08:00). Records with invalid formats were corrected, when possible, or replaced by NAs. Row issues are flagged in the "data_issue" column. \
+**end_time:** Standardized end time of the trawl sampling rescued from .sas and .dat files. The format is "HH:MM:SS" in Pacific Time Zone (UTC−08:00).Records with invalid formats were corrected, when possible, or replaced by NAs. Row issues are flagged in the "data_issue" column. \
+**calc_end_time:** Standardized calculated end time of the trawl sampling. This column contains end times calculated from the provided start time and trawl duration (minutes). Times are reported in HH:MM:SS format, Pacific Time Zone (UTC−08:00). In total, 81,898 missing end-time values were replaced with calculated end times.\
+**duration_minutes:** Duration of the trawl sampling (minutes). This variable represents the duration of each trawl event. The expected value range is 0–60 minutes, with most observations near 15 minutes. Values exceeding 60 minutes were flagged in the invalid_duration_time section of the general_comments column as “Greater than 60 min, likely error”. Extreme values were set to NA.\
+**calc_duration_time:**Standardized calculated duration time of the trawl sampling. This column contains duration times calculated from the provided start time and end time. Times are reported in minutes, Pacific Time Zone (UTC−08:00). In total, 3,553 do not match original duration (duration_minutes), likely error in end_time column, and 0 missing duration-time values were replaced with calculated duration times.\
+**depth_m:**\
+**trawl_number:**\
+**sample_type:**\
+**species_code:**\
+**species_common_name:**\
+**genus_name:**\
+**species_name:**\
+**life_stage:**\
+**age_class:**\
+**aging_technique:**\
+**aging_technique_name:**\
+**fish_length_mm:**\
+**fish_weight_g:**\
+**weight_conversion_formula:**\
+**standardized_weight_g:**\
+**calc_std_weight_g:**\
+**fish_total:**\
+**fish_id:**\
+**preservative_code:**\
+**preservative_description:**\
+**sample_number:**\
+**scale:**\
+**scale_book:**\
+**scale_book_letter:**\
+**species_info_code:**\
+**trawl_unique_ID:**\
+**fish_unique_ID:**\
+**source_files:**\
+**source_line:**\
+**trawl_month:**\
+**ats_year:**\
+**general_comments:**
+
+### Data issues explanation
+
+-   Some duplicated rows remain in the final dataset. These records can be verified in detail in the duplicated_df_trawl.csv table. *n = XX*.
+-   Records without common fish species names or fish species were removed. *n = 146*.
+-   Codes 9 or 99 usually represents "unknown" data, except for "processor" . They were replaced by NAs in the final dataset.
+
+### Tables and plots
+
+```{r library, echo=FALSE}
+library(lubridate)
+library(tidyverse)
+library(knitr)
+```
+![Example of a scale book record form.](../06_Figures/scale_book1.jpg)
+
+![Example of a scale samples on a scale book](../06_Figures/scale_book2.jpg)
+
+
+```{r read .csv, include=FALSE}
+df_final <- read.csv("Trawl_data_FINAL_1977-1999.csv")
+```
+
+```{r Lakes info, echo=FALSE, message=FALSE, warning=FALSE}
+df_final %>%
+  group_by(lake_name, ats_year) %>%
+  summarise(count = n()) -> summary_table
+
+write.csv(summary_table, "../06_Figures/Lake_sampling_freq_by_year.csv", row.names = FALSE)
+
+kable(summary_table, caption = "Table 1. Frequency of lakes surveyed by yead.")
+```
+
+```{r duration}
+hist(df_final$duration_minutes, main = " Distribution of duration data", xlab = "Duration (min)")
+```
+
+```{r calculated duration}
+ggplot(data = df_final, aes(calc_duration_time)) +
+  geom_histogram(binwidth = 5) +
+  coord_cartesian(xlim = c(0, 60))+
+  labs(x = "Calculated duration (min)", y = "Frequency")
+```
+
+```{r all spp}
+ggplot(data = df_final, aes(x = fish_length_mm, y = fish_weight_g, color = species_common_name)) + 
+  geom_point(shape = df_final$species_code) +
+  #geom_smooth(method=lm) +
+  coord_cartesian(xlim = c(0, 225), ylim = c(0, 200)) +
+  labs(title="Regression line fish length and fish weigth",
+       x="Fish length (mm)", y = "Fish weigth (g)", , colour = "Species")
+```
+
+```{r length/weight}
+ggplot(data = subset(df_final, species_common_name == "Sockeye" | species_common_name == "Stickleback"), 
+       aes(x = fish_length_mm, y = fish_weight_g)) +
+  geom_point(aes(colour = species_common_name), alpha = 0.5) +
+  coord_cartesian(xlim = c(0, 225), ylim = c(0, 200)) +
+  labs(x = "Fish Length (mm)", y = "Fish Weight (g)", colour = "Species") +
+  facet_wrap(~ lake_name)
+```
+
+```{r depth}
+ggplot(data = df_final, aes(depth_m)) +
+  geom_histogram(binwidth = 1) +
+  labs(x = "Depth (m)")
+
+ggplot(data = subset(df_final, species_common_name == "Sockeye" | species_common_name == "Stickleback")) +
+  geom_histogram(aes(x = depth_m, fill = species_common_name), position = "dodge") +
+  labs(x = "Depth (m)", y = "Frequency", colour = "Species")
+
+```

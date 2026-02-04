@@ -35,38 +35,6 @@ install.packages(setdiff(packages, row.names(installed.packages())))
 ################################  Step 1  #####################################
 ########################## Organize the directory #############################
 
-## Renaming existing directory if it is not standardized
-#if (!dir.exists("./TRAWL_BIOSAMPLE/01_code")) {
-#  if(dir.exists("./TRAWL_BIOSAMPLE/code")) {
-#    renaming_folder <- file.rename("./TRAWL_BIOSAMPLE/code", "/Users/aliceassmar/Documents/LDP-DFO-Project/TRAWL_BIOSAMPLE/01_code")
-#    if (renaming_folder){
-#      message("Directory renamed successfully.") 
-#    } else {
-#      warning("Failed to rename directory")
-#    }
-#  } else {
-#    warning("Old directory does not exist.")
-#  }
-#} else {
-#  message("New directory already exists.")
-#}
-#
-## Renaming raw data folder
-#if (!dir.exists("/Users/aliceassmar/Documents/LDP-DFO-Project/TRAWL_BIOSAMPLE/00_raw_data")) {
-#  if(dir.exists("/Users/aliceassmar/Documents/LDP-DFO-Project/TRAWL_BIOSAMPLE/data")) {
-#    renaming_folder <- file.rename("/Users/aliceassmar/Documents/LDP-DFO-Project/TRAWL_BIOSAMPLE/data", "/Users/aliceassmar/Documents/LDP-DFO-Project/TRAWL_BIOSAMPLE/00_raw_data")
-#    if (renaming_folder){
-#      message("Directory renamed successfully.") 
-#    } else {
-#      warning("Failed to rename directory")
-#    }
-#  } else {
-#    warning("Old directory does not exist.")
-#  }
-#} else {
-#  message("New directory already exists.")
-#}
-
 # Create the directories to hold output files
 if (!dir.exists("./TRAWL_BIOSAMPLE/02_intermediate_out")) {dir.create("./TRAWL_BIOSAMPLE/02_intermediate_out")
 } else {message("Directory already exists.")} # ensure CSV output directory exists
@@ -76,6 +44,8 @@ if (!dir.exists("./TRAWL_BIOSAMPLE/04_final_output")) {dir.create("./TRAWL_BIOSA
 } else {message("Directory already exists.")}  # ensure plot output directory exists
 if (!dir.exists("./TRAWL_BIOSAMPLE/05_ARCHIVE")) {dir.create("./TRAWL_BIOSAMPLE/05_ARCHIVE")
 }  else {message("Directory already exists.")} # ensure archive directory exists for storing date-stamped copy of output
+if (!dir.exists("./TRAWL_BIOSAMPLE/06_Figures")) {dir.create("./TRAWL_BIOSAMPLE/06_Figures")
+}  else {message("Directory already exists.")} # ensure figure directory exists for storing plots and tables
 
 # Create variable to hold output directory and the target file
 input_folder <- "./TRAWL_BIOSAMPLE/00_raw_data/01_DAT"
