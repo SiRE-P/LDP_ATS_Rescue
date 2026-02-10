@@ -312,7 +312,7 @@ final_df <- final_df %>%
 
 ### Adding look up tables, that were provided in the Sharepoint
 ### Look up tables include: lake name, fish species, preservative code,
-### weight convertion formula 
+### weight conversion formula 
 
 ### load your look-up tables
 fish_species_code_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/fish_species_code_lookup_table.csv")
