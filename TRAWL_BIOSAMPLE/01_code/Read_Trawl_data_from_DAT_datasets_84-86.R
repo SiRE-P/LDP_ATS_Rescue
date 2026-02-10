@@ -420,6 +420,8 @@ final_df <- final_df %>%
     ats_year = year(trawl_date) - if_else(trawl_month < 4, 1L, 0L)
   )
 
+### Removing leading zero
+final_df$lake_code <- as.numeric(final_df$lake_code)
 
 ### Creating unique IDs for fishes and Trawls
 final_df$trawl_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, sep = "_")
