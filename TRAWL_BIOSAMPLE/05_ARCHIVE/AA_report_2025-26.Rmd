@@ -329,3 +329,21 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
   - Depth_m facet_wrap by lake
   - separate issues/flags from the general comments
 
+## Week 14 (February 02nd-8th, 2026)
+-> Done:
+  - Organized the data_dictionary
+  - Re-organized the general_comments, data_issues, and create a "data_validation_comments" column to better separate comments.
+  - Organized general README file
+  - Depth_m facet_wrap by lake
+  
+-> After Mid-internship meeting
+  - Correct ATS year in the first codes to reflect season year - April 1st to March 31st
+  - gear_type column - Every row with seine info will become "beach seine" and all other is "Trawl"
+    - Dum1/dum2 information become NA
+    - Flag all rows that have "NET", "Dum" or "7X7X7.5" info - what does this info mean?
+  - sample_type column: keep as is
+  - Export one preservative code summary table to send to Howard and Athena
+  - Remove "data retrieved" from the time stamp
+  - Report which column is "sythetic" - Created by us - or "raw_data" - from original files 
+
+
