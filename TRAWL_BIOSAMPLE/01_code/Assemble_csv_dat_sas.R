@@ -446,6 +446,11 @@ replacement_pattern <- c("^NA, " = "",
                          ", NA" = "")
 df_final$source_files <- str_replace_all(df_final$source_files, replacement_pattern)
 
+### Clean typos in the sample_type column
+replacement_pattern <- c("TRAWLL" = "Trawl",
+                         "TTRAWL" = "Trawl")
+df_final$sample_type <- str_replace_all(df_final$sample_type, replacement_pattern)
+
 # Reorganize columns
 df_final <- df_final %>% 
   relocate(trawl_date, "trawl_comment" = trawl_location, lake_code, lake_name, process_date, processor,
@@ -704,7 +709,7 @@ df_final_clean_time <- df_final_clean_time %>%
 fish_scientific_name_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/03_AA_look_up_tables/AA_fish_scientific_name_lookup.csv")
 
 # Add a comment for Dolly Varden - taxonomic issues 
-df_final_clean_time$comment <- ifelse(df_final_clean_time$fish_description == "Dolly Varden", "Salvelinus malma and S. confluentus - might have unsolved taxonomic issues", df_final$comment)
+df_final_clean_time$comment <- ifelse(df_final_clean_time$fish_description == "Dolly Varden", "Salvelinus malma and S. confluentus might have unsolved taxonomic issues", df_final$comment)
 
 # Remove abbreviations in the name of the lakes by importing the lookup table
 lake_name <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv")
@@ -1021,6 +1026,11 @@ nearly_final_dataframe %>%
   group_by(fish_unique_ID, gear_type) %>%
   summarise(count = n()) -> summary_table
 
+# Include the default gear type as "Trawl" in the "gear_type column
+nearly_final_dataframe <- nearly_final_dataframe %>%
+  mutate(gear_type = ifelse(is.na(gear_type) | gear_type == "", "Trawl", "Beach seine"),
+         gear_type = ifelse(sample_type == "DUM2" | sample_type == "dum2", NA_character_, gear_type))
+
 # Clean trawl_comment column
 final_dataframe <- nearly_final_dataframe %>%
   mutate(trawl_comment = str_trim(str_remove(trawl_comment, "XXXXXXXXXXXXXXXXXXXXXXXXXXXX")),
@@ -1035,19 +1045,24 @@ write.csv(final_dataframe, paste0(working_directory, "/combined_inprogress_df_tr
 final_dataframe <- final_dataframe %>%
   rowwise() %>%
   mutate(data_issues = paste(
-      c(if (!is.na(trawl_comment) & trawl_comment != "") paste0("trawl_comment: ", trawl_comment),
-        if (!is.na(comment) & comment != "") paste0("comment: ", comment),
-        if (!is.na(time_comment) & time_comment != "") paste0("time_comment: ", time_comment),
-        if (duration_comment == "does NOT match calculated start_time and end_time, likely end_time error") paste0("duration_comment: ", duration_comment),
-        if (!is.na(preservative_code_comment) & preservative_code_comment != "") paste0("preservative_code_comment: ", preservative_code_comment),
+      c(if (duration_comment == "does NOT match calculated start_time and end_time, likely end_time error") paste0("duration_comment: ", duration_comment),
         if (!is.na(depth_m_comments) & depth_m_comments != "") paste0("depth_m_comments: ", depth_m_comments),
-        if (!is.na(trawl_date_comment) & trawl_date_comment != "") paste0("trawl_date_comment: ", trawl_date_comment),
-        if (!is.na(trawl_number_comment) & trawl_number_comment != "") paste0("trawl_number_comment: ", trawl_number_comment),
         if (!is.na(scale_book_comment) & scale_book_comment != "") paste0("scale_book_comment: ", scale_book_comment),
-        if (std_weight_g_comment == "does NOT match calculated standardized weight") paste0("std_weight_g_comment: ", std_weight_g_comment)),
-        if (calc_end_time_comment == "end_time calculated from start_time and duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),      collapse = "; "
+        if (std_weight_g_comment == "does NOT match calculated standardized weight") paste0("std_weight_g_comment: ", std_weight_g_comment),
+        if (calc_end_time_comment == "end_time calculated from start_time and duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),
+        if (!is.na(invalid_start_time) & invalid_start_time == "Invalid format") paste0("invalid_start_time: ", invalid_start_time)),
+      collapse = "; "
     )) %>%
   mutate(general_comments = paste(
+    c(if (!is.na(trawl_date_comment) & trawl_date_comment != "") paste0("trawl_date_comment: ", trawl_date_comment),
+      if (!is.na(trawl_number_comment) & trawl_number_comment != "") paste0("trawl_number_comment: ", trawl_number_comment),
+      if (!is.na(trawl_comment) & trawl_comment != "") paste0("trawl_comment: ", trawl_comment),
+      if (!is.na(comment) & comment != "") paste0("comment: ", comment),
+      if (!is.na(time_comment) & time_comment != "") paste0("time_comment: ", time_comment),
+      if (!is.na(preservative_code_comment) & preservative_code_comment != "") paste0("preservative_code_comment: ", preservative_code_comment)),
+    collapse = "; "
+  )) %>%
+  mutate(data_validation_comments = paste(
     c(if (!is.na(merging_update_type) & merging_update_type != "") paste0("merging_update_type: ", merging_update_type),
       if (duration_comment != "does NOT match calculated start_time and end_time, likely end_time error") paste0("duration_comment: ", duration_comment),
       if (!is.na(invalid_duration_time) & invalid_duration_time != "") paste0("invalid_duration_time: ", invalid_duration_time),
@@ -1055,7 +1070,7 @@ final_dataframe <- final_dataframe %>%
       if (std_weight_g_comment != "does NOT match calculated standardized weight") paste0("std_weight_g_comment: ", std_weight_g_comment),
       if (!is.na(invalid_start_time) & invalid_start_time != "") paste0("invalid_start_time: ", invalid_start_time),
       if (!is.na(invalid_end_time) & invalid_end_time != "") paste0("invalid_end_time: ", invalid_end_time)
-      ),
+    ),
     collapse = "; "
   )) %>%
   ungroup()  %>%
@@ -1069,7 +1084,7 @@ time_stamp <- format(Sys.time(), "%d-%b-%Y %H:%M") # get time-stamp to indicate 
 # Reorganize and rename columns
 final_dataframe <- final_dataframe %>%
   mutate(time_stamp = time_stamp) %>%
-  unite("program_notes", program_notes, time_stamp, sep = ". Data rescued: ", na.rm = TRUE) %>%
+  unite("program_notes", program_notes, time_stamp, sep = ". ", na.rm = TRUE) %>%
   dplyr::select(ats_year, lake_code, lake_name, trawl_date, trawl_month, 
               trawl_number, sample_type, gear_type,
               depth_m, start_time, end_time, calc_end_time, 

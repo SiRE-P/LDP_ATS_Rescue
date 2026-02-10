@@ -216,10 +216,6 @@ for (f in files) {
       duration_mi = as.character(duration_mi)
     )
   
-  ### Creating unique IDs for fishes and Trawls
-  #final_df$trawl_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, sep = "_")
-  #final_df$fish_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, final_df$fish_id, final_df$species_code, sep = "_")
-  
   ### Creating unique IDs for fishes and Trawls, actually avoiding duplicates
   final_df$trawl_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, sep = "_")
   final_df$fish_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, final_df$species_code, final_df$fish_id, final_df$fish_weight_g, final_df$fish_length_mm, sep = "_")
@@ -239,12 +235,24 @@ for (f in files) {
     mutate(
       trawl_date = ymd(trawl_date),
       trawl_month = month(trawl_date),
-      ats_year = year(trawl_date)
+      ats_year = year(trawl_date) - if_else(trawl_month < 4, 1L, 0L)
     )
   
- # Remove duplicates
-  final_df <- final_df %>% 
-    distinct(select(., -c(trawl_unique_ID, fish_unique_ID)), .keep_all = TRUE)
+  ### Checking for duplicates
+  # Check for duplicates based on selected columns
+  duplicated_rows <- final_df[duplicated(final_df[ , !names(final_df) %in% "source_line"]), ]
+  
+  all_duplicates <- final_df %>%
+    group_by(fish_unique_ID, species_code_comment) %>%
+    filter(n() > 1) %>%
+    arrange(fish_unique_ID) %>%
+    ungroup()
+  
+  n_removed <- nrow(duplicated_rows)
+  cat("Removed", n_removed, "exact duplicate rows across all columns\n")
+  
+  # Remove duplicates
+  final_df <- final_df[!duplicated(final_df[ , !names(final_df) %in% "source_line"]), ]
   
   ### save table in csv 
   write.csv(final_df, paste0(intermediate_out_folder,"/trawl", metadata_yy, "_SAS.csv"), row.names = FALSE)

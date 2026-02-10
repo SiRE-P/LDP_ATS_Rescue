@@ -35,11 +35,14 @@ install.packages(setdiff(packages, row.names(installed.packages())))
 
 #### Read csv tables
 intermediate_out_folder <- "./TRAWL_BIOSAMPLE/02_intermediate_out"
-trawl_file <- "Trawl96"
-# Some .dat files has upper case names
-trawl_file_dat <- "TRAWL96"
+#trawl_file <- "Trawl96"
+trawl_files <- c("trawl84", "trawl88", "trawl89", "trawl90", "trawl91", "trawl92", "trawl93", "trawl95", "trawl96")
 
-final_csv_dat <- read.csv(paste0(intermediate_out_folder,"/", trawl_file_dat, "_DAT.csv"))
+for (trawl_file in trawl_files) {
+  
+  cat("Processing", trawl_file, "\n")
+
+final_csv_dat <- read.csv(paste0(intermediate_out_folder,"/", trawl_file, "_DAT.csv"))
 final_csv_sas <- read.csv(paste0(intermediate_out_folder,"/", trawl_file, "_SAS.csv"))
 
 #### Summarize dat and SAS tables
@@ -120,21 +123,21 @@ merged_df <- merged_df %>%
 
 # Save final table in csv
 write.csv(merged_df, paste0(intermediate_out_folder, "/", trawl_file, "_inventory.csv"), row.names = FALSE)
-
-# Count number of match
-sum(merged_df$match == "MATCH", na.rm = TRUE)
-sum(merged_df$match == "NOT MATCH", na.rm = TRUE)
-
-# Check length for unique lakes and which lakes are present
-length(unique(final_csv_dat$lake_code))
-unique(final_csv_dat$lake_code)
-
-length(unique(final_csv_sas$lake_code))
-unique(final_csv_sas$lake_code)
-
-unique(paste(final_csv_dat$lake_code, final_csv_dat$trawl_date))
-unique(paste(final_csv_sas$lake_code, final_csv_sas$trawl_date))
-
-# Read inventory
-final_csv_inventory <- read.csv(paste0(intermediate_out_folder,"/", trawl_file, "_inventory.csv"))
+}
+## Count number of match
+#sum(merged_df$match == "MATCH", na.rm = TRUE)
+#sum(merged_df$match == "NOT MATCH", na.rm = TRUE)
+#
+## Check length for unique lakes and which lakes are present
+#length(unique(final_csv_dat$lake_code))
+#unique(final_csv_dat$lake_code)
+#
+#length(unique(final_csv_sas$lake_code))
+#unique(final_csv_sas$lake_code)
+#
+#unique(paste(final_csv_dat$lake_code, final_csv_dat$trawl_date))
+#unique(paste(final_csv_sas$lake_code, final_csv_sas$trawl_date))
+#
+## Read inventory
+#final_csv_inventory <- read.csv(paste0(intermediate_out_folder,"/", trawl_file, "_inventory.csv"))
 

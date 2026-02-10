@@ -7,6 +7,13 @@
 ##############        Athena Ogden (DFO Nanaimo)            ###################
 ###############################################################################
 
+###
+
+# THIS SCRIPT WORKS FOR TRAWL FILE '99 ONLY
+
+###
+
+
 # getwd()
 # setwd("/LDP_ATS_Rescue")
 
@@ -48,7 +55,13 @@ if (!dir.exists("./TRAWL_BIOSAMPLE/06_Figures")) {dir.create("./TRAWL_BIOSAMPLE/
 # Create variable to hold output directory and the target file
 input_folder <- "./TRAWL_BIOSAMPLE/00_raw_data/01_DAT"
 intermediate_out_folder <- "./TRAWL_BIOSAMPLE/02_intermediate_out"
-trawl_file <- "TRAWL99"
+#trawl_file <- "TRAWL99" # uncomment this line if you're running the script manually
+
+trawl_files <- c("TRAWL99")
+
+for (trawl_file in trawl_files) {
+  
+  cat("Processing", trawl_file, "\n")
 
 ################################  Step 2  #####################################
 ################### Read dat and loop over data files #########################
@@ -381,7 +394,7 @@ final_df <- final_df %>%
   mutate(
     trawl_date = ymd(trawl_date),
     trawl_month = month(trawl_date),
-    ats_year = year(trawl_date)
+    ats_year = year(trawl_date) - if_else(trawl_month < 4, 1L, 0L)
   )
 
 ### Creating unique IDs for fishes and Trawls
@@ -400,13 +413,19 @@ final_df <- final_df %>%
 
 ### Checking for duplicates
 # Check for duplicates based on selected columns
-duplicate_rows_indices <- final_df[duplicated(final_df$fish_unique_ID), ]
+duplicated_rows <- final_df[duplicated(final_df[ , !names(final_df) %in% "source_line"]), ]
 
-# View the duplicate rows
-print(duplicate_rows_indices)
+all_duplicates <- final_df %>%
+  group_by(fish_unique_ID, species_code_comment) %>%
+  filter(n() > 1) %>%
+  arrange(fish_unique_ID) %>%
+  ungroup()
+
+n_removed <- nrow(duplicated_rows)
+cat("Removed", n_removed, "exact duplicate rows across all columns\n")
 
 # Remove duplicates
-final_df <- final_df[!duplicated(final_df$fish_unique_ID), ]
+final_df <- final_df[!duplicated(final_df[ , !names(final_df) %in% "source_line"]), ]
 
 ### for trawl year '99 only. Correcting Y2K bug:
 final_df$process_date <- as.Date(final_df$process_date) + 
@@ -414,6 +433,16 @@ final_df$process_date <- as.Date(final_df$process_date) +
 final_df$process_date <- as.character(final_df$process_date)
 
 ### save 
-write.csv(final_df, paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"), row.names = FALSE)
+write.csv(final_df, paste0(intermediate_out_folder, "/", tolower(trawl_file), "_DAT.csv"), row.names = FALSE)
 
+cat(
+  "For", trawl_file,
+  ": recovered values ->",
+  "line count =", line_count,
+  ", line index =", line_index,
+  ", i =", i,
+  "\n"
+)
+
+}
 
