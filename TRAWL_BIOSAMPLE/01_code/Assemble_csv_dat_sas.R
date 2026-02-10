@@ -823,7 +823,7 @@ write.csv(duration_mismatch, paste0(error_directory, "/duration_mismatch.csv"), 
 df_final_calc_end <- df_final_calc_duration %>%
   mutate(calc_end_time = as.numeric(start_t) + as.numeric(duration_mi) * 60,
          calc_end_time_comment = case_when(!is.na(end_time) ~ "end_time provided",
-                                          TRUE ~ "end_time calculated from start_time and duration_mi")) %>%
+                                          TRUE ~ "end_time missing, calculated from start_time + duration_mi")) %>%
   select(-start_t, -end_t)
 
 # Convert seconds to hms format
@@ -836,7 +836,7 @@ df_final_calc_end <- df_final_calc_end %>%
   mutate(calc_end_time = str_replace_all(calc_end_time, pattern = "^25", replacement = "01"))
 
 # Check number of calculated end time rows
-sum(df_final_calc_end$calc_end_time_comment == "end_time calculated from start_time and duration_mi", na.rm = TRUE)
+sum(df_final_calc_end$calc_end_time_comment == "end_time missing, calculated from start_time + duration_mi", na.rm = TRUE)
 
 #### Correct errors in preservative_code column
 code = c("971", "270", "350", "11", "35")
@@ -845,7 +845,7 @@ df_final_calc_end <- df_final_calc_end %>%
   mutate(preservative_code_comment = ifelse(preservative_code %in% code, 
                                             ifelse(is.na(preservative_code_comment) | preservative_code_comment == "",
                                                    "corrected typo error in preservative_code",
-                                                   paste("typo error corrected", preservative_code_comment, sep = "; ")),
+                                                   paste("corrected typo error in preservative_code", preservative_code_comment, sep = "; ")),
                                             preservative_code_comment)) %>%
   mutate(preservative_code = case_when(preservative_code == "98" ~ NA_character_,
                                        preservative_code == "971" ~ "97",
@@ -895,22 +895,23 @@ df_final_calc_std_weight <- df_final_calc_end %>%
 
 # Round the new column, calc_std_weight_g, to two decimal places
 df_final_calc_std_weight$calc_std_weight_g <- round(df_final_calc_std_weight$calc_std_weight_g, digits = 2)
+
 # Compare them to the existing standardized_weight_g column
 df_final_calc_std_weight <- df_final_calc_std_weight %>%
   mutate(std_weight_g_comment = case_when(
            # standardized_weight_g exists and matches calc_std_weight_g
            !is.na(standardized_weight_g) & !is.na(calc_std_weight_g) &
-             abs(standardized_weight_g - calc_std_weight_g) < 1 ~ "matches calculated standardized weight",
+             abs(standardized_weight_g - calc_std_weight_g) < 1 ~ "matches calc_std_weight_g",
            # standardized_weight_g exists but does NOT match calc_std_weight_g
            !is.na(standardized_weight_g) & !is.na(calc_std_weight_g) &
-             abs(standardized_weight_g - calc_std_weight_g) >= 1 ~ "does NOT match calculated standardized weight",
+             abs(standardized_weight_g - calc_std_weight_g) >= 1 ~ "does NOT match calc_std_weight_g",
            # standardized_weight_g calculated from calc_std_weight_g
            is.na(standardized_weight_g) & !is.na(calc_std_weight_g) ~ "standardized_weight_g calculated from standardized weight formula",
            # nothing possible
            TRUE ~ "standardized weight could not be calculated"))
 
 # Check number of problematic rows
-sum(df_final_calc_std_weight$std_weight_g_comment == "does NOT match calculated standardized weight", na.rm = TRUE)
+sum(df_final_calc_std_weight$std_weight_g_comment == "does NOT match calc_std_weight_g", na.rm = TRUE)
 sum(df_final_calc_std_weight$std_weight_g_comment == "standardized_weight_g calculated from standardized weight formula", na.rm = TRUE)
 sum(df_final_calc_std_weight$std_weight_g_comment == "standardized weight could not be calculated", na.rm = TRUE)
 
@@ -940,12 +941,36 @@ df_final_clean_depth <- df_final_clean_depth %>%
   unite("depth_m_comments", depth_m_flag, depth_m_comment, sep = ", ", na.rm = TRUE)
 
 ### Clean scale, scale_book and scale_book_letter columns
-# Replace wrong data scale_book data for the correct number
+# Replace wrong data in scale_book data for the correct number and flag modifications
+df_final_clean_depth <- df_final_clean_depth %>%
+  mutate(scale_book_comment = if_else(scale_book == "1.86" | scale_book == "0.49" | scale_book == "0.21",
+                                      "Weight value was incorrectly recorded in the scale_book field; corrected by recoding to 0",
+                                      NA_character_))
+
 df_final_clean_depth <- df_final_clean_depth %>%
   mutate(scale_book = case_when(scale_book == "1.86" ~ "0",
                                 scale_book == "0.49" ~ "0",
                                 scale_book == "0.21" ~ "0",
                                  TRUE ~ scale_book))
+
+# Transfer the scale_book comments to the scale_book_comment column
+df_final_clean_depth <- df_final_clean_depth %>%
+  mutate(
+    ### extract the digits at the start
+    scale_book_clean = str_extract(scale_book, "^\\w{1,3}"),
+    
+    ### extract the rest of the string as comment
+    scale_book_comment = if_else(scale_book_comment == "" | is.na(scale_book_comment),
+                                 str_trim(str_remove(scale_book, "^\\d{1,4}")),
+                                          paste(scale_book_comment, str_trim(str_remove(scale_book, "^\\d{1,4}")), sep = "")),
+    
+    ### replace missing/empty comments with NA character
+    scale_book_comment = if_else(scale_book_comment == "" | is.na(scale_book_comment) | scale_book_comment == " ",
+                                 NA_character_, scale_book_comment),
+    
+    ### convert number to integer (optional, based on your needs)
+    scale_book = scale_book_clean) %>%
+  select(-scale_book_clean)
 
 # Transfer scale book letters from scale_book column to scale_book_letter
 df_final_clean_depth <- df_final_clean_depth %>%
@@ -965,37 +990,13 @@ df_final_clean_depth <- df_final_clean_depth %>%
   # Delete extra rows
   select(-scale_book_flag_letter, -scale_book_flag_letter, -scale_book_is_letter, -letters_match)
 
-# Create a new column for the scale_book comments, scale_book_comment
-df_final_clean_depth <- df_final_clean_depth %>%
-  mutate(
-    ### extract the digits at the start
-    scale_book_clean = str_extract(scale_book, "^\\w{1,3}"),
-    
-    ### extract the rest of the string as comment
-    scale_book_comment = str_trim(str_remove(scale_book, "^\\d{1,4}")),
-    
-    ### replace missing/empty comments with ""
-    scale_book_comment = if_else(scale_book_comment == "" | is.na(scale_book_comment),
-                                 NA_character_, scale_book_comment),
-
-    ### convert number to integer (optional, based on your needs)
-    scale_book = as.integer(scale_book_clean)) %>%
-  select(-scale_book_clean)
-
 ### Comment values greater than 20 in the scale_book_comment column
 df_final_clean_depth <- df_final_clean_depth  %>% 
-  mutate(scale_book_comment2 = case_when(scale_book > 20 ~ "scale_book > 20, possible error",
-                               TRUE ~ scale_book_comment),
-         scale_book_comment = scale_book_comment2) %>% 
-  select(-scale_book_comment2)
-
-# Add comment for the corrected rows 
-rows = c(93221, 92368, 93251)
-df_final_clean_depth <- df_final_clean_depth %>%
-  mutate(scale_book_comment = if_else(row_number() %in% rows,
+  mutate(scale_book = as.integer(scale_book),
+         scale_book_comment = if_else(scale_book > 20,
                                       if_else(is.na(scale_book_comment) | scale_book_comment == "",
-                                              "Wrong weight entry replaced with scale_book code 0", 
-                                              paste(scale_book_comment, "Wrong weight entry replaced with scale_book code 0", sep = "; ")),
+                                              "scale_book > 20, possible error", 
+                                              paste(scale_book_comment, "scale_book > 20, possible error", sep = "; ")),
                                       scale_book_comment))
 
 df_final_clean_depth %>%
@@ -1015,11 +1016,7 @@ sum(sein_info_trawl_location == "TRUE", na.rm = TRUE)
 
 # Create a new column to store seine info nested in trawl_comment column
 nearly_final_dataframe <- nearly_final_dataframe %>%
-  mutate(gear_type = ifelse(sein_info_trawl_location =="TRUE", trawl_comment, NA_character_),
-         # Clean the gear_type column to keep only seine info
-         gear_type_clean = str_trim(str_remove(gear_type, "NO TIME OR DURATION TIME.NO DEPTH.")),
-         gear_type = gear_type_clean) %>%
-  select(-gear_type_clean)
+  mutate(gear_type = ifelse(sein_info_trawl_location =="TRUE", trawl_comment, NA_character_))
 
 nearly_final_dataframe %>%
   filter(sein_info_trawl_location) %>%
@@ -1028,14 +1025,23 @@ nearly_final_dataframe %>%
 
 # Include the default gear type as "Trawl" in the "gear_type column
 nearly_final_dataframe <- nearly_final_dataframe %>%
-  mutate(gear_type = ifelse(is.na(gear_type) | gear_type == "", "Trawl", "Beach seine"),
-         gear_type = ifelse(sample_type == "DUM2" | sample_type == "dum2", NA_character_, gear_type))
+  mutate(gear_type = case_when(!is.na(gear_type) | gear_type != "" ~ "Beach seine", 
+                               sample_type == "DUM2" | sample_type == "dum2" ~ NA_character_,
+                               sample_type == "7*7*7.5" ~ NA_character_,
+                               TRUE ~ "Trawl"),
+         gear_type_comment = case_when(sample_type == "DUM2" | sample_type == "dum2" ~ "Likely a test trawl",
+                                       sample_type == "7*7*7.5" ~ "Likely wrong net dimensions",
+                                       TRUE ~ NA_character_))
 
 # Clean trawl_comment column
 final_dataframe <- nearly_final_dataframe %>%
   mutate(trawl_comment = str_trim(str_remove(trawl_comment, "XXXXXXXXXXXXXXXXXXXXXXXXXXXX")),
          trawl_comment = gsub("\\s+", " ", trawl_comment),
          time_comment = ifelse(time_comment == "NANA", NA_character_, time_comment))
+
+final_dataframe %>%
+  group_by(sample_type, gear_type) %>%
+  summarise(count = n()) -> summary_table
 
 # Save document until here
 write.csv(final_dataframe, paste0(working_directory, "/combined_inprogress_df_trawl.csv"), row.names = FALSE)
@@ -1047,9 +1053,10 @@ final_dataframe <- final_dataframe %>%
   mutate(data_issues = paste(
       c(if (duration_comment == "does NOT match calculated start_time and end_time, likely end_time error") paste0("duration_comment: ", duration_comment),
         if (!is.na(depth_m_comments) & depth_m_comments != "") paste0("depth_m_comments: ", depth_m_comments),
+        if (!is.na(gear_type_comment) & gear_type_comment != "") paste0("gear_type_comment: ", gear_type_comment),
         if (!is.na(scale_book_comment) & scale_book_comment != "") paste0("scale_book_comment: ", scale_book_comment),
-        if (std_weight_g_comment == "does NOT match calculated standardized weight") paste0("std_weight_g_comment: ", std_weight_g_comment),
-        if (calc_end_time_comment == "end_time calculated from start_time and duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),
+        if (std_weight_g_comment == "does NOT match calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment),
+        if (calc_end_time_comment == "end_time missing, calculated from start_time + duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),
         if (!is.na(invalid_start_time) & invalid_start_time == "Invalid format") paste0("invalid_start_time: ", invalid_start_time)),
       collapse = "; "
     )) %>%
@@ -1066,8 +1073,8 @@ final_dataframe <- final_dataframe %>%
     c(if (!is.na(merging_update_type) & merging_update_type != "") paste0("merging_update_type: ", merging_update_type),
       if (duration_comment != "does NOT match calculated start_time and end_time, likely end_time error") paste0("duration_comment: ", duration_comment),
       if (!is.na(invalid_duration_time) & invalid_duration_time != "") paste0("invalid_duration_time: ", invalid_duration_time),
-      if (calc_end_time_comment != "end_time calculated from start_time and duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),
-      if (std_weight_g_comment != "does NOT match calculated standardized weight") paste0("std_weight_g_comment: ", std_weight_g_comment),
+      if (calc_end_time_comment != "end_time missing, calculated from start_time + duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),
+      if (std_weight_g_comment != "does NOT match calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment),
       if (!is.na(invalid_start_time) & invalid_start_time != "") paste0("invalid_start_time: ", invalid_start_time),
       if (!is.na(invalid_end_time) & invalid_end_time != "") paste0("invalid_end_time: ", invalid_end_time)
     ),
@@ -1076,7 +1083,8 @@ final_dataframe <- final_dataframe %>%
   ungroup()  %>%
   select(-trawl_comment, -comment, -time_comment, -preservative_code_comment, -depth_m_comments, -invalid_end_time,
         -trawl_date_comment, -trawl_number_comment, -merging_update_type, -scale_book_comment, -calc_value,
-        -duration_comment, -invalid_duration_time, -invalid_start_time, -calc_end_time_comment, -duration_final, -std_weight_g_comment)
+        -duration_comment, -invalid_duration_time, -invalid_start_time, -calc_end_time_comment, -duration_final, 
+        -std_weight_g_comment, -gear_type_comment)
 
 # Get the time stamp to record when the data was rescued
 time_stamp <- format(Sys.time(), "%d-%b-%Y %H:%M") # get time-stamp to indicate when data rescued
