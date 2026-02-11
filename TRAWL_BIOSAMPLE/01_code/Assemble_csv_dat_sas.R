@@ -1,10 +1,9 @@
-###############################################################################
-##############                  TRAWL data                  ###################
-##############          assembling .csv trawl files         ###################
-############## Authors: Alice Assmar (McGill Uni.), David   ###################
-##############      Hunt (McGill Uni.), Howard Stiff       ###################
-##############   (DFO Nanaimo), Athena Ogden (DFO Nanaimo)  ###################
-###############################################################################
+##############
+####    TRAWL data                
+####    Assembling .csv trawl files       
+####    Authors: Alice Assmar (McGill Uni.), David Hunt (McGill Uni.),
+####    Howard Stiff (DFO Nanaimo), Athena Ogden (DFO Nanaimo)
+###############
 
 # getwd()
 # setwd("./LDP_ATS_Rescue")
@@ -137,28 +136,6 @@ Trawl_96_dat <- Trawl_96_dat %>%
 ################### full join to keep all columns and rows #########################
 
 ## full join to keep all columns and rows, we can clean them later
-# Testing the values using Trawl 84'
-#### Counting Occurrences of All Unique Values in a Column:
-#table(Trawl_84_sas$fish_unique_ID)
-#Trawl_84_sas[Trawl_84_sas$fish_unique_ID == "1984-06-26_40_6_6_2_1_2.52_63", ]
-#Trawl_84_dat[Trawl_84_dat$fish_unique_ID == "1984-06-26_40_6_6_2_1_2.52_63", ]
-#Trawl_84[Trawl_84$fish_unique_ID == "1984-06-26_40_6_6_2_1_2.52_63", ]
-#
-#Trawl_84_sas[Trawl_84_sas$fish_unique_ID == "1984-05-01_40_1_2_2_6_0.22_32", ]
-#Trawl_84_dat[Trawl_84_dat$fish_unique_ID == "1984-05-01_40_1_2_2_6_0.22_32", ]
-#Trawl_84[Trawl_84$fish_unique_ID == "1984-05-01_40_1_2_2_6_0.22_32", ]
-#
-#Trawl_84_sas[Trawl_84_sas$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ]
-#Trawl_84_dat[Trawl_84_dat$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ]
-#Trawl_84[Trawl_84$fish_unique_ID == "1984-04-25_6_1_4_1_1_3.12_67", ]
-#
-# If I do not use all column names, it will keep duplicates of all columns
-#Trawl_84_rows <- joyn::full_join(Trawl_84_sas, Trawl_84_dat,  suffix = c(".sas", ".dat"),
-#                      by = c("fish_unique_ID", "fish_total"), update_values = TRUE)
-
-#Trawl_84_rows <- joyn::full_join(Trawl_84_sas, Trawl_84_dat,  suffix = c(".sas", ".dat"),
-#                                 by = c("fish_unique_ID", "fish_total"))
-
 
 # combining several columns
 Trawl_84 <- joyn::full_join(Trawl_84_dat, Trawl_84_sas, suffix = c(".dat", ".sas"),
@@ -472,6 +449,14 @@ all_duplicates <- df_final %>%
 # Save duplicated rows until here
 write.csv(all_duplicates, paste0(error_directory, "/duplicated_df_trawl.csv"), row.names = FALSE)
 
+# Flag duplicates in the final dataset
+df_final <- df_final %>%
+  mutate(duplicate_flag =
+           if_else(duplicated(across(fish_unique_ID)) |
+                     duplicated(across(fish_unique_ID), fromLast = TRUE),
+                   "Potential duplicate record",
+                   NA_character_))
+
 ### Combine start_time.sas and .dat into a new 'start_time' column
 # First standardize midnight times: instead of 24, represent it as 00
 # Remove decimals from .sas time columns
@@ -732,8 +717,16 @@ df_final_clean_time %>%
 no_species_record_rows <- df_final_clean_time[is.na(df_final_clean_time$fish_description),]
 write.csv(no_species_record_rows, paste0(error_directory, "/no_species_record_rows.csv"), row.names = FALSE)
 
+# Flag rows without species records
+df_final_clean_species <- df_final_clean_time %>%
+  mutate(no_species_name_comments = case_when(species_info_code == 99 & is.na(fish_length_mm) & is.na(fish_weight_g) ~ 
+                                                "Sampling effort documented, but no fish catch recorded",
+                                              species_info_code == 99 & !is.na(fish_length_mm) & !is.na(fish_weight_g) ~ 
+                                                "Fish recorded with missing species code",
+                                              TRUE ~ NA_character_))
+
 # Delete rows with no species info from the final matrix
-df_final_clean_species <- df_final_clean_time[!is.na(df_final_clean_time$fish_description), ]
+#df_final_clean_species <- df_final_clean_species[!is.na(df_final_clean_species$fish_description), ] # Uncomment if you'd like to delete them
 
 #### Work on the duration_mi column. Remove "Min" from the column
 df_final_clean_species <- df_final_clean_species %>%
@@ -1015,22 +1008,16 @@ sein_info_trawl_location <- grepl("sein", nearly_final_dataframe$trawl_comment, 
 sum(sein_info_trawl_location == "TRUE", na.rm = TRUE)
 
 # Create a new column to store seine info nested in trawl_comment column
-nearly_final_dataframe <- nearly_final_dataframe %>%
-  mutate(gear_type = ifelse(sein_info_trawl_location =="TRUE", trawl_comment, NA_character_))
 
-nearly_final_dataframe %>%
-  filter(sein_info_trawl_location) %>%
-  group_by(fish_unique_ID, gear_type) %>%
-  summarise(count = n()) -> summary_table
-
-# Include the default gear type as "Trawl" in the "gear_type column
+# Include the default gear type as "Trawl" in the gear_type column
 nearly_final_dataframe <- nearly_final_dataframe %>%
-  mutate(gear_type = case_when(!is.na(gear_type) | gear_type != "" ~ "Beach seine", 
+  mutate(gear_type = case_when(sein_info_trawl_location =="TRUE" ~ "Beach seine", 
                                sample_type == "DUM2" | sample_type == "dum2" ~ NA_character_,
                                sample_type == "7*7*7.5" ~ NA_character_,
                                TRUE ~ "Trawl"),
          gear_type_comment = case_when(sample_type == "DUM2" | sample_type == "dum2" ~ "Likely a test trawl",
                                        sample_type == "7*7*7.5" ~ "Likely wrong net dimensions",
+                                       gear_type == "Beach seine" ~ "Gear type description provided in trawl_comment column",
                                        TRUE ~ NA_character_))
 
 # Clean trawl_comment column
@@ -1043,6 +1030,92 @@ final_dataframe %>%
   group_by(sample_type, gear_type) %>%
   summarise(count = n()) -> summary_table
 
+################### Cleaning Fish length and weight columns #########################
+
+# Detect preservation comments in the trawl_comment column
+Fish_id_filters <- c("1997-02-20_41_5_8_26_72_0.11_0.28",
+                     "1987-02-25_41_1_7_27_2_0.19_0.3",
+                     "1992-08-17_214_2_4_2_156_0.23_0.33",
+                     "1990-06-22_802_1_6_2_48_0.46_0.38",
+                     "1987-07-31_29_5_0_2_2_1.05_0.49",
+                     "1996-08-22_18_25_0_2_70_0.11_2.5",
+                     "1996-08-22_18_25_0_2_71_0.16_2.7",
+                     "1985-12-11_41_4_15_2_16_0.34_3",
+                     "1995-08-30_8_7_7_2_57_999_4",
+                     "1987-11-29_118_8_20_9_1_0_1.88",
+                     "1999-09-08_802_2_8_7_268_0_0",
+                     "1995-08-26_18_19_11_7_21_0.61_0.37",
+                     "1989-06-03_41_15_10_7_78_30_0.26",
+                     "1984-10-15_1_1_0_1_1_1.13_0",
+                     "1989-06-29_1_1_10_7_50_0.16_0.27",
+                     "1991-09-14_66_99_10_7_2_1.13_5",
+                     "1989-02-22_44_3_30_1_3_0.73_4",
+                     "1987-11-26_107_4_16_2_23_1.74_555",
+                     "1987-09-09_8_10_7_2_55_1.46_544",
+                     "1987-09-09_8_8_20_1_21_1.31_500",
+                     "1987-09-09_8_13_20_1_54_1.36_500",
+                     "1987-09-09_8_13_20_1_42_1.033_455",
+                     "1987-09-09_8_9_7_2_81_0.84_444",
+                     "1987-09-09_8_8_20_1_135_0.66_400",
+                     "1987-09-09_8_8_20_1_146_0.64_399",
+                     "1984-08-17_6_2_10_1_33_171_54",
+                     "1992-08-12_22_2_28_7_133_105_46",
+                     "1992-08-12_22_1_24_7_133_97_46",
+                     "1993-02-25_3_3_55_2_1_96_45",
+                     "1992-08-12_23_4_31_7_36_90_45")
+
+# Filter the data frame
+filtered_df <- filter(final_dataframe, fish_unique_ID %in% Fish_id_filters)
+
+# Save document until here
+write.csv(filtered_df, paste0(error_directory, "/fish_length_weight_errors.csv"), row.names = FALSE)
+
+# Clean inconsistent length and weight data
+final_dataframe <- final_dataframe %>%
+  # Flag changes in a new column
+  mutate(length_weight_comment = case_when(fish_weight_g == 0 ~ "Weight = 0 replaced by NA",
+                                           fish_weight_g > 100.00 ~ "Weight > 100g, likely error, replaced by NA",
+                                           fish_length_mm == 0 ~ "length = 0 replaced by NA",
+                                           fish_length_mm > 300 ~ "length > 300 mm, likely error, replaced by NA",
+                                           fish_unique_ID == "1987-11-29_118_8_20_9_1_0_1.88" ~
+                                                             "Weight=0 and length=1.88, inconsistent data, replaced by NA",
+                                           fish_unique_ID == "1999-09-08_802_2_8_7_268_0_0" ~ 
+                                                              "Weight=0 and length=0, missing data, replaced by NA",
+                                           fish_unique_ID == "1995-08-26_18_19_11_7_21_0.61_0.37"~ 
+                                                              "Weight correct and length=0.37, likely typo, replaced 0.37 by 37",
+                                           fish_unique_ID == "1989-06-03_41_15_10_7_78_30_0.26" ~ 
+                                                              "Weight/length values were swapped in original file, corrected in final dataset",
+                                           fish_unique_ID == "1991-09-14_66_99_10_7_2_1.13_5" ~
+                                                              "Weight correct and length=5, likely typo, should be 50 (?)",
+                                           fish_unique_ID == "1984-10-15_1_1_0_1_1_1.13_0" ~
+                                                              "Weight=1.13 and length=0, incomplete data, replaced by NA",
+                                           fish_unique_ID == "1989-06-29_1_1_10_7_50_0.16_0.27" ~
+                                                              "Weight correct and length=0.27, likely typo, replaced 0.27 by 27",
+                                           fish_unique_ID == "1989-02-22_44_3_30_1_3_0.73_4" ~
+                                             "Weight correct and length=4, likely typo, should be 40 (?)",
+                                           TRUE ~ NA_character_)) %>% 
+
+  # Replacement commands for fish length and weight columns
+  mutate(fish_weight_g = case_when(fish_weight_g == 0 ~ NA_real_,
+                                   fish_weight_g > 100.00 ~ NA_real_,
+                                   fish_unique_ID == "1987-11-29_118_8_20_9_1_0_1.88" ~ NA_real_, # Lamprey specimen
+                                   fish_unique_ID == "1999-09-08_802_2_8_7_268_0_0" ~ NA_real_, # Sockeye missing info
+                                   fish_unique_ID == "1989-06-03_41_15_10_7_78_30_0.26" ~ 0.26, # Sockeye swapped values
+                                   TRUE ~ fish_weight_g),
+        
+        fish_length_mm = case_when(fish_length_mm == 0 ~ NA_real_,
+                                   fish_length_mm > 300 ~ NA_real_,
+                                   fish_unique_ID == "1987-11-29_118_8_20_9_1_0_1.88" ~ NA_real_, # Lamprey specimen
+                                   fish_unique_ID == "1999-09-08_802_2_8_7_268_0_0" ~ NA_real_, # Sockeye missing info
+                                   fish_unique_ID == "1995-08-26_18_19_11_7_21_0.61_0.37"~ 37, # Sockeye length typo
+                                   fish_unique_ID == "1989-06-03_41_15_10_7_78_30_0.26" ~ 30, # Sockeye swapped values
+                                   fish_unique_ID == "1984-10-15_1_1_0_1_1_1.13_0" ~ NA_real_,
+                                   fish_unique_ID == "1989-06-29_1_1_10_7_50_0.16_0.27" ~ 27,
+                                   TRUE ~ fish_length_mm))
+
+# Filter the data frame
+filtered_df_fixed <- filter(final_dataframe, fish_unique_ID %in% Fish_id_filters)
+
 # Save document until here
 write.csv(final_dataframe, paste0(working_directory, "/combined_inprogress_df_trawl.csv"), row.names = FALSE)
 
@@ -1052,7 +1125,10 @@ final_dataframe <- final_dataframe %>%
   rowwise() %>%
   mutate(data_issues = paste(
       c(if (duration_comment == "does NOT match calculated start_time and end_time, likely end_time error") paste0("duration_comment: ", duration_comment),
+        if (!is.na(length_weight_comment) & length_weight_comment != "") paste0("length_weight_comment: ", length_weight_comment),
         if (!is.na(depth_m_comments) & depth_m_comments != "") paste0("depth_m_comments: ", depth_m_comments),
+        if (!is.na(duplicate_flag) & duplicate_flag != "") paste0("duplicate_flag: ", duplicate_flag),
+        if (!is.na(no_species_name_comments) & no_species_name_comments != "") paste0("no_species_name_comments: ", no_species_name_comments),
         if (!is.na(gear_type_comment) & gear_type_comment != "") paste0("gear_type_comment: ", gear_type_comment),
         if (!is.na(scale_book_comment) & scale_book_comment != "") paste0("scale_book_comment: ", scale_book_comment),
         if (std_weight_g_comment == "does NOT match calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment),
@@ -1084,7 +1160,7 @@ final_dataframe <- final_dataframe %>%
   select(-trawl_comment, -comment, -time_comment, -preservative_code_comment, -depth_m_comments, -invalid_end_time,
         -trawl_date_comment, -trawl_number_comment, -merging_update_type, -scale_book_comment, -calc_value,
         -duration_comment, -invalid_duration_time, -invalid_start_time, -calc_end_time_comment, -duration_final, 
-        -std_weight_g_comment, -gear_type_comment)
+        -std_weight_g_comment, -gear_type_comment, -length_weight_comment, -no_species_name_comments)
 
 # Get the time stamp to record when the data was rescued
 time_stamp <- format(Sys.time(), "%d-%b-%Y %H:%M") # get time-stamp to indicate when data rescued
