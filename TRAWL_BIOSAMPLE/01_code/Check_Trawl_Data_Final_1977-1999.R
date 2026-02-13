@@ -27,7 +27,6 @@ suppressPackageStartupMessages({
 # Path to subfolder "04_final_output" under current working directory
 finals_dir <- file.path(getwd(), "TRAWL_BIOSAMPLE/04_final_output")
 final_data <- readr::read_csv(file.path(finals_dir, "Trawl_data_FINAL_1977-1999.csv"), show_col_types = FALSE)
-
 names(final_data)
 
 set.seed(42)
@@ -120,7 +119,7 @@ univariate_outliers <- function(df, cols, p_low = 0.001, p_high = 0.999,
   flagged
 }
 
-uni_flags <- univariate_outliers(final_data, num_cols)
+flag_univariate_outliers <- univariate_outliers(final_data, num_cols)
 
 # Pick any 3 rows and join back to see the original record context
 # Which extra columns do you actually want to bring from final_data?
@@ -130,10 +129,10 @@ context_cols <- c(
   "fish_length_mm", "fish_weight_g", "standardized_weight_g", "calc_std_weight_g")
 
 set.seed(1)
-sample_rows <- sample(unique(uni_flags$row_id), 3)
+sample_rows <- sample(unique(flag_univariate_outliers$row_id), 3)
 
 # 1) Confirm row_id maps back to your source row
-uni_flags %>%
+flag_univariate_outliers %>%
   filter(row_id %in% sample_rows) %>%
   left_join(
     final_data %>%
@@ -144,12 +143,12 @@ uni_flags %>%
   select(
     row_id, column, value, p1, p99, rz, flag_pctl, flag_rz,
     all_of(context_cols),
-    fish_unique_ID, trawl_unique_ID  # <-- keep the ones already in uni_flags
+    fish_unique_ID, trawl_unique_ID  # <-- keep the ones already in flag_univariate_outliers
   ) %>%
   print(n = 50)
 
 # 2) See which columns are most often flagged, and by which rule
-uni_flags %>%
+flag_univariate_outliers %>%
   mutate(rule = case_when(
     flag_pctl & flag_rz ~ "both",
     flag_pctl           ~ "percentile",
@@ -161,7 +160,7 @@ uni_flags %>%
   print(n = 100)
 
 # 3) Row‑level hot list”: records with many fields flagged
-# row_issue_counts <- uni_flags %>%
+# row_issue_counts <- flag_univariate_outliers %>%
 #   count(row_id, name = "n_fields_flagged") %>%
 #   left_join(
 #     final_data %>%
@@ -183,8 +182,8 @@ context_cols <- c(
   "species_code", "species_common_name", "fish_length_mm", "fish_weight_g",
   "standardized_weight_g", "calc_std_weight_g", "source_files")
 
-# 1) Filter to percentile (and "both") only
-pctl_flags <- uni_flags %>%
+# 1) Filter to percentile (and "both" i.e., percentile and robust rules) only
+all_numeric_cols_percentile_flags <- flag_univariate_outliers %>%
   dplyr::filter(flag_pctl) %>%                         # <- keeps percentile-only + both
   dplyr::mutate(
     rule = dplyr::case_when(
@@ -193,7 +192,7 @@ pctl_flags <- uni_flags %>%
       TRUE                ~ "other"))
 
 # 2) Join with source rows to add context (no duplicate ID columns)
-pctl_flags_ctx <- pctl_flags %>%
+all_numeric_cols_percentile_flags_ctx <- all_numeric_cols_percentile_flags %>%
   dplyr::left_join(
     final_data %>%
       dplyr::mutate(row_id = dplyr::row_number()) %>%
@@ -201,22 +200,21 @@ pctl_flags_ctx <- pctl_flags %>%
     by = "row_id") %>%
   dplyr::select(
     row_id, column, value, p1, p99, rz, rule,
-    # keep IDs from uni_flags (already present there)
+    # keep IDs from flag_univariate_outliers (already present there)
     fish_unique_ID, trawl_unique_ID,
     dplyr::all_of(context_cols))
 
 # Optional: quick head check
-# print(pctl_flags_ctx, n = 20)
+# print(all_numeric_cols_percentile_flags_ctx, n = 20)
 
 # 3) Produce a named list of data frames, one per column
-flags_by_column <- split(pctl_flags_ctx, f = pctl_flags_ctx$column, drop = TRUE)
+flags_by_column <- split(all_numeric_cols_percentile_flags_ctx, f = all_numeric_cols_percentile_flags_ctx$column, drop = TRUE)
 
 # See what you got:
 names(flags_by_column)
 sapply(flags_by_column, nrow)
 
 # Optional: create one data frame object per column in your environment
-# (CAUTION: this can clutter your workspace; the list is usually better)
 flags_suffixed <- setNames(flags_by_column, paste0(names(flags_by_column), "_flags"))
 list2env(flags_suffixed, envir = .GlobalEnv)
 
@@ -269,7 +267,24 @@ calc_std_weight_g_flags <- calc_std_weight_g_flags %>%
   arrange(species_code, lake_name, calc_std_weight_g, trawl_date) %>%
   unique()
 
-# Optional: write each column's flagged rows to a CSV for review
+# Optional: write each column's flagged rows to a CSV for review            ####
 out_qc_dir <- file.path(getwd(), "TRAWL_BIOSAMPLE/07_QC_outputs")
 dir.create(out_qc_dir, showWarnings = FALSE, recursive = TRUE)
-purrr::iwalk(flags_by_column, ~ readr::write_csv(.x, file.path(out_qc_dir, paste0("flag_xtrm_vals_", .y, ".csv"))))
+
+# 1) Find all object names in the chosen environment that end with "_flags"
+env <- .GlobalEnv  # or specify another environment if you used one
+flag_objs <- ls(envir = env, pattern = "_flags$")
+
+# 2) Pull those objects into a named list (names are the object names)
+flag_list <- mget(flag_objs, envir = env)
+
+# 3) Write each data frame to CSV; name based on the object name
+iwalk(
+  flag_list,
+  ~ {
+    stopifnot(is.data.frame(.x))  # simple guard
+    # optional: skip empty frames
+    if (nrow(.x) == 0) return(invisible(NULL))
+    readr::write_csv(.x, file.path(out_qc_dir, paste0(.y, ".csv")))
+  }
+)
