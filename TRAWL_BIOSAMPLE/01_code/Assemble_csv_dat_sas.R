@@ -997,11 +997,11 @@ df_final_clean_depth %>%
   summarise(count = n()) -> summary_table
 
 # Correct fish_unique_ID 1986-09-01_6_2_12_1_1_58_48 length and weight
-nearly_final_dataframe <- df_final_clean_depth %>%
-  mutate(fish_length_mm = case_when(fish_unique_ID == "1986-09-01_6_2_12_1_1_58_48" ~ 58,
-                                TRUE ~ fish_length_mm),
-         fish_weight_g = case_when(fish_unique_ID == "1986-09-01_6_2_12_1_1_58_48" ~ 1.86,
-                                   TRUE ~ fish_weight_g))
+nearly_final_dataframe <- df_final_clean_depth #%>%
+ # mutate(fish_length_mm = case_when(fish_unique_ID == "1986-09-01_6_2_12_1_1_58_48" ~ 58,
+ #                               TRUE ~ fish_length_mm),
+ #        fish_weight_g = case_when(fish_unique_ID == "1986-09-01_6_2_12_1_1_58_48" ~ 1.86,
+ #                                  TRUE ~ fish_weight_g))
 
 # Detect seine comments in the trawl_comment column
 sein_info_trawl_location <- grepl("sein", nearly_final_dataframe$trawl_comment, ignore.case = TRUE)
@@ -1012,8 +1012,9 @@ sum(sein_info_trawl_location == "TRUE", na.rm = TRUE)
 # Include the default gear type as "Trawl" in the gear_type column
 nearly_final_dataframe <- nearly_final_dataframe %>%
   mutate(gear_type = case_when(sein_info_trawl_location =="TRUE" ~ "Beach seine", 
-                               sample_type == "DUM2" | sample_type == "dum2" ~ NA_character_,
-                               sample_type == "7*7*7.5" ~ NA_character_,
+                               #sample_type == "DUM2" | sample_type == "dum2" ~ NA_character_,
+                               sample_number == "DUM1" | sample_number == "dum1" ~ NA_character_,
+                               #sample_type == "7*7*7.5" ~ NA_character_,
                                TRUE ~ "Trawl"),
          gear_type_comment = case_when(sample_type == "DUM2" | sample_type == "dum2" ~ "Likely a test trawl",
                                        sample_type == "7*7*7.5" ~ "Likely wrong net dimensions",
@@ -1021,97 +1022,71 @@ nearly_final_dataframe <- nearly_final_dataframe %>%
                                        TRUE ~ NA_character_))
 
 # Clean trawl_comment column
-final_dataframe <- nearly_final_dataframe %>%
+nearly_final_dataframe <- nearly_final_dataframe %>%
   mutate(trawl_comment = str_trim(str_remove(trawl_comment, "XXXXXXXXXXXXXXXXXXXXXXXXXXXX")),
          trawl_comment = gsub("\\s+", " ", trawl_comment),
          time_comment = ifelse(time_comment == "NANA", NA_character_, time_comment))
 
-final_dataframe %>%
-  group_by(sample_type, gear_type) %>%
+nearly_final_dataframe %>%
+  group_by(sample_type, gear_type, sample_number) %>%
   summarise(count = n()) -> summary_table
 
 ################### Cleaning Fish length and weight columns #########################
 
-# Detect preservation comments in the trawl_comment column
-Fish_id_filters <- c("1997-02-20_41_5_8_26_72_0.11_0.28",
-                     "1987-02-25_41_1_7_27_2_0.19_0.3",
-                     "1992-08-17_214_2_4_2_156_0.23_0.33",
-                     "1990-06-22_802_1_6_2_48_0.46_0.38",
-                     "1987-07-31_29_5_0_2_2_1.05_0.49",
-                     "1996-08-22_18_25_0_2_70_0.11_2.5",
-                     "1996-08-22_18_25_0_2_71_0.16_2.7",
-                     "1985-12-11_41_4_15_2_16_0.34_3",
-                     "1995-08-30_8_7_7_2_57_999_4",
-                     "1987-11-29_118_8_20_9_1_0_1.88",
-                     "1999-09-08_802_2_8_7_268_0_0",
-                     "1995-08-26_18_19_11_7_21_0.61_0.37",
-                     "1989-06-03_41_15_10_7_78_30_0.26",
-                     "1984-10-15_1_1_0_1_1_1.13_0",
-                     "1989-06-29_1_1_10_7_50_0.16_0.27",
-                     "1991-09-14_66_99_10_7_2_1.13_5",
-                     "1989-02-22_44_3_30_1_3_0.73_4",
-                     "1987-11-26_107_4_16_2_23_1.74_555",
-                     "1987-09-09_8_10_7_2_55_1.46_544",
-                     "1987-09-09_8_8_20_1_21_1.31_500",
-                     "1987-09-09_8_13_20_1_54_1.36_500",
-                     "1987-09-09_8_13_20_1_42_1.033_455",
-                     "1987-09-09_8_9_7_2_81_0.84_444",
-                     "1987-09-09_8_8_20_1_135_0.66_400",
-                     "1987-09-09_8_8_20_1_146_0.64_399",
-                     "1984-08-17_6_2_10_1_33_171_54",
-                     "1992-08-12_22_2_28_7_133_105_46",
-                     "1992-08-12_22_1_24_7_133_97_46",
-                     "1993-02-25_3_3_55_2_1_96_45",
-                     "1992-08-12_23_4_31_7_36_90_45")
+# Detect outliers in weight and length columns
+Fish_id_filters <- c("1987-11-26_107_4_16_2_23_1.74_555", "1987-07-31_29_5_0_2_2_1.05_0.49",
+                     "1992-08-17_214_2_4_2_156_0.23_0.33", "1993-02-25_3_3_55_2_1_96_45",
+                     "1985-12-11_41_4_15_2_16_0.34_3", "1987-02-25_41_1_7_27_2_0.19_0.3",
+                     "1997-02-20_41_5_8_26_72_0.11_0.28", "1989-06-03_41_15_10_7_78_30_0.26",
+                     "1987-09-09_8_8_20_1_135_0.66_400", "1993-07-24_8_4_16_7_46_60_39",
+                     "1987-09-09_8_8_20_1_146_0.64_399", "1987-09-09_8_8_20_1_21_1.31_500",
+                     "1987-09-09_8_9_7_2_81_0.84_444", "1987-09-09_8_10_7_2_55_1.46_544",
+                     "1987-09-09_8_13_20_1_42_1.033_455", "1987-09-09_8_13_20_1_54_1.36_500",
+                     "1995-08-30_8_7_7_2_57_999_4", "1990-06-22_802_1_6_2_48_0.46_0.38",
+                     "1999-09-08_802_2_8_7_268_0_0", "1987-11-29_118_8_20_9_1_0_1.88",
+                     "1989-02-22_44_3_30_1_3_0.73_4", "1995-08-26_18_19_11_7_21_0.61_0.37",
+                     "1995-08-26_18_11_0_7_137_46_35", "1995-08-26_18_13_7_7_93_39_53",
+                     "1991-03-12_18_2_7_2_8_36_33", "1996-08-22_18_25_0_2_70_0.11_2.5",
+                     "1996-08-22_18_25_0_2_71_0.16_2.7", "1991-09-14_66_99_10_7_2_1.13_5",
+                     "1992-08-12_23_4_31_7_36_90_45", "1992-08-12_22_1_24_7_133_97_46",
+                     "1992-08-12_22_1_24_7_126_66_41", "1992-08-12_22_2_28_7_134_66_42",
+                     "1992-08-12_22_2_28_7_133_105_46", "1984-10-15_1_1_0_1_1_1.13_0",
+                     "1989-06-29_1_1_10_7_50_0.16_0.27", "1986-09-01_6_2_12_1_1_58_48")
 
 # Filter the data frame
-filtered_df <- filter(final_dataframe, fish_unique_ID %in% Fish_id_filters)
+filtered_df <- filter(nearly_final_dataframe, fish_unique_ID %in% Fish_id_filters)
 
 # Save document until here
 write.csv(filtered_df, paste0(error_directory, "/fish_length_weight_errors.csv"), row.names = FALSE)
 
 # Clean inconsistent length and weight data
-final_dataframe <- final_dataframe %>%
-  # Flag changes in a new column
-  mutate(length_weight_comment = case_when(fish_weight_g == 0 ~ "Weight = 0 replaced by NA",
-                                           fish_weight_g > 100.00 ~ "Weight > 100g, likely error, replaced by NA",
-                                           fish_length_mm == 0 ~ "length = 0 replaced by NA",
-                                           fish_length_mm > 300 ~ "length > 300 mm, likely error, replaced by NA",
-                                           fish_unique_ID == "1987-11-29_118_8_20_9_1_0_1.88" ~
-                                                             "Weight=0 and length=1.88, inconsistent data, replaced by NA",
-                                           fish_unique_ID == "1999-09-08_802_2_8_7_268_0_0" ~ 
-                                                              "Weight=0 and length=0, missing data, replaced by NA",
-                                           fish_unique_ID == "1995-08-26_18_19_11_7_21_0.61_0.37"~ 
-                                                              "Weight correct and length=0.37, likely typo, replaced 0.37 by 37",
-                                           fish_unique_ID == "1989-06-03_41_15_10_7_78_30_0.26" ~ 
-                                                              "Weight/length values were swapped in original file, corrected in final dataset",
-                                           fish_unique_ID == "1991-09-14_66_99_10_7_2_1.13_5" ~
-                                                              "Weight correct and length=5, likely typo, should be 50 (?)",
-                                           fish_unique_ID == "1984-10-15_1_1_0_1_1_1.13_0" ~
-                                                              "Weight=1.13 and length=0, incomplete data, replaced by NA",
-                                           fish_unique_ID == "1989-06-29_1_1_10_7_50_0.16_0.27" ~
-                                                              "Weight correct and length=0.27, likely typo, replaced 0.27 by 27",
-                                           fish_unique_ID == "1989-02-22_44_3_30_1_3_0.73_4" ~
-                                             "Weight correct and length=4, likely typo, should be 40 (?)",
-                                           TRUE ~ NA_character_)) %>% 
+# Read lookup table with the corrected values and specific comments
+length_weight_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/03_AA_look_up_tables/length_weight_error_corrections.csv")
 
-  # Replacement commands for fish length and weight columns
-  mutate(fish_weight_g = case_when(fish_weight_g == 0 ~ NA_real_,
-                                   fish_weight_g > 100.00 ~ NA_real_,
-                                   fish_unique_ID == "1987-11-29_118_8_20_9_1_0_1.88" ~ NA_real_, # Lamprey specimen
-                                   fish_unique_ID == "1999-09-08_802_2_8_7_268_0_0" ~ NA_real_, # Sockeye missing info
-                                   fish_unique_ID == "1989-06-03_41_15_10_7_78_30_0.26" ~ 0.26, # Sockeye swapped values
-                                   TRUE ~ fish_weight_g),
-        
-        fish_length_mm = case_when(fish_length_mm == 0 ~ NA_real_,
-                                   fish_length_mm > 300 ~ NA_real_,
-                                   fish_unique_ID == "1987-11-29_118_8_20_9_1_0_1.88" ~ NA_real_, # Lamprey specimen
-                                   fish_unique_ID == "1999-09-08_802_2_8_7_268_0_0" ~ NA_real_, # Sockeye missing info
-                                   fish_unique_ID == "1995-08-26_18_19_11_7_21_0.61_0.37"~ 37, # Sockeye length typo
-                                   fish_unique_ID == "1989-06-03_41_15_10_7_78_30_0.26" ~ 30, # Sockeye swapped values
-                                   fish_unique_ID == "1984-10-15_1_1_0_1_1_1.13_0" ~ NA_real_,
-                                   fish_unique_ID == "1989-06-29_1_1_10_7_50_0.16_0.27" ~ 27,
-                                   TRUE ~ fish_length_mm))
+# Use the lookup table to correct the values in the final dataset
+final_dataframe <- nearly_final_dataframe %>%
+  dplyr::left_join(length_weight_lookup_table, by = "fish_unique_ID") %>%
+  # Flag changes in the comment column
+  mutate(length_weight_comment = case_when(is.na(length_weight_comment) & fish_weight_g == 0 ~ "Weight = 0 replaced by NA",
+                                           is.na(length_weight_comment) & fish_weight_g > 100.00 ~ "Weight > 100g, likely error, replaced by NA",
+                                           is.na(length_weight_comment) & fish_length_mm == 0 ~ "length = 0 replaced by NA",
+                                           is.na(length_weight_comment) & fish_length_mm > 300 ~ "length > 300 mm, likely error, replaced by NA",
+                                           TRUE ~ length_weight_comment),
+          # Replacement commands for fish length and weight columns
+         fish_length_mm = case_when(!is.na(old_value_length) ~ new_value_length,
+                                    fish_length_mm == 0 ~ NA_real_,
+                                    fish_length_mm > 300 ~ NA_real_,
+                                    TRUE ~ fish_length_mm),
+         fish_weight_g = case_when(!is.na(old_value_weight) ~ new_value_weight,
+                              fish_weight_g == 0 ~ NA_real_,
+                              fish_weight_g > 100.00 ~ NA_real_,
+                              TRUE ~ fish_weight_g)) %>%
+  select(-old_value_weight, -old_value_length, -new_value_length, -new_value_weight)
+      
+
+final_dataframe %>%
+  group_by(fish_length_mm, fish_weight_g, length_weight_comment) %>%
+  summarise(count = n()) -> summary_table_length
 
 # Filter the data frame
 filtered_df_fixed <- filter(final_dataframe, fish_unique_ID %in% Fish_id_filters)
