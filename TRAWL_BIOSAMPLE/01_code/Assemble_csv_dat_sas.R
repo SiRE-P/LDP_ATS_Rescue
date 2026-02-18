@@ -743,7 +743,7 @@ df_final_clean_species <- df_final_clean_species %>%
 
 # Flag problematic rows on duration_mi
 df_final_clean_species <- df_final_clean_species %>%
-  mutate(invalid_duration_time = case_when(duration_mi < 60 ~ "Valid",
+  mutate(invalid_duration_time = case_when(duration_mi < 60 ~ NA_character_,
                                         TRUE ~ "Greater than 60 min, likely error"))
 # Check number of problematic rows
 sum(df_final_clean_species$invalid_duration_time == "Greater than 60 min, likely error", na.rm = TRUE)
