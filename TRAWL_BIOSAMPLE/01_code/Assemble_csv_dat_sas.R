@@ -307,6 +307,7 @@ rm(list = vectors_to_remove)
 ################### Cleaning the columns and combining rows #########################
 # Save raw combined column
 write.csv(df_joined, paste0(working_directory, "/combined_raw_df_trawl.csv"), row.names = FALSE)
+df_joined <- read.csv(file.choose())
 
 # Check the table 
 df_joined_dup <- df_joined[duplicated(df_joined$fish_unique_ID), ]
@@ -477,9 +478,9 @@ is_valid <- ifelse(is.na(df_final_chk_time$start_time), NA, grepl(time_pattern, 
 
 # Add a new column to the data frame to flag invalid entries
 df_final_chk_time <- df_final_chk_time %>%
-  mutate(invalid_start_time = case_when(is_valid_sas == "TRUE" ~ "Valid",
-                                        is_valid_dat == "TRUE" ~ "Valid",
-                                        is_valid == "TRUE" ~ "Valid",
+  mutate(invalid_start_time = case_when(is_valid_sas == "TRUE" ~ NA_character_,
+                                        is_valid_dat == "TRUE" ~ NA_character_,
+                                        is_valid == "TRUE" ~ NA_character_,
                                         is.na(is_valid_sas) & is.na(is_valid_dat) & is.na(is_valid) ~ NA_character_,
                                         TRUE ~ "Invalid format"))
 
@@ -498,9 +499,9 @@ is_valid_end_time <- ifelse(is.na(df_final_chk_time$end_time), NA, grepl(time_pa
 
 # Add a new column to the data frame to flag invalid entries
 df_final_flag_time <- df_final_chk_time %>%
-  mutate(invalid_end_time = case_when(is_valid_end_time_sas == "TRUE" ~ "Valid",
-                                      is_valid_end_time_dat == "TRUE" ~ "Valid",
-                                      is_valid_end_time == "TRUE" ~ "Valid",
+  mutate(invalid_end_time = case_when(is_valid_end_time_sas == "TRUE" ~ NA_character_,
+                                      is_valid_end_time_dat == "TRUE" ~ NA_character_,
+                                      is_valid_end_time == "TRUE" ~ NA_character_,
                                       is.na(is_valid_end_time_sas) & is.na(is_valid_end_time_dat) & is.na(is_valid_end_time) ~ NA_character_,
                                         TRUE ~ "Invalid format"))
 
@@ -817,7 +818,7 @@ write.csv(duration_mismatch, paste0(error_directory, "/duration_mismatch.csv"), 
 ## calculate missing end_time values
 df_final_calc_end <- df_final_calc_duration %>%
   mutate(calc_end_time = as.numeric(start_t) + as.numeric(duration_mi) * 60,
-         calc_end_time_comment = case_when(!is.na(end_time) ~ "end_time provided",
+         calc_end_time_comment = case_when(!is.na(end_time) ~ NA_character_,
                                           TRUE ~ "end_time missing, calculated from start_time + duration_mi")) %>%
   select(-start_t, -end_t)
 
@@ -1033,8 +1034,8 @@ Fish_id_filters <- c("1987-11-26_107_4_16_2_23_1.74_555", "1987-07-31_29_5_0_2_2
                      "1992-10-12_8_4_19_2_6_1.92_6", "1977-08-16_40_1_10_2_13_1.53_6",
                      "1977-08-16_40_2_17_2_10_0.13_4", "1977-08-16_40_1_10_2_11_1.19_9",
                      "1990-07-23_107_9_10_7_28_75_40", "1979-07-26_41_1_12_2_12_0.02_44",
-                     "1981-07-19_31_3_0_2_134_0.09_71", "1981-07-19_31_4_5_2_73_0.33_95",
-                     "1981-09-02_40_3_5_2_12_0.11_60", "1979-07-27_41_2_8_2_250_0.06_47",
+                     "1981-07-19_31_3_0_2_134_0.09_71", "1981-07-19_31_4_5_2_73_0.33_95", "1987-09-11_21_1_9_2_46_25.6_67",
+                     "1981-09-02_40_3_5_2_12_0.11_60", "1979-07-27_41_2_8_2_250_0.06_47", "1998-09-24_801_11_17_7_46_35_32",
                      "1987-08-10_21_1_12_9_1_5_154", "1987-07-30_29_3_10_1_35_56_39", "1984-09-01_25_2_10_1_2_5.29_28",
                      "1987-07-30_29_3_10_1_8_52_38", "1986-08-31_6_1_12_1_5_71_44", "1984-09-10_69_4_5_2_53_1.45_25",
                      "1984-06-18_6_3_11_1_18_45_35", "1984-06-18_6_3_11_1_19_29_31", "1989-05-14_62_9_7_5_21_0.7_20",
@@ -1123,14 +1124,15 @@ final_dataframe <- final_dataframe %>%
   mutate(data_issues = paste(
       c(if (duration_comment == "does NOT match calculated start_time and end_time, likely end_time error") paste0("duration_comment: ", duration_comment),
         if (!is.na(length_weight_comment) & length_weight_comment != "") paste0("length_weight_comment: ", length_weight_comment),
-        if (!is.na(depth_m_comments) & depth_m_comments != "") paste0("depth_m_comments: ", depth_m_comments),
         if (!is.na(duplicate_flag) & duplicate_flag != "") paste0("duplicate_flag: ", duplicate_flag),
         if (!is.na(no_species_name_comments) & no_species_name_comments != "") paste0("no_species_name_comments: ", no_species_name_comments),
         if (!is.na(gear_type_comment) & gear_type_comment != "") paste0("gear_type_comment: ", gear_type_comment),
         if (!is.na(scale_book_comment) & scale_book_comment != "") paste0("scale_book_comment: ", scale_book_comment),
         if (std_weight_g_comment == "does NOT match calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment),
-        if (calc_end_time_comment == "end_time missing, calculated from start_time + duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),
-        if (!is.na(invalid_start_time) & invalid_start_time == "Invalid format") paste0("invalid_start_time: ", invalid_start_time)),
+        if (!is.na(calc_end_time_comment) & calc_end_time_comment == "end_time missing, calculated from start_time + duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),
+        if (!is.na(invalid_duration_time) & invalid_duration_time != "") paste0("invalid_duration_time: ", invalid_duration_time),
+        if (!is.na(invalid_start_time) & invalid_start_time == "Invalid format") paste0("invalid_start_time: ", invalid_start_time),
+        if (!is.na(invalid_end_time) & invalid_end_time != "") paste0("invalid_end_time: ", invalid_end_time)),
       collapse = "; "
     )) %>%
   mutate(general_comments = paste(
@@ -1140,18 +1142,14 @@ final_dataframe <- final_dataframe %>%
       if (!is.na(comment) & comment != "") paste0("comment: ", comment),
       if (!is.na(time_comment) & time_comment != "") paste0("time_comment: ", time_comment),
       if (!is.na(preservative_note) & preservative_note != "") paste0("preservative_note: ", preservative_note),
+      if (!is.na(depth_m_comments) & depth_m_comments != "") paste0("depth_m_comments: ", depth_m_comments),
       if (!is.na(preservative_code_comment) & preservative_code_comment != "") paste0("preservative_code_comment: ", preservative_code_comment)),
     collapse = "; "
   )) %>%
   mutate(data_validation_comments = paste(
     c(if (!is.na(merging_update_type) & merging_update_type != "") paste0("merging_update_type: ", merging_update_type),
       if (duration_comment != "does NOT match calculated start_time and end_time, likely end_time error") paste0("duration_comment: ", duration_comment),
-      if (!is.na(invalid_duration_time) & invalid_duration_time != "") paste0("invalid_duration_time: ", invalid_duration_time),
-      if (calc_end_time_comment != "end_time missing, calculated from start_time + duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),
-      if (std_weight_g_comment != "does NOT match calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment),
-      if (!is.na(invalid_start_time) & invalid_start_time != "") paste0("invalid_start_time: ", invalid_start_time),
-      if (!is.na(invalid_end_time) & invalid_end_time != "") paste0("invalid_end_time: ", invalid_end_time)
-    ),
+      if (std_weight_g_comment != "does NOT match calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment)),
     collapse = "; "
   )) %>%
   ungroup()  %>%
