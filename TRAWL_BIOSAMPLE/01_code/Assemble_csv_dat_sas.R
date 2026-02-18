@@ -307,7 +307,6 @@ rm(list = vectors_to_remove)
 ################### Cleaning the columns and combining rows #########################
 # Save raw combined column
 write.csv(df_joined, paste0(working_directory, "/combined_raw_df_trawl.csv"), row.names = FALSE)
-df_joined <- read.csv(file.choose())
 
 # Check the table 
 df_joined_dup <- df_joined[duplicated(df_joined$fish_unique_ID), ]
@@ -707,6 +706,13 @@ df_final_clean_time <- df_final_clean_time %>%
   rename("species_info_code" = species_code) %>%
   dplyr::left_join(fish_scientific_name_lookup_table, by = "species_info_code") %>%
   select(-lake_name) %>%
+  mutate(comment = ifelse(lake_code == 124, 
+                          ifelse(is.na(comment) | comment == "",
+                                 "Changed lake code from No Name Lake to Link Lake",
+                                 paste("Changed lake code from No Name Lake to Link Lake", comment, sep = "; ")),
+                          comment),
+         lake_code = case_when(lake_code == 124 ~ 180,
+                               TRUE ~ lake_code)) %>%
   dplyr::left_join(lake_name, by = "lake_code") %>%
   mutate(age = ifelse(is.na(age) & !is.na(age_class), age_class, age)) %>%
   mutate(species_code_comment = ifelse(species_code_comment == "Juvenile", life_stage, species_code_comment)) %>%
