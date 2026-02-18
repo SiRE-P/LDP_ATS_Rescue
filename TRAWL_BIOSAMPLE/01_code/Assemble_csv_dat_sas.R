@@ -694,7 +694,9 @@ df_final_clean_time <- df_final_clean_time %>%
 fish_scientific_name_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/03_AA_look_up_tables/AA_fish_scientific_name_lookup.csv")
 
 # Add a comment for Dolly Varden - taxonomic issues 
-df_final_clean_time$comment <- ifelse(df_final_clean_time$fish_description == "Dolly Varden", "Salvelinus malma and S. confluentus might have unsolved taxonomic issues", df_final$comment)
+df_final_clean_time$comment <- ifelse(df_final_clean_time$fish_description == "Dolly Varden", 
+                                      "Salvelinus malma and S. confluentus might have unsolved taxonomic issues", 
+                                      df_final_clean_time$comment)
 
 # Remove abbreviations in the name of the lakes by importing the lookup table
 lake_name <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv")
@@ -872,51 +874,23 @@ df_final_calc_end <- df_final_calc_end %>%
                                                            sep = "; ")), preservative_code_comment))
 
 # Fill up the missing values using a lookup table
-preservative_code_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/preservative_code_lookup_table.csv")
-df_final_calc_end <- rows_patch(df_final_calc_end, preservative_code_lookup_table, by = "preservative_code", unmatched = "ignore")
+preservative_code_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table.csv")
+#df_final_calc_end <- rows_patch(df_final_calc_end, preservative_code_lookup_table, by = "preservative_code", unmatched = "ignore")
+
+df_final_calc_end <- df_final_calc_end %>%
+  select(-preservative_description, -weight_conversion_formula) %>%
+  dplyr::left_join(preservative_code_lookup_table, by = "preservative_code")
 
 # Check if preservative_description match preservative_code
 df_final_calc_end %>%
-  group_by(preservative_code, preservative_description, preservative_code_comment) %>%
+  group_by(preservative_code, preservative_description, preservative_code_comment, preservative_description_short, preservative_note) %>%
   summarise(count = n()) -> summary_table
 
-# Calculate standardized weight using a lookup table
-standardized_weight_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/03_AA_look_up_tables/AA_calc_std_weight.csv")
-df_final_calc_std_weight <- df_final_calc_end %>%
-  dplyr::left_join(standardized_weight_lookup_table, by = c("preservative_code", "weight_conversion_formula")) %>%
-  mutate(calc_std_weight_g = fish_weight_g / calc_value)
-
-# Round the new column, calc_std_weight_g, to two decimal places
-df_final_calc_std_weight$calc_std_weight_g <- round(df_final_calc_std_weight$calc_std_weight_g, digits = 2)
-
-# Compare them to the existing standardized_weight_g column
-df_final_calc_std_weight <- df_final_calc_std_weight %>%
-  mutate(std_weight_g_comment = case_when(
-           # standardized_weight_g exists and matches calc_std_weight_g
-           !is.na(standardized_weight_g) & !is.na(calc_std_weight_g) &
-             abs(standardized_weight_g - calc_std_weight_g) < 1 ~ "matches calc_std_weight_g",
-           # standardized_weight_g exists but does NOT match calc_std_weight_g
-           !is.na(standardized_weight_g) & !is.na(calc_std_weight_g) &
-             abs(standardized_weight_g - calc_std_weight_g) >= 1 ~ "does NOT match calc_std_weight_g",
-           # standardized_weight_g calculated from calc_std_weight_g
-           is.na(standardized_weight_g) & !is.na(calc_std_weight_g) ~ "standardized_weight_g calculated from standardized weight formula",
-           # nothing possible
-           TRUE ~ "standardized weight could not be calculated"))
-
-# Check number of problematic rows
-sum(df_final_calc_std_weight$std_weight_g_comment == "does NOT match calc_std_weight_g", na.rm = TRUE)
-sum(df_final_calc_std_weight$std_weight_g_comment == "standardized_weight_g calculated from standardized weight formula", na.rm = TRUE)
-sum(df_final_calc_std_weight$std_weight_g_comment == "standardized weight could not be calculated", na.rm = TRUE)
-
-# Export errors in standardized weight
-std_weight_errors <- df_final_calc_std_weight[!is.na(df_final_calc_std_weight$std_weight_g_comment) & df_final_calc_std_weight$std_weight_g_comment == "does NOT match calculated standardized weight",]
-write.csv(std_weight_errors, paste0(error_directory, "/std_weight_errors.csv"), row.names = FALSE)
-
 # Convert Trawl_number to integer instead of character
-df_final_calc_std_weight$trawl_number <- as.integer(df_final_calc_std_weight$trawl_number)
+df_final_calc_end$trawl_number <- as.integer(df_final_calc_end$trawl_number)
 
 ### In the depth_m columns, correct values "98.109375", "14.83203125"
-df_final_clean_depth <- df_final_calc_std_weight %>%
+df_final_clean_depth <- df_final_calc_end %>%
   mutate(depth_m = case_when(depth_m == "98.109375" ~ NA_character_,
                              depth_m == "14.83203125" ~ NA_character_,
                               TRUE ~ depth_m))
@@ -1051,7 +1025,22 @@ Fish_id_filters <- c("1987-11-26_107_4_16_2_23_1.74_555", "1987-07-31_29_5_0_2_2
                      "1992-08-12_23_4_31_7_36_90_45", "1992-08-12_22_1_24_7_133_97_46",
                      "1992-08-12_22_1_24_7_126_66_41", "1992-08-12_22_2_28_7_134_66_42",
                      "1992-08-12_22_2_28_7_133_105_46", "1984-10-15_1_1_0_1_1_1.13_0",
-                     "1989-06-29_1_1_10_7_50_0.16_0.27", "1986-09-01_6_2_12_1_1_58_48")
+                     "1989-06-29_1_1_10_7_50_0.16_0.27", "1986-09-01_6_2_12_1_1_58_48",
+                     "1993-07-25_8_8_12_7_34_0.42_0.35", "1984-06-01_6_2_7_1_31_0.21_0.29",
+                     "1993-07-25_8_8_12_7_112_0.23_0.3", "1986-09-01_6_2_12_1_43_0.82_0.8",
+                     "1977-08-16_40_2_17_2_8_0.14_1", "1977-08-16_40_1_10_2_12_1.53_3",
+                     "1977-08-16_40_2_17_2_9_0.14_2", "1992-07-15_8_16_13_7_6_0.88_4",
+                     "1992-10-12_8_4_19_2_6_1.92_6", "1977-08-16_40_1_10_2_13_1.53_6",
+                     "1977-08-16_40_2_17_2_10_0.13_4", "1977-08-16_40_1_10_2_11_1.19_9",
+                     "1990-07-23_107_9_10_7_28_75_40", "1979-07-26_41_1_12_2_12_0.02_44",
+                     "1981-07-19_31_3_0_2_134_0.09_71", "1981-07-19_31_4_5_2_73_0.33_95",
+                     "1981-09-02_40_3_5_2_12_0.11_60", "1979-07-27_41_2_8_2_250_0.06_47",
+                     "1987-08-10_21_1_12_9_1_5_154", "1987-07-30_29_3_10_1_35_56_39", "1984-09-01_25_2_10_1_2_5.29_28",
+                     "1987-07-30_29_3_10_1_8_52_38", "1986-08-31_6_1_12_1_5_71_44", "1984-09-10_69_4_5_2_53_1.45_25",
+                     "1984-06-18_6_3_11_1_18_45_35", "1984-06-18_6_3_11_1_19_29_31", "1989-05-14_62_9_7_5_21_0.7_20",
+                     "1984-06-27_40_15_6_2_2_58_39", "1993-02-25_3_3_55_2_3_75_41", "1991-09-11_64_18_15_7_44_17.3_58",
+                     "1989-06-25_8_1_0_2_66_37_35", "1990-03-01_8_1_9_2_154_34_35","1999-09-08_802_2_8_7_134_58_39",
+                     "1990-09-13_801_9_10_2_8_33_34", "1987-07-18_8_4_7_2_7_8.3_46")
 
 # Filter the data frame
 filtered_df <- filter(nearly_final_dataframe, fish_unique_ID %in% Fish_id_filters)
@@ -1064,7 +1053,7 @@ write.csv(filtered_df, paste0(error_directory, "/fish_length_weight_errors.csv")
 length_weight_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/03_AA_look_up_tables/length_weight_error_corrections.csv")
 
 # Use the lookup table to correct the values in the final dataset
-final_dataframe <- nearly_final_dataframe %>%
+df_final_calc_std_weight <- nearly_final_dataframe %>%
   dplyr::left_join(length_weight_lookup_table, by = "fish_unique_ID") %>%
   # Flag changes in the comment column
   mutate(length_weight_comment = case_when(is.na(length_weight_comment) & fish_weight_g == 0 ~ "Weight = 0 replaced by NA",
@@ -1084,12 +1073,45 @@ final_dataframe <- nearly_final_dataframe %>%
   select(-old_value_weight, -old_value_length, -new_value_length, -new_value_weight)
       
 
-final_dataframe %>%
+df_final_calc_std_weight %>%
   group_by(fish_length_mm, fish_weight_g, length_weight_comment) %>%
   summarise(count = n()) -> summary_table_length
 
 # Filter the data frame
-filtered_df_fixed <- filter(final_dataframe, fish_unique_ID %in% Fish_id_filters)
+filtered_df_fixed <- filter(df_final_calc_std_weight, fish_unique_ID %in% Fish_id_filters)
+
+# Calculate standardized weight using a lookup table
+#standardized_weight_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/03_AA_look_up_tables/AA_calc_std_weight.csv")
+df_final_calc_std_weight <- df_final_calc_std_weight %>%
+  #dplyr::left_join(standardized_weight_lookup_table, by = c("preservative_code", "weight_conversion_formula")) %>%
+  mutate(calc_std_weight_g = fish_weight_g / calc_value)
+
+# Round the new column, calc_std_weight_g, to two decimal places
+df_final_calc_std_weight$calc_std_weight_g <- round(df_final_calc_std_weight$calc_std_weight_g, digits = 2)
+
+# Compare them to the existing standardized_weight_g column
+final_dataframe <- df_final_calc_std_weight %>%
+  mutate(std_weight_g_comment = case_when(
+    # standardized_weight_g exists and matches calc_std_weight_g
+    !is.na(standardized_weight_g) & !is.na(calc_std_weight_g) &
+      abs(standardized_weight_g - calc_std_weight_g) < 1 ~ "matches calc_std_weight_g",
+    # standardized_weight_g exists but does NOT match calc_std_weight_g
+    !is.na(standardized_weight_g) & !is.na(calc_std_weight_g) &
+      abs(standardized_weight_g - calc_std_weight_g) >= 1 ~ "does NOT match calc_std_weight_g",
+    # standardized_weight_g calculated from calc_std_weight_g
+    is.na(standardized_weight_g) & !is.na(calc_std_weight_g) ~ "standardized_weight_g calculated from standardized weight formula",
+    # nothing possible
+    TRUE ~ "standardized weight could not be calculated"))
+
+# Check number of problematic rows
+sum(final_dataframe$std_weight_g_comment == "does NOT match calc_std_weight_g", na.rm = TRUE)
+sum(final_dataframe$std_weight_g_comment == "standardized_weight_g calculated from standardized weight formula", na.rm = TRUE)
+sum(final_dataframe$std_weight_g_comment == "standardized weight could not be calculated", na.rm = TRUE)
+
+# Export errors in standardized weight
+std_weight_errors <- final_dataframe[!is.na(final_dataframe$std_weight_g_comment) 
+                                     & final_dataframe$std_weight_g_comment == "does NOT match calculated standardized weight",]
+write.csv(std_weight_errors, paste0(error_directory, "/std_weight_errors.csv"), row.names = FALSE)
 
 # Save document until here
 write.csv(final_dataframe, paste0(working_directory, "/combined_inprogress_df_trawl.csv"), row.names = FALSE)
@@ -1117,6 +1139,7 @@ final_dataframe <- final_dataframe %>%
       if (!is.na(trawl_comment) & trawl_comment != "") paste0("trawl_comment: ", trawl_comment),
       if (!is.na(comment) & comment != "") paste0("comment: ", comment),
       if (!is.na(time_comment) & time_comment != "") paste0("time_comment: ", time_comment),
+      if (!is.na(preservative_note) & preservative_note != "") paste0("preservative_note: ", preservative_note),
       if (!is.na(preservative_code_comment) & preservative_code_comment != "") paste0("preservative_code_comment: ", preservative_code_comment)),
     collapse = "; "
   )) %>%
@@ -1135,7 +1158,7 @@ final_dataframe <- final_dataframe %>%
   select(-trawl_comment, -comment, -time_comment, -preservative_code_comment, -depth_m_comments, -invalid_end_time,
         -trawl_date_comment, -trawl_number_comment, -merging_update_type, -scale_book_comment, -calc_value,
         -duration_comment, -invalid_duration_time, -invalid_start_time, -calc_end_time_comment, -duration_final, 
-        -std_weight_g_comment, -gear_type_comment, -length_weight_comment, -no_species_name_comments)
+        -std_weight_g_comment, -gear_type_comment, -length_weight_comment, -no_species_name_comments, -preservative_note)
 
 # Get the time stamp to record when the data was rescued
 time_stamp <- format(Sys.time(), "%d-%b-%Y %H:%M") # get time-stamp to indicate when data rescued
@@ -1151,8 +1174,8 @@ final_dataframe <- final_dataframe %>%
               fish_id, species_code, "species_common_name" = fish_description,  
               "life_stage" = species_code_comment, species_info_code, 
               fish_length_mm, fish_weight_g, standardized_weight_g, calc_std_weight_g,
-              preservative_code, preservative_description, weight_conversion_formula,
-              "age_class" = age, aging_technique, aging_technique_name,
+              preservative_code, preservative_description, preservative_description_short, 
+              weight_conversion_formula, "age_class" = age, aging_technique, aging_technique_name,
               scale, scale_book, scale_book_letter,
               general_comments, data_issues,
               source_files, source_line,
