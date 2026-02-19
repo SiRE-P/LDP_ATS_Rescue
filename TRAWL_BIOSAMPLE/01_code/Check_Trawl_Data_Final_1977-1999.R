@@ -11,6 +11,7 @@
 ##          for each variable in separate dataframes named <field name>_flags, 
 ##          and exported to CSVs in folder 07_QC_outputs for further examination.
 
+# ------------------------------------------------------------
 # SETUP libraries and functions                                             ####
 
 suppressPackageStartupMessages({
@@ -25,11 +26,20 @@ suppressPackageStartupMessages({
 })
 
 # Path to subfolder "04_final_output" under current working directory
+qc_qa_dir  <- file.path(getwd(), "TRAWL_BIOSAMPLE/07_QC_outputs")
 finals_dir <- file.path(getwd(), "TRAWL_BIOSAMPLE/04_final_output")
 final_data <- readr::read_csv(file.path(finals_dir, "Trawl_data_FINAL_1977-1999.csv"), show_col_types = FALSE)
 names(final_data)
 
 set.seed(42)
+
+# Gather meta-data variables
+metadata <- c("lake_name", "lake_code", "ats_year", "trawl_date", "trawl_number", "depth_m",
+              "start_time", "end_time", "duration_minutes", "calc_duration_time",
+              "species_info_code", "species_code", "species_common_name", "life_stage", "preservative_code")
+
+# ------------------------------------------------------------
+# PROCESS Trawl_data_FINAL_1977-1999.csv data                               ####
 
 # Identify numeric columns
 num_cols_all <- final_data %>%
@@ -38,11 +48,11 @@ num_cols_all <- final_data %>%
 
 # Columns to exclude from ALL numeric checks (explicit do-not-analyze list)
 exclude_cols <- c(
-  "lake_code", "ats_year", "trawl_number", "fish_id", "scale", "scale_book",
+  "lake_code", "ats_year", "fish_id", "scale", "scale_book",
   "source_line", "fish_total", "species_info_code", "processor")
 
 # Always-include whitelist (these columns must be analyzed even if few-levels)
-always_include <- c("duration_minutes")
+always_include <- c("duration_minutes", "trawl_number")
 
 # OPTIONAL: treat columns with few unique values as categorical and exclude from outlier checks
 exclude_discrete <- TRUE
@@ -172,9 +182,7 @@ flag_univariate_outliers %>%
 #   arrange(desc(n_fields_flagged))
 # head(row_issue_counts, 20)
 
-# ------------------------------------------------------------
 # Focus on percentile-triggered flags (includes "both")
-# ------------------------------------------------------------
 
 # (Re)define the context columns you want to bring from final_data
 context_cols <- c(
@@ -213,61 +221,116 @@ flags_by_column <- split(all_numeric_cols_percentile_flags_ctx, f = all_numeric_
 # See what you got:
 names(flags_by_column)
 sapply(flags_by_column, nrow)
+# ------------------------------------------------------------
 
-# Optional: create one data frame object per column in your environment
+# CREATE one data frame object per data column in Environment window        ####
+
 flags_suffixed <- setNames(flags_by_column, paste0(names(flags_by_column), "_flags"))
 list2env(flags_suffixed, envir = .GlobalEnv)
 
 # Reduce meta-data flags to unique values of the meta-data
+trawl_number_flags <- trawl_number_flags %>%
+  select(lake_name, trawl_date, trawl_number, duration_minutes, 
+         trawl_unique_ID, column, value, p1, p99, source_files) %>%
+  arrange(lake_name, trawl_date, trawl_unique_ID) %>%
+  unique() # displays 3 Owikeno surveys - all legit (260218)
+hist(final_data$trawl_number) # check all records for distn of trawl_numbers
+
 depth_m_flags <- depth_m_flags %>%
   select(lake_name, trawl_date, trawl_number, duration_minutes, 
          trawl_unique_ID, column, value, p1, p99, source_files) %>%
   arrange(lake_name, trawl_date, trawl_unique_ID) %>%
-  unique()
+  unique()  # shows 2 trawls at depth 65 and 70 which are probably legit (260218)
+hist(final_data$depth_m)  # check all records for distn of depths (lots of zeros)
 
 duration_minutes_flags <- duration_minutes_flags %>%
   select(lake_name, trawl_date, trawl_number, duration_minutes, 
          trawl_unique_ID, column, value, p1, p99, source_files) %>%
   arrange(lake_name, trawl_date, trawl_unique_ID) %>%
-  unique()
+  unique()  # shows two records: Hen trawl 1986-08-30_3_1_0 at 46 minutes (legit) and 
+            # Klukshu 1988-08-31_53_7_0 at zero minutes - but real start- and end-times, so sent AA a message to fix (260218) 
+hist(final_data$duration_minutes)
+chk <- final_data %>% filter(lake_code == 53) %>%
+  select(all_of(metadata)) %>% unique()
+
+chk <- final_data %>% filter(calc_duration_time >50 ) %>% # the large calcs appear to be related to typos in the start/end-times...
+#chk<- final_data %>% filter(calc_duration_time != duration_minutes & calc_duration_time <=50 ) %>% # this one for chking observed vs calculated durations...
+  select(all_of(metadata), trawl_unique_ID) %>%
+  select(-species_code, -species_info_code, -species_common_name, -life_stage) %>%
+  unique() %>% 
+  mutate(diff_time = calc_duration_time - duration_minutes) %>%
+  arrange(lake_name, ats_year, trawl_date)
+hist(chk$diff_time) # (chk$calc_duration_time) # sent list of 15 start- or end-time fixes to AA to fix (260218)
+dump <- paste0(qc_qa_dir, "/", "fix_trawl_times.csv")
+write.csv(chk, dump)
+
 
 # Arrange fish size flags
 fish_length_mm_flags <- fish_length_mm_flags %>%
+  mutate(k_factor_prsrv = 100 * fish_weight_g / ((fish_length_mm / 10)^3)) %>%           # based on preserved (measured) weight
+  mutate(k_factor_std   = 100 * standardized_weight_g / ((fish_length_mm / 10)^3)) %>%   # based on estimated actual weight - best for K factor 
   select(lake_name, trawl_date, trawl_number, trawl_unique_ID, 
-         species_code, species_common_name, fish_length_mm, p1, p99, 
-         fish_weight_g, standardized_weight_g, calc_std_weight_g, 
+         species_code, species_common_name, p1, p99, fish_length_mm, 
+         fish_weight_g, standardized_weight_g, calc_std_weight_g, k_factor_std, k_factor_prsrv,
          fish_unique_ID, source_files) %>%
-  arrange(species_code, lake_name, fish_length_mm, trawl_date) %>%
+  arrange(species_code, k_factor_std, lake_name, fish_length_mm, trawl_date) %>%
   unique()
 
+chk_sox_final <- final_data %>% filter(species_code == 1) %>% # review all final SOCKEYE lengths...
+  mutate(k_factor_std   = 100 * standardized_weight_g / ((fish_length_mm / 10)^3))
+hist(chk_sox_final$fish_length_mm)
+boxplot(chk_sox_final$fish_length_mm)
+mean(chk_sox_final$k_factor_std, na.rm = TRUE)
+
+chk_sox_flags <- fish_length_mm_flags %>% filter(species_code == 1) 
+hist(chk_sox_flags$fish_length_mm)     # at low end, shows two 17 mm sox, one with K>3 (likely measurement error)
+boxplot(chk_sox_flags$fish_length_mm)  # at high end,shows 115 sox 109-180mm; 113 have good K-factors (~1.0), 2 skinny fish K<0.50
+mean(chk_sox_flags$k_factor_std, na.rm = TRUE)
+
+chk_stx_final <- final_data %>% filter(species_code == 2) %>% # & fish_length_mm < 20) %>% # review all final STICKLEBACK lengths...
+  mutate(k_factor_std = 100 * standardized_weight_g / ((fish_length_mm / 10)^3)) %>%
+  select(lake_name, lake_code, species_code, species_common_name, fish_length_mm, fish_weight_g, standardized_weight_g, k_factor_std)
+hist(chk_stx_final$fish_length_mm)
+hist(chk_stx_final$k_factor_std)
+boxplot(chk_stx_final$fish_length_mm)
+
+chk_stx_flags <- fish_length_mm_flags %>% filter(species_code == 2) 
+hist(chk_stx_flags$fish_length_mm)     # at high end, 1 115 mm stk but with K=0.9, so OKAY
+boxplot(chk_stx_flags$fish_length_mm)  # at low end, shows 14-15 fish with len < 12mm, many missing std_weight, so k_prsrv > 3
+                                       # thus probably calculated based on observed preserved weight, which would bias K high?
+
 fish_weight_g_flags <- fish_weight_g_flags %>%
+  mutate(k_factor_std = 100 * standardized_weight_g / ((fish_length_mm / 10)^3)) %>%
   select(lake_name, trawl_date, trawl_number, trawl_unique_ID, 
          species_code, species_common_name, 
          fish_length_mm, fish_weight_g, p1, p99, 
-         standardized_weight_g, calc_std_weight_g, 
+         standardized_weight_g, calc_std_weight_g, k_factor_std,
          fish_unique_ID, source_files) %>%
   arrange(species_code, lake_name, fish_weight_g, trawl_date) %>%
   unique()
 
 standardized_weight_g_flags <- standardized_weight_g_flags %>%
+  mutate(k_factor_std = 100 * standardized_weight_g / ((fish_length_mm / 10)^3)) %>%
   select(lake_name, trawl_date, trawl_number, trawl_unique_ID, 
          species_code, species_common_name, 
          fish_length_mm, fish_weight_g, standardized_weight_g, p1, p99, 
-         calc_std_weight_g, 
+         calc_std_weight_g, k_factor_std,
          fish_unique_ID, source_files) %>%
   arrange(species_code, lake_name, standardized_weight_g, trawl_date) %>%
   unique()
 
 calc_std_weight_g_flags <- calc_std_weight_g_flags %>%
+  mutate(k_factor_std = 100 * standardized_weight_g / ((fish_length_mm / 10)^3)) %>%
   select(lake_name, trawl_date, trawl_number, trawl_unique_ID, 
          species_code, species_common_name, 
          fish_length_mm, fish_weight_g, standardized_weight_g,  
-         calc_std_weight_g, p1, p99,
+         calc_std_weight_g, p1, p99, k_factor_std,
          fish_unique_ID, source_files) %>%
   arrange(species_code, lake_name, calc_std_weight_g, trawl_date) %>%
   unique()
 
-# Optional: write each column's flagged rows to a CSV for review            ####
+# ------------------------------------------------------------
+# EXPORT each column's flagged rows to a CSV for review                     ####
 out_qc_dir <- file.path(getwd(), "TRAWL_BIOSAMPLE/07_QC_outputs")
 dir.create(out_qc_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -288,3 +351,5 @@ iwalk(
     readr::write_csv(.x, file.path(out_qc_dir, paste0(.y, ".csv")))
   }
 )
+
+# ------------------------------------------------------------

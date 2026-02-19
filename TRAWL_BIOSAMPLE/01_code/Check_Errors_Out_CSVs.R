@@ -118,6 +118,7 @@ missing_rows
 # REVIEW fish_length_weight_errors                                          ####
 #   Define the relevant columns to keep for resolving data issue
 fish_length_weight_errors_chk <- fish_length_weight_errors %>%
+  mutate(k_factor_std = 100 * standardized_weight_g / ((fish_length_mm / 10)^3)) %>%
   select(fish_unique_ID,
     lake_name,
     lake_code,
@@ -127,44 +128,56 @@ fish_length_weight_errors_chk <- fish_length_weight_errors %>%
     fish_description  ,
     fish_length_mm      ,
     fish_weight_g    ,
+    standardized_weight_g,
+    k_factor_std,
     species_code_comment ,
     age, 
     trawl_number, fish_id,
     depth_m,
     source_files
   ) %>%
-  arrange(lake_name, ats_year, trawl_date, trawl_number, fish_unique_ID)
+  arrange(species_code, fish_length_mm, lake_name, ats_year, trawl_date, trawl_number, fish_unique_ID)
+
+out_qc_dir <- file.path(getwd(), "TRAWL_BIOSAMPLE/07_QC_outputs")
+dir.create(out_qc_dir, showWarnings = FALSE, recursive = TRUE)
+readr::write_csv(fish_length_weight_errors_chk, file.path(out_qc_dir, paste0("fish_length_weight_errors_chk_HS.csv")))
 
 # filter for specific lake and species for each record in fish_length_weight_errors to get size stats & distribution
-lake_species_select <- final_data %>% filter(lake_code == 107 & species_code == 2)  # Cheewhat stickleback
-lake_species_select <- final_data %>% filter(lake_code == 29  & species_code == 2)  # Devon stickleback
-lake_species_select <- final_data %>% filter(lake_code == 214 & species_code == 2)  # Dragon stickleback
-lake_species_select <- final_data %>% filter(lake_code == 3   & species_code == 2)  # Henderson stickleback
-lake_species_select <- final_data %>% filter(lake_code == 41  & species_code == 2)  # Kennedy Main stickleback
-lake_species_select <- final_data %>% filter(lake_code == 41  & species_code == 1)  # Kennedy Main Sockeye
-lake_species_select <- final_data %>% filter(lake_code == 8   & species_code == 1 & fish_weight_g < 10)  # Long Lake Sockeye
-lake_species_select <- final_data %>% filter(lake_code == 8   & species_code == 2)  # Long Lake stickleback
-lake_species_select <- final_data %>% filter(lake_code == 802 & species_code == 2)  # Long Lake stickleback
-lake_species_select <- final_data %>% filter(lake_code == 44  & species_code == 1 & fish_weight_g < 10)  # Muriel Sockeye
-lake_species_select <- final_data %>% filter(lake_code == 18  & species_code == 1)  # Owikeno Sockeye
-lake_species_select <- final_data %>% filter(lake_code == 18  & species_code == 2 & fish_weight_g < 10)  # Owikeno Stickleback
-lake_species_select <- final_data %>% filter(lake_code == 66  & species_code == 1)  # Tatsamenie Sockeye
-lake_species_select <- final_data %>% filter(lake_code == 23  & species_code == 1)  # Vernon Sockeye
-lake_species_select <- final_data %>% filter(lake_code == 22  & species_code == 1)  # Woss Sockeye
+# lake_species_select <- final_data %>% filter(lake_code == 107 & species_code == 2)  # Cheewhat stickleback
+# lake_species_select <- final_data %>% filter(lake_code == 29  & species_code == 2)  # Devon stickleback
+# lake_species_select <- final_data %>% filter(lake_code == 214 & species_code == 2)  # Dragon stickleback
+# lake_species_select <- final_data %>% filter(lake_code == 3   & species_code == 2)  # Henderson stickleback
+# lake_species_select <- final_data %>% filter(lake_code == 41  & species_code == 2)  # Kennedy Main stickleback
+# lake_species_select <- final_data %>% filter(lake_code == 41  & species_code == 1)  # Kennedy Main Sockeye
+# lake_species_select <- final_data %>% filter(lake_code == 8   & species_code == 1 & fish_weight_g < 10)  # Long Lake Sockeye
+# lake_species_select <- final_data %>% filter(lake_code == 8   & species_code == 2 & fish_weight_g < 10 & fish_length_mm <40)  # Long Lake stickleback
+# lake_species_select <- final_data %>% filter(lake_code == 802 & species_code == 2)  # Long Lake stickleback
+# lake_species_select <- final_data %>% filter(lake_code == 44  & species_code == 1 & fish_weight_g < 5)  # Muriel Sockeye
+# lake_species_select <- final_data %>% filter(lake_code == 18  & species_code == 1 & fish_weight_g < 5  & fish_length_mm <40)  # Owikeno Sockeye
+# lake_species_select <- final_data %>% filter(lake_code == 18  & species_code == 2 & fish_weight_g < 10)  # Owikeno Stickleback
+# lake_species_select <- final_data %>% filter(lake_code == 66  & species_code == 1)  # Tatsamenie Sockeye
+# lake_species_select <- final_data %>% filter(lake_code == 23  & species_code == 1)  # Vernon Sockeye
+# lake_species_select <- final_data %>% filter(lake_code == 22  & species_code == 1)  # Woss Sockeye
 
+lake_species_select <- final_data %>% filter(species_code == 17) #  & standardized_weight_g <5)
+# lake_species_select <- final_data %>% filter(species_code == 1 & life_stage == "Fry" & standardized_weight_g <10) # & fish_length_mm <30) # standardized_weight_g <10)
+# 
 # get 5th, 50th, and 95th percentiles for length and weight vars for histogram output
 stats <- lake_species_select %>% 
-  group_by(lake_name, species_code, species_common_name, life_stage) %>%
-  summarize(
+# group_by(lake_name, species_code, species_common_name, life_stage) %>%
+  group_by(species_common_name, life_stage) %>%
+  summarize(n_fish = n(),
     len_mm_p05 = as.numeric(quantile(fish_length_mm, probs = 0.05, na.rm = TRUE)),  
-    len_mm_p50 = median(fish_length_mm, na.rm = TRUE),
-    len_mm_p95 = as.numeric(quantile(fish_length_mm, probs = 0.95, na.rm = TRUE)),
-    
-    wt_mm_p05  = as.numeric(quantile(fish_weight_g, probs = 0.05, na.rm = TRUE)),
-    wt_mm_p50  = median(fish_weight_g, na.rm = TRUE),
-    wt_mm_p95  = as.numeric(quantile(fish_weight_g, probs = 0.95, na.rm = TRUE)),
-    wt_mm_max  = as.numeric(quantile(fish_weight_g, probs = 1.00, na.rm = TRUE)),
-    n_fish = n(),
+  # len_mm_p50 = median(fish_length_mm, na.rm = TRUE),
+  len_mm_p95 = as.numeric(quantile(fish_length_mm, probs = 0.95, na.rm = TRUE)),
+  len_mm_p99 = as.numeric(quantile(fish_length_mm, probs = 0.99, na.rm = TRUE)),
+  len_mm_max = as.numeric(quantile(fish_length_mm, probs = 1.00, na.rm = TRUE)),
+  
+    wt_mm_p05  = as.numeric(quantile(standardized_weight_g, probs = 0.05, na.rm = TRUE)),
+  # wt_mm_p50  = median(standardized_weight_g, na.rm = TRUE),
+  wt_mm_p95  = as.numeric(quantile(standardized_weight_g, probs = 0.95, na.rm = TRUE)),
+  wt_mm_p99  = as.numeric(quantile(standardized_weight_g, probs = 0.99, na.rm = TRUE)),
+  wt_mm_max  = as.numeric(quantile(standardized_weight_g, probs = 1.00, na.rm = TRUE)),
     .groups = "drop")
 stats
 
@@ -179,21 +192,23 @@ plot_length_weight_hist <- function(df) {
   op <- par(mfrow = c(2, 1))  # Plot layout: 2 rows, 1 column
   
   # Extract lake and species for dynamic titles
-  lake_title    <- unique(df$lake_name)
+  # lake_title    <- unique(df$lake_name)
   species_title <- unique(df$species_common_name)
   
   # Length histogram
   hist(
     df$fish_length_mm,
     breaks = 30,
-    main = paste0("Length Distribution - ", lake_title, " (Species:", species_title, ")"),
+    # main = paste0("Length Distribution - ", lake_title, " (Species:", species_title, ")"),
+    main = paste0("Length Distribution - (Species:", species_title, ")"),
     xlab = "Fish Length (mm)")
   
   # Weight histogram
   hist(
     df$fish_weight_g,
     breaks = 30,
-    main = paste0("Weight Distribution - ", lake_title, " (Species:", species_title, ")"),
+    # main = paste0("Weight Distribution - ", lake_title, " (Species:", species_title, ")"),
+    main = paste0("Std Weight Distribution - (Species:", species_title, ")"),
     xlab = "Fish Weight (g)")
   
   # Reset plot layout to default
@@ -213,7 +228,7 @@ plot_length_weight_hist(lake_species_select)
 # change 1989-06-03_41_15_10_7_78_30_0.26   length to 26 mm from .26
 # change 1989-06-03_41_15_10_7_78_30_0.26   weight to .30  from 30
 # change 1987-09-09_8_8_20_1_135_0.66_400   length to 40 mm from 400
-# change 1993-07-24_8_4_16_7_46_60_39       weight to 6 from 60 g
+# change 1993-07-24_8_4_16_7_46_60_39       weight to .60 (not 6) from 60 g 
 # change 1987-09-09_8_8_20_1_146_0.64_399   length to 39 mm from 399
 # change 1987-09-09_8_8_20_1_21_1.31_500    length to 50 mm from 500
 # change 1987-09-09_8_9_7_2_81_0.84_444     length to 44 mm from 444
@@ -227,9 +242,9 @@ plot_length_weight_hist(lake_species_select)
 # change 1987-11-29_118_8_20_9_1_0_1.88     weight to NA instead of 0
 # change 1989-02-22_44_3_30_1_3_0.73_4      length to 40 mm from 4
 # change 1995-08-26_18_19_11_7_21_0.61_0.37 length to 37 mm from .37
-# change 1995-08-26_18_11_0_7_137_46_35     weight to 4.6 mm from 46
+# change 1995-08-26_18_11_0_7_137_46_35     weight to 0.46 (not 4.6) from 46
 # change 1995-08-26_18_13_7_7_93_39_53      length to 3.9 mm from 39
-# change 1991-03-12_18_2_7_2_8_36_33        weight to 3.6 from 36
+# change 1991-03-12_18_2_7_2_8_36_33        weight to 0.36 (not 3.6) from 36
 # change 1996-08-22_18_25_0_2_70_0.11_2.5   length to 25 mm from 2.5
 # change 1996-08-22_18_25_0_2_71_0.16_2.7   length to 27 mm from 2.7
 # change 1991-09-14_66_99_10_7_2_1.13_5     length to 50 mm from 5
@@ -279,9 +294,12 @@ start_time_errors_unique_chk <- start_time_errors_chk %>%
     lake_name, lake_code, ats_year,
     trawl_date, trawl_number, depth_m,
     start_time, end_time,
-    species_code, fish_description, fish_lengths,
+    # species_code, fish_description, fish_lengths,
     source_files, comment) %>%
   unique()
+
+write.csv(start_time_errors_unique_chk, file.path(errors_dir, "start_time_errors_fixes.csv"))
+
 
 # Compare with final_dataframe to see which rows are present or missing as these should not be omitted
 exists_rows <- start_time_errors_chk %>%
@@ -334,7 +352,7 @@ end_time_errors_unique_chk <- end_time_errors_chk %>%
     lake_name, lake_code, ats_year,
     trawl_date, trawl_number, depth_m,
     start_time, end_time, duration_mi,
-    species_code, fish_description, fish_lengths,
+  # species_code, fish_description, fish_lengths,
     source_files, comment) %>%
   unique()  # Result: invalid end_times can all be set to NA
 
@@ -366,7 +384,7 @@ keep_cols <- c(
   "source_files",
   "comment")
 
-# 1) Build the working table and tally non-NA lengths per future-unique group
+# 1) Build the working table 
 duration_errors_chk <- duration_mi_errors %>%
   # add a per-group tally of non-NA lengths over the *keep_cols* grouping
   add_count(across(all_of(keep_cols)),
@@ -389,8 +407,9 @@ duration_errors_unique_chk <- duration_errors_chk %>%
     lake_name, lake_code, ats_year,
     trawl_date, trawl_number, depth_m,
     start_time, end_time, duration_mi,
-    species_code, fish_description, fish_lengths,
-    source_files, comment) %>%
+    # species_code, fish_description, fish_lengths,
+    # source_files, comment
+    ) %>%
   unique()  # Result: invalid end_times can all be set to NA
 
 # RESULTS
@@ -410,3 +429,5 @@ missing_rows <- duration_errors_chk %>% # shows no rows that are missing from fi
   anti_join(final_data %>% select(fish_unique_ID), by = "fish_unique_ID") %>%
   arrange(lake_name, ats_year, trawl_date, trawl_number, fish_unique_ID)
 missing_rows # none missing from final
+
+write.csv(duration_errors_unique_chk, file.path(errors_dir, "duration_errors_fixes.csv"))
