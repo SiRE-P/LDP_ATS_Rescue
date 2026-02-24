@@ -386,4 +386,24 @@ Meeting with David Hunt, Athena Ogden, Howard Stiff (Mon 17th)
   - Fix "No Name Lake"
   - DUM problem - sample_number should become NA, not gear_type.
 
-
+## Week 16 (February 23rd-March 1st, 2026)
+Done:
+  - Howard asked: Added a comment to record "1986-08-30_3_1_0_2_1_4.11_65" in duration_comment column = "Note: unusually long Duration, but data not changed"
+  - Howard asked: Changed duration_mi from 0 to 15min everytime duration_mi == 0 & start_time == "03:22:00"
+        - comment included in the duration_comment column = "duration_minutes changed from 0 to 15, based on start and end times"
+  - Fixes applied to start and end time columns as requested by Howard in the excel spreadsheet he sent. Trawl unique ID:
+          "1979-03-22_8_5_50", "1978-11-23_23_4_58", "1981-09-04_41_4_12",
+          "1981-12-15_41_2_30", "1984-10-28_3_5_12", "1984-05-02_40_5_5",
+          "1984-06-13_40_4_9", "1984-07-12_40_10_11", "1984-08-15_40_2_12",
+          "1984-09-14_8_8_5", "1984-11-12_8_24_0", "1984-10-27_118_8_20",
+          "1984-11-08_21_1_0", "1984-09-10_69_3_0", "1985-08-15_40_9_10",
+          "1978-09-12_41_1_10"
+   - Flagged unusual sizes from 2-5 K index. Corrected length/weight values or replaced by NA when K index was greater than 5
+   
+Issue:
+  - DUM1-DUM2 - trawl89.dat - line 4147
+      - Everything is coded "1", are those just random number and not actual records?
+  - Should I re-calculate duration based on new start and end time?
+      - I did it but can be easily undone.
+  
+  

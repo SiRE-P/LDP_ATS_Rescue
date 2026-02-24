@@ -1,0 +1,145 @@
+---
+title: "LDP internship - Data dictionary for original trawl biosample files"
+author: "Alice Assmar"
+date: "2026-02-04"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{=html}
+<style>
+  body {
+    text-align: justify;
+  }
+</style>
+```
+
+### Data collection
+
+This folder includes original trawl biosample data collected using
+trawling method in water bodies located in British Columbia, Canada,
+from 1977 to 1999 by researchers from Fisheries and Oceans Canada.
+
+### 01_DAT folder
+
+[*Data from 1977-1983*]{.underline}
+
+-   There are 17 columns in the Trawlyy.dat files:
+
+column1: lake code\
+column2: trawl date\
+column3: trawl number\
+column4: species - either a species code or the number of species? Not
+clear to me; it's usually "1" (HS: Species Code - see lookup table)\
+column5: Fish number\
+column6: Length\
+column7: Weight - (HS: the question is: is this 'observed' or
+'standardized' weight?)\
+column8: prsrv (I don't know what this means--it might always have a
+dot, which might be the same as NA?) (HS: dots are NAs)\
+column9: age\
+column10: aged (I think this is a 0/1 code for aged or not) (HS: no,
+there's an Aged lookup table that shows multiple codes)\
+column11: start time\
+column12: end time\
+column13: duration (min)\
+column14: depth (m)\
+column15: Number of fish (usually/always a dot??)\
+column16: "procdate": presumably processing date (HS: yes)\
+column17: processor?? (whatever this means, it seems to be always 99)
+(HS: see Observer code lookup table)
+
+[*Dat files from 1984 - 1999*]{.underline}
+
+-   Each table row (except the header) is one line.
+
+| DATA BLOCK 1 | Description |
+|--------------------------|----------------------------------------------|
+| 280185 | sample process date |
+| 18 | processor code |
+| 6 | lake code |
+| 250484 | sample date |
+| 1 | sample number |
+| TR | sample type |
+| 1 | trawl number (may be same as sample number, i.e., not a transect number) |
+| 2330-2345 | start-time and end-time. Most files only provide start time. Leading zeros were removed at some point, so "245" or "23" translate to "0245" and "0023" |
+| 15 | duration (minutes) |
+| 4 | depth (m) |
+| 1 | fish species code |
+| TR 4.5-4.0 | trawl location (transects?) |
+| 1 | preservative code |
+| 6 | number of fish in sample to LOOP over |
+| 67 | fish 1 - length (mm) |
+| 3.12 | fish 1 - weight (g) |
+| 1 | fish 1 - scale book number |
+|  | All files have a fourth line. It can be empty or have a letter, which is interpreted as scale book letter |
+| 58 | fish 2 - length |
+| 1.85 | fish 2 - weight |
+| 2 | fish 2 - scale book number |
+|  |  |
+| 66 | fish 3 - length |
+| 2.89 | fish 3 - weight |
+| 3 | fish 3 - scale book number |
+|  |  |
+| 61 | fish 4 - length |
+| 2.15 | fish 4 - weight |
+| 0 | fish 4 - scale book number (0 = no scale) |
+|  |  |
+| 51 | fish 5 - length |
+| 1.26 | fish 5 - weight |
+| 0 | fish 5 - scale book number (0 = no scale) |
+|  |  |
+| 30 | fish 6 - length |
+| .23 | fish 6 - weight |
+| 0 | fish 6 - scale book number (0 = no scale) |
+|  |  |
+| 310185 | end LOOP and end BLOCK 1 - This is the sample process date of BLOCK 2 - METADATA |
+
+### 01_SAS_Data folder
+
+-   These are corrupted SAS files, because their metadata have some
+    structural problem:\
+    -   trawl85.sas7bdat
+    -   trawl86.sas7bdat
+    -   trawl87.sas7bdat
+    -   trawl94.sas7bdat
+    -   trawl97.sas7bdat
+    -   trawl98.sas7bdat\
+-   Trawlyy.sas7bdat files include fish data, while trlinfyy.sas7bdat
+    files include trawl information.
+    -   Variables in the Trawlyy.sas7bdat files:
+        -   *date - Sample Date*
+        -   *age - Age*
+        -   *aged - Aging Technique*
+        -   *fishnmbr - Fish*
+        -   *system - System*
+        -   *length - Length (mm)*
+        -   *sample - Sample No.*
+        -   *fspecies - Species*
+        -   *stdwght -Standardized Weight (g)*
+        -   *trwlnmbr - Trawl*
+        -   *weight - Weight (g)*
+        -   *depth*
+    -   Variables in the Trlinfyy.sas7bdat files:
+        -   *system - System*
+        -   *date - Sample Date*
+        -   *trwlnmbr - Trawl \#*
+        -   *depth - Depth*
+        -   *fspecies - Species*
+        -   *statime*
+        -   *endtime*
+        -   *prsrv - Preservative*
+        -   *observer - Observer*
+        -   *duration - Duration*
+        -   *nmbrfish - Number of fish*
+        -   *comment*

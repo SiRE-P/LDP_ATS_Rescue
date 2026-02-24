@@ -768,7 +768,7 @@ df_final_clean_species$duration_mi <- as.integer(df_final_clean_species$duration
 
 # Replace all "99" and "999" by NA across all columns
 df_final_clean_species <- df_final_clean_species %>%
-  mutate(across(c(duration_mi, processor, depth_m, scale, trawl_number), ~ str_replace_all(.x, pattern = "999", replacement = NA_character_))) %>%
+  mutate(across(c(duration_mi, processor, depth_m, scale, scale_book, trawl_number), ~ str_replace_all(.x, pattern = "999", replacement = NA_character_))) %>%
   mutate(across(c(duration_mi, processor, depth_m, trawl_number), ~ str_replace_all(.x, pattern = "99", replacement = NA_character_))) %>%
   mutate(duration_mi = as.integer(duration_mi)) 
 
@@ -803,28 +803,67 @@ df_final_calc_duration <- df_final_calc_duration %>%
         abs(duration_mi - calc_duration_time) < 1 ~ "matches calculated start_time and end_time",
       # duration exists but does NOT match times
       !is.na(duration_mi) & !is.na(calc_duration_time) &
-        abs(duration_mi - calc_duration_time) >= 1 ~ "does NOT match calculated start_time and end_time, likely end_time error",
+        abs(duration_mi - calc_duration_time) >= 1 ~ "did NOT match calculated start_time and end_time, likely end_time error",
       # duration calculated from times
       is.na(duration_mi) & !is.na(calc_duration_time) ~ "duration not provided, calculated from start_time, end_time",
       # nothing possible
       TRUE ~ "duration could not be calculated"))
 
-df_final_calc_duration %>%
-  group_by(start_time, start_t, end_time, end_t, duration_mi, calc_duration_time, duration_comment) %>%
-  summarise(count = n()) -> summary_table
-
 # Check number of problematic rows
-sum(df_final_calc_duration$duration_comment == "does NOT match calculated start_time and end_time, likely end_time error", na.rm = TRUE)
+sum(df_final_calc_duration$duration_comment == "did NOT match calculated start_time and end_time, likely end_time error", na.rm = TRUE)
 sum(df_final_calc_duration$duration_comment == "duration not provided, calculated from start_time, end_time", na.rm = TRUE)
 
 # Save mismatches in duration in separate document
 duration_mismatch <- df_final_calc_duration[!is.na(df_final_calc_duration$duration_comment) & df_final_calc_duration$duration_comment == "does NOT match calculated start_time and end_time, likely end_time error",]
 write.csv(duration_mismatch, paste0(error_directory, "/duration_mismatch.csv"), row.names = FALSE)
 
-## calculate missing end_time values
+# Correct start_time and end_time based on the calculated duration field.
+# Read lookup table with the corrected values and specific comments
+duration_mi_lookup_table_corrections <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/03_AA_look_up_tables/fix_trawl_times.csv")
+
+# Use the lookup table to correct the values in the final dataset
+df_final_calc_duration <- df_final_calc_duration %>%
+  dplyr::left_join(duration_mi_lookup_table_corrections, by = c("trawl_unique_ID", "calc_duration_time")) %>%
+  # Replacement commands for start_time and end_time columns
+  mutate(start_time = case_when(start_time != new_start_time  ~ new_start_time,
+                                    TRUE ~ start_time),
+         end_time = case_when(end_time != new_end_time ~ new_end_time,
+                              TRUE ~ end_time)) %>%
+  # Flag changes in the comment column
+  unite(duration_comment, duration_comment, comments_start_end_times, sep = "; ", na.rm = TRUE) %>%
+  select(-new_start_time, -old_start_time, -old_end_time, -new_end_time, -start_t, -end_t)
+
+# Include additional comments and corrections performed in duration_mi column
+df_final_calc_duration <- df_final_calc_duration %>%
+  mutate(duration_comment2 = ifelse(fish_unique_ID == "1986-08-30_3_1_0_2_1_4.11_65", 
+                                    "Note: unusually long Duration, but data not changed", NA_character_)) %>%
+  mutate(duration_comment2 = ifelse(duration_mi == 0 & start_time == "03:22:00",
+                                    "duration_minutes changed from 0 to 15, based on start and end times", NA_character_)) %>%
+  unite(duration_comment, duration_comment, duration_comment2, sep = "; ", na.rm = TRUE) %>%
+  mutate(duration_mi = case_when(duration_mi == 0 & start_time == "03:22:00" ~ 15,
+                                 TRUE ~ duration_mi))
+
+# Re-calculate duration in minutes after correcting anomalous records
+# Make sure all rows have the same format
+df_final_calc_duration <- df_final_calc_duration %>%
+  mutate(start_t = hms(start_time),
+         end_t  = hms(end_time)) %>%
+  mutate(across(c(start_time, end_time), 
+                ~ str_replace_all(.x, pattern = "^24", replacement = "00")))
+
+df_final_calc_duration <- df_final_calc_duration %>%
+  mutate(calc_duration_time = if_else(!is.na(start_t) & !is.na(end_t), 
+                                      if_else(as.numeric(end_t) < as.numeric(start_t),
+                                              (as.numeric(end_t) + 24*60*60 - as.numeric(start_t)) / 60,
+                                              (as.numeric(end_t) - as.numeric(start_t)) / 60), NA_real_)) %>%
+  mutate(calc_duration_time = round(calc_duration_time, 1))
+
+
+## calculate missing end_time values in anew column
 df_final_calc_end <- df_final_calc_duration %>%
   mutate(calc_end_time = as.numeric(start_t) + as.numeric(duration_mi) * 60,
          calc_end_time_comment = case_when(!is.na(end_time) ~ NA_character_,
+                                           is.na(calc_end_time) ~ "end_time could not be calculated",
                                           TRUE ~ "end_time missing, calculated from start_time + duration_mi")) %>%
   select(-start_t, -end_t)
 
@@ -839,6 +878,10 @@ df_final_calc_end <- df_final_calc_end %>%
 
 # Check number of calculated end time rows
 sum(df_final_calc_end$calc_end_time_comment == "end_time missing, calculated from start_time + duration_mi", na.rm = TRUE)
+
+df_final_calc_end %>%
+  group_by(start_time, end_time, calc_end_time, calc_end_time_comment, duration_mi, calc_duration_time, duration_comment) %>%
+  summarise(count = n()) -> summary_table
 
 #### Correct errors in preservative_code column
 code = c("971", "270", "350", "11", "35")
@@ -1155,13 +1198,15 @@ write.csv(final_dataframe, paste0(working_directory, "/combined_inprogress_df_tr
 final_dataframe <- final_dataframe %>%
   rowwise() %>%
   mutate(data_issues = paste(
-      c(if (duration_comment == "does NOT match calculated start_time and end_time, likely end_time error") paste0("duration_comment: ", duration_comment),
+      c(if (duration_comment != "matches calculated start_time and end_time" & 
+            duration_comment != "duration not provided, calculated from start_time, end_time" &
+            duration_comment != "duration could not be calculated") paste0("duration_comment: ", duration_comment),
         if (!is.na(length_weight_comment) & length_weight_comment != "") paste0("length_weight_comment: ", length_weight_comment),
         if (!is.na(duplicate_flag) & duplicate_flag != "") paste0("duplicate_flag: ", duplicate_flag),
         if (!is.na(no_species_name_comments) & no_species_name_comments != "") paste0("no_species_name_comments: ", no_species_name_comments),
         if (!is.na(gear_type_comment) & gear_type_comment != "") paste0("gear_type_comment: ", gear_type_comment),
         if (!is.na(scale_book_comment) & scale_book_comment != "") paste0("scale_book_comment: ", scale_book_comment),
-        if (std_weight_g_comment == "does NOT match calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment),
+        if (!is.na(std_weight_g_comment) & std_weight_g_comment == "does NOT match calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment),
         if (!is.na(calc_end_time_comment) & calc_end_time_comment == "end_time missing, calculated from start_time + duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),
         if (!is.na(invalid_duration_time) & invalid_duration_time != "") paste0("invalid_duration_time: ", invalid_duration_time),
         if (!is.na(invalid_start_time) & invalid_start_time == "Invalid format") paste0("invalid_start_time: ", invalid_start_time),
@@ -1181,7 +1226,9 @@ final_dataframe <- final_dataframe %>%
   )) %>%
   mutate(data_validation_comments = paste(
     c(if (!is.na(merging_update_type) & merging_update_type != "") paste0("merging_update_type: ", merging_update_type),
-      if (duration_comment != "does NOT match calculated start_time and end_time, likely end_time error") paste0("duration_comment: ", duration_comment),
+      if (duration_comment == "matches calculated start_time and end_time" | 
+          duration_comment == "duration not provided, calculated from start_time, end_time" |
+          duration_comment == "duration could not be calculated") paste0("duration_comment: ", duration_comment),
       if (std_weight_g_comment != "does NOT match calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment)),
     collapse = "; "
   )) %>%
@@ -1189,7 +1236,7 @@ final_dataframe <- final_dataframe %>%
   select(-trawl_comment, -comment, -time_comment, -preservative_code_comment, -depth_m_comments, -invalid_end_time,
         -trawl_date_comment, -trawl_number_comment, -merging_update_type, -scale_book_comment, -calc_value,
         -duration_comment, -invalid_duration_time, -invalid_start_time, -calc_end_time_comment, -duration_final, 
-        -std_weight_g_comment, -gear_type_comment, -length_weight_comment, -no_species_name_comments, -preservative_note)
+        -std_weight_g_comment, -gear_type_comment, -length_weight_comment, -no_species_name_comments, -preservative_note, - duplicate_flag)
 
 # Get the time stamp to record when the data was rescued
 time_stamp <- format(Sys.time(), "%d-%b-%Y %H:%M") # get time-stamp to indicate when data rescued
