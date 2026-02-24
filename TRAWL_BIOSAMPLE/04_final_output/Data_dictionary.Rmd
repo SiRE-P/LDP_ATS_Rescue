@@ -246,7 +246,7 @@ kable(summary_table_fish_size, caption = "Table 4. Summary of fish length and we
 # Convert values to cm for visualization and compute K index
 df_final <- df_final %>%
   mutate(length_cm = fish_length_mm / 10,
-         K = 100 * fish_weight_g / (length_cm^3))
+         K = 100 * calc_std_weight_g / (length_cm^3))
 
 # Box plot Stickleback
 ggplot(data = subset(df_final, species_common_name == "Stickleback"), aes(x = K)) +

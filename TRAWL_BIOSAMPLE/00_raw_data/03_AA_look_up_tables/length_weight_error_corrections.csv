@@ -1,40 +1,48 @@
 ﻿fish_unique_ID,old_value_length,new_value_length,old_value_weight,new_value_weight,length_weight_comment
-1977-08-16_40_1_10_2_10_0.09_5,5,,0.09,,"Likely error in length/weight, replaced by NA"
-1977-08-16_40_1_10_2_11_1.19_9,9,,1.19,,"Likely error in length/weight, replaced by NA"
-1977-08-16_40_1_10_2_12_1.53_3,3,,1.53,,"Likely error in length/weight, replaced by NA"
-1977-08-16_40_2_17_2_1_0.1_6,6,,0.1,,"Likely error in length/weight, replaced by NA"
-1977-08-16_40_2_17_2_10_0.13_4,4,,0.13,,"Likely error in length/weight, replaced by NA"
-1977-08-16_40_2_17_2_2_0.15_8,8,,0.15,,"Likely error in length/weight, replaced by NA"
-1977-08-16_40_2_17_2_3_0.12_8,8,8,0.12,0.012,weight to 0.012 g from 0.12 likely typo
-1977-08-16_40_2_17_2_4_0.12_9,9,9,0.12,0.012,weight to 0.012 g from 0.12 likely typo
-1977-08-16_40_2_17_2_5_0.12_9,9,9,0.12,0.012,weight to 0.012 g from 0.12 likely typo
-1977-08-16_40_2_17_2_8_0.14_1,1,,0.14,,"Likely error in length/weight, replaced by NA"
-1977-08-17_40_3_13_2_1_3.14_33,33,,3.14,,"Likely error in length/weight, replaced by NA"
+1977-08-16_40_1_10_2_10_0.09_5,5,5,0.09,0.09,Likely error in length/weight
+1977-08-16_40_1_10_2_11_1.19_9,9,9,1.19,1.19,Likely error in length/weight
+1977-08-16_40_1_10_2_12_1.53_3,3,3,1.53,1.53,Likely error in length/weight
+1977-08-16_40_1_10_2_13_1.53_6,6,60,1.53,1.53,"length to 60 mm from 6, likely typo"
+1977-08-16_40_2_17_2_1_0.1_6,6,6,0.1,0.1,Likely error in length/weight
+1977-08-16_40_2_17_2_10_0.13_4,4,4,0.13,0.13,Likely error in length/weight
+1977-08-16_40_2_17_2_10_0.13_4,4,4,0.13,0.13,Likely error in length/weight
+1977-08-16_40_2_17_2_2_0.15_8,8,8,0.15,0.15,Likely error in length/weight
+1977-08-16_40_2_17_2_3_0.12_8,8,8,0.12,0.12,Likely error in length/weight
+1977-08-16_40_2_17_2_4_0.12_9,9,9,0.12,0.12,Likely error in length/weight
+1977-08-16_40_2_17_2_5_0.12_9,9,9,0.12,0.12,Likely error in length/weight
+1977-08-16_40_2_17_2_8_0.14_1,1,1,0.14,0.14,Likely error in length/weight
+1977-08-16_40_2_17_2_9_0.14_2,2,20,0.14,0.14,"length to 20 mm from 2, likely typo"
+1977-08-17_40_3_13_2_1_3.14_33,33,33,3.14,3.14,Likely error in length/weight
 1977-09-21_40_4_15_2_65_3.34_52,52,52,3.34,3.34,Unusual size
-1978-08-16_40_3_16_2_1_0.53_18,18,,0.53,,"Likely error in length/weight, replaced by NA"
-1978-08-16_40_3_16_2_2_0.61_20,20,,0.61,,"Likely error in length/weight, replaced by NA"
-1978-08-16_40_4_13_1_117_2.17_30,30,,2.17,,"Likely error in length/weight, replaced by NA"
+1978-08-16_40_3_16_2_1_0.53_18,18,18,0.53,0.53,Likely error in length/weight
+1978-08-16_40_3_16_2_2_0.61_20,20,20,0.61,0.61,Likely error in length/weight
+1978-08-16_40_4_13_1_117_2.17_30,30,30,2.17,0.22,"weight to 0.22 g from 2.17, likely typo"
 1978-10-05_11_2_25_1_2_1.92_45,45,45,1.92,1.92,Unusual size
-1978-11-15_40_3_42_2_7_0.28_12,12,12,0.28,,"Likely error in length/weight, replaced by NA"
+1978-11-15_40_3_42_2_7_0.28_12,12,12,0.28,0.28,Likely error in length/weight
 1978-11-30_40_5_38_2_12_0.76_30,30,30,0.76,0.76,Unusual size
 1978-11-30_40_5_38_2_13_0.6_31,31,31,0.6,0.6,Unusual size
 1979-07-26_41_1_12_2_12_0.02_44,44,44,0.02,0.2,"weight to 0.2 g from 0.02, likely typo. Unusual size"
+1979-07-26_41_1_12_2_12_0.02_44,44,44,0.02,0.02,Likely error in length/weight
 1979-07-27_41_2_8_2_207_1.96_46,46,46,1.96,1.96,Unusual size
-1979-09-12_41_2_6_2_30_0.19_7,7,,0.19,,"Likely error in length/weight, replaced by NA"
-1979-09-12_41_2_6_2_31_0.2_7,7,,0.2,,"Likely error in length/weight, replaced by NA"
-1979-09-12_41_2_6_2_32_0.18_7,7,,0.18,,"Likely error in length/weight, replaced by NA"
-1979-09-12_41_2_6_2_33_0.14_7,7,,0.14,,"Likely error in length/weight, replaced by NA"
-1979-09-12_41_2_6_2_34_0.19_7,7,,0.19,,"Likely error in length/weight, replaced by NA"
-1979-09-12_41_2_6_2_35_0.19_7,7,,0.19,,"Likely error in length/weight, replaced by NA"
-1979-09-12_41_2_6_2_36_0.19_7,7,,0.19,,"Likely error in length/weight, replaced by NA"
-1979-09-12_41_2_6_2_37_0.19_7,7,,0.19,,"Likely error in length/weight, replaced by NA"
+1979-07-27_41_2_8_2_250_0.06_47,47,47,0.06,0.6,"weight to 0.6 g from 0.06, likely typo"
+1979-09-12_41_2_6_2_30_0.19_7,7,7,0.19,0.19,Likely error in length/weight
+1979-09-12_41_2_6_2_31_0.2_7,7,7,0.2,0.2,Likely error in length/weight
+1979-09-12_41_2_6_2_32_0.18_7,7,7,0.18,0.18,Likely error in length/weight
+1979-09-12_41_2_6_2_33_0.14_7,7,7,0.14,0.14,Likely error in length/weight
+1979-09-12_41_2_6_2_34_0.19_7,7,7,0.19,0.19,Likely error in length/weight
+1979-09-12_41_2_6_2_35_0.19_7,7,7,0.19,0.19,Likely error in length/weight
+1979-09-12_41_2_6_2_36_0.19_7,7,7,0.19,0.19,Likely error in length/weight
+1979-09-12_41_2_6_2_37_0.19_7,7,7,0.19,0.19,Likely error in length/weight
 1979-10-04_31_1_14_2_104_0.78_29,29,29,0.78,0.78,Unusual size
 1979-10-04_31_1_14_2_105_0.76_27,27,27,0.76,0.76,Unusual size
-1979-11-06_40_2_25_2_13_1.2_26,26,,1.2,,"Likely error in length/weight, replaced by NA"
+1979-11-06_40_2_25_2_13_1.2_26,26,26,1.2,1.2,Unusual size
 1980-08-14_8_3_17_1_11_0.55_27,27,27,0.55,0.55,Unusual size
-1981-02-03_41_2_40_2_97_1.4_28,28,,1.4,,"Likely error in length/weight, replaced by NA"
+1981-02-03_41_2_40_2_97_1.4_28,28,28,1.4,1.4,Unusual size
+1981-07-19_31_3_0_2_134_0.09_71,71,71,0.09,0.9,"weight to 0.9 g from 0.09, likely typo"
 1981-07-19_31_4_5_2_73_0.33_95,95,95,0.33,3.3,"weight to 3.3 g from 0.33, likely typo"
+1981-07-19_31_4_5_2_73_0.33_95,95,95,0.33,0.33,Unusual size
 1981-08-16_21_1_30_1_26_0.81_33,33,33,0.81,0.81,Unusual size
+1981-09-02_40_3_5_2_12_0.11_60,60,60,0.11,1.1,"weight to 1.1 g from 0.11, likely typo"
 1981-09-04_41_4_12_2_272_1.17_31,31,31,1.17,1.17,Unusual size
 1981-09-20_31_2_10_2_144_1.41_37,37,37,1.41,1.41,Unusual size
 1981-09-21_28_1_0_2_78_1.87_45,45,45,1.87,1.87,Unusual size
@@ -43,7 +51,7 @@
 1981-12-15_41_2_30_2_727_1.61_41,41,41,1.61,1.61,Unusual size
 1982-07-21_3_4_22_1_1_1.13_27,27,27,1.13,0.113,weight to 0.113 g from 1.13 likely typo
 1982-08-13_6_2_20_1_10_1.75_42,42,42,1.75,1.75,Unusual size
-1982-08-13_6_3_13_1_11_1.45_35,35,35,1.45,1.45,Unusual size
+1982-08-13_6_3_13_1_11_1.45_35,35,35,1.45,0.15,weight to 0.15 g from 1.45 likely typo
 1983-08-29_27_3_12_2_3_5.51_61,61,61,5.51,5.51,Unusual size
 1983-08-30_27_5_30_2_1_5.77_62,62,62,5.77,5.77,Unusual size
 1983-09-15_40_4_9_2_255_0.36_24,24,24,0.36,0.36,Unusual size
@@ -52,75 +60,44 @@
 1984-05-02_6_4_10_1_16_0.23_21,21,21,0.23,0.23,Unusual size
 1984-05-03_40_15_4_1_53_0.23_21,21,21,0.23,0.23,Unusual size
 1984-05-11_6_3_8_1_26_0.2_21,21,21,0.2,0.2,Unusual size
+1984-06-01_6_2_7_1_31_0.21_0.29,0.29,29,0.21,0.21,"length to 29 mm from 0.29, likely typo"
 1984-06-08_6_2_10_1_35_0.5_27,27,27,0.5,0.5,Unusual size
 1984-06-08_6_2_10_1_44_0.34_24,24,24,0.34,0.34,Unusual size
 1984-06-14_40_20_5_1_1_0.45_26,26,26,0.45,0.45,Unusual size
+1984-06-18_6_3_11_1_18_45_35,35,35,45,0.45,"weight to 0.45 g from 45, likely typo"
+1984-06-18_6_3_11_1_19_29_31,31,31,29,0.29,"weight to 0.29 g from 29, likely typo"
+1984-06-27_40_15_6_2_2_58_39,39,39,58,0.58,"weight to 0.58 g from 58, likely typo"
 1984-06-28_44_11_7_1_6_0.38_24,24,24,0.38,0.38,Unusual size
 1984-07-03_40_4_7_1_2_1.44_41,41,41,1.44,1.44,Unusual size
 1984-07-25_40_6_10_1_51_0.91_32,32,32,0.91,0.91,Unusual size
 1984-07-25_40_7_10_1_138_1.66_42,42,42,1.66,1.66,Unusual size
 1984-08-27_31_1_5_2_49_1.94_45,45,45,1.94,1.94,Unusual size
 1984-08-31_29_6_12_1_6_1.78_43,43,43,1.78,1.78,Unusual size
-1984-09-01_25_2_10_1_2_5.29_28,28,28,5.29,0.529,weight to 0.529 g from 5.29 likely typo
+1984-09-01_25_2_10_1_2_5.29_28,28,28,5.29,0.53,weight to 0.53 g from 5.29 likely typo
 1984-09-06_32_6_7_1_34_0.61_31,31,31,0.61,0.61,Unusual size
+1984-09-10_69_4_5_2_53_1.45_25,25,25,1.45,0.145,"weight to 0.145 g from 1.45, likely typo"
 1984-09-14_8_6_10_1_3_0.61_31,31,31,0.61,0.61,Unusual size
 1984-09-15_8_19_5_2_164_1.95_46,46,46,1.95,1.95,Unusual size
-1985-09-06_62_2_12_2_41_2.78_32,32,,2.78,,"Likely error in length/weight, replaced by NA"
-1985-09-09_29_11_5_2_33_1.61_24,24,24,1.61,0.161,weight to 0.161 g from 1.61 likely typo
-1985-09-09_29_4_5_2_166_1.46_26,26,,1.46,,"Likely error in length/weight, replaced by NA"
-1985-09-09_29_4_5_2_328_0.87_22,22,,0.87,,"Likely error in length/weight, replaced by NA"
-1985-09-09_29_4_5_2_73_2.22_30,30,,2.22,,"Likely error in length/weight, replaced by NA"
+1984-10-15_1_1_0_1_1_1.13_0,0,,1.13,1.13,"Weight=1.13 and length=0, incomplete data, replaced by NA"
+1985-09-06_62_2_12_2_41_2.78_32,32,32,2.78,2.78,Unusual size
+1985-09-09_29_11_5_2_33_1.61_24,24,24,1.61,1.61,Unusual size
+1985-09-09_29_4_5_2_166_1.46_26,26,26,1.46,1.46,Unusual size
+1985-09-09_29_4_5_2_328_0.87_22,22,22,0.87,0.87,Unusual size
+1985-09-09_29_4_5_2_73_2.22_30,30,30,2.22,2.22,Unusual size
+1985-12-11_41_4_15_2_16_0.34_3,3,30,0.34,0.34,"length to 30 mm from 3, weight is correct"
 1986-07-26_23_7_16_1_2_1.6_41,41,41,1.6,1.6,Unusual size
 1986-08-13_69_4_11_2_3_3.11_50,50,50,3.11,3.11,Unusual size
 1986-08-13_69_9_11_1_1_1.17_37,37,37,1.17,1.17,Unusual size
-1986-09-01_6_2_12_1_43_0.82_0.8,0.8,,0.82,,"Likely error in length/weight, replaced by NA"
-1987-07-30_29_3_10_2_1_5.5_39,39,39,5.5,0.55,weight to 0.55 g from 5.5 likely typo
-1987-07-30_29_3_10_2_2_8.8_46,46,,8.8,,"Likely error in length/weight, replaced by NA"
-1987-07-30_29_3_10_2_3_6.2_40,40,40,6.2,0.62,weight to 0.62 g from 6.2 likely typo
-1988-09-15_8_6_20_1_31_2_43,43,43,2,2,Unusual size
-1989-06-01_41_3_0_2_2_0.42_25,25,25,0.42,0.42,Unusual size
-1989-06-22_3_2_17_7_55_1_26,26,26,1,0.1,weight to 0.1 g from 1 likely typo
-1989-07-02_107_9_9_7_2_0.54_28,28,28,0.54,0.54,Unusual size
-1991-10-24_41_3_12_2_33_4.2_36,36,,4.2,,"Likely error in length/weight, replaced by NA"
-1992-07-14_8_4_16_7_42_0.66_32,32,32,0.66,0.66,Unusual size
-1993-07-17_3_2_11_7_21_0.97_33,33,33,0.97,0.97,Unusual size
-1993-07-26_8_10_3_2_5_3.27_51,51,51,3.27,3.27,Unusual size
-1995-06-21_3_3_18_7_4_1.8_30,30,,1.8,,"Likely error in length/weight, replaced by NA"
-1995-08-25_18_6_0_7_93_0.89_32,32,32,0.89,0.89,Unusual size
-1995-08-26_18_13_7_7_93_39_53,53,53,3.9,3.9,Unusual size
-1995-08-27_18_20_0_2_200_0.19_17,17,17,0.19,0.19,Unusual size
-1995-08-27_18_20_0_2_32_0.04_11,11,11,0.04,0.04,Unusual size
-1995-08-27_18_21_0_2_54_2.61_48,48,48,2.61,2.61,Unusual size
-1995-08-27_18_24_7_7_41_0.96_36,36,36,0.96,0.96,Unusual size
-1995-08-28_18_37_0_7_29_3_34,34,,3,,"Likely error in length/weight, replaced by NA"
-1995-08-30_8_6_21_7_40_1.39_39,39,39,1.39,1.39,Unusual size
-1995-10-13_3_17_22_2_1_0.61_31,31,31,0.61,0.61,Unusual size
-1996-07-31_6_3_14_7_4_2.67_42,42,42,2.67,2.67,Unusual size
-1996-08-22_18_25_0_2_22_2.3_47,47,47,2.3,2.3,Unusual size
-1997-09-23_62_12_15_7_2_2.82_52,52,52,2.82,2.82,Unusual size
-1997-11-20_1_7_17_7_1_2.4_47,47,47,2.4,2.4,Unusual size
-1977-08-16_40_1_10_2_13_1.53_6,6,60,1.53,1.53,"length to 60 mm from 6, likely typo"
-1977-08-16_40_2_17_2_10_0.13_4,4,,0.13,,"Likely error in length/weight, replaced by NA"
-1977-08-16_40_2_17_2_9_0.14_2,2,20,0.14,0.14,"length to 20 mm from 2, likely typo"
-1979-07-26_41_1_12_2_12_0.02_44,44,,0.02,,"Likely error in length/weight, replaced by NA"
-1979-07-27_41_2_8_2_250_0.06_47,47,47,0.06,0.6,"weight to 0.6 g from 0.06, likely typo"
-1981-07-19_31_3_0_2_134_0.09_71,71,71,0.09,0.9,"weight to 0.9 g from 0.09, likely typo"
-1981-07-19_31_4_5_2_73_0.33_95,95,,0.33,,"Likely error in length/weight, replaced by NA"
-1981-09-02_40_3_5_2_12_0.11_60,60,60,0.11,1.1,"weight to 1.1 g from 0.11, likely typo"
-1984-06-01_6_2_7_1_31_0.21_0.29,0.29,29,0.21,0.21,"length to 29 mm from 0.29, likely typo"
-1984-06-18_6_3_11_1_18_45_35,35,35,45,0.45,"weight to 0.45 g from 45, likely typo"
-1984-06-18_6_3_11_1_19_29_31,31,31,29,0.29,"weight to 0.29 g from 29, likely typo"
-1984-06-27_40_15_6_2_2_58_39,39,39,58,0.58,"weight to 0.58 g from 58, likely typo"
-1984-09-01_25_2_10_1_2_5.29_28,28,28,5.29,,"Likely error in weight, replaced by NA"
-1984-09-10_69_4_5_2_53_1.45_25,25,25,1.45,0.145,"weight to 0.145 g from 1.45, likely typo"
-1984-10-15_1_1_0_1_1_1.13_0,0,,1.13,1.13,"Weight=1.13 and length=0, incomplete data, replaced by NA"
-1985-12-11_41_4_15_2_16_0.34_3,3,30,0.34,0.34,"length to 30 mm from 3, weight is correct"
 1986-08-31_6_1_12_1_5_71_44,44,44,71,0.71,"weight to 0.71 g from 71, likely typo"
 1986-09-01_6_2_12_1_1_58_48,48,58,58,1.86,"Weight=58 and length=48, mismatch, corrected to weight=1.86 length=58"
+1986-09-01_6_2_12_1_43_0.82_0.8,0.8,80,0.82,0.82,"length to 80 mm from .80, likely typo"
 1987-02-25_41_1_7_27_2_0.19_0.3,0.3,30,0.19,0.19,"length to 30 mm from .30, likely typo"
 1987-07-18_8_4_7_2_7_8.3_46,46,46,8.3,0.83,"weight to 0.83 g from 83, likely typo"
 1987-07-30_29_3_10_1_35_56_39,39,39,56,0.56,"weight to 0.56 g from 56, likely typo"
 1987-07-30_29_3_10_1_8_52_38,38,38,52,0.52,"weight to 0.52 g from 52, likely typo"
+1987-07-30_29_3_10_2_1_5.5_39,39,39,5.5,0.55,weight to 0.55 g from 5.5 likely typo
+1987-07-30_29_3_10_2_2_8.8_46,46,46,8.8,0.88,weight to 0.88 g from 8.8 likely typo
+1987-07-30_29_3_10_2_3_6.2_40,40,40,6.2,0.62,weight to 0.62 g from 6.2 likely typo
 1987-07-31_29_5_0_2_2_1.05_0.49,0.49,49,1.05,1.05,"length to 49 mm from 0.49, likely typo"
 1987-08-10_21_1_12_9_1_5_154,154,154,5,50,"weight to 50 g from 5, likely typo"
 1987-09-09_8_10_7_2_55_1.46_544,544,54,1.46,1.46,"length to 54 mm from 544, likely typo"
@@ -133,11 +110,15 @@
 1987-09-11_21_1_9_2_46_25.6_67,67,67,25.6,2.56,weight to 2.56 g from 25.6 likely typo
 1987-11-26_107_4_16_2_23_1.74_555,555,55,1.74,1.74,"length to 55 mm from 555, likely typo"
 1987-11-29_118_8_20_9_1_0_1.88,1.88,,0,,"Weight=0 and length=1.88, inconsistent data, replaced by NA"
+1988-09-15_8_6_20_1_31_2_43,43,43,2,2,Unusual size
 1989-02-22_44_3_30_1_3_0.73_4,4,40,0.73,0.73,"Weight correct and length=4, likely typo, length to 40 mm from 4"
 1989-05-14_62_9_7_5_21_0.7_20,20,20,0.7,0.07,"weight to 0.07 g from 0.7, likely typo"
+1989-06-01_41_3_0_2_2_0.42_25,25,25,0.42,0.42,Unusual size
 1989-06-03_41_15_10_7_78_30_0.26,0.26,30,30,0.26,"Weight/length values were swapped in original file, corrected in final dataset"
+1989-06-22_3_2_17_7_55_1_26,26,26,1,1,Unusual size
 1989-06-25_8_1_0_2_66_37_35,35,35,37,0.37,"weight to 0.37 g from 37, likely typo"
 1989-06-29_1_1_10_7_50_0.16_0.27,0.27,27,0.16,0.16,"Weight correct and length=0.27, likely typo, length to 27 mm from 0.27"
+1989-07-02_107_9_9_7_2_0.54_28,28,28,0.54,0.54,Unusual size
 1990-03-01_8_1_9_2_154_34_35,35,35,34,0.34,"weight to 0.34 g from 34, likely typo"
 1990-06-22_802_1_6_2_48_0.46_0.38,0.38,38,0.46,0.46,length to 38 mm from .38
 1990-07-23_107_9_10_7_28_75_40,40,40,75,0.75,"weight to 0.75 g from 75, likely typo"
@@ -145,6 +126,8 @@
 1991-03-12_18_2_7_2_8_36_33,33,33,36,0.36,"weight to 0.36 from 36, likely typo"
 1991-09-11_64_18_15_7_44_17.3_58,58,58,17.3,1.73,"weight to 1.73 g from 17.3, likely typo"
 1991-09-14_66_99_10_7_2_1.13_5,5,50,1.13,1.13,"Weight correct and length=5, likely typo, length to 50 mm from 5"
+1991-10-24_41_3_12_2_33_4.2_36,36,36,4.2,0.42,"weight to 0.42 g from 4.2, likely typo"
+1992-07-14_8_4_16_7_42_0.66_32,32,32,0.66,0.66,Unusual size
 1992-07-15_8_16_13_7_6_0.88_4,4,40,0.88,0.88,"length to 40 mm from 4, likely typo"
 1992-08-12_22_1_24_7_126_66_41,41,41,66,0.66,"weight to .66 from 66, likely typo"
 1992-08-12_22_1_24_7_133_97_46,46,46,97,0.97,"weight to .97 mm from 97, likely typo"
@@ -155,16 +138,32 @@
 1992-10-12_8_4_19_2_6_1.92_6,6,60,1.92,1.92,"length to 60 mm from 6, likely typo"
 1993-02-25_3_3_55_2_1_96_45,45,45,96,0.96,"weight to .96  from 96 g, likely typo"
 1993-02-25_3_3_55_2_3_75_41,41,41,75,0.75,"weight to 0.75 g from 75, likely typo"
+1993-07-17_3_2_11_7_21_0.97_33,33,33,0.97,0.97,Unusual size
 1993-07-24_8_4_16_7_46_60_39,39,39,60,0.6,"weight to 0.6 g from 60, likely typo"
 1993-07-25_8_8_12_7_112_0.23_0.3,0.3,30,0.23,0.23,"length to 30 mm from 0.3, likely typo"
 1993-07-25_8_8_12_7_34_0.42_0.35,0.35,35,0.42,0.42,"length to 35 mm from 0.35, likely typo"
+1993-07-26_8_10_3_2_5_3.27_51,51,51,3.27,3.27,Unusual size
+1995-06-21_3_3_18_7_4_1.8_30,30,30,1.8,0.18,"weight to 0.18 g from 1.8, likely typo"
+1995-08-25_18_6_0_7_93_0.89_32,32,32,0.89,0.89,Unusual size
 1995-08-26_18_11_0_7_137_46_35,35,35,46,0.46,"weight to 0.46 g from 46, likely typo"
+1995-08-26_18_13_7_7_93_39_53,53,53,3.9,3.9,Unusual size
 1995-08-26_18_13_7_7_93_39_53,53,53,39,3.9,"weight to 3.9 g from 39, likely typo"
 1995-08-26_18_19_11_7_21_0.61_0.37,0.37,37,0.61,0.61,"Weight correct and length=0.37, likely typo, length to 37 mm from 0.37"
+1995-08-27_18_20_0_2_200_0.19_17,17,17,0.19,0.19,Unusual size
+1995-08-27_18_20_0_2_32_0.04_11,11,11,0.04,0.04,Unusual size
+1995-08-27_18_21_0_2_54_2.61_48,48,48,2.61,2.61,Unusual size
+1995-08-27_18_24_7_7_41_0.96_36,36,36,0.96,0.96,Unusual size
+1995-08-28_18_37_0_7_29_3_34,34,34,3,0.3,"weight to 0.3 g from 3, likely typo"
+1995-08-30_8_6_21_7_40_1.39_39,39,39,1.39,1.39,Unusual size
 1995-08-30_8_7_7_2_57_999_4,4,40,999,,"length to 40 mm from 4, likely typo"
+1995-10-13_3_17_22_2_1_0.61_31,31,31,0.61,0.61,Unusual size
+1996-07-31_6_3_14_7_4_2.67_42,42,42,2.67,2.67,Unusual size
+1996-08-22_18_25_0_2_22_2.3_47,47,47,2.3,2.3,Unusual size
 1996-08-22_18_25_0_2_70_0.11_2.5,2.5,25,0.11,0.11,"length to 25 mm from 2.5, likely typo"
 1996-08-22_18_25_0_2_71_0.16_2.7,2.7,27,0.16,0.16,"length to 27 mm from 2.7, likely typo"
 1997-02-20_41_5_8_26_72_0.11_0.28,0.28,28,0.11,0.11,"length to 28 mm from .28, likely typo"
+1997-09-23_62_12_15_7_2_2.82_52,52,52,2.82,2.82,Unusual size
+1997-11-20_1_7_17_7_1_2.4_47,47,47,2.4,2.4,Unusual size
 1998-09-24_801_11_17_7_46_35_32,32,32,35,0.35,"weight to 0.35 g from 35, likely typo"
 1999-09-08_802_2_8_7_134_58_39,39,39,58,0.58,"weight to 0.58 g from 58, likely typo"
 1999-09-08_802_2_8_7_268_0_0,0,,0,,"Weight=0 and length=0, missing data, replaced by NA"
