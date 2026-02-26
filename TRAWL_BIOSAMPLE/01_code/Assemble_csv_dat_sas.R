@@ -18,7 +18,6 @@ install.packages(setdiff(packages, row.names(installed.packages())))
   library(beepr)
   library(dplyr)
   library(lubridate)
-  library(hms)
   library(purrr)
   library(stringr)
   library(tidyverse)
@@ -1177,7 +1176,7 @@ final_dataframe <- df_final_calc_std_weight %>%
     !is.na(standardized_weight_g) & !is.na(calc_std_weight_g) &
       abs(standardized_weight_g - calc_std_weight_g) >= 1 ~ "does NOT match calc_std_weight_g",
     # standardized_weight_g calculated from calc_std_weight_g
-    is.na(standardized_weight_g) & !is.na(calc_std_weight_g) ~ "standardized_weight_g calculated from standardized weight formula",
+    is.na(standardized_weight_g) & !is.na(calc_std_weight_g) ~ "orig_std_weight_g not provided",
     # nothing possible
     TRUE ~ "standardized weight could not be calculated"))
 
@@ -1211,18 +1210,23 @@ final_dataframe <- final_dataframe %>%
                                           "Fake start_time, depth_m, duration_minutes and trawl_number. Set to NA.",
                                         TRUE ~ NA_character_))
 
-# Correct start_time for specific trawls
+# Correct start_time and end_time for specific trawls
+library(hms)
 final_dataframe <- final_dataframe %>%
   mutate(start_time = case_when(trawl_unique_ID == "1988-07-31_29_6_0" ~ "03:00:00",
                                 trawl_unique_ID == "1992-08-12_22_2_28" ~ "22:30:00",
                                 trawl_unique_ID == "1992-08-12_22_3_32" ~ "22:45:00",
                                 trawl_unique_ID == "1992-08-12_22_4_0" ~ "23:00:00",
+                                trawl_unique_ID == "1984-06-28_44_2_9" ~ "23:06:00",
                                 TRUE ~ start_time),
+         end_time = case_when(trawl_unique_ID == "1984-06-28_44_2_9" ~ "23:06:00",
+                                TRUE ~ end_time),
          start_time = round_hms(as_hms(start_time), 60),
-         start_time_comment = case_when(trawl_unique_ID == "1988-07-31_29_6_0" ~ "Start_time inferred from interval between previous and next trawl",
+         start_end_time_comment = case_when(trawl_unique_ID == "1988-07-31_29_6_0" ~ "Start_time inferred from interval between previous and next trawl",
                                         trawl_unique_ID == "1992-08-12_22_2_28" ~ "Start_time inferred from interval between previous and next trawl",
                                         trawl_unique_ID == "1992-08-12_22_3_32" ~ "Start_time inferred from interval between previous and next trawl",
                                         trawl_unique_ID == "1992-08-12_22_4_0" ~ "Start_time inferred from interval between previous and next trawl",
+                                        trawl_unique_ID == "1984-06-28_44_2_9" ~ "end-time error, changed to 23:06",
                                         TRUE ~ NA_character_))
 
 # Save document until here
@@ -1244,7 +1248,7 @@ final_dataframe <- final_dataframe %>%
         if (!is.na(std_weight_g_comment) & std_weight_g_comment == "does NOT match calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment),
         if (!is.na(calc_end_time_comment) & calc_end_time_comment == "end_time missing, calculated from start_time + duration_mi") paste0("calc_end_time_comment: ", calc_end_time_comment),
         if (!is.na(test_trawl_comment) & test_trawl_comment != "") paste0("test_trawl_comment: ", test_trawl_comment),
-        if (!is.na(start_time_comment) & start_time_comment != "") paste0("start_time_comment: ", start_time_comment),
+        if (!is.na(start_end_time_comment) & start_end_time_comment != "") paste0("start_end_time_comment: ", start_end_time_comment),
         if (!is.na(invalid_duration_time) & invalid_duration_time != "") paste0("invalid_duration_time: ", invalid_duration_time),
         if (!is.na(invalid_start_time) & invalid_start_time == "Invalid format") paste0("invalid_start_time: ", invalid_start_time),
         if (!is.na(invalid_end_time) & invalid_end_time != "") paste0("invalid_end_time: ", invalid_end_time)),
@@ -1262,9 +1266,11 @@ final_dataframe <- final_dataframe %>%
     collapse = "; "
   )) %>%
   mutate(data_validation_comments = paste(
-    c(if (!is.na(merging_update_type) & merging_update_type != "") paste0("merging_update_type: ", merging_update_type),
+    c(if (merging_update_type == "Conflict within" | 
+          merging_update_type == "NA updates") paste0("merging_update_type: ", merging_update_type),
       if (duration_comment == "duration could not be calculated") paste0("duration_comment: ", duration_comment),
-      if (std_weight_g_comment != "does NOT match calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment)),
+      if (std_weight_g_comment != "does NOT match calc_std_weight_g" & 
+          std_weight_g_comment != "matches calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment)),
     collapse = "; "
   )) %>%
   ungroup()  %>%
@@ -1272,7 +1278,7 @@ final_dataframe <- final_dataframe %>%
         -trawl_date_comment, -trawl_number_comment, -merging_update_type, -scale_book_comment, -calc_value,
         -duration_comment, -invalid_duration_time, -invalid_start_time, -calc_end_time_comment, -duration_final, 
         -std_weight_g_comment, -gear_type_comment, -length_weight_comment, -no_species_name_comments, -preservative_note, 
-        -duplicate_flag, -test_trawl_comment, -start_time_comment)
+        -duplicate_flag, -test_trawl_comment, -start_end_time_comment)
 
 # Get the time stamp to record when the data was rescued
 time_stamp <- format(Sys.time(), "%d-%b-%Y %H:%M") # get time-stamp to indicate when data rescued
