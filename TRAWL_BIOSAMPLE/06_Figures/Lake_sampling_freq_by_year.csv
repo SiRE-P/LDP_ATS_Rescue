@@ -1,384 +1,68 @@
-"lake_name","ats_year","n_surveys"
-"Alastair Lake",1978,2
-"Alastair Lake",1995,1
-"Awun Lake",1979,1
-"Awun Lake",1980,1
-"Awun Lake",1981,2
-"Awun Lake",1982,2
-"Awun Lake",1983,2
-"Awun Lake",1984,2
-"Awun Lake",1985,1
-"Bear Lake",1978,3
-"Bear Lake",1988,2
-"Bear Lake",1995,1
-"Bonilla Lake",1979,1
-"Bonilla Lake",1980,2
-"Bonilla Lake",1981,6
-"Bonilla Lake",1982,3
-"Bonilla Lake",1983,2
-"Bonilla Lake",1984,2
-"Bowser Lake",1991,2
-"Bowser Lake",1992,2
-"Bowser Lake",1993,4
-"Brannen Lake",1986,1
-"Brannen Lake",1990,1
-"Cheewhat Lake",1983,1
-"Cheewhat Lake",1984,2
-"Cheewhat Lake",1985,3
-"Cheewhat Lake",1986,4
-"Cheewhat Lake",1987,9
-"Cheewhat Lake",1988,7
-"Cheewhat Lake",1989,10
-"Cheewhat Lake",1990,9
-"Cheewhat Lake",1991,3
-"Cheewhat Lake",1996,2
-"Cougar Lake",1988,2
-"Curtis Lake",1979,1
-"Curtis Lake",1980,2
-"Curtis Lake",1981,3
-"Curtis Lake",1982,1
-"Curtis Lake",1983,2
-"Curtis Lake",1984,2
-"Damdochax Lake",1991,2
-"Damdochax Lake",1992,3
-"Damdochax Lake",1993,1
-"Deer Lake",1988,1
-"Devon Lake",1979,2
-"Devon Lake",1980,1
-"Devon Lake",1981,1
-"Devon Lake",1982,1
-"Devon Lake",1983,1
-"Devon Lake",1984,2
-"Devon Lake",1985,2
-"Devon Lake",1986,2
-"Devon Lake",1987,2
-"Devon Lake",1988,1
-"Dragon Lake",1992,1
-"Eden Lake",1979,2
-"Eden Lake",1980,1
-"Eden Lake",1981,2
-"Eden Lake",1982,1
-"Eden Lake",1983,2
-"Eden Lake",1984,2
-"Eden Lake",1985,2
-"Eden Lake",1986,1
-"Ellerslie Lake",1988,3
-"Ellerslie Lake",1991,1
-"Fred Wright Lake",1978,2
-"Fred Wright Lake",1991,2
-"Glendale Lake",1984,1
-"Glendale Lake",1985,1
-"Great Central Lake",1977,5
-"Great Central Lake",1978,1
-"Great Central Lake",1979,9
-"Great Central Lake",1980,5
-"Great Central Lake",1981,7
-"Great Central Lake",1982,4
-"Great Central Lake",1983,3
-"Great Central Lake",1984,1
-"Great Central Lake",1985,1
-"Great Central Lake",1986,2
-"Great Central Lake",1987,4
-"Great Central Lake",1988,1
-"Great Central Lake",1989,6
-"Great Central Lake",1990,4
-"Great Central Lake",1991,7
-"Great Central Lake",1992,3
-"Great Central Lake",1994,2
-"Great Central Lake",1996,4
-"Great Central Lake",1997,3
-"Henderson Lake",1977,2
-"Henderson Lake",1978,2
-"Henderson Lake",1979,1
-"Henderson Lake",1980,2
-"Henderson Lake",1981,5
-"Henderson Lake",1982,5
-"Henderson Lake",1983,5
-"Henderson Lake",1984,3
-"Henderson Lake",1985,2
-"Henderson Lake",1986,5
-"Henderson Lake",1987,7
-"Henderson Lake",1988,4
-"Henderson Lake",1989,6
-"Henderson Lake",1990,4
-"Henderson Lake",1991,4
-"Henderson Lake",1992,4
-"Henderson Lake",1993,5
-"Henderson Lake",1994,4
-"Henderson Lake",1995,4
-"Henderson Lake",1996,5
-"Hesquiat Lake",1984,3
-"Heydon Lake",1984,2
-"Heydon Lake",1985,1
-"Heydon Lake",1986,1
-"Heydon Lake",1987,1
-"Hobiton Lake",1977,2
-"Hobiton Lake",1978,1
-"Hobiton Lake",1979,3
-"Hobiton Lake",1981,3
-"Hobiton Lake",1982,4
-"Hobiton Lake",1983,7
-"Hobiton Lake",1984,15
-"Hobiton Lake",1985,11
-"Hobiton Lake",1986,7
-"Hobiton Lake",1987,21
-"Hobiton Lake",1988,14
-"Hobiton Lake",1989,11
-"Hobiton Lake",1990,10
-"Hobiton Lake",1991,7
-"Hobiton Lake",1992,4
-"Hobiton Lake",1996,2
-"Ian Lake",1979,2
-"Ian Lake",1980,2
-"Ian Lake",1981,1
-"Ian Lake",1982,1
-"Ian Lake",1983,1
-"Ian Lake",1984,1
-"Ian Lake",1985,1
-"Ian Lake",1986,1
-"Ian Lake",1991,1
-"Ian Lake",1996,2
-"Ingram Lake",1988,2
-"Jansen Lake",1983,1
-"Jansen Lake",1984,2
-"Jansen Lake",1985,4
-"Kennedy Lake (Clay)",1977,7
-"Kennedy Lake (Clay)",1978,8
-"Kennedy Lake (Clay)",1979,7
-"Kennedy Lake (Clay)",1980,1
-"Kennedy Lake (Clay)",1981,6
-"Kennedy Lake (Clay)",1982,5
-"Kennedy Lake (Clay)",1983,3
-"Kennedy Lake (Clay)",1984,35
-"Kennedy Lake (Clay)",1985,19
-"Kennedy Lake (Clay)",1986,12
-"Kennedy Lake (Clay)",1987,11
-"Kennedy Lake (Clay)",1988,9
-"Kennedy Lake (Clay)",1989,6
-"Kennedy Lake (Clay)",1990,8
-"Kennedy Lake (Clay)",1991,2
-"Kennedy Lake (Clay)",1995,2
-"Kennedy Lake (Clay)",1996,1
-"Kennedy Lake (Main)",1977,5
-"Kennedy Lake (Main)",1978,5
-"Kennedy Lake (Main)",1979,7
-"Kennedy Lake (Main)",1980,1
-"Kennedy Lake (Main)",1981,4
-"Kennedy Lake (Main)",1982,3
-"Kennedy Lake (Main)",1983,4
-"Kennedy Lake (Main)",1985,4
-"Kennedy Lake (Main)",1986,9
-"Kennedy Lake (Main)",1987,5
-"Kennedy Lake (Main)",1989,8
-"Kennedy Lake (Main)",1990,12
-"Kennedy Lake (Main)",1991,1
-"Kennedy Lake (Main)",1994,2
-"Kennedy Lake (Main)",1995,2
-"Kennedy Lake (Main)",1996,2
-"Kitlope Lake",1978,3
-"Kitlope Lake",1979,4
-"Kitlope Lake",1980,2
-"Kitwanga Lake",1995,1
-"Klukshu Lake",1988,1
-"Link Lake",1991,1
-"Long Lake",1977,1
-"Long Lake",1978,4
-"Long Lake",1979,1
-"Long Lake",1980,6
-"Long Lake",1981,4
-"Long Lake",1982,5
-"Long Lake",1983,9
-"Long Lake",1984,5
-"Long Lake",1985,4
-"Long Lake",1986,5
-"Long Lake",1987,5
-"Long Lake",1988,7
-"Long Lake",1989,8
-"Long Lake",1990,3
-"Long Lake",1991,4
-"Long Lake",1992,7
-"Long Lake",1993,5
-"Long Lake",1994,3
-"Long Lake",1995,3
-"Long Lake",1996,2
-"Long Lake",1997,1
-"Long Lake (A)",1990,7
-"Long Lake (A)",1997,1
-"Long Lake (A)",1998,1
-"Long Lake (A)",1999,2
-"Long Lake (B)",1990,6
-"Long Lake (B)",1998,3
-"Long Lake (B)",1999,1
-"Lowe Lake",1978,1
-"Lowe Lake",1979,4
-"Lowe Lake",1980,2
-"Lowe Lake",1981,2
-"Lowe Lake",1982,1
-"Lowe Lake",1983,1
-"Lowe Lake",1984,1
-"Lowe Lake",1985,2
-"Maggie Lake",1988,2
-"Mathers Lake",1984,2
-"Mathers Lake",1985,2
-"Mathers Lake",1993,2
-"Megin Lake",1984,3
-"Megin Lake",1985,1
-"Megin Lake",1987,1
-"Megin Lake",1993,1
-"Megin Lake",1995,3
-"Mercer Lake",1979,2
-"Mercer Lake",1980,1
-"Mercer Lake",1981,1
-"Mercer Lake",1982,1
-"Mercer Lake",1983,1
-"Mercer Lake",1984,2
-"Mercer Lake",1986,2
-"Meziadin Lake",1978,3
-"Meziadin Lake",1991,2
-"Meziadin Lake",1992,1
-"Meziadin Lake",1993,4
-"Morice Lake",1978,2
-"Morrison Lake",1995,1
-"Muchalat Lake",1983,1
-"Muchalat Lake",1984,2
-"Muchalat Lake",1985,1
-"Muchalat Lake",1986,1
-"Muchalat Lake",1987,1
-"Muchalat Lake",1988,2
-"Muchalat Lake",1993,1
-"Muchalat Lake",1994,1
-"Muchalat Lake",1995,2
-"Muriel Lake",1982,1
-"Muriel Lake",1983,3
-"Muriel Lake",1984,2
-"Muriel Lake",1985,7
-"Muriel Lake",1986,8
-"Muriel Lake",1987,13
-"Muriel Lake",1988,8
-"Muriel Lake",1989,5
-"Muriel Lake",1990,6
-"Muriel Lake",1997,1
-"Nahmint Lake",1986,1
-"Nahmint Lake",1987,4
-"Nahmint Lake",1988,4
-"Nahwitti Lake",1984,1
-"Nahwitti Lake",1985,2
-"Nahwitti Lake",1987,2
-"Nahwitti Lake",1988,1
-"Nimpkish Lake",1978,1
-"Nimpkish Lake",1979,1
-"Nimpkish Lake",1980,2
-"Nimpkish Lake",1981,3
-"Nimpkish Lake",1982,8
-"Nimpkish Lake",1983,9
-"Nimpkish Lake",1984,4
-"Nimpkish Lake",1985,4
-"Nimpkish Lake",1986,3
-"Nimpkish Lake",1987,8
-"Nimpkish Lake",1988,2
-"Nimpkish Lake",1989,1
-"Nimpkish Lake",1990,3
-"Nimpkish Lake",1991,2
-"No-Name Lake",1988,3
-"Owikeno Lake",1978,2
-"Owikeno Lake",1987,3
-"Owikeno Lake",1988,3
-"Owikeno Lake",1989,4
-"Owikeno Lake",1990,8
-"Owikeno Lake",1991,7
-"Owikeno Lake",1992,8
-"Owikeno Lake",1995,7
-"Owikeno Lake",1996,4
-"Phillips Lake",1984,1
-"Phillips Lake",1985,1
-"Phillips Lake",1986,3
-"Phillips Lake",1987,2
-"Port John Lake",1983,1
-"Power Lake",1985,1
-"Power Lake",1986,2
-"Quatse Lake",1984,1
-"Quatse Lake",1985,3
-"Quatse Lake",1986,2
-"Quatse Lake",1987,2
-"Quatse Lake",1988,2
-"Schoen Lake",1987,2
-"Schoen Lake",1988,2
-"Schoen Lake",1992,1
-"Simpson Lake",1978,1
-"Skidegate Lake",1985,1
-"Skidegate Lake",1986,1
-"Skidegate Lake",1987,4
-"Skidegate Lake",1988,1
-"Skidegate Lake",1989,4
-"Skidegate Lake",1990,2
-"Skidegate Lake",1991,1
-"Skidegate Lake",1992,3
-"Skidegate Lake",1993,1
-"Skidegate Lake",1996,1
-"Skidegate Lake",1997,1
-"Sproat Lake",1979,4
-"Sproat Lake",1980,2
-"Sproat Lake",1981,3
-"Sproat Lake",1982,5
-"Sproat Lake",1983,5
-"Sproat Lake",1984,2
-"Sproat Lake",1985,1
-"Sproat Lake",1986,7
-"Sproat Lake",1987,7
-"Sproat Lake",1989,6
-"Sproat Lake",1990,6
-"Sproat Lake",1991,5
-"Sproat Lake",1992,5
-"Sproat Lake",1995,1
-"Sproat Lake",1996,6
-"Sproat Lake",1997,1
-"Sproat Lake (Two R)",1989,2
-"Stephens Lake",1978,2
-"Swan Lake",1978,3
-"Swan Lake",1995,1
-"Tahltan Lake",1985,1
-"Tahltan Lake",1989,8
-"Tahltan Lake",1991,3
-"Tahltan Lake",1992,4
-"Tahltan Lake",1993,3
-"Tatsamenie Lake",1991,5
-"Tatsamenie Lake",1992,2
-"Tatsamenie Lake",1993,3
-"Trapper Lake",1991,5
-"Uchuck Lake",1988,2
-"Vernon Lake",1978,1
-"Vernon Lake",1980,1
-"Vernon Lake",1986,2
-"Vernon Lake",1987,1
-"Vernon Lake",1988,1
-"Vernon Lake",1990,2
-"Vernon Lake",1991,1
-"Vernon Lake",1992,1
-"Woss Lake",1978,1
-"Woss Lake",1979,2
-"Woss Lake",1980,1
-"Woss Lake",1981,3
-"Woss Lake",1982,2
-"Woss Lake",1983,4
-"Woss Lake",1984,3
-"Woss Lake",1985,1
-"Woss Lake",1986,2
-"Woss Lake",1987,1
-"Woss Lake",1988,2
-"Woss Lake",1989,4
-"Woss Lake",1990,2
-"Woss Lake",1991,1
-"Woss Lake",1992,2
-"Yakoun Lake",1982,1
-"Yakoun Lake",1983,2
-"Yakoun Lake",1984,2
-"Yakoun Lake",1985,1
-"Yakoun Lake",1986,2
-"Yakoun Lake",1987,2
-"Yakoun Lake",1988,2
-"Yakoun Lake",1989,2
-"Yakoun Lake",1990,2
-"Yakoun Lake",1991,1
-"Yakoun Lake",1992,1
-"Yakoun Lake",1996,1
-"Yakoun Lake",1997,1
+"lake_name","1978","1995","1979","1980","1981","1982","1983","1984","1985","1988","1991","1992","1993","1986","1990","1987","1989","1996","1977","1994","1997","1998","1999"
+"Alastair Lake",2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Awun Lake",0,0,1,1,2,2,2,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Bear Lake",3,1,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Bonilla Lake",0,0,1,2,6,3,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Bowser Lake",0,0,0,0,0,0,0,0,0,0,2,2,4,0,0,0,0,0,0,0,0,0,0
+"Brannen Lake",0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0
+"Cheewhat Lake",0,0,0,0,0,0,1,2,3,7,3,0,0,4,9,9,10,2,0,0,0,0,0
+"Cougar Lake",0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Curtis Lake",0,0,1,2,3,1,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Damdochax Lake",0,0,0,0,0,0,0,0,0,0,2,3,1,0,0,0,0,0,0,0,0,0,0
+"Deer Lake",0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Devon Lake",0,0,2,1,1,1,1,2,2,1,0,0,0,2,0,2,0,0,0,0,0,0,0
+"Dragon Lake",0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+"Eden Lake",0,0,2,1,2,1,2,2,2,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+"Ellerslie Lake",0,0,0,0,0,0,0,0,0,3,1,0,0,0,0,0,0,0,0,0,0,0,0
+"Fred Wright Lake",2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0
+"Glendale Lake",0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Great Central Lake",1,0,9,5,7,4,3,1,1,1,7,3,0,2,4,4,6,4,5,2,3,0,0
+"Henderson Lake",2,4,1,2,5,5,5,3,2,4,4,4,5,5,4,7,6,5,2,4,0,0,0
+"Hesquiat Lake",0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Heydon Lake",0,0,0,0,0,0,0,2,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0
+"Hobiton Lake",1,0,3,0,3,4,7,15,11,14,7,4,0,7,10,21,11,2,2,0,0,0,0
+"Ian Lake",0,0,2,2,1,1,1,1,1,0,1,0,0,1,0,0,0,2,0,0,0,0,0
+"Ingram Lake",0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Jansen Lake",0,0,0,0,0,0,1,2,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Kennedy Lake (Clay)",8,2,7,1,6,5,3,35,19,9,2,0,0,12,8,11,6,1,7,0,0,0,0
+"Kennedy Lake (Main)",5,2,7,1,4,3,4,0,4,0,1,0,0,9,12,5,8,2,5,2,0,0,0
+"Kitlope Lake",3,0,4,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Kitwanga Lake",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Klukshu Lake",0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Link Lake",0,0,0,0,0,0,0,0,0,3,1,0,0,0,0,0,0,0,0,0,0,0,0
+"Long Lake",4,3,1,6,4,5,9,5,4,7,4,7,5,5,3,5,8,2,1,3,1,0,0
+"Long Lake (A)",0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,1,1,2
+"Long Lake (B)",0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,3,1
+"Lowe Lake",1,0,4,2,2,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Maggie Lake",0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Mathers Lake",0,0,0,0,0,0,0,2,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0
+"Megin Lake",0,3,0,0,0,0,0,3,1,0,0,0,1,0,0,1,0,0,0,0,0,0,0
+"Mercer Lake",0,0,2,1,1,1,1,2,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0
+"Meziadin Lake",3,0,0,0,0,0,0,0,0,0,2,1,4,0,0,0,0,0,0,0,0,0,0
+"Morice Lake",2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Morrison Lake",0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Muchalat Lake",0,2,0,0,0,0,1,2,1,2,0,0,1,1,0,1,0,0,0,1,0,0,0
+"Muriel Lake",0,0,0,0,0,1,3,2,7,8,0,0,0,8,6,13,5,0,0,0,1,0,0
+"Nahmint Lake",0,0,0,0,0,0,0,0,0,4,0,0,0,1,0,4,0,0,0,0,0,0,0
+"Nahwitti Lake",0,0,0,0,0,0,0,1,2,1,0,0,0,0,0,2,0,0,0,0,0,0,0
+"Nimpkish Lake",1,0,1,2,3,8,9,4,4,2,2,0,0,3,3,8,1,0,0,0,0,0,0
+"Owikeno Lake",2,7,0,0,0,0,0,0,0,3,7,8,0,0,8,3,4,4,0,0,0,0,0
+"Phillips Lake",0,0,0,0,0,0,0,1,1,0,0,0,0,3,0,2,0,0,0,0,0,0,0
+"Port John Lake",0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Power Lake",0,0,0,0,0,0,0,0,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0
+"Quatse Lake",0,0,0,0,0,0,0,1,3,2,0,0,0,2,0,2,0,0,0,0,0,0,0
+"Schoen Lake",0,0,0,0,0,0,0,0,0,2,0,1,0,0,0,2,0,0,0,0,0,0,0
+"Simpson Lake",1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Skidegate Lake",0,0,0,0,0,0,0,0,1,1,1,3,1,1,2,4,4,1,0,0,1,0,0
+"Sproat Lake",0,1,4,2,3,5,5,2,1,0,5,5,0,7,6,7,6,6,0,0,1,0,0
+"Sproat Lake (Two R)",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0
+"Stephens Lake",2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Swan Lake",3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Tahltan Lake",0,0,0,0,0,0,0,0,1,0,3,4,3,0,0,0,8,0,0,0,0,0,0
+"Tatsamenie Lake",0,0,0,0,0,0,0,0,0,0,5,2,3,0,0,0,0,0,0,0,0,0,0
+"Trapper Lake",0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0
+"Uchuck Lake",0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Vernon Lake",1,0,0,1,0,0,0,0,0,1,1,1,0,2,2,1,0,0,0,0,0,0,0
+"Woss Lake",1,0,2,1,3,2,4,3,1,2,1,2,0,2,2,1,4,0,0,0,0,0,0
+"Yakoun Lake",0,0,0,0,0,1,2,2,1,2,1,1,0,2,2,2,2,1,0,0,1,0,0
+"Total",48,29,54,35,56,54,70,106,85,91,70,52,30,86,95,118,91,32,22,12,9,4,3

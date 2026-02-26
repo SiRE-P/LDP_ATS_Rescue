@@ -399,11 +399,19 @@ Done:
           "1984-11-08_21_1_0", "1984-09-10_69_3_0", "1985-08-15_40_9_10",
           "1978-09-12_41_1_10"
    - Flagged unusual sizes from 2-5 K index. Corrected length/weight values or replaced by NA when K index was greater than 5
+   - include the comment on those new start_time
    
 Issue:
   - DUM1-DUM2 - trawl89.dat - line 4147
       - Everything is coded "1", are those just random number and not actual records?
+      - Set them to NA and add a comment
   - Should I re-calculate duration based on new start and end time?
       - I did it but can be easily undone.
   
-  
+Meeting:
+    - Change name of columns: e.g. standardized_weight_g -> orig_std_weight_g or calc_std_weight_g
+    - DUM1-DUM2 - trawl89.dat - line 4147
+      - Everything is coded "1", are those just random number and not actual records?
+      - FIX: Set them to NA and add a comment
+    - Include the comment on those new start_time
+    - Include calc_k_factor - mutate(length_cm = fish_length_mm / 10, K = 100 * calc_std_weight_g / (length_cm^3))
