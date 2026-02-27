@@ -10,7 +10,9 @@
 ##          revised in call to univariate_outliers function) are listed
 ##          for each variable in separate dataframes named <field name>_flags, 
 ##          and exported to CSVs in folder 07_QC_outputs for further examination.
-
+##
+##          Make sure the latest final_data.csv has been UNZIPPED from zipfile!
+##
 # ------------------------------------------------------------
 # SETUP libraries and functions                                             ####
 
@@ -136,7 +138,10 @@ flag_univariate_outliers <- univariate_outliers(final_data, num_cols)
 context_cols <- c(
   "lake_name", "ats_year", "trawl_date", "trawl_number", "duration_minutes",
   "species_code", "species_common_name",
-  "fish_length_mm", "fish_weight_g", "standardized_weight_g", "calc_std_weight_g")
+  "fish_length_mm", "fish_weight_g", "standardized_weight_g", "calc_std_weight_g",
+  "data_issues", "data_validation_comments")
+
+# print(context_cols)
 
 set.seed(1)
 sample_rows <- sample(unique(flag_univariate_outliers$row_id), 3)
@@ -186,9 +191,11 @@ flag_univariate_outliers %>%
 
 # (Re)define the context columns you want to bring from final_data
 context_cols <- c(
-  "lake_name", "ats_year", "trawl_date", "trawl_number", "duration_minutes",
+  "lake_name", "ats_year", "trawl_date", "trawl_number", 
+  "start_time", "end_time", "duration_minutes",
   "species_code", "species_common_name", "fish_length_mm", "fish_weight_g",
-  "standardized_weight_g", "calc_std_weight_g", "source_files")
+  "standardized_weight_g", "calc_std_weight_g", "source_files", 
+  "data_issues", "data_validation_comments")
 
 # 1) Filter to percentile (and "both" i.e., percentile and robust rules) only
 all_numeric_cols_percentile_flags <- flag_univariate_outliers %>%
@@ -231,36 +238,45 @@ list2env(flags_suffixed, envir = .GlobalEnv)
 # Reduce meta-data flags to unique values of the meta-data
 trawl_number_flags <- trawl_number_flags %>%
   select(lake_name, trawl_date, trawl_number, duration_minutes, 
-         trawl_unique_ID, column, value, p1, p99, source_files) %>%
+         trawl_unique_ID, column, value, p1, p99, source_files, 
+         data_issues, data_validation_comments) %>%
   arrange(lake_name, trawl_date, trawl_unique_ID) %>%
   unique() # displays 3 Owikeno surveys - all legit (260218)
+print(as.data.frame(trawl_number_flags), row.names = FALSE)
 hist(final_data$trawl_number) # check all records for distn of trawl_numbers
 
 depth_m_flags <- depth_m_flags %>%
   select(lake_name, trawl_date, trawl_number, duration_minutes, 
-         trawl_unique_ID, column, value, p1, p99, source_files) %>%
+         trawl_unique_ID, column, value, p1, p99, source_files, 
+         data_issues, data_validation_comments) %>%
   arrange(lake_name, trawl_date, trawl_unique_ID) %>%
   unique()  # shows 2 trawls at depth 65 and 70 which are probably legit (260218)
+print(as.data.frame(depth_m_flags), row.names = FALSE)
 hist(final_data$depth_m)  # check all records for distn of depths (lots of zeros)
 
 duration_minutes_flags <- duration_minutes_flags %>%
   select(lake_name, trawl_date, trawl_number, duration_minutes, 
-         trawl_unique_ID, column, value, p1, p99, source_files) %>%
+         trawl_unique_ID, column, value, p1, p99, source_files,
+         data_issues, data_validation_comments) %>%
   arrange(lake_name, trawl_date, trawl_unique_ID) %>%
   unique()  # shows two records: Hen trawl 1986-08-30_3_1_0 at 46 minutes (legit) and 
             # Klukshu 1988-08-31_53_7_0 at zero minutes - but real start- and end-times, so sent AA a message to fix (260218) 
+print(as.data.frame(duration_minutes_flags), row.names = FALSE)
 hist(final_data$duration_minutes)
+
 chk <- final_data %>% filter(lake_code == 53) %>%
-  select(all_of(metadata)) %>% unique()
+  select(all_of(metadata), data_issues, data_validation_comments) %>%
+  unique()
 
 chk <- final_data %>% filter(calc_duration_time >50 ) %>% # the large calcs appear to be related to typos in the start/end-times...
 #chk<- final_data %>% filter(calc_duration_time != duration_minutes & calc_duration_time <=50 ) %>% # this one for chking observed vs calculated durations...
-  select(all_of(metadata), trawl_unique_ID) %>%
+  select(all_of(metadata), trawl_unique_ID, data_issues, data_validation_comments) %>%
   select(-species_code, -species_info_code, -species_common_name, -life_stage) %>%
   unique() %>% 
   mutate(diff_time = calc_duration_time - duration_minutes) %>%
   arrange(lake_name, ats_year, trawl_date)
-hist(chk$diff_time) # (chk$calc_duration_time) # sent list of 15 start- or end-time fixes to AA to fix (260218)
+print(as.data.frame(chk), row.names = FALSE)
+#hist(chk$diff_time) # (chk$calc_duration_time) # sent list of 15 start- or end-time fixes to AA to fix (260218)
 dump <- paste0(qc_qa_dir, "/", "fix_trawl_times.csv")
 write.csv(chk, dump)
 
@@ -269,10 +285,11 @@ write.csv(chk, dump)
 fish_length_mm_flags <- fish_length_mm_flags %>%
   mutate(k_factor_prsrv = 100 * fish_weight_g / ((fish_length_mm / 10)^3)) %>%           # based on preserved (measured) weight
   mutate(k_factor_std   = 100 * standardized_weight_g / ((fish_length_mm / 10)^3)) %>%   # based on estimated actual weight - best for K factor 
+  filter(species_code %in% c(1, 2)) %>%    # filter for Sockeye or Stickleback
   select(lake_name, trawl_date, trawl_number, trawl_unique_ID, 
          species_code, species_common_name, p1, p99, fish_length_mm, 
          fish_weight_g, standardized_weight_g, calc_std_weight_g, k_factor_std, k_factor_prsrv,
-         fish_unique_ID, source_files) %>%
+         fish_unique_ID, source_files) %>% #, data_issues, data_validation_comments) %>%
   arrange(species_code, k_factor_std, lake_name, fish_length_mm, trawl_date) %>%
   unique()
 
