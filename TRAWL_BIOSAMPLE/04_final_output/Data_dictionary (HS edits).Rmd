@@ -1,0 +1,600 @@
+---
+title: "LDP internship - Data dictionary - Trawl biosample final dataset"
+author: "Alice Assmar"
+date: "2026-01-30"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{=html}
+<style>
+  body {
+    text-align: justify;
+  }
+</style>
+```
+
+### Data collection
+
+Trawl biosample data collected using trawling method in water bodies located in British Columbia, Canada, from 1977 to 1999 by researchers from Fisheries and Oceans Canada as part of the Lake Enrichment Program (LEP).
+Synthetic columns were created during data rescue and validation.
+Raw columns were recovered from the original files.
+
+Note that both \*.dat files and SAS files were used as input for this data recovery and data cleaning effort by Alice Assmar.
+From 1977 to 1983, only SAS files were extant.
+These SAS files were originally derived from the \*.dat files, which have since been lost for those years.
+After 1983, and until 1999, both files were available (except for a few corrupted SAS files), and where there were conflicts between the two, the \*.dat values were used.
+After 1999, the trawl biosampling data were sometimes available in Excel files held by the Salmon in Regional Ecosystems Program at Fisheries and Oceans Canada (contact Patrick.Thomspon\@dfo-mpo.gc.ca), but the Excel files have not been extracted as part of the current data recovery and cleaning process.
+
+### Description of variables
+
+::: {style="padding-left: 30px;"}
+**ats_year:** Trawl biosample year in which the data were collected.
+The ats_year runs from April 1 to March 31 of the following calendar year.
+Synthetic column.
+
+**lake_code:** Numeric code identifying the sampled lake in the source file.
+Used to join lake name and geographic coordinate information via a lookup table (*LDP_ATS_Rescue/TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv*).
+Raw column.
+
+**lake_name:** Name of the lake where the sample was collected.
+Synthetic column created using the lake_code and a lookup table (*LDP_ATS_Rescue/TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv*).
+Note that lake No-Name (lake_code 124) was replaced with Link Lake (lake code 180).
+
+**trawl_date:** Trawl sampling date converted to ISO format (YYYY-MM-DD).
+Raw column.
+
+**trawl_month:** Month when the trawl biosample data was collected.
+Synthetic column.
+
+**trawl_number:** Trawl record number.
+The record ranges from 1-39.
+Raw column.
+
+**sample_type:** Dimensions of the net used in the sampling event.
+It can also provide gear type information.
+Raw column.
+
+**gear_type:** Specify gear type when the fishing method used was beach seine.
+This information was recovered from the trawl_comment column.
+"Trawl" was entered to all other records.
+Synthetic column.
+
+**depth_m:** Depth of the trawl sampling (meters).
+This variable represents the depth of the trawl event.
+The value range is 0–70 meters, with most observations between 0-20 meters.
+Two records showed values "188" and "200," which were likely typos.
+They were replaced by "18" and "20," respectively, and these changes were flagged in the "depth_m_comments" section of the "general_comments" column.
+The distribution of depth data by lake can be found in the *Tables and plots* section.
+Raw column.
+
+**orig_start_time:** Standardized start time of the trawl sampling rescued from .sas and .dat files.
+The format is "HH:MM:SS" in Pacific Time Zone (UTC−08:00).
+Records with invalid formats were corrected, when possible, or replaced by NAs.
+Row issues are flagged in the "data_issues" column.
+Raw column.
+
+**orig_end_time:** Standardized end time of the trawl sampling rescued from .sas and .dat files.
+The format is "HH:MM:SS" in Pacific Time Zone (UTC−08:00).Records with invalid formats were corrected, when possible, or replaced by NAs.
+Row issues are flagged in the "data_issues" column.
+Raw column.
+
+**calc_end_time:** Standardized calculated end time of the trawl sampling.
+This column contains end times calculated from the provided start time and trawl duration (minutes).
+Times are reported in HH:MM:SS format, Pacific Time Zone (UTC−08:00).
+In total, 81,916 missing end-time values were replaced with calculated end times.
+These modifications were flagged in the “data_issues” column.
+Synthetic column.
+
+**orig_duration_minutes:** Duration of the trawl sampling (minutes).
+This variable represents the duration of each trawl event.
+The expected value range is 0–60 minutes, with most observations near 15 minutes.
+Values exceeding 60 minutes were flagged in the invalid_duration_time section of the general_comments column as “Greater than 60 min, likely error”.
+Extreme values (i.e. 365 and 535) were set to NA.
+Raw column.
+
+**calc_duration_time:** Standardized calculated duration time of the trawl sampling.
+This column contains duration times calculated from the provided start time and end time.
+Times are reported in minutes, Pacific Time Zone (UTC−08:00).
+In total, 3,555 entries do not match original duration (orig_duration_minutes), likely error in orig_end_time column, and 0 missing duration-time values were replaced with calculated duration times.
+Mismatches are flagged in the XX section of the XX column.
+Synthetic column.
+
+**fish_id:** Integer identifying an individual fish within a sample record, based on its order of appearance.
+Note that Sockeye and each age class of Stickleback will sometimes have the same fish_id number on a given date, but never the same fish_unique_ID.
+The numbering restarts for each record and ranges from 1 to *fish_total*.
+Raw column.
+
+**species_code:** Standardized code identifying the fish species.
+This is a synthetic column that was added to the look-up table, *AA_fish_scientific_name_lookup.csv*, and which is used to collapse the different life stages x species into the same species for simplicity.
+E.g., “Sockeye (juv)” and “Sockeye (fry)” were originally given different species_info_codes, but in the synthetic species_code column in the look-up table, they have the same species_code because both are Sockeye.
+
+**species_common_name:** Widely recognized, non-scientific name to identify the fish species.
+Based on the *AA_fish_scientific_name_lookup.csv* table.
+Synthetic column.
+
+**life_stage:** Life-cycle stage of the fish at the time of collection.
+Synthetically derived from the species_info_code (formerly the LEP “species code”) column.
+Uses look-up table: *AA_fish_scientific_name_lookup.csv*.
+This is a synthetic field.
+
+**species_info_code:** Original LEP species code identifying the species name, life stage and, for two codes, age class of the collected fish.
+This combination of categorical variables has been resolved into four new separate fields (species_code, species_common_name, life_stage, and age_class) as described below, and tabulated in the *AA_fish_scientific_name_lookup.csv* table, located at *00_raw_data/03_AA_look_up_tables*.
+Raw column.
+
+**fish_length_mm:** The total length of the fish from the tip of the snout to the fork/end of the tail in millimeters (i.e., fork length).
+Raw column.
+
+**fish_weight_g:** The total weight of the fish in grams, including preservative content.
+Raw column.
+
+**orig_std_weight_g:** Standardized fish weight (as reported in the source files), calculated using the provided weight conversion formula based on the preservative in which the specimen was stored.
+Weights are reported in grams.
+Weight conversion formulas can be found in the look up tables in the folder *00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table*.
+Raw column.
+
+**calc_std_weight_g:** This value is a re-estimate of the imported “orig_std_weight_g” value, calculated using the observed weight and the weight conversion formula based on the preservative in which the specimen was stored, according to the preservative_code.
+Weights are reported in grams.
+26 values differ from the original given standardized weight (orig_std_weight_g), indicating potential inconsistencies in the original column.
+These were flagged in the data_issues and data_validation_comments columns in the std_weight_g_comment section.
+Weight conversion formulas can be found in the look up table *00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table*.
+A total of 32,286 standardized weights could not be calculated because the preservative information was missing.
+They were flagged in the "data_issues" and "data_validation_comments" columns.
+Synthetic column.
+
+**calc_K_factor:** Calculted K factor using the following formula: length_cm = fish_length_mm / 10, K = 100 \* calc_std_weight_g / (length_cm\^3).
+
+**preservative_code:** Code identifying the preservative method with which the specimen was stored.
+An additional preservative code (5) was added to the lookup table for 95% Ethanol.
+Raw column, except for code number 5.
+
+**preservative_description:** Description of the preservation technique used to store the specimen.
+Synthetic column created using the preservative_code and a lookup table.
+
+**weight_conversion_formula:** Formula to calculate standardized weight depending on the preservative used.
+Synthetic column created using the preservative_code and a lookup table.
+
+**age_class:** Synthetic column applicable only to Sockeye salmon based on subjective age class identification, by observer, in input field species_code_information (the outdated LEP “species code” that mixes species, life_stage, and age information).
+Specifically applies to species_code_information = 16 (Sockeye juvenile Age 1) and species_code_information = 17 (Sockeye juvenile Age 2).
+See *AA_fish_scientific_name_lookup.csv* table.
+
+**aging_technique:** Numerical code to identify the technique used to determine fish age; only 1 and 5 are used here.
+Raw column.
+
+**aging_technique_name:** Name of the technique referent to the code used to determine fish age in the aging_technique column: : (1) “Scale & aged”, (5) “Defaulted.” It is unclear what “Defaulted” means.
+Synthetic column created using the aging_technique and a lookup table.
+
+**scale:** : Scale number extracted from original .sas file, and ranges from 0 to 20.
+It is uncertain what this variable represents.
+Raw column.
+
+**scale_book:** Numerical code to identify the scale record in the scale book.
+The code “0” means no scale.
+It is uncertain what this variable represents.
+These are raw values extracted from the original .sas and .dat files.
+
+**scale_book_letter:** Alphabetic code; It is uncertain what this variable represents.
+Raw column.
+
+**general_comments:** Concatenation of columns with general comments from original files.
+It is organized as ["name of the column": "comment"].
+Note that the original \*.dat files did not have column names, so these were assigned; see appendix.
+Also note that HS or HSTIFF (Howard Stiff) was involved in converting the \*.dat data into SAS data in past years, so references to him in the general_comments (which come directly from the input files) do not indicate a data issue or change that was made as part of the current (Alice Assmar) data recovery and cleaning.
+
+-   trawl_comment: Originally named "trawl_location" in the input \*.dat data, it includes unprocessed general trawl location information, as well as additional information on preservative, processor, gear type, duration and depth.
+
+-   comment: This was a general comment included from the SAS input files.
+
+-   trawl_number_comment: Unprocessed general comments associated with trawl numbers in the original files.
+    These comments were extracted from the trawl_number column in \*.dat and stored in this field.
+
+-   trawl_date_comment: Unprocessed general comments associated with trawl dates in the original files.
+    These comments were extracted from the trawl_date column and stored in this field.
+
+-   time_comment: Unprocessed general comments associated with start-time and end-time in the original files.
+    These comments were extracted from the orig_start_time and orig_end_time columns and stored in this field.
+
+-   depth_m_comments: Unprocessed general comments related to depth in the original files.
+    These comments were extracted from the depth_m column and stored in this field.
+
+-   preservative_code_comment: Unprocessed general comments associated with preservative code in the original files.
+    These comments were extracted from the preservative_code column and stored in this field.
+
+-   preservative_note: Unprocessed general comments associated with preservative code in the lookup table *00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table*.
+
+**data_issues:** Concatenation of errors or modifications identified during the data validation step.
+Organized as ["column_name": "comment"].
+
+-   duration_comment: Flags errors in the orig_duration_minutes field.
+    The comment "does NOT match calculated start_time and end_time, likely end_time error" indicates that the duration calculated from the orig_start_time and orig_end_time fields differs from the original orig_duration_minutes value.
+
+-   length_weight_comment: Flags anomalies in the fish_length_mm and fish_weight_g fields.
+    Indicates modifications applied to values in these fields during validation, or comments such as “Unusual size” that was determined when the K factor was between 2-5.
+
+-   duplicate_flag: Flags records with identical fish_unique_ID values after the merging process.
+    These records are likely duplicates but contain conflicting information in one or more fields, particularly life_stage.
+
+-   no_species_name_comments: Flags records with missing or unresolved species names.
+    These cases may correspond to trawls in which no fish were collected or to records where species identification is absent or incomplete in the original data.
+
+-   gear_type_comment: Flags records with inconsistent net dimensions or those suspected to be test trawls; this column also flags when the gear type was determined from a comments field in the input data.
+
+-   scale_book_comment: Flags modifications in the scale_book field or stores unprocessed general comments associated with scale_book records from the original files.
+
+-   std_weight_g_comment: Flags errors in the orig_std_weight_g field.
+    The comment "does NOT match calc_std_weight_g" indicates that the recalculated standardized weight (using the preservative formula) differs from the original orig_std_weight_g value.
+
+-   calc_end_time_comment: Flags derived values in the orig_end_time field.
+    The comment "orig_end_time missing, calculated from start_time + duration_minutes" indicates that orig_end_time was not present in the original file and was synthetically calculated from orig_start_time and orig_duration_minutes.
+
+-   test_trawl_comment: Indicates a test/dummy trawl record.
+    The associated start_time, depth_m, duration_minutes, and trawl_number are artificial placeholders and have been set to NA.
+    Comment: "Fake start_time, depth_m, duration_minutes and trawl_number. Set to NA."
+
+-   start_time_comment: Indicates that orig_start_time was missing and has been estimated using the time interval defined by the preceding and following trawls on the same date (i.e., interpolated between adjacent sequential trawls).
+
+-   invalid_duration_time: Flags anomalies in the orig_duration_minutes field.
+
+-   invalid_start_time: Flags records with invalid time formats (e.g., hours outside 0–24, or minutes/seconds outside 0–60).
+
+-   invalid_end_time: Flags records with invalid time formats (e.g., hours outside 0–24, or minutes/seconds outside 0–60).
+
+**data_validation_comments:** Concatenation of outcomes from data validation tests.
+It is organized as ["name of the column": "comment"].
+
+-   merging_update_type: Flags modifications applied to a record during the merging of duplicated rows.
+
+    -   "Single-row" indicates that no duplicate record was found.
+
+    -   "NA updates" indicates that only missing values were replaced with values from the duplicated row.
+
+    -   "Conflict-within" indicates that both rows contained values in the same field; in such cases, values from the .dat files were prioritized, as they represent the original source files.
+
+    -   "No-changes" indicates that duplicated rows were identical and no modifications were required.
+
+-   duration_comment: Flags modifications in the orig_duration_minutes field other than "does NOT match calculated start_time and end_time, likely end_time error".
+    Possible comments include:
+
+    -   "duration could not be calculated" when either orig_start_time or orig_end_time is missing and calculation is not possible.
+
+    -   "duration not provided, calculated from orig_start_time and orig_end_time" when the original orig_duration_minutes value was missing and subsequently derived.
+
+-   std_weight_g_comment: Flags modifications in the orig_std_weight_g field other than "does NOT match calc_std_weight_g".
+    Possible comments include:
+
+    -   "standardized_weight_g calculated using preservative formula" when the value was not provided in the original data and was subsequently derived.
+
+    -   "standardized_weight_g could not be calculated" when the preservative code, formula parameters, or weight value were unavailable.
+
+**source_files:** Name of the original file that the information was extracted from.
+Synthetic column.
+
+**source_line:** This is a numerical value indicating the specific line number of this record in the original source file (\*.dat only, not SAS files).
+Synthetic column.
+
+**trawl_unique_ID:** Unique identifier for trawls created using the following columns: Trawl_date \| Lake_code \| Trawl_number \| Depth_m.
+Synthetic column.
+
+**fish_unique_ID:** Unique identifier for each fish created using the following columns: Trawl_date \| Lake_code \| Trawl_number \| Depth_m \| Species_info_code \| Fish_id \| weight_g \| Length_mm.
+Synthetic column.
+Left as-is even after correction in fish length and weight.
+
+**genus_name:** Scientific genus name of the fish, from species_code, based on the *AA_fish_scientific_name_lookup.csv* table.
+Synthetic column.
+
+**species_name:** Scientific specific name of the fish, from species_code, based on the *AA_fish_scientific_name_lookup.csv* table.
+Synthetic column.
+
+**lake_latitude:** Latitudinal geographical coordinates in degree and minutes.
+Synthetic column created using the lake_code and a lookup table (*LDP_ATS_Rescue/TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv*).
+
+**lake_longitude:** Longitudinal geographical coordinates in degree and minutes.
+Synthetic column created using the lake_code and a lookup table (*LDP_ATS_Rescue/TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv*).
+
+**processor:** Code identifying the researcher who entered the trawl record into the database.
+Researcher names are not disclosed for privacy reasons.
+Raw column.
+
+**process_date:** The day the record was included in the database.
+ISO Formatted in YYY-MM-DD.
+Raw column.
+
+**fish_total:** Integer identifying the total number of fish within a sample record.
+Raw column.
+
+**sample_number:** This field is present in some \*.sas-formated files and it is unclear what it represents.
+Raw column.
+
+**program_notes:** LDP internship information and time stamp when the data was recovered.
+Synthetic column.\
+:::
+
+### Data issues explanation
+
+-   Some duplicated rows remain in the final dataset. These records can be verified in detail in the duplicated_df_trawl.csv table. *n = 56*.
+-   There are 146 records without common fish species names. These records can be verified in detail in the no_species_record_rows.csv table.
+-   Codes 9 or 99 usually represent "unknown" data, except for "preservative_code" column, which used codes 9 and 98 instead, to indicate unknowns. All of these were replaced by NAs in the final dataset.
+-   In total, 2,029 and 928 invalid formats were detected in the orig_start_time and orig_end_time columns, respectively, and flagged in the "data_issue" column. They can be also found in the errors tables (*03_errors_out/orig_end_time_errors.csv* and *03_errors_out/orig_start_time_errors.csv*). They were replaced by NAs in the final dataset.
+-   351 preservative description information that was nested in the trawl_comment column was transferred to preservative_description column. They were located using the grep command using the pattern "ethanol".
+-   In total, 2,163 invalid format were detected in the orig_duration_minutes column and flagged in the "data_issues" column.
+-   Seine information nested in the trawl_comment column was copied to the gear_type column using the grep command to search for the pattern "sein".
+-   The original "species_code" was renamed as "species_info_code" and included species and life stage information. The new "species_code" column is a standardization of codes to reflect only the species name. Detailed information can be found in the *AA_fish_scientific_name_lookup.csv* look up table, located at *00_raw_data/03_AA_look_up_tables*.
+-   Kokanee corresponded to species code 32 in the dataset. This code does not exist in original look up tables; therefore, it was replaced by code 25, which correspond to Kokanee in original lookup tables (*00_raw_data/04_YS_look_up_tables/fish_species_code_lookup_table.csv*).
+
+### Tables and plots
+
+```{r library, echo=FALSE}
+library(lubridate)
+library(tidyverse)
+library(knitr)
+```
+
+![Figure 1. Example of a scale book record form.](../06_Figures/scale_book1.jpg)
+
+![Figure 2. Example of scale samples on a scale book](../06_Figures/scale_book2.jpg)
+
+![Figure 3. Example of Trawl sample label](../06_Figures/Trawl_sample_label.png)
+```{r read .csv, include=FALSE}
+df_final <- read.csv("Trawl_data_FINAL_1977-1999.csv")
+```
+
+```{r fish info, echo=FALSE, message=FALSE, warning=FALSE}
+df_final %>%
+  group_by(lake_name, ats_year) %>%
+  summarise(count = n()) -> summary_table
+
+write.csv(summary_table, "../06_Figures/Fish_sampling_by_lake_by_year.csv", row.names = FALSE)
+
+kable(summary_table, caption = "Table 1. Number of fish surveyed in each lake by year.")
+```
+
+```{r lake info}
+unique_surveys <- df_final %>%
+  distinct(lake_name, trawl_date, ats_year)
+
+survey_counts <- unique_surveys %>%
+  group_by(lake_name, ats_year) %>%
+  summarise(n_surveys = n(), .groups = "drop")
+
+# Pivot to wide format
+survey_counts_total <- survey_counts %>%
+pivot_wider(names_from = ats_year,
+            values_from = n_surveys,
+            values_fill = 0)
+
+# Add total row per year
+survey_counts_total <- survey_counts_total %>%
+  bind_rows(survey_counts_total %>%
+              summarise(across(where(is.numeric), sum), lake_name = "Total"))
+
+write.csv(survey_counts_total, "../06_Figures/Lake_sampling_freq_by_year.csv", row.names = FALSE)
+kable(survey_counts_total, caption = "Table 2. Survey effort per lake per year, with total number of surveys per year.")
+
+```
+
+```{r duration}
+hist(df_final$orig_duration_minutes, main = " Distribution of duration data", xlab = "Duration (min)")
+```
+
+Figure 4.
+Histogram of the distribution of duration data.
+
+```{r calculated duration}
+ggplot(data = df_final, aes(calc_duration_time)) +
+  geom_histogram(binwidth = 5) +
+  coord_cartesian(xlim = c(0, 60))+
+  labs(x = "Calculated duration (min)", y = "Frequency")
+```
+
+Figure 5.
+Histogram of the distribution of calculated duration data using orig_start_time and orig_end_time.
+
+```{r all spp}
+ggplot(data = df_final, aes(x = fish_length_mm, y = fish_weight_g)) + 
+  geom_point(aes(color = species_common_name), alpha = 0.6) +
+  coord_cartesian(xlim = c(0, 225), ylim = c(0, 200)) +
+  labs(x="Fish length (mm)", y = "Fish weigth (g)", colour = "Species") +
+  ggtitle("Fish length and weigth") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data = subset(df_final, species_common_name == "Stickleback"), aes(x = fish_length_mm, y = fish_weight_g)) + 
+  geom_point(aes(color = species_common_name), alpha = 0.6) +
+  coord_cartesian(xlim = c(0, 50), ylim = c(0, 50)) +
+  labs(x="Fish length (mm)", y = "Fish weigth (g)", colour = "Species") +
+  ggtitle("Fish length and weigth") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Figure 6.
+Distribution of fish length and weight data across all species.
+
+```{r length/weight}
+summary_table_fish_size <- df_final %>%
+  group_by(species_common_name, lake_name) %>%
+  summarise(min(fish_length_mm), max(fish_length_mm), round(mean(fish_length_mm),2), min(fish_weight_g), max(fish_weight_g), round(mean(fish_weight_g),2)) %>%
+  rename("mean(fish_length_mm)" = "round(mean(fish_length_mm), 2)", 
+         "mean(fish_weight_g)" = "round(mean(fish_weight_g), 2)")
+
+write.csv(summary_table_fish_size, "../06_Figures/Summary_fish_length_weight_by_lakes.csv", row.names = FALSE)
+
+kable(summary_table_fish_size, caption = "Table 4. Summary of fish length and weight by lakes.")
+```
+
+```{r hist-g/cm}
+
+# Box plot
+ggplot(data = df_final, aes(x = species_common_name, y = calc_K_factor)) +
+  geom_boxplot() #+
+  #facet_wrap(~ species_common_name)
+
+# Filter rows with potential problematic K index
+df_final %>%
+  filter(calc_K_factor>2) %>%
+  select(fish_unique_ID, species_common_name, lake_name, fish_length_mm, fish_weight_g, calc_K_factor) -> summary_table_error_K
+
+# Plot length by lake and age_class. One lake at a time.
+lakes <- sort(unique(df_final$lake_name))
+
+for (lk in lakes) {
+
+  df_lk <- df_final %>%
+    filter(lake_name == lk,
+           species_code %in% c(1, 2),
+           !is.na(fish_length_mm))
+
+  # Skip if no data for this lake after filtering
+  if (nrow(df_lk) == 0L) {
+    message("No data for lake: ", lk)
+    next
+  }
+
+  p <- ggplot(df_lk, aes(x = fish_length_mm)) +
+    geom_histogram(bins = 40, fill = "steelblue", color = "black") +
+    # Species stacked vertically (one column, multiple rows)
+    facet_grid(rows = vars(species_common_name), scales = "free_y") +
+    labs(
+      title = paste(lk, "Length Distribution"),
+      x = "Length (mm)",
+      y = "Count"
+    ) +
+    theme_bw(base_size = 14) +
+    theme(
+      strip.background = element_rect(fill = "grey90", color = NA),
+      strip.text.y = element_text(face = "bold"),
+      plot.title = element_text(face = "bold")
+    )
+
+  print(p)
+}
+
+# # Plot K by lake and age_class. One lake at a time.
+# for (lk in lakes) {
+#   
+#   p <- df_final %>%
+#     filter(lake_name == lk) %>%
+#     ggplot(aes(x = calc_K_factor)) +
+#     geom_histogram(bins = 40, fill = "steelblue", color = "black") +
+#     facet_grid(species_common_name ~ age_class, scales = "free") +
+#     labs(
+#       title = paste("Weight/Length distribution - ", lk),
+#       x = "Condition index (K)",
+#       y = "Count"
+#     ) +
+#     theme_bw(base_size = 14)
+#   
+#   print(p)
+# }
+
+for (lk in lakes) {
+
+  df_lk <- df_final %>%
+    filter(lake_name == lk,
+           species_code %in% c(1, 2),
+           !is.na(calc_K_factor))
+
+  # Skip if no data for this lake after filtering
+  if (nrow(df_lk) == 0L) {
+    message("No data for lake: ", lk)
+    next
+  }
+
+  p <- ggplot(df_lk, aes(x = calc_K_factor)) +
+    geom_histogram(bins = 40, fill = "steelblue", color = "black") +
+    # Species stacked vertically (one column, multiple rows)
+    facet_grid(rows = vars(species_common_name), scales = "free_y") +
+    labs(
+      title = paste(lk, "Fish Condition (K) Distribution"),
+      x = "K-Factor",
+      y = "Count"
+    ) +
+    theme_bw(base_size = 14) +
+    theme(
+      strip.background = element_rect(fill = "grey90", color = NA),
+      strip.text.y = element_text(face = "bold"),
+      plot.title = element_text(face = "bold")
+    )
+
+  print(p)
+}
+
+
+## Plot the values
+#ggplot(subset(df_filtered, species_common_name == "Sockeye"), aes(K)) +
+#  geom_histogram(binwidth = 5) +
+#  facet_wrap(~ lake_name, ncol=3) +
+#. face_grid(species_common_name + age_class ~ lake_name) +
+#  labs(x = "Condition index (K)", y = "Count",
+#    title = "Distribution of fish condition by lake, species, and age class") +
+#  coord_cartesian(xlim = c(0, 60))
+```
+
+```{r mm/lake, fig.height=30, fig.width=8}
+
+# Plot length problems by lake
+ggplot(df_final, aes(x = fish_length_mm)) +
+  geom_histogram(bins = 50, fill = "steelblue", color = "black") +
+  facet_wrap(~ lake_name, scales = "free_x", ncol=3) +
+  theme_bw(base_size = 14)
+
+```
+
+```{r sockeye, fig.height=30, fig.width=8}
+ggplot(data = subset(df_final, species_common_name == "Sockeye"), 
+       aes(x = fish_length_mm, y = fish_weight_g)) +
+  geom_point(aes(colour = life_stage), alpha = 0.4) +
+  coord_cartesian(xlim = c(0, 225), ylim = c(0, 200)) +
+  labs(x = "Sockeye Length (mm)", y = "Sockeye Weight (g)", color = "Life stage") +
+  facet_wrap(~lake_name, ncol = 3)
+```
+
+Figure 7.
+Distribution of Sockeye length and weight data across lakes.
+
+```{r Stickleback, fig.height=20, fig.width=8}
+ggplot(data = subset(df_final, species_common_name == "Stickleback"), 
+       aes(x = fish_length_mm, y = fish_weight_g)) +
+  geom_point(aes(colour = life_stage), alpha = 0.4) +
+  coord_cartesian(xlim = c(0, 225), ylim = c(0, 200)) +
+  labs(x = "Stickleback Length (mm)", y = "Stickleback Weight (g)", color = "Life stage") +
+  facet_wrap(~lake_name, ncol = 3)
+```
+
+Figure 8.
+Distribution of Stickleback length and weight data across lakes.
+
+```{r Lamprey, fig.height=5, fig.width=8}
+ggplot(data = subset(df_final, species_common_name == "Lamprey"), 
+       aes(x = fish_length_mm, y = fish_weight_g)) +
+  geom_point(alpha = 0.4) +
+  coord_cartesian(xlim = c(0, 225), ylim = c(0, 200)) +
+  labs(x = "Lamprey Length (mm)", y = "Lamprey Weight (g)") +
+  facet_wrap(~lake_name, ncol = 5)
+```
+
+Figure 9.
+Distribution of Lamprey length and weight data across lakes.
+
+```{r depth}
+ggplot(data = df_final, aes(depth_m)) +
+  geom_histogram(binwidth = 1) +
+  labs(x = "Depth (m)")
+```
+
+Figure 10.
+Distribution of depth frequency across all lakes.
+
+```{r depth-by-lake, fig.height=50, fig.width=8}
+ggplot(data = df_final) +
+  geom_histogram(aes(x = depth_m), binwidth = 1) +
+  labs(x = "Depth (m)", y = "Frequency") +
+  facet_wrap(~ lake_name, ncol = 2)
+```
+
+Figure 11.
+Depth data by lake.
