@@ -36,72 +36,73 @@ After 1999, the trawl biosampling data were sometimes available in Excel files h
 
 ::: {style="padding-left: 30px;"}
 **ats_year:** Trawl biosample year in which the data were collected.
-The ats_year runs from April 1 to March 31 of the following calendar year.
+The ats_year runs from April 1 to March 31 of the following calendar year. Thus, ats_year is equal to calendar year for dates from April 1 to Dec 31, and equal to calender year minus one for dates from Jan 1 to March 31. This is the year that should be used to group data for annual analysis as it corresponds to the spawning season for the fish. Grouping by calendar year would result in fish being misassigned to cohorts.
 Synthetic column.
 
-**lake_code:** Numeric code identifying the sampled lake in the source file.
-Used to join lake name and geographic coordinate information via a lookup table (*LDP_ATS_Rescue/TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv*).
+**lake_code:** Numeric code identifying the sampled lake in the source file as used in the original dataset.
+Used to join lake name and geographic coordinate information via a lookup table (*LDP_ATS_Rescue/TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv*). Lake name should be used for modern analysis.
 Raw column.
 
 **lake_name:** Name of the lake where the sample was collected.
 Synthetic column created using the lake_code and a lookup table (*LDP_ATS_Rescue/TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv*).
 Note that lake No-Name (lake_code 124) was replaced with Link Lake (lake code 180).
 
-**trawl_date:** Trawl sampling date converted to ISO format (YYYY-MM-DD).
+**trawl_date:** Trawl sampling date converted to ISO format (YYYY-MM-DD) from a variety of original formats in the original dataset.
 Raw column.
 
 **trawl_month:** Month when the trawl biosample data was collected.
-Synthetic column.
+Synthetic column extracted frp, trawl_date for use in grouping and organizing data.
 
-**trawl_number:** Trawl record number.
-The record ranges from 1-39.
+**trawl_number:** Trawl record number. This is a sequential number within a set of trawls conducted together that identifies an individual trawl within that sampling effort.
+The record ranges from 1-39, i.e. the maximum number of trawls that were conducted "together" was 39.
 Raw column.
 
 **sample_type:** Dimensions of the net used in the sampling event.
-It can also provide gear type information.
+It can also provide gear type information. This data is largely unstandardized and should be standardized before use.
 Raw column.
 
-**gear_type:** Specify gear type when the fishing method used was beach seine.
+**gear_type:** Specifies gear type when the fishing method used was beach seining.
 This information was recovered from the trawl_comment column.
-"Trawl" was entered to all other records.
+"Trawl" was entered to all other records. This data has not been fully standardized.
 Synthetic column.
 
-**depth_m:** Depth of the trawl sampling (meters).
+**depth_m:** Depth of the trawl sampling in metres.
 This variable represents the depth of the trawl event.
-The value range is 0–70 meters, with most observations between 0-20 meters.
+The value range is 0–70 metres, with most observations between 0-20 metres.
 Two records showed values "188" and "200," which were likely typos.
 They were replaced by "18" and "20," respectively, and these changes were flagged in the "depth_m_comments" section of the "general_comments" column.
 The distribution of depth data by lake can be found in the *Tables and plots* section.
 Raw column.
 
 **orig_start_time:** Standardized start time of the trawl sampling rescued from .sas and .dat files.
-The format is "HH:MM:SS" in Pacific Time Zone (UTC−08:00).
-Records with invalid formats were corrected, when possible, or replaced by NAs.
+The format is "HH:MM:SS". All values are local time in Pacific Time (UTC−08 or UTC-07 depending on year and time of year).
+Records with invalid formats were corrected when possible, or replaced by NAs.
 Row issues are flagged in the "data_issues" column.
 Raw column.
 
 **orig_end_time:** Standardized end time of the trawl sampling rescued from .sas and .dat files.
-The format is "HH:MM:SS" in Pacific Time Zone (UTC−08:00).Records with invalid formats were corrected, when possible, or replaced by NAs.
+The format is "HH:MM:SS". All values are local time in Pacific Time (UTC−08 or UTC-07 depending on year and time of year).
+Records with invalid formats were corrected, when possible, or replaced by NAs.
 Row issues are flagged in the "data_issues" column.
 Raw column.
 
 **calc_end_time:** Standardized calculated end time of the trawl sampling.
 This column contains end times calculated from the provided start time and trawl duration (minutes).
-Times are reported in HH:MM:SS format, Pacific Time Zone (UTC−08:00).
-In total, 81,916 missing end-time values were replaced with calculated end times.
+The format is "HH:MM:SS". All values are local time in Pacific Time (UTC−08 or UTC-07 depending on year and time of year).
+In total, 81,916 calculated end times were used when no orig_end_time was in the dataset.
 These modifications were flagged in the “data_issues” column.
 Synthetic column.
 
-**orig_duration_minutes:** Duration of the trawl sampling (minutes).
+**orig_duration_minutes:** Duration of the trawl sampling in minutes.
 This variable represents the duration of each trawl event.
 The expected value range is 0–60 minutes, with most observations near 15 minutes.
 Values exceeding 60 minutes were flagged in the invalid_duration_time section of the general_comments column as “Greater than 60 min, likely error”.
-Extreme values (i.e. 365 and 535) were set to NA.
+Extreme values (e.g. 365 and 535) were set to NA.
 Raw column.
 
 **calc_duration_time:** Standardized calculated duration time of the trawl sampling.
-This column contains duration times calculated from the provided start time and end time.
-Times are reported in minutes, Pacific Time Zone (UTC−08:00).
+This column contains duration times calculated from the start time and end time in the original dataset.
+Times are reported in minutes.
 In total, 3,555 entries do not match original duration (orig_duration_minutes), likely error in orig_end_time column, and 0 missing duration-time values were replaced with calculated duration times.
 Mismatches are flagged in the XX section of the XX column.
 Synthetic column.
@@ -112,7 +113,7 @@ The numbering restarts for each record and ranges from 1 to *fish_total*.
 Raw column.
 
 **species_code:** Standardized code identifying the fish species.
-This is a synthetic column that was added to the look-up table, *AA_fish_scientific_name_lookup.csv*, and which is used to collapse the different life stages x species into the same species for simplicity.
+This is a synthetic column that was added to the look-up table, *AA_fish_scientific_name_lookup.csv*, and which is used to collapse the different life stages x species into the same species for analysis.
 E.g., “Sockeye (juv)” and “Sockeye (fry)” were originally given different species_info_codes, but in the synthetic species_code column in the look-up table, they have the same species_code because both are Sockeye.
 
 **species_common_name:** Widely recognized, non-scientific name to identify the fish species.
@@ -122,10 +123,10 @@ Synthetic column.
 **life_stage:** Life-cycle stage of the fish at the time of collection.
 Synthetically derived from the species_info_code (formerly the LEP “species code”) column.
 Uses look-up table: *AA_fish_scientific_name_lookup.csv*.
-This is a synthetic field.
+Synthetic column.
 
 **species_info_code:** Original LEP species code identifying the species name, life stage and, for two codes, age class of the collected fish.
-This combination of categorical variables has been resolved into four new separate fields (species_code, species_common_name, life_stage, and age_class) as described below, and tabulated in the *AA_fish_scientific_name_lookup.csv* table, located at *00_raw_data/03_AA_look_up_tables*.
+This combination of categorical variables has been resolved into four new separate fields (species_code, species_common_name, life_stage, and age_class), each described above, and tabulated in the *AA_fish_scientific_name_lookup.csv* table, located at *00_raw_data/03_AA_look_up_tables*.
 Raw column.
 
 **fish_length_mm:** The total length of the fish from the tip of the snout to the fork/end of the tail in millimeters (i.e., fork length).
@@ -134,8 +135,7 @@ Raw column.
 **fish_weight_g:** The total weight of the fish in grams, including preservative content.
 Raw column.
 
-**orig_std_weight_g:** Standardized fish weight (as reported in the source files), calculated using the provided weight conversion formula based on the preservative in which the specimen was stored.
-Weights are reported in grams.
+**orig_std_weight_g:** Standardized fish weight in grams (as reported in the source files), calculated using the provided weight conversion formula based on the preservative in which the specimen was stored.
 Weight conversion formulas can be found in the look up tables in the folder *00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table*.
 Raw column.
 
@@ -148,7 +148,7 @@ A total of 32,286 standardized weights could not be calculated because the prese
 They were flagged in the "data_issues" and "data_validation_comments" columns.
 Synthetic column.
 
-**calc_K_factor:** Calculted K factor using the following formula: length_cm = fish_length_mm / 10, K = 100 \* calc_std_weight_g / (length_cm\^3).
+**calc_K_factor:** Calculted K factor using the following formula: length_cm = fish_length_mm / 10, K = 100 \* calc_std_weight_g / (length_cm\^3). Provided for analysis and data validation purposes (e.g. identification of outliers).
 
 **preservative_code:** Code identifying the preservative method with which the specimen was stored.
 An additional preservative code (5) was added to the lookup table for 95% Ethanol.
@@ -291,21 +291,21 @@ Synthetic column.
 **species_name:** Scientific specific name of the fish, from species_code, based on the *AA_fish_scientific_name_lookup.csv* table.
 Synthetic column.
 
-**lake_latitude:** Latitudinal geographical coordinates in degree and minutes.
+**lake_latitude:** Latitudinal geographical coordinates in degree and minutes. DAVID: Convert to decimal degrees.
 Synthetic column created using the lake_code and a lookup table (*LDP_ATS_Rescue/TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv*).
 
-**lake_longitude:** Longitudinal geographical coordinates in degree and minutes.
+**lake_longitude:** Longitudinal geographical coordinates in degree and minutes. DAVID: Convert to decimal degrees.
 Synthetic column created using the lake_code and a lookup table (*LDP_ATS_Rescue/TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv*).
 
 **processor:** Code identifying the researcher who entered the trawl record into the database.
 Researcher names are not disclosed for privacy reasons.
 Raw column.
 
-**process_date:** The day the record was included in the database.
+**process_date:** The day the record was entered into the database.
 ISO Formatted in YYY-MM-DD.
 Raw column.
 
-**fish_total:** Integer identifying the total number of fish within a sample record.
+**fish_total:** Integer identifying the total number of fish within a sample.
 Raw column.
 
 **sample_number:** This field is present in some \*.sas-formated files and it is unclear what it represents.
