@@ -12,9 +12,14 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
-```
+**Agency Supervisors** Athena Ogden
+([athena.ogden\@dfo-mpo.gc.ca](mailto:athena.ogden@dfo-mpo.gc.ca){.email})
+Howard Stiff
+([Howard.Stiff\@dfo-mpo.gc.ca](mailto:Howard.Stiff@dfo-mpo.gc.ca){.email})
+Patrick Thompson
+([Patrick.Thompson\@dfo-mpo.gc.ca](mailto:Patrick.Thompson@dfo-mpo.gc.ca){.email})
+
+**CIEE LDP supervisor** David Hunt (LDP Post-Doc, McGill University)
 
 ```{=html}
 <style>
@@ -143,3 +148,11 @@ column17: processor?? (whatever this means, it seems to be always 99)
         -   *duration - Duration*
         -   *nmbrfish - Number of fish*
         -   *comment*
+
+### 03_AA_look_up_tables
+
+Contains five .csv lookup and correction tables developed or modified during Alice Assmar’s internship. These tables include information on fish species common names, preservative code formulas, calculated standardized weights, and corrections applied to trawl times and fish length and weight measurements. These reference tables were created to standardize and validate the data by linking coded variables in the dataset to additional descriptive information not originally available in the source databases.
+
+### 04_YS_look_up_tables
+
+Contains five .csv lookup and correction tables developed or modified during Yuliya Shtymburski’s internship. These tables include information on lake names and locations, fish species codes, and preservative code formulas. These reference tables were created to standardize and validate the data by linking coded variables in the dataset to additional descriptive information not originally available in the source databases.

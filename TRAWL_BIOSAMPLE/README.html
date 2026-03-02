@@ -385,19 +385,21 @@ separated by their formats. It also includes look-up tables as
 references for the codes. A data dictionary is provided in this folder
 to explain the variables.</p>
 <ul>
-<li><strong>01_DAT</strong> original .dat formatted trawl biosample
-databases from 1977-1999. Files from 1977 to 1983 especially, but also
-from 1984 lost considerable amount of data. In addition, the former
-files are presented as columns, without the. Files from 1984 to 1999 are
-lists and present one variable in each line.</li>
-<li><strong>02_SAS_Data</strong> includes .dat files converted to .sas
+<li><strong>01_DAT</strong> original .dat Formatted trawl biosample
+databases from 1977–1999. Files from 1977 to 1983, and to a lesser
+extent from 1984, lost a considerable amount of data. In addition, the
+earlier files are presented in columns, without proper headers. Files
+from 1984 to 1999 are lists, with one variable per line.</li>
+<li><strong>02_SAS_Data</strong> Contains .dat files converted to SAS
 format. Trawlyy.sas7bdat files include fish data, while
-trlinfyy.sas7bdat files include trawl information.</li>
-<li><strong>03_AA_look_up_tables</strong> .csv tables one with
-preservative formulas to calculate standardized weight and another one
-with reference to fish scientific names.</li>
-<li><strong>04_YS_look_up_tables</strong> .csv tables to reference lake
-names, fish species codes, preservative coes and weight conversion.</li>
+Trlinfyy.sas7bdat files contain trawl information.</li>
+<li><strong>03_AA_look_up_tables</strong> .csv tables comprising
+preservative formulas for calculating standardized weight, reference
+information for fish scientific names, and a reference table used to
+correct fish length and weight values in the final dataset.</li>
+<li><strong>04_YS_look_up_tables</strong> .csv tables providing
+references for lake names, fish species codes, preservative codes, and
+weight conversion factors..</li>
 </ul></li>
 <li><p><strong>01_code</strong> includes the R codes to convert .sas and
 .dat files to .csv and to compare each year’s tables. In addition, it
@@ -419,8 +421,8 @@ the variables.</p></li>
 <li><p><strong>05_ARCHIVE</strong> includes the report, in .Rmd and
 .pdf, created by Alice Assmar during the Living Data Program
 Internship.</p></li>
-<li><p><strong>06_Figures</strong> includes all figures and tables
-created to</p></li>
+<li><p><strong>06_Figures</strong> Contains all figures and tables
+created for inclusion in the final .html data dictionary file.</p></li>
 <li><p><strong>code</strong> is the former code folder that includes
 data conversion from .dat to .csv and to read .sas and .access
 files.</p></li>

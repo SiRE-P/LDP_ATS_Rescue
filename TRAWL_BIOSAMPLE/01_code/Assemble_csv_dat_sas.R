@@ -1232,9 +1232,30 @@ final_dataframe <- final_dataframe %>%
 # Save document until here
 write.csv(final_dataframe, paste0(working_directory, "/combined_inprogress_df_trawl.csv"), row.names = FALSE)
 
+# Read the intermediate dataset to modify that lat/long format and age_class code 0
+adapt_dataset <- read.csv("./TRAWL_BIOSAMPLE/02_intermediate_out/combined_inprogress_df_trawl.csv")
+
+# Age_class code 0 add comment: “age_class originally 0, probable error, changed to NA”
+adapt_dataset <- adapt_dataset %>%
+  mutate(age_class_flag = case_when(age == 0 ~ "age_class_flag: age_class originally 0, probable error, changed to NA",
+                                    TRUE ~ NA_character_),
+         age = case_when(age == 0 ~ NA_real_,
+                               TRUE ~ age))
+
+# Convert lat to decimals 
+adapt_dataset$lake_latitude_decimal <- with(adapt_dataset, {
+  parts <- strcapture("(\\d+) deg (\\d+) min", lake_latitude,
+                      proto = list(deg = numeric(), min = numeric()))
+  parts$deg + parts$min / 60})
+# Convert long to decimals 
+adapt_dataset$lake_longitude_decimal <- with(adapt_dataset, {
+  parts <- strcapture("(\\d+) deg (\\d+) min", lake_longitude,
+                      proto = list(deg = numeric(), min = numeric()))
+  parts$deg + parts$min / 60})
+
 # Combine columns flagging issue in a data_issue column and general comments in a general_comments column, 
 # skip the row when it is NA
-final_dataframe <- final_dataframe %>%
+final_dataframe <- adapt_dataset %>%
   rowwise() %>%
   mutate(data_issues = paste(
       c(if (duration_comment != "matches calculated start_time and end_time" & 
@@ -1251,7 +1272,8 @@ final_dataframe <- final_dataframe %>%
         if (!is.na(start_end_time_comment) & start_end_time_comment != "") paste0("start_end_time_comment: ", start_end_time_comment),
         if (!is.na(invalid_duration_time) & invalid_duration_time != "") paste0("invalid_duration_time: ", invalid_duration_time),
         if (!is.na(invalid_start_time) & invalid_start_time == "Invalid format") paste0("invalid_start_time: ", invalid_start_time),
-        if (!is.na(invalid_end_time) & invalid_end_time != "") paste0("invalid_end_time: ", invalid_end_time)),
+        if (!is.na(invalid_end_time) & invalid_end_time != "") paste0("invalid_end_time: ", invalid_end_time),
+        if (!is.na(age_class_flag) & age_class_flag != "") paste0("age_class_flag: ", age_class_flag)),
       collapse = "; "
     )) %>%
   mutate(general_comments = paste(
@@ -1278,7 +1300,7 @@ final_dataframe <- final_dataframe %>%
         -trawl_date_comment, -trawl_number_comment, -merging_update_type, -scale_book_comment, -calc_value,
         -duration_comment, -invalid_duration_time, -invalid_start_time, -calc_end_time_comment, -duration_final, 
         -std_weight_g_comment, -gear_type_comment, -length_weight_comment, -no_species_name_comments, -preservative_note, 
-        -duplicate_flag, -test_trawl_comment, -start_end_time_comment)
+        -duplicate_flag, -test_trawl_comment, -start_end_time_comment, -age_class_flag)
 
 # Get the time stamp to record when the data was rescued
 time_stamp <- format(Sys.time(), "%d-%b-%Y %H:%M") # get time-stamp to indicate when data rescued
@@ -1301,11 +1323,11 @@ final_dataframe <- final_dataframe %>%
               source_files, source_line,
               trawl_unique_ID, fish_unique_ID,
               genus_name, species_name, 
-              lake_latitude, lake_longitude,
+              lake_latitude_decimal, lake_longitude_decimal,
               processor, process_date,
               everything(),                    
               program_notes,     # timestamp when data was rescued
-              -.joyn) %>%
+              -.joyn, -lake_latitude, -lake_longitude) %>%
   arrange(ats_year, lake_name, trawl_date, trawl_number, fish_id)
 
 # Save document until here

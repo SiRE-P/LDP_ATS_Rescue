@@ -22,10 +22,10 @@ Fisheries and Oceans Canada conducted the Lake Enrichment Program and subsequent
 
 -   **00_raw_data** contains folders with raw files separated by their formats. It also includes look-up tables as references for the codes. A data dictionary is provided in this folder to explain the variables.
 
-    -   **01_DAT** original .dat formatted trawl biosample databases from 1977-1999. Files from 1977 to 1983 especially, but also from 1984 lost considerable amount of data. In addition, the former files are presented as columns, without the. Files from 1984 to 1999 are lists and present one variable in each line.
-    -   **02_SAS_Data** includes .dat files converted to .sas format. Trawlyy.sas7bdat files include fish data, while trlinfyy.sas7bdat files include trawl information.
-    -   **03_AA_look_up_tables** .csv tables one with preservative formulas to calculate standardized weight and another one with reference to fish scientific names.
-    -   **04_YS_look_up_tables** .csv tables to reference lake names, fish species codes, preservative coes and weight conversion.
+    -   **01_DAT** original .dat Formatted trawl biosample databases from 1977–1999. Files from 1977 to 1983, and to a lesser extent from 1984, lost a considerable amount of data. In addition, the earlier files are presented in columns, without proper headers. Files from 1984 to 1999 are lists, with one variable per line.
+    -   **02_SAS_Data** Contains .dat files converted to SAS format. Trawlyy.sas7bdat files include fish data, while Trlinfyy.sas7bdat files contain trawl information.
+    -   **03_AA_look_up_tables** .csv tables comprising preservative formulas for calculating standardized weight, reference information for fish scientific names, and a reference table used to correct fish length and weight values in the final dataset.
+    -   **04_YS_look_up_tables** .csv tables providing references for lake names, fish species codes, preservative codes, and weight conversion factors..
 
 -   **01_code** includes the R codes to convert .sas and .dat files to .csv and to compare each year's tables. In addition, it includes a code to assemble all databases into one dataset, clean the columns in the final unified table and export .csv files reporting problematic rows.
 
@@ -37,7 +37,7 @@ Fisheries and Oceans Canada conducted the Lake Enrichment Program and subsequent
 
 -   **05_ARCHIVE** includes the report, in .Rmd and .pdf, created by Alice Assmar during the Living Data Program Internship.
 
--   **06_Figures** includes all figures and tables created to
+-   **06_Figures** Contains all figures and tables created for inclusion in the final .html data dictionary file.
 
 -   **code** is the former code folder that includes data conversion from .dat to .csv and to read .sas and .access files.
 
