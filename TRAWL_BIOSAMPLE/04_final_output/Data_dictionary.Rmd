@@ -113,7 +113,7 @@ Raw column, with flagging of any changes that were made to the raw data.
 This column contains end times calculated from the provided orig_start_time and orig_duration_minutes.
 The format is "HH:MM:SS".
 All values are local time in Pacific Time (UTC−08 or UTC-07 depending on year and time of year).
-In total, 81,916 calculated end times were used when no orig_end_time was in the dataset.
+In total, 79,012 calculated end times were estimated when no orig_end_time was in the dataset.
 These modifications were flagged in the “data_issues” column as calc_end_time_comment.
 Synthetic column.
 
@@ -137,11 +137,10 @@ Synthetic column.
 knitr::include_graphics("../06_Figures/fish_class_count-example.png")
 ```
 
-
 The fish_class_count resets for each fish species and life-stage combination within a single trawl.
 So Sockeye fry, Stickleback fry, Stickleback Subadult and Stickleback Adult can all have a fish_class_count=1 because they are different species and life stages.
 The fish_class_count number also resets again for a new trawl.
-In other words, the numbering restarts for each combination of trawl_number, species_common_name, and life_stage for a given lake_name and trawl_date, and ranges from 1 to *fish_total* for that combination of species_common_name, and life_stage, for a given trawl_number.
+In other words, the numbering restarts for each combination of trawl_number, species_common_name, and life_stage for a given lake_name and trawl_date, and ranges from 1 to *fish_class_total* for that combination of species_common_name, and life_stage, for a given trawl_number.
 
 **species_code:** Standardized LEP code identifying the fish species.
 This is a synthetic column that was added to the look-up table, *AA_fish_scientific_name_lookup.csv*, and which is used to collapse the different life stages x species into the same species for analysis.
@@ -175,10 +174,10 @@ Raw column.
 
 **calc_std_weight_g:** This value is a re-estimate of the imported “orig_std_weight_g” value, calculated using the observed weight, fish_weight_g, and the weight conversion formula based on the preservative in which the specimen was stored, according to the preservative_code.
 Weights are reported in grams.
-26 values differ from the original given standardized weight (orig_std_weight_g), indicating potential inconsistencies in the original column.
+34 values differ from the original given standardized weight (orig_std_weight_g), indicating potential inconsistencies in the original column.
 These were flagged in the data_issues column as a std_weight_g_comment.
 Weight conversion formulas can be found in the look up table *00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table*.
-A total of 32,286 standardized weights could not be calculated because the preservative information was missing.
+A total of 29,640 standardized weights could not be calculated because the preservative information was missing.
 They were flagged in the "data_validation_comments" column as a std_weight_g_comment.
 Synthetic column.
 
@@ -207,7 +206,7 @@ Raw column.
 
 **aging_technique_name:** Name of the technique referent to the code used to determine fish age in the aging_technique column: (1) “Scale & aged”, (5) “Defaulted.” It is unclear what “Defaulted” means.
 It is also unclear where in the historical files to find the age data that correspond to aging_technique = 1.
-Synthetic column created using the aging_technique and a lookup table: \
+Synthetic column created using the aging_technique and a lookup table:\
 code 0 = No scale.\
 code 1 = Scale & aged.\
 code 2 = Scale - Poor.\
@@ -225,7 +224,8 @@ Raw column.
 **scale_book:** These numbers range from 1-110, and it is uncertain what this variable represents, as these numbers do not seem to correspond to numbering on physical scale books in our archives.
 Scale_book numbers \>20 are all from Phillips Lake, except for one row from Hobiton Lake.
 The code “0” means no scale.
-Three weight records were misplaced in this columns and transferred to the correct columns. It is flagged in the "data_issues" column as a scale_book_comment: "Weight value was incorrectly recorded in the scale_book field; corrected by re-coding to 0." Any "999" code was replaced by NA.
+Three weight records were misplaced in this columns and transferred to the correct columns.
+It is flagged in the "data_issues" column as a scale_book_comment: "Weight value was incorrectly recorded in the scale_book field; corrected by re-coding to 0." Any "999" code was replaced by NA.
 The letters in this column were from .sas files and these values were transferred to the "scale_book_letter" column.
 These are raw values extracted from the original .sas (starting from year 1982) and \*.dat files.
 
@@ -241,7 +241,7 @@ Also note that HS or HSTIFF (Howard Stiff) was involved in converting the \*.dat
 
 -   trawl_comment: Formerly named "trawl_location" in the intermediate \*.dat data, it includes unprocessed general trawl location information, as well as additional information on preservative, processor, gear type, duration and depth.
 
--   comment: This was a general comment included from the SAS input files.
+-   sas_comment: This was a general comment included from the SAS input files.
 
 -   trawl_number_comment: Unprocessed general comments associated with trawl numbers in the original files.
     These comments were extracted from the trawl_number column in \*.dat and stored in this field.
@@ -281,7 +281,11 @@ Organized as ["name of original/intermediate column": "comment"].
 
 -   gear_type_comment: Flags records with inconsistent net dimensions or those suspected to be test trawls; this column also flags when the gear type was determined from a comments field in the input data.
 
--   scale_book_issues: Flags modifications in the scale_book field or stores unprocessed general comments associated with scale_book records from the original files.
+-   lake_comment: Flags modifications in the lake name, when the lake code from No Name Lake was changed to Link Lake.
+
+-   taxonomic_comment: Flags possible taxonomic issue with species name.
+
+-   scale_book_issues: Flags modifications in the scale_book field.
 
 -   std_weight_g_comment: Flags errors in the orig_std_weight_g field.
     The comment "does NOT match calc_std_weight_g" indicates that the recalculated standardized weight (using the preservative formula) differs from the original orig_std_weight_g value.
@@ -300,6 +304,8 @@ Organized as ["name of original/intermediate column": "comment"].
 -   invalid_start_time: Flags records with invalid time formats in the orig_start_time (e.g., hours outside 0–24, or minutes/seconds outside 0–60).
 
 -   invalid_end_time: Flags records with invalid time formats in the orig_end_time (e.g., hours outside 0–24, or minutes/seconds outside 0–60).
+
+-   preservative_code_issue: Flags modifications in the preservative_code field.
 
 -   age_class_flag: Indicates records originally coded as 0, which are likely errors.
     These values have been set to NA in the dataset.
@@ -356,7 +362,7 @@ Raw column.
 ISO Formatted in YYY-MM-DD.
 Raw column.
 
-**fish_total:** Integer identifying the total number of fish within a sample.
+**fish_class_total:** Integer identifying the total number of fish within a sample (formerly called fish_total).
 Raw column.
 
 **sample_number:** This field is present in some \*.sas-formated files (i.e., as "sample" "Sample No" without the underline) and it is unclear what it represents.
@@ -386,11 +392,11 @@ library(tidyverse)
 library(knitr)
 ```
 
-![Figure 1. Example of a scale book record form.](../06_Figures/scale_book1.jpg){width=50%}
+![Figure 1. Example of a scale book record form.](../06_Figures/scale_book1.jpg){width="50%"}
 
-![Figure 2. Example of scale samples on a scale book.](../06_Figures/scale_book2.jpg){width=50%}
+![Figure 2. Example of scale samples on a scale book.](../06_Figures/scale_book2.jpg){width="50%"}
 
-![Figure 3. Example of Trawl sample label.](../06_Figures/Trawl_sample_label.png){width=25%}
+![Figure 3. Example of Trawl sample label.](../06_Figures/Trawl_sample_label.png){width="25%"}
 
 ```{r read .csv, include=FALSE}
 df_final <- read.csv("Trawl_data_FINAL_1977-1999.csv")
@@ -427,20 +433,20 @@ df_final %>%
   summarise(fish_count = n(), .groups = "drop") -> summary_table
 
 # Pivot to wide format
-summary_table_fish_total <- summary_table %>%
+summary_table_fish_class_total <- summary_table %>%
 pivot_wider(names_from = ats_year,
             values_from = fish_count,
             values_fill = 0)
 
 # Add total row per year
-summary_table_fish_total <- summary_table_fish_total %>%
-  bind_rows(summary_table_fish_total %>%
+summary_table_fish_class_total <- summary_table_fish_class_total %>%
+  bind_rows(summary_table_fish_class_total %>%
               summarise(across(where(is.numeric), sum), lake_name = "Total")) %>%
   select(1,names(.)[-1][order(as.numeric(names(.)[-1]))])
 
-write.csv(summary_table_fish_total, "../06_Figures/Fish_sampling_by_lake_by_year.csv", row.names = FALSE)
+write.csv(summary_table_fish_class_total, "../06_Figures/Fish_sampling_by_lake_by_year.csv", row.names = FALSE)
 
-kable(summary_table_fish_total, caption = "Table 2. Number of fish surveyed in each lake by ATS year.")
+kable(summary_table_fish_class_total, caption = "Table 2. Number of fish surveyed in each lake by ATS year.")
 ```
 
 ```{r duration}
