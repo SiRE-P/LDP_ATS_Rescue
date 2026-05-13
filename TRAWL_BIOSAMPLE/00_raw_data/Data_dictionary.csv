@@ -1,49 +1,30 @@
 ---
-title: "LDP internship - Data dictionary - Trawl biosample raw folder"
-authors: "Alice Assmar", "David Hunt", "Athena Ogden", "Howard Stiff"
+title: "LDP internship - Data dictionary for original trawl biosample files"
+author: "Alice Assmar"
 date: "2025-11-01 - 2026-02-28"
 ---
+
+**Agency Supervisors** Howard Stiff ([Howard.Stiff\@dfo-mpo.gc.ca](mailto:Howard.Stiff@dfo-mpo.gc.ca){.email}), Athena Ogden ([athena.ogden\@dfo-mpo.gc.ca](mailto:athena.ogden@dfo-mpo.gc.ca){.email}), Patrick Thompson ([Patrick.Thompson\@dfo-mpo.gc.ca](mailto:Patrick.Thompson@dfo-mpo.gc.ca){.email})
+
+**CIEE LDP supervisor** David Hunt (LDP Post-Doc, McGill University)
 
 ### Data collection
 
 This folder includes original trawl biosample data collected using
 trawling method in water bodies located in British Columbia, Canada,
-from 1977 to 1999 by researchers from Fisheries and Oceans Canada.
+from 1977 to 1999 by researchers from Fisheries and Oceans Canada. The \*.dat data are readable using a text editor, and the SAS data are readable using R package haven. See the section “Data collection and cleaning” for details about which files were used for the final outputted data.
 
 ### 01_DAT folder
 
-# Data from 1977-1983
+[*.dat files from 1984 - 1999*]
 
--   There are 17 columns in the Trawlyy.dat files:
+-   These were the data as they were first entered into electronic form. Some of the original field data sheets are still available, but here we have used the \*.dat files instead. Here we are showing an example from 1985:
 
-column1: lake code\
-column2: trawl date\
-column3: trawl number\
-column4: species - either a species code or the number of species? Not
-clear to me; it's usually "1" (HS: Species Code - see lookup table)\
-column5: Fish number\
-column6: Length\
-column7: Weight - (HS: the question is: is this 'observed' or
-'standardized' weight?)\
-column8: prsrv (I don't know what this means--it might always have a
-dot, which might be the same as NA?) (HS: dots are NAs)\
-column9: age\
-column10: aged (I think this is a 0/1 code for aged or not) (HS: no,
-there's an Aged lookup table that shows multiple codes)\
-column11: start time\
-column12: end time\
-column13: duration (min)\
-column14: depth (m)\
-column15: Number of fish (usually/always a dot??)\
-column16: "procdate": presumably processing date (HS: yes)\
-column17: processor?? (whatever this means, it seems to be always 99)
-(HS: see Observer code lookup table)
+-   Each table row (except the header) is one line. 
 
-# Dat files from 1984 - 1999
+- Apple DAT file field names and details:
 
--   Each table row (except the header) is one line.
-
-| DATA BLOCK 1 				| Description |
+| DATA 		 				| Description |
 |--------------------------|----------------------------------------------|
 | 280185 					| sample process date |
 | 18 						| processor code |
@@ -51,54 +32,72 @@ column17: processor?? (whatever this means, it seems to be always 99)
 | 250484 					| sample date |
 | 1 						| sample number |
 | TR 						| sample type |
-| 1 						| trawl number (may be same as sample number, i.e., not a transect number) |
+| 1 						| trawl number |
 | 2330-2345 				| start-time and end-time. Most files only provide start time. Leading zeros were removed at some point, so "245" or "23" translate to "0245" and "0023" |
 | 15 						| duration (minutes) |
 | 4 						| depth (m) |
 | 1 						| fish species code |
-| TR 4.5-4.0 				| trawl location (transects?) |
+| TR 4.5-4.0 				| trawl location (proximal transects) |
 | 1 						| preservative code |
 | 6 						| number of fish in sample to LOOP over |
 | 67 						| fish 1 - length (mm) |
 | 3.12						| fish 1 - weight (g) |
-| 1 						| fish 1 - scale book number |
+| 1 						| fish 1 - scale number |
 |  							| All files have a fourth line. It can be empty or have a letter, which is interpreted as scale book letter |
 | 58 						| fish 2 - length |
 | 1.85 						| fish 2 - weight |
-| 2 						| fish 2 - scale book number |
+| 2 						| fish 2 - scale number |
 |  							|  |
 | 66 						| fish 3 - length |
 | 2.89 						| fish 3 - weight |
-| 3 						| fish 3 - scale book number |
+| 3 						| fish 3 - scale number |
 |  							|  |
 | 61 						| fish 4 - length |
 | 2.15 						| fish 4 - weight |
-| 0 						| fish 4 - scale book number (0 = no scale) |
+| 0 						| fish 4 - scale number (0 = no scale) |
 |  							|  |
 | 51 						| fish 5 - length |
 | 1.26 						| fish 5 - weight |
-| 0 						| fish 5 - scale book number (0 = no scale) |
+| 0 						| fish 5 - scale number (0 = no scale) |
 |  							|  |
 | 30 						| fish 6 - length |
 | .23 						| fish 6 - weight |
-| 0 						| fish 6 - scale book number (0 = no scale) |
+| 0 						| fish 6 - scale number (0 = no scale) |
 |  							|  |
-| 310185 					| end LOOP and end BLOCK 1 - This is the sample process date of BLOCK 2 - METADATA |
+| 310185 					| Begin BLOCK 2 - METADATA |
+
+
+[*.dat Files from 1977-1983*]
+
+- For 1977-1983, the only files available were saved in a tabular text format (also named as \*.dat files) that differed from the original Apple \*.dat file format. These files are the only representative datasets for the early years 1977-1983. Unfortunately, the tabular format did not fully preserve all the original data fields. These files are presumed to have been generated by SAS software, which may have over-written the original TrawlYY.DAT files with the limited tabular format, which resembled this:
+
+-   There are 17 columns in the SAS-originated Trawlyy.dat files:
+
+column1: lake code
+column2: trawl date
+column3: trawl number
+column4: species code
+column5: Fish number
+column6: Length (mm)
+column7: Weight (g)
+column8: prsrv
+column9: age
+column10: aged
+column11: start time
+column12: end time
+column13: duration (min)
+column14: depth (m)
+column15: Number of fish
+column16: "procdate" (processing date)
+column17: processor (Observer code)
 
 ### 01_SAS_Data folder
+-   SAS versions of the data have the proprietary binary SAS dataset format, stored as *.sas7bdat files, e.g., Trawl87.sas7bdat.
 
--   These are corrupted SAS files, because their metadata have some
-    structural problem:
-    -   trawl85.sas7bdat
-    -   trawl86.sas7bdat
-    -   trawl87.sas7bdat
-    -   trawl94.sas7bdat
-    -   trawl97.sas7bdat
-    -   trawl98.sas7bdat
-    
 -   Trawlyy.sas7bdat files include fish data, while trlinfyy.sas7bdat
-    files include trawl information.
-    -   Variables in the Trawlyy.sas7bdat files:
+    files include trawl information, where yy is the ATS year.
+    
+    -   Names of the variables present in the Trawlyy.sas7bdat files:
         -   *date - Sample Date*
         -   *age - Age*
         -   *aged - Aging Technique*
@@ -111,19 +110,35 @@ column17: processor?? (whatever this means, it seems to be always 99)
         -   *trwlnmbr - Trawl*
         -   *weight - Weight (g)*
         -   *depth*
-    -   Variables in the Trlinfyy.sas7bdat files:
+        -   *observer - Processor* (From 1982 to 1999 only)
+        -   *Scale - Scale No.* (From 1982 to 1999 only)
+        -   *sclbook - Scale Book* (From 1982 to 1999 only)
+    -   Names of the variables present in the Trlinfyy.sas7bdat files: 
         -   *system - System*
         -   *date - Sample Date*
         -   *trwlnmbr - Trawl \#*
         -   *depth - Depth*
         -   *fspecies - Species*
-        -   *statime*
-        -   *endtime*
+        -   *statime - Start time*
+        -   *endtime - End time*
         -   *prsrv - Preservative*
         -   *observer - Observer*
         -   *duration - Duration*
         -   *nmbrfish - Number of fish*
-        -   *comment*
+        -   *comment - Comments*
+
+
+-   Because some of the SAS files are corrupted (see below), and because the SAS datasets are synthetic and derived from the original Apple Computer \*.dat files, the data in the \*.dat from the Apple \*.dat files were given preference when both were available:\
+    -   Years: 1984, 1988, 1989, 1990, 1991, 1992, 1993, 1995, 1996.
+
+-   The following are corrupted SAS files, because their metadata have some
+    structural problem:
+    -   trawl85.sas7bdat
+    -   trawl86.sas7bdat
+    -   trawl87.sas7bdat
+    -   trawl94.sas7bdat
+    -   trawl97.sas7bdat
+    -   trawl98.sas7bdat
 
 ### 03_AA_look_up_tables
 
