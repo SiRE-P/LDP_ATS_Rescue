@@ -67,9 +67,20 @@ fish_length_mm: The total length of the fish from the tip of the snout to the fo
 
 fish_weight_g: The total weight of the fish in grams, including preservative content. Some records had their values adjusted in case of typos or unit conversion (e.g., mg to g). They were flagged in the "data_issues" column as length_weight_comment. Raw column, with flagging of any changes that were made to the raw data.
 
-orig_std_weight_g: Standardized fish weight in grams (as reported in the source files), calculated using the provided weight conversion formula based on the preservative in which the specimen was stored. Weight conversion formulas can be found in the look up tables in the folder 00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table. Raw column.
+orig_std_weight_g: Standardized fish weight in grams (as reported in the source files), calculated using the provided weight conversion formula based on the preservative in which the specimen was stored.
+Weight conversion formulas can be found in the look up tables in the folder *00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table*.
+Use cautiously: orig_std_weight_g may contain either fish_weight_g or preservation-adjusted weights, as some values are inconsistent with recalculated corrections. 
+Raw column.
 
-calc_std_weight_g: This value is a re-estimate of the imported “orig_std_weight_g” value, calculated using the observed weight, fish_weight_g, and the weight conversion formula based on the preservative in which the specimen was stored, according to the preservative_code. Weights are reported in grams. 34 values differ from the original given standardized weight (orig_std_weight_g), indicating potential inconsistencies in the original column. These were flagged in the data_issues column as a std_weight_g_comment. Weight conversion formulas can be found in the look up table 00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table. A total of 29,640 standardized weights could not be calculated because the preservative information was missing. They were flagged in the "data_validation_comments" column as a std_weight_g_comment. Synthetic column.
+calc_std_weight_g: This value is a re-estimate of the imported “orig_std_weight_g” value, calculated using the observed weight, fish_weight_g, and the weight conversion formula based on the preservative in which the specimen was stored, according to the preservative_code.
+Weights are reported in grams.
+34 values differ from the original given standardized weight (orig_std_weight_g), indicating potential inconsistencies in the original column.
+These were flagged in the data_issues column as a std_weight_g_comment.
+Weight conversion formulas can be found in the look up table 00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table.
+A total of 31,639 calc_std_weight_g values were recalculated and are available where orig_std_weight_g was missing.
+A total of 29,828 standardized weights could not be calculated because the preservative information was missing.
+They were flagged in the "data_validation_comments" column as a std_weight_g_comment.
+Synthetic column.
 
 calc_K_factor: Calculated K factor using the following formula: length_cm = fish_length_mm / 10, K = 100 * calc_std_weight_g / (length_cm^3). Provided for analysis and data validation purposes (e.g. identification of outliers).
 
@@ -85,11 +96,32 @@ aging_technique: Numerical code to identify the technique used to determine fish
 
 aging_technique_name: Name of the technique referent to the code used to determine fish age in the aging_technique column: (1) “Scale & aged”, (5) “Defaulted.” It is unclear what “Defaulted” means. It is also unclear where in the historical files to find the age data that correspond to aging_technique = 1. Synthetic column created using the aging_technique and a lookup table:code 0 = No scale.code 1 = Scale & aged.code 2 = Scale - Poor.code 3 = Scale - Regen.code 4 = Scale - Unsure.code 5 = Defaulted.
 
-scale: : Scale number extracted from original .sas file only, and ranges from 0 to 20. The code “0” means no scale, and numbers 1-20 presumably indicate the numbers within a specific scale book, but we have so far been unable to match these to ageing data in our archives. Standard scale book types house 1-25 or 1-50 (MacLellan 2004). Any "999" code was replaced by NA. It is uncertain what this variable represents. Raw column.
+sas_scale: Scale number extracted from original .sas file only, and ranges from 0 to 20.
+The code “0” means no scale, and numbers 1-20 presumably indicate the numbers within a specific scale book, but we have so far been unable to match these to ageing data in our archives.
+Standard scale book types house 1-25 or 1-50 (MacLellan 2004).
+Any "999" code was replaced by NA.
+It is uncertain what this variable represents.
+Use with caution, as the purpose of this variable could not be confirmed.
+Raw column.
 
-scale_book: These numbers range from 1-110, and it is uncertain what this variable represents, as these numbers do not seem to correspond to numbering on physical scale books in our archives. Scale_book numbers >20 are all from Phillips Lake, except for one row from Hobiton Lake. The code “0” means no scale. Three weight records were misplaced in this columns and transferred to the correct columns. It is flagged in the "data_issues" column as a scale_book_comment: "Weight value was incorrectly recorded in the scale_book field; corrected by re-coding to 0." Any "999" code was replaced by NA. The letters in this column were from .sas files and these values were transferred to the "scale_book_letter" column. These are raw values extracted from the original .sas (starting from year 1982) and *.dat files.
+sas_scale_book: Alphabetic code, and it is uncertain what this variable represents, 
+The original scale_book column also had letters, but they do not correspond to the sas_scale_book field.
+These are raw values extracted from the original .sas (starting from year 1982) files.
+Use with caution, as the purpose of this variable could not be confirmed.
+Raw column.
 
-scale_book_letter: Alphabetic code; It is uncertain what this variable represents. The original scale_book column also had letters, but they do not correspond to the scale_book_letter field. Letters from .sas files formerly stored in the "scale_book" column were transferred to this column. These are raw values extracted from the original .sas (starting from year 1982) and *.dat files.
+dat_scale_book: These numbers range from 1-110, and it is uncertain what this variable represents, as these numbers do not seem to correspond to numbering on physical scale books in our archives.
+Scale_book numbers \>20 are all from Phillips Lake, except for one row from Hobiton Lake.
+The code “0” means no scale.
+Three weight records were misplaced in this columns and transferred to the correct columns.
+It is flagged in the "data_issues" column as a scale_book_comment: "Weight value was incorrectly recorded in the scale_book field; corrected by re-coding to NA." Any "999" code was replaced by NA.
+Use with caution, as the purpose of this variable could not be confirmed.
+These are raw values extracted from the original \*.dat files.
+
+dat_scale_book_letter: Alphabetic code; It is uncertain what this variable represents.
+The original scale_book column also had letters, but they do not correspond to the scale_book_letter field.
+Use with caution, as the purpose of this variable could not be confirmed.
+These are raw values extracted from the original \*.dat files.
 
 general_comments: Concatenation of columns with general comments from original files. It is organized as ["name of the original/intermediate column": "comment"]. Note that the original *.dat files did not have column names, so these were assigned; see appendix for the names assigned to those fields. Also note that HS or HSTIFF (Howard Stiff) was involved in converting the *.dat data into SAS data in past years, so references to him in the general_comments (which come directly from the input files) do not indicate a data issue or change that was made as part of the current (Alice Assmar) data recovery and cleaning.
 
@@ -146,22 +178,6 @@ data_issues: Concatenation of errors or modifications identified during the data
 	preservative_code_issue: Flags modifications in the preservative_code field.
 
 	age_class_flag: Indicates records originally coded as 0, which are likely errors. These values have been set to NA in the dataset.
-
-data_validation_comments: Concatenation of outcomes from data validation tests. It is organized as ["name of the column": "comment"].
-
-	merging_update_type: Flags modifications applied to a record during the merging of duplicated rows.
-
-		"Conflict-within" indicates that both rows contained values in the same field; in such cases, values from the .dat files were prioritized, as they represent the original source files.
-
-	duration_comment: Flags modifications in the orig_duration_minutes field other than "does NOT match calculated start_time and end_time, likely end_time error". Possible comments include:
-
-		"duration could not be calculated" when either orig_start_time or orig_end_time is missing and calculation is not possible.
-
-	std_weight_g_comment: Flags modifications in the orig_std_weight_g field other than "does NOT match calc_std_weight_g". Possible comments include:
-
-		"standardized_weight_g calculated using preservative formula" when the value was not provided in the original data and was subsequently derived.
-
-		"standardized_weight_g could not be calculated" when the preservative code, formula parameters, or weight value were unavailable.
 
 source_files: Name of the original file that the information was extracted from. Synthetic column.
 

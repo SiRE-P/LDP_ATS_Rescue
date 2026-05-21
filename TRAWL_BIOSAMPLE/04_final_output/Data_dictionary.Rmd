@@ -170,6 +170,7 @@ Raw column, with flagging of any changes that were made to the raw data.
 
 **orig_std_weight_g:** Standardized fish weight in grams (as reported in the source files), calculated using the provided weight conversion formula based on the preservative in which the specimen was stored.
 Weight conversion formulas can be found in the look up tables in the folder *00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table*.
+Use cautiously: orig_std_weight_g may contain either fish_weight_g or preservation-adjusted weights, as some values are inconsistent with recalculated corrections. 
 Raw column.
 
 **calc_std_weight_g:** This value is a re-estimate of the imported “orig_std_weight_g” value, calculated using the observed weight, fish_weight_g, and the weight conversion formula based on the preservative in which the specimen was stored, according to the preservative_code.
@@ -177,7 +178,8 @@ Weights are reported in grams.
 34 values differ from the original given standardized weight (orig_std_weight_g), indicating potential inconsistencies in the original column.
 These were flagged in the data_issues column as a std_weight_g_comment.
 Weight conversion formulas can be found in the look up table *00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table*.
-A total of 29,640 standardized weights could not be calculated because the preservative information was missing.
+A total of 31,639 calc_std_weight_g values were recalculated and are available where orig_std_weight_g was missing.
+A total of 29,828 standardized weights could not be calculated because the preservative information was missing.
 They were flagged in the "data_validation_comments" column as a std_weight_g_comment.
 Synthetic column.
 
@@ -214,25 +216,32 @@ code 3 = Scale - Regen.\
 code 4 = Scale - Unsure.\
 code 5 = Defaulted.
 
-**scale:** : Scale number extracted from original .sas file only, and ranges from 0 to 20.
+**sas_scale:** Scale number extracted from original .sas file only, and ranges from 0 to 20.
 The code “0” means no scale, and numbers 1-20 presumably indicate the numbers within a specific scale book, but we have so far been unable to match these to ageing data in our archives.
 Standard scale book types house 1-25 or 1-50 (MacLellan 2004).
 Any "999" code was replaced by NA.
 It is uncertain what this variable represents.
+Use with caution, as the purpose of this variable could not be confirmed.
 Raw column.
 
-**scale_book:** These numbers range from 1-110, and it is uncertain what this variable represents, as these numbers do not seem to correspond to numbering on physical scale books in our archives.
+**sas_scale_book:** Alphabetic code, and it is uncertain what this variable represents, 
+The original scale_book column also had letters, but they do not correspond to the sas_scale_book field.
+These are raw values extracted from the original .sas (starting from year 1982) files.
+Use with caution, as the purpose of this variable could not be confirmed.
+Raw column.
+
+**dat_scale_book:** These numbers range from 1-110, and it is uncertain what this variable represents, as these numbers do not seem to correspond to numbering on physical scale books in our archives.
 Scale_book numbers \>20 are all from Phillips Lake, except for one row from Hobiton Lake.
 The code “0” means no scale.
 Three weight records were misplaced in this columns and transferred to the correct columns.
-It is flagged in the "data_issues" column as a scale_book_comment: "Weight value was incorrectly recorded in the scale_book field; corrected by re-coding to 0." Any "999" code was replaced by NA.
-The letters in this column were from .sas files and these values were transferred to the "scale_book_letter" column.
-These are raw values extracted from the original .sas (starting from year 1982) and \*.dat files.
+It is flagged in the "data_issues" column as a scale_book_comment: "Weight value was incorrectly recorded in the scale_book field; corrected by re-coding to NA." Any "999" code was replaced by NA.
+Use with caution, as the purpose of this variable could not be confirmed.
+These are raw values extracted from the original \*.dat files.
 
-**scale_book_letter:** Alphabetic code; It is uncertain what this variable represents.
+**dat_scale_book_letter:** Alphabetic code; It is uncertain what this variable represents.
 The original scale_book column also had letters, but they do not correspond to the scale_book_letter field.
-Letters from .sas files formerly stored in the "scale_book" column were transferred to this column.
-These are raw values extracted from the original .sas (starting from year 1982) and \*.dat files.
+Use with caution, as the purpose of this variable could not be confirmed.
+These are raw values extracted from the original \*.dat files.
 
 **general_comments:** Concatenation of columns with general comments from original files.
 It is organized as ["name of the original/intermediate column": "comment"].
@@ -295,7 +304,7 @@ Organized as ["name of original/intermediate column": "comment"].
 
 -   test_trawl_comment: Indicates a suspected test/dummy trawl record.
     The associated orig_start_time, depth_m, orig_duration_minutes, and trawl_number are artificial placeholders and have been set to NA.
-    Comment: "Fake orig_start_time, depth_m, orig_duration_minutes and trawl_number. Set to NA."
+    Comment: "orig_start_time, depth_m, orig_duration_minutes, and trawl_number contained placeholder values and were set to NA."
 
 -   start_time_comment: Indicates that orig_start_time was missing and has been estimated using the time interval defined by the preceding and following trawls on the same date (i.e., interpolated between adjacent sequential trawls).
 
@@ -309,25 +318,6 @@ Organized as ["name of original/intermediate column": "comment"].
 
 -   age_class_flag: Indicates records originally coded as 0, which are likely errors.
     These values have been set to NA in the dataset.
-
-**data_validation_comments:** Concatenation of outcomes from data validation tests.
-It is organized as ["name of the column": "comment"].
-
--   merging_update_type: Flags modifications applied to a record during the merging of duplicated rows.
-
-    -   "Conflict-within" indicates that both rows contained values in the same field; in such cases, values from the .dat files were prioritized, as they represent the original source files.
-
--   duration_comment: Flags modifications in the orig_duration_minutes field other than "does NOT match calculated start_time and end_time, likely end_time error".
-    Possible comments include:
-
-    -   "duration could not be calculated" when either orig_start_time or orig_end_time is missing and calculation is not possible.
-
--   std_weight_g_comment: Flags modifications in the orig_std_weight_g field other than "does NOT match calc_std_weight_g".
-    Possible comments include:
-
-    -   "standardized_weight_g calculated using preservative formula" when the value was not provided in the original data and was subsequently derived.
-
-    -   "standardized_weight_g could not be calculated" when the preservative code, formula parameters, or weight value were unavailable.
 
 **source_files:** Name of the original file that the information was extracted from.
 Synthetic column.

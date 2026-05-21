@@ -133,6 +133,49 @@ Trawl_96_dat <- Trawl_96_dat %>%
 }
 
 ################################  Step 2  #####################################
+################### Change headers associated with sas scale book
+
+# Change "scale_book" column to "sas_scale_book"
+{
+  names(Trawl_77)[names(Trawl_77) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_78)[names(Trawl_78) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_79)[names(Trawl_79) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_80)[names(Trawl_80) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_81)[names(Trawl_81) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_82)[names(Trawl_82) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_83)[names(Trawl_83) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_84_sas)[names(Trawl_84_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_88_sas)[names(Trawl_88_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_89_sas)[names(Trawl_89_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_90_sas)[names(Trawl_90_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_91_sas)[names(Trawl_91_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_92_sas)[names(Trawl_92_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_93_sas)[names(Trawl_93_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_95_sas)[names(Trawl_95_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_96_sas)[names(Trawl_96_sas) == "scale_book"] <- "sas_scale_book"
+}
+
+# Change "scale" column to "sas_scale"
+
+{
+  names(Trawl_77)[names(Trawl_77) == "scale"] <- "sas_scale"
+  names(Trawl_78)[names(Trawl_78) == "scale"] <- "sas_scale"
+  names(Trawl_79)[names(Trawl_79) == "scale"] <- "sas_scale"
+  names(Trawl_80)[names(Trawl_80) == "scale"] <- "sas_scale"
+  names(Trawl_81)[names(Trawl_81) == "scale"] <- "sas_scale"
+  names(Trawl_82)[names(Trawl_82) == "scale"] <- "sas_scale"
+  names(Trawl_83)[names(Trawl_83) == "scale"] <- "sas_scale"
+  names(Trawl_84_sas)[names(Trawl_84_sas) == "scale"] <- "sas_scale"
+  names(Trawl_88_sas)[names(Trawl_88_sas) == "scale"] <- "sas_scale"
+  names(Trawl_89_sas)[names(Trawl_89_sas) == "scale"] <- "sas_scale"
+  names(Trawl_90_sas)[names(Trawl_90_sas) == "scale"] <- "sas_scale"
+  names(Trawl_91_sas)[names(Trawl_91_sas) == "scale"] <- "sas_scale"
+  names(Trawl_92_sas)[names(Trawl_92_sas) == "scale"] <- "sas_scale"
+  names(Trawl_93_sas)[names(Trawl_93_sas) == "scale"] <- "sas_scale"
+  names(Trawl_95_sas)[names(Trawl_95_sas) == "scale"] <- "sas_scale"
+  names(Trawl_96_sas)[names(Trawl_96_sas) == "scale"] <- "sas_scale"
+}
+
 ################### full join to keep all columns and rows #########################
 
 ## full join to keep all columns and rows, we can clean them later
@@ -141,8 +184,7 @@ Trawl_96_dat <- Trawl_96_dat %>%
 Trawl_84 <- joyn::full_join(Trawl_84_dat, Trawl_84_sas, suffix = c(".dat", ".sas"),
                             by = c("process_date", "trawl_date", "fish_total",
                                    "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
-                                   "trawl_number", "processor", "lake_code", "lake_name",
-                                   "scale_book", "scale", "age",
+                                   "trawl_number", "processor", "lake_code", "lake_name", "age",
                                    "preservative_code", "duration_mi", "depth_m", "fish_id",
                                    "fish_description", "preservative_description", "weight_conversion_formula",
                                    "sample_number", "fish_weight_g", "aging_technique_name",
@@ -153,8 +195,7 @@ Trawl_84 <- joyn::full_join(Trawl_84_dat, Trawl_84_sas, suffix = c(".dat", ".sas
 Trawl_88 <- joyn::full_join(Trawl_88_dat, Trawl_88_sas, suffix = c(".dat", ".sas"),
                             by = c("process_date", "trawl_date", "fish_total",
                                    "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
-                                   "trawl_number", "processor", "lake_code", "lake_name",
-                                   "scale_book", "scale", "age",
+                                   "trawl_number", "processor", "lake_code", "lake_name", "age",
                                    "preservative_code", "duration_mi", "depth_m", "fish_id",
                                    "fish_description", "preservative_description", "weight_conversion_formula",
                                    "sample_number", "fish_weight_g", "aging_technique_name",
@@ -164,8 +205,7 @@ Trawl_88 <- joyn::full_join(Trawl_88_dat, Trawl_88_sas, suffix = c(".dat", ".sas
 Trawl_89 <- joyn::full_join(Trawl_89_dat, Trawl_89_sas, suffix = c(".dat", ".sas"),
                       by = c("process_date", "trawl_date", "fish_total",
                              "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
-                             "trawl_number", "processor", "lake_code", "lake_name",
-                             "scale_book", "scale", "age",
+                             "trawl_number", "processor", "lake_code", "lake_name", "age",
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
@@ -175,8 +215,7 @@ Trawl_89 <- joyn::full_join(Trawl_89_dat, Trawl_89_sas, suffix = c(".dat", ".sas
 Trawl_90 <- joyn::full_join(Trawl_90_dat, Trawl_90_sas, suffix = c(".dat", ".sas"),
                       by = c("process_date", "trawl_date", "fish_total",
                              "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
-                             "trawl_number", "processor", "lake_code", "lake_name",
-                             "scale_book", "scale", "age",
+                             "trawl_number", "processor", "lake_code", "lake_name", "age",
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
@@ -186,8 +225,7 @@ Trawl_90 <- joyn::full_join(Trawl_90_dat, Trawl_90_sas, suffix = c(".dat", ".sas
 Trawl_91 <- joyn::full_join(Trawl_91_dat, Trawl_91_sas, suffix = c(".dat", ".sas"),
                       by = c("process_date", "trawl_date", "fish_total",
                              "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
-                             "trawl_number", "processor", "lake_code", "lake_name",
-                             "scale_book", "scale", "age",
+                             "trawl_number", "processor", "lake_code", "lake_name", "age",
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
@@ -197,8 +235,7 @@ Trawl_91 <- joyn::full_join(Trawl_91_dat, Trawl_91_sas, suffix = c(".dat", ".sas
 Trawl_92 <- joyn::full_join(Trawl_92_dat, Trawl_92_sas, suffix = c(".dat", ".sas"),
                       by = c("process_date", "trawl_date", "fish_total",
                              "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
-                             "trawl_number", "processor", "lake_code", "lake_name",
-                             "scale_book", "scale", "age",
+                             "trawl_number", "processor", "lake_code", "lake_name", "age",
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
@@ -208,8 +245,7 @@ Trawl_92 <- joyn::full_join(Trawl_92_dat, Trawl_92_sas, suffix = c(".dat", ".sas
 Trawl_93 <- joyn::full_join(Trawl_93_dat, Trawl_93_sas, suffix = c(".dat", ".sas"),
                       by = c("process_date", "trawl_date", "fish_total",
                              "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
-                             "trawl_number", "processor", "lake_code", "lake_name",
-                             "scale_book", "scale", "age",
+                             "trawl_number", "processor", "lake_code", "lake_name", "age",
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
@@ -226,7 +262,7 @@ Trawl_95 <- joyn::full_join(Trawl_95_dat, Trawl_95_sas, suffix = c(".dat", ".sas
                       by = c("process_date", "trawl_date", "fish_total",
                              "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
                              "trawl_number", "processor", "lake_code", "lake_name",
-                             "start_time", "end_time", "scale_book", "scale", "age",
+                             "start_time", "end_time", "age",
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
@@ -236,8 +272,7 @@ Trawl_95 <- joyn::full_join(Trawl_95_dat, Trawl_95_sas, suffix = c(".dat", ".sas
 Trawl_96 <- joyn::full_join(Trawl_96_dat, Trawl_96_sas, suffix = c(".dat", ".sas"),
                       by = c("process_date", "trawl_date", "fish_total",
                              "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
-                             "trawl_number", "processor", "lake_code", "lake_name",
-                             "scale_book", "scale", "age",
+                             "trawl_number", "processor", "lake_code", "lake_name", "age",
                              "preservative_code", "duration_mi", "depth_m", "fish_id",
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
@@ -268,6 +303,22 @@ rm(list = vectors_to_remove)
     mutate(depth_m_comment = as.character(depth_m_comment))
 }
 
+# Change data type for scale_book
+{
+  Trawl_86 <- Trawl_86 %>%
+    mutate(scale_book = as.character(scale_book))
+  Trawl_87 <- Trawl_87 %>%
+    mutate(scale_book = as.character(scale_book))
+  Trawl_97 <- Trawl_97 %>%
+    mutate(scale_book = as.character(scale_book))
+  Trawl_94 <- Trawl_94 %>%
+    mutate(scale_book = as.character(scale_book))
+  Trawl_98 <- Trawl_98 %>%
+    mutate(scale_book = as.character(scale_book))
+  Trawl_99 <- Trawl_99 %>%
+    mutate(scale_book = as.character(scale_book))
+}
+
 # Change data type for trawl_number_comment
 Trawl_91 <- Trawl_91 %>%
   mutate(trawl_number_comment = as.character(trawl_number_comment))
@@ -283,12 +334,15 @@ change_column_type <- function(data, column_name, new_type) {
     mutate(!!sym(column_name) := as(!!sym(column_name), new_type))
 }
 
+# Check the class of the variable to know which one to change
+sapply(df_trawl_list, function(x) class(x[["scale_book"]]))
+
 # Apply the function to all data frames in the list for duration_mi
 df_trawl_list <- map(df_trawl_list, ~change_column_type(.x, "duration_mi", "character"))
 # processor
 df_trawl_list <- map(df_trawl_list, ~change_column_type(.x, "processor", "character"))
 # scale_book
-df_trawl_list <- map(df_trawl_list, ~change_column_type(.x, "scale_book", "character"))
+#df_trawl_list <- map(df_trawl_list, ~change_column_type(.x, "scale_book", "character"))
 # sample_number
 df_trawl_list <- map(df_trawl_list, ~change_column_type(.x, "sample_number", "character"))
 
@@ -344,14 +398,14 @@ resolve_column <- function(values, source) {
   
   # All values are NA
   if (length(non_na_values) == 0) {
-    return(list(value = NA, status = "No change"))
+    return(list(value = NA, status = "No changes after merge"))
   }
   
   #  Only one unique non-NA value, NA fill
   if (length(non_na_values) == 1) {
     return(list(
       value  = non_na_values[1],
-      status = ifelse(any(is.na(values)), "NA updates", "No change")
+      status = ifelse(any(is.na(values)), "Missing information added", "No changes after merge")
     ))
   }
   # in case of conflict, prefer .dat source (ignore NA)
@@ -363,10 +417,10 @@ resolve_column <- function(values, source) {
         endsWith(source, ".dat") &
         !is.na(values)
     ][1]
-    return(list(value = dat_value, status = "Conflict within"))
+    return(list(value = dat_value, status = "Different values found; updated using .dat file"))
   }
   # Conflict but no info from .dat files
-  list(value = values[1], status = "No change")
+  list(value = values[1], status = "No changes after merge")
 }
 
 ## Collapse the data and create a column to flag the changes
@@ -391,12 +445,12 @@ df_final_no_dup <- df_joined %>%
 
         )
         # State priorities
-        if ("Conflict within" %in% flags) {
-          "Conflict within"
-        } else if ("NA updates" %in% flags) {
-          "NA updates"
+        if ("Different values found; updated using .dat file" %in% flags) {
+          "Different values found; updated using .dat file"
+        } else if ("Missing information added" %in% flags) {
+          "Missing information added"
         } else {
-          "No change"
+          "No changes after merge"
         }
       }
     },
@@ -411,12 +465,11 @@ df_final_no_dup <- df_joined %>%
     .groups = "drop"
   )
 
-
-df_final_backup <- df_final_no_dup
 ### Combine source_file, source_file.sas and source_file.dat into a new 'source_files' column
+# Also remove the column "scale" because there are only NAs
 df_final <- df_final_no_dup %>%
   unite(col = "source_files", source_file, source_file.sas, source_file.dat, sep = ", ") %>%
-  select(-source_file.dat2)
+  select(-source_file.dat2, -scale)
 
 # Remove NAs that were added to the rows
 replacement_pattern <- c("^NA, " = "",
@@ -434,10 +487,10 @@ df_final$sample_type <- str_replace_all(df_final$sample_type, replacement_patter
 df_final <- df_final %>% 
   relocate(trawl_date, "trawl_comment" = trawl_location, lake_code, lake_name, process_date, processor,
            start_time, end_time, start_time.sas, end_time.sas, start_time.dat, end_time.dat, duration_mi, depth_m,  
-           trawl_number, "gear_info" = sample_type, species_code, fish_description, species_code_comment, fish_length_mm, fish_weight_g, 
-           weight_conversion_formula, standardized_weight_g, fish_total, fish_id, 
-           preservative_code, preservative_description, sample_number, scale, scale_book,scale_book_letter, age, 
-           aging_technique, aging_technique_name, source_files, source_line, trawl_unique_ID, fish_unique_ID, 
+           trawl_number, "gear_info" = sample_type, species_code, fish_description, species_code_comment, fish_length_mm, 
+           fish_weight_g, weight_conversion_formula, standardized_weight_g, fish_total, fish_id, 
+           preservative_code, preservative_description, sample_number, scale_book, scale_book_letter, sas_scale, sas_scale_book, 
+           age, aging_technique, aging_technique_name, source_files, source_line, trawl_unique_ID, fish_unique_ID, 
            trawl_month, ats_year, "sas_comment" = comment,
            time_comment, preservative_code_comment, depth_m_comment, trawl_date_comment, trawl_number_comment, 
            program_notes,  merging_update_type, .joyn)
@@ -774,8 +827,10 @@ df_final_clean_species <- df_final_clean_species %>%
          trawl_number_comment = ifelse (trawl_number_comment == "9", NA_character_, trawl_number_comment))
 
 df_final_clean_species <- df_final_clean_species %>%
-  mutate(across(c(duration_mi, processor, depth_m, scale, scale_book, trawl_number), ~ str_replace_all(.x, pattern = "999", replacement = NA_character_))) %>%
-  mutate(across(c(duration_mi, processor, depth_m, trawl_number), ~ str_replace_all(.x, pattern = "99", replacement = NA_character_))) %>%
+  mutate(across(c(duration_mi, processor, depth_m, sas_scale, scale_book, sas_scale_book, trawl_number), 
+                ~ str_replace_all(.x, pattern = "999", replacement = NA_character_))) %>%
+  mutate(across(c(duration_mi, processor, depth_m, trawl_number), 
+                ~ str_replace_all(.x, pattern = "99", replacement = NA_character_))) %>%
   mutate(duration_mi = as.integer(duration_mi)) 
 
 ## Calculate duration_mi from the difference of the start_time and end_time columns
@@ -962,17 +1017,17 @@ df_final_clean_depth <- df_final_clean_depth %>%
                              TRUE ~ depth_m)) %>%
   unite("depth_m_comments", depth_m_flag, depth_m_comment, sep = ", ", na.rm = TRUE)
 
-### Clean scale, scale_book and scale_book_letter columns
+### Clean sas_scale, sas_scale_book, scale_book and scale_book_letter columns
 # Replace wrong data in scale_book data for the correct number and flag modifications
 df_final_clean_depth <- df_final_clean_depth %>%
   mutate(scale_book_issues = if_else(scale_book == "1.86" | scale_book == "0.49" | scale_book == "0.21",
-                                      "Weight value was incorrectly recorded in the scale_book field; corrected by recoding to 0",
+                                      "Weight value was incorrectly recorded in the scale_book field; corrected by recoding to NA",
                                       NA_character_))
 
 df_final_clean_depth <- df_final_clean_depth %>%
-  mutate(scale_book = case_when(scale_book == "1.86" ~ "0",
-                                scale_book == "0.49" ~ "0",
-                                scale_book == "0.21" ~ "0",
+  mutate(scale_book = case_when(scale_book == "1.86" ~ NA_character_,
+                                scale_book == "0.49" ~ NA_character_,
+                                scale_book == "0.21" ~ NA_character_,
                                  TRUE ~ scale_book))
 
 # Transfer the raw scale_book comments to the scale_book_comment column
@@ -1020,7 +1075,7 @@ df_final_clean_depth <- df_final_clean_depth  %>%
                                       scale_book_issues))
 
 df_final_clean_depth %>%
-  group_by(scale, scale_book, scale_book_letter, scale_book_issues, scale_book_comment) %>%
+  group_by(sas_scale, sas_scale_book, scale_book, scale_book_letter, scale_book_issues, scale_book_comment) %>%
   summarise(count = n()) -> summary_table
 
 # Correct fish_unique_ID 1986-09-01_6_2_12_1_1_58_48 length and weight
@@ -1060,7 +1115,6 @@ nearly_final_dataframe %>%
   group_by(gear_info, gear_type, sample_number) %>%
   summarise(count = n()) -> summary_table
 
-df_final_backup6 <- nearly_final_dataframe
 ################### Cleaning Fish length and weight columns #########################
 
 # Detect problematic values in weight and length columns
@@ -1212,7 +1266,7 @@ final_dataframe <- final_dataframe %>%
          duration_mi = case_when(gear_info == "DUM2" | gear_info == "dum2" ~ NA_real_,
                              TRUE ~ duration_mi),
          test_trawl_comment = case_when(gear_info == "DUM2" | gear_info == "dum2" ~ 
-                                          "Fake orig_start_time, depth_m, orig_duration_minutes and trawl_number. Set to NA.",
+                                          "orig_start_time, depth_m, orig_duration_minutes, and trawl_number contained placeholder values and were set to NA.",
                                         TRUE ~ NA_character_))
 
 # Correct start_time and end_time for specific trawls
@@ -1296,14 +1350,14 @@ final_dataframe <- adapt_dataset %>%
       if (!is.na(scale_book_comment) & scale_book_comment != "") paste0("scale_book_comment: ", scale_book_comment)),
     collapse = "; "
   )) %>%
-  mutate(data_validation_comments = paste(
-    c(if (merging_update_type == "Conflict within" | 
-          merging_update_type == "NA updates") paste0("merging_update_type: ", merging_update_type),
-      if (duration_comment == "duration could not be calculated") paste0("duration_comment: ", duration_comment),
-      if (std_weight_g_comment != "does NOT match calc_std_weight_g" & 
-          std_weight_g_comment != "matches calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment)),
-    collapse = "; "
-  )) %>%
+  #mutate(data_validation_comments = paste(
+  #  c(if (merging_update_type == "Different values found; updated using .dat file" | 
+  #        merging_update_type == "Missing information added") paste0("merging_update_type: ", merging_update_type),
+  #    if (duration_comment == "duration could not be calculated") paste0("duration_comment: ", duration_comment),
+  #    if (std_weight_g_comment != "does NOT match calc_std_weight_g" & 
+  #        std_weight_g_comment != "matches calc_std_weight_g") paste0("std_weight_g_comment: ", std_weight_g_comment)),
+  #  collapse = "; "
+  #)) %>%
   ungroup()  %>%
   select(-trawl_comment, -sas_comment, -time_comment, -preservative_code_comment, -taxonomic_comment, -preservative_code_issue, -depth_m_comments, -invalid_end_time,
         -trawl_date_comment, -trawl_number_comment, -merging_update_type, -scale_book_issues, -scale_book_comment, -calc_value,
@@ -1327,7 +1381,7 @@ final_dataframe <- final_dataframe %>%
               fish_length_mm, fish_weight_g, "orig_std_weight_g" = standardized_weight_g, calc_std_weight_g, calc_K_factor,
               preservative_code, preservative_description, preservative_description_short, 
               weight_conversion_formula, "age_class" = age, aging_technique, aging_technique_name,
-              scale, scale_book, scale_book_letter,
+              sas_scale, sas_scale_book, "dat_scale_book" = scale_book, "dat_scale_book_letter" = scale_book_letter,
               general_comments, data_issues,
               source_files, source_line,
               trawl_unique_ID, fish_unique_ID,
