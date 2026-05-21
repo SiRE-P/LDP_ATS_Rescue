@@ -13,7 +13,7 @@
 
 <meta name="date" content="2026-01-30" />
 
-<title>Living Data Program Internship - Lakes Data In British Columbia - Trawl Biosample 1977-1999</title>
+<title>Living Data Program (LDP) Internship - Lakes Data In British Columbia - Trawl Biosample 1977-1999</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,46 +350,54 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Living Data Program Internship - Lakes Data
-In British Columbia - Trawl Biosample 1977-1999</h1>
+<h1 class="title toc-ignore">Living Data Program (LDP) Internship -
+Lakes Data In British Columbia - Trawl Biosample 1977-1999</h1>
 <h4 class="author">Alice Assmar</h4>
 <h4 class="date">2026-01-30</h4>
 
 </div>
 
 
-<p><strong>Agency Supervisors</strong> Athena Ogden (<a href="mailto:athena.ogden@dfo-mpo.gc.ca" class="email">athena.ogden@dfo-mpo.gc.ca</a>) Howard Stiff (<a href="mailto:Howard.Stiff@dfo-mpo.gc.ca" class="email">Howard.Stiff@dfo-mpo.gc.ca</a>) Patrick Thompson (<a href="mailto:Patrick.Thompson@dfo-mpo.gc.ca" class="email">Patrick.Thompson@dfo-mpo.gc.ca</a>)</p>
+<p><strong>Agency Supervisors</strong> Howard Stiff (<a href="mailto:Howard.Stiff@dfo-mpo.gc.ca" class="email">Howard.Stiff@dfo-mpo.gc.ca</a>), Athena Ogden (<a href="mailto:athena.ogden@dfo-mpo.gc.ca" class="email">athena.ogden@dfo-mpo.gc.ca</a>), Patrick Thompson (<a href="mailto:Patrick.Thompson@dfo-mpo.gc.ca" class="email">Patrick.Thompson@dfo-mpo.gc.ca</a>)</p>
 <p><strong>CIEE LDP supervisor</strong> David Hunt (LDP Post-Doc, McGill
 University)</p>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>Fisheries and Oceans Canada conducted the Lake Enrichment Program and
-subsequent projects from 1980-2015. The extensive limnological database
-includes, among other information, fish data collected using trawls in
-water bodies located in British Columbia, Canada, from 1977 to 1999.
-Some species of fish have abundance and sampling data such as length,
-weight and life stage. The data exists in several formats, such as
-within published DFO reports, Excel spreadsheets, MS Access databases,
-as well as SAS and DAT original formats. This folder (TRAWL_BIOSAMPLE)
-includes folders organized during the Living Data Project (LDP)
-internship and the goal was to combine as many variables as possible
-from these databases into a single dataset with consistent formatting
-and reporting standards to be made publicly available for all Canadians
-and scientists.</p>
+<p>The Salmon in Regional Ecosystems (SiRE) program at Fisheries and
+Oceans Canada conducted the Lake Enrichment Program and related surveys
+from 1977-2010. The extensive limnological data holdings include, among
+other information, fish data collected using trawls in waterbodies
+located in British Columbia, Canada, from 1977 to 1999, which are
+detailed in the report [<em>cite the report</em>]. Some species of fish
+have abundance and sampling data such as length, weight and life stage.
+The data exist in several formats, such as within published DFO reports,
+Excel spreadsheets, and MS Access databases, as well as SAS and DAT
+original formats. This folder (TRAWL_BIOSAMPLE) includes folders
+organized during the Living Data Project (LDP) internship (2025-2026),
+and the goal was to combine as many variables as possible from these
+data sources into a single dataset with consistent formatting and
+reporting standards, to be made publicly available for all Canadians and
+scientists.</p>
 </div>
 <div id="folder-structure" class="section level2">
 <h2>Folder structure</h2>
 <ul>
 <li><p><strong>00_raw_data</strong> contains folders with raw files
-separated by their formats. It also includes look-up tables as
-references for the codes. A data dictionary is provided in this folder
-to explain the variables.</p>
+separated into sub-folders according to their formats. It also includes
+look-up tables as references for the codes. A data dictionary is
+provided in this folder to explain the variables and their names as
+given in the original data.</p>
 <ul>
-<li><strong>01_DAT</strong> original .dat Formatted trawl biosample
-databases from 1977–1999. Files from 1977 to 1983, and to a lesser
-extent from 1984, lost a considerable amount of data. In addition, the
-earlier files are presented in columns, without proper headers. Files
-from 1984 to 1999 are lists, with one variable per line.</li>
+<li><strong>01_DAT</strong> original (Apple) .dat files, from 1984–1999,
+and synthetic SAS outputs in tabular text format from 1977 to 1983. The
+SAS versions of the data from 1977-1983 (and to a lesser extent from
+1984), are missing a considerable amount of the original data.
+<ul>
+<li>SAS versions input files (1977-1983) are synthetic outputs from SAS
+(original data not available), presented in columns, without proper
+headers, whereas *.dat files from 1984 to 1999 are in the original data
+format as lists, with one variable per line.</li>
+</ul></li>
 <li><strong>02_SAS_Data</strong> Contains .dat files converted to SAS
 format. Trawlyy.sas7bdat files include fish data, while
 Trlinfyy.sas7bdat files contain trawl information.</li>
