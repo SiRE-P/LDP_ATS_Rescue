@@ -1,26 +1,16 @@
 ---
-title: "LDP internship - Data dictionary - Trawl biosample for the error output folder"
+title: "LDP internship - Data dictionary - Trawl biosample intermediate output folder"
 authors: "Alice Assmar", "David Hunt", "Athena Ogden", "Howard Stiff"
 date: "2025-11-01 - 2026-02-28"
 ---
 
 ### Data collection
-Trawl biosample data collected using trawling method, with net size usually of 2x2x7.5m, in water bodies located in British Columbia, Canada, from 1977 to 1999 by researchers from Fisheries and Oceans Canada as part of the Lake Enrichment Program (LEP).
-Synthetic columns were created during data rescue and validation.
-Raw columns were recovered from the original files.
 
-Note that both *.dat files and SAS files were used as input for this data recovery and data cleaning effort by Alice Assmar in 2025-2026.
-The *.dat files in 1977-1983 (and some 1984) are in a different format than the other *.dat files, and original data appears to have been overwritten in this other format.
-Therefore, SAS files were used in those years.
-These SAS files were originally derived from the original *.dat files, which have since been lost for those years.
+Trawl biosample data collected using trawling method in water bodies located in British Columbia, Canada, from 1977 to 1999 by researchers from Fisheries and Oceans Canada as part of the Lake Enrichment Program (LEP). Synthetic columns were created during data rescue and validation. Raw columns were recovered from the original files.
 
-After 1983, and until 1999, both format of files were available (except for a few corrupted SAS files), and where there were conflicts between the two, the *.dat values were used.
+Note that both .dat files and SAS files were used as input for this data recovery and data cleaning effort by Alice Assmar. From 1977 to 1983, only SAS files were extant. These SAS files were originally derived from the .dat files, which have since been lost for those years. After 1983, and until 1999, both files were available (except for a few corrupted SAS files), and where there were conflicts between the two, the .dat values were used. After 1999, the trawl biosampling data were sometimes available in Excel files held by the Salmon in Regional Ecosystems Program at Fisheries and Oceans Canada (contact Patrick.Thomspon\@dfo-mpo.gc.ca), but the Excel files have not been extracted as part of the current data recovery and cleaning process.
 
-The *.dat files did not have header names as part of the data; these were added when the data were read into R, and an intermediate file *.csv file was created;
-
-The trawl biosampling data after 1999, and the acoustic target data after 2007, were sometimes available in Excel files or scanned field notes held by the Salmon in Regional Ecosystems Program at Fisheries and Oceans Canada (contact Patrick.Thomspon\@dfo-mpo.gc.ca), but the data in those Excel and scanned longhand files have not been extracted as part of the current data recovery and cleaning process.
-
-The folder "03_errors_out" includes flagged errors exported as .csv files, which can be reviewed in detail using these tables. Some of the variables described below may not appear in every table.
+The folder "02_intermediate_out" includes both the original data converted to .csv files and partially cleaned data used to generate the final dataset, which was subsequently saved in the "04_final_output" folder.
 
 ### Description of variables
 

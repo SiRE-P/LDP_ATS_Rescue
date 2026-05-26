@@ -1387,7 +1387,7 @@ final_dataframe <- final_dataframe %>%
               trawl_unique_ID, fish_unique_ID,
               genus_name, species_name, 
               lake_latitude_decimal, lake_longitude_decimal,
-              processor, process_date, "fish_class_tota" = fish_total,
+              processor, process_date, "fish_class_total" = fish_total,
               everything(),                    
               program_notes,     # timestamp when data was rescued
               -.joyn, -lake_latitude, -lake_longitude) %>%

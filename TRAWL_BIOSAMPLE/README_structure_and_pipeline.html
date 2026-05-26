@@ -13,7 +13,7 @@
 
 <meta name="date" content="2026-01-30" />
 
-<title>Living Data Program (LDP) Internship - Lakes Data In British Columbia - Trawl Biosample 1977-1999</title>
+<title>Living Data Project (LDP) Internship - Lakes Data In British Columbia - Trawl Biosample 1977-1999</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,7 +350,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Living Data Program (LDP) Internship -
+<h1 class="title toc-ignore">Living Data Project (LDP) Internship -
 Lakes Data In British Columbia - Trawl Biosample 1977-1999</h1>
 <h4 class="author">Alice Assmar</h4>
 <h4 class="date">2026-01-30</h4>
@@ -359,7 +359,7 @@ Lakes Data In British Columbia - Trawl Biosample 1977-1999</h1>
 
 
 <p><strong>Agency Supervisors</strong> Howard Stiff (<a href="mailto:Howard.Stiff@dfo-mpo.gc.ca" class="email">Howard.Stiff@dfo-mpo.gc.ca</a>), Athena Ogden (<a href="mailto:athena.ogden@dfo-mpo.gc.ca" class="email">athena.ogden@dfo-mpo.gc.ca</a>), Patrick Thompson (<a href="mailto:Patrick.Thompson@dfo-mpo.gc.ca" class="email">Patrick.Thompson@dfo-mpo.gc.ca</a>)</p>
-<p><strong>CIEE LDP supervisor</strong> David Hunt (LDP Post-Doc, McGill
+<p><strong>CIEE LDP supervisor</strong> David Hunt (<a href="mailto:david.hunt2@mcgill.ca" class="email">david.hunt2@mcgill.ca</a>, LDP Post-Doc, McGill
 University)</p>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
@@ -398,13 +398,15 @@ SAS versions of the data from 1977-1983 (and to a lesser extent from
 headers, whereas *.dat files from 1984 to 1999 are in the original data
 format as lists, with one variable per line.</li>
 </ul></li>
-<li><strong>02_SAS_Data</strong> Contains .dat files converted to SAS
-format. Trawlyy.sas7bdat files include fish data, while
-Trlinfyy.sas7bdat files contain trawl information.</li>
-<li><strong>03_AA_look_up_tables</strong> .csv tables comprising
-preservative formulas for calculating standardized weight, reference
-information for fish scientific names, and a reference table used to
-correct fish length and weight values in the final dataset.</li>
+<li><strong>02_SAS_Data</strong> Contains trawl data converted to an
+obsolete SAS proprietary binary format, but readable in R using the
+package “Haven.” <strong>Trawl</strong>yy.sas7bdat files include fish
+data, while <strong>Trlinf</strong>yy.sas7bdat files contain trawl
+information.</li>
+<li><strong>03_AA_look_up_tables</strong> contains various .csv lookup
+tables, e.g., preservative formulas for calculating standardized weight,
+reference information for fish scientific names, and a reference table
+used to correct fish length and weight values in the final dataset.</li>
 <li><strong>04_YS_look_up_tables</strong> .csv tables providing
 references for lake names, fish species codes, preservative codes, and
 weight conversion factors..</li>
@@ -414,38 +416,44 @@ weight conversion factors..</li>
 includes a code to assemble all databases into one dataset, clean the
 columns in the final unified table and export .csv files reporting
 problematic rows.</p></li>
-<li><p><strong>02_intermediate_out</strong> includes raw individual data
-for each trawl year in .csv, originated from both .dat and .sas files.
-In addition, it includes raw combined datasets in .csv, saved before
-clean up process. A data dictionary is provided in this folder to
-explain the variables.</p></li>
-<li><p><strong>03_errors_out</strong> contains .csv tables with errors
+<li><p><strong>02_intermediate_out</strong> includes data extracted from
+the raw files and saved separately in .csv format for each trawl year,
+originating from both .dat and .sas files. In addition, the folder
+includes a raw joint dataset with all trawl data in .csv in format
+(combined_raw_df_trawl.csv), saved before clean-up process, as well as a
+dataset after merging the duplicated records
+(combined_inprogress_df_trawl.csv), which is zipped. A data dictionary
+is provided in this folder
+(<em>LDP_ATS_Rescue/TRAWL_BIOSAMPLE/02_intermediate_out/Data_dictionary_for_intermediate_out</em>)
+to explain the variables.</p></li>
+<li><p><strong>03_errors_out</strong> contains .csv tables with issues
 flagged during data cleaning steps. These tables contain only the rows
-presenting the errors. A data dictionary is provided in this folder to
-explain the variables.</p></li>
-<li><p><strong>04_final_output</strong> contains the final, cleaned
-dataset in .csv. A data dictionary is provided in this folder to explain
+presenting the data issues A data dictionary is provided in
+<em>LDP_ATS_Rescue/TRAWL_BIOSAMPLE/03_errors_out/</em> folder to explain
 the variables.</p></li>
-<li><p><strong>05_ARCHIVE</strong> includes the report, in .Rmd and
-.pdf, created by Alice Assmar during the Living Data Program
+<li><p><strong>04_final_output</strong> contains the final, cleaned
+dataset <em>Trawl_data_FINAL_1977-1999.csv</em>. A data dictionary is
+provided in this folder to explain the variables.</p></li>
+<li><p><strong>05_ARCHIVE</strong> includes the report, in .Rmd and .pdf
+formats, created by Alice Assmar during the Living Data Program
 Internship.</p></li>
 <li><p><strong>06_Figures</strong> Contains all figures and tables
 created for inclusion in the final .html data dictionary file.</p></li>
-<li><p><strong>code</strong> is the former code folder that includes
-data conversion from .dat to .csv and to read .sas and .access
-files.</p></li>
-<li><p><strong>data</strong> is the former data folder including only
-original .dat files and lookup tables for lake names and trawl
-inventories.</p></li>
+<li><p><strong>code</strong> is the former code folder (from before
+Alice Assmar’s internship) that includes data conversion from .dat to
+.csv and to read .sas and .access files.</p></li>
+<li><p><strong>data</strong> is the former data folder (from before
+Alice Assmar’s internship) including only original .dat files and lookup
+tables for lake names and trawl inventories.</p></li>
 </ul>
 </div>
 <div id="how-to-use-the-codes" class="section level2">
 <h2>How to use the codes</h2>
 <ul>
-<li>The easiest way of using this pipeline is to open the
-<em>00_run_pipeline.R</em> code, located in the <em>01_code</em> folder
-using the <em>LDP_ATS_RESCUE.Rproj</em> and click run. This code will
-create all necessary folder, if applicable, and run all subsequent
+<li>The easiest way to use this pipeline is to open the
+<em>00_run_pipeline.R</em> code, located in the <em>01_code</em> folder,
+using the <em>LDP_ATS_RESCUE.Rproj</em> and click “run.” This code will
+create all necessary folders, if applicable, and run all subsequent
 scripts.
 <ul>
 <li>This pipeline starts by exporting .sas and .dat databases from
@@ -454,31 +462,31 @@ scripts.
 <li>Subsequently, it creates summary tables comparing the data from
 tables of the same year, but from different source files (.sas or
 .dat).</li>
-<li>Lastly, it assembles all .csv tables, cleans duplicates, export raw
+<li>Lastly, it assembles all .csv tables, cleans duplicates, exports raw
 combined tables to <em>02_intermediate_out</em>, flags invalid or
-mismatch information, export error tables to <em>03_errors_out</em> and
-export the final, cleaned table to the <em>04_final_output</em>
+mismatch information, exports error tables to <em>03_errors_out</em> and
+exports the final, cleaned table to the <em>04_final_output</em>
 folder.</li>
 </ul></li>
 <li>Another option is to run all scripts individually. This is
 advantageous if some of the steps have been previously completed because
 it will save you some time. Any of the following steps can be skipped or
-modified as needed. Please, guarantee that your working directory is set
+modified as needed. Please guarantee that your working directory is set
 to the <em>LDP_ATS_Rescue</em> folder.
 <ul>
-<li>Firstly, the original files should be converted to .csv tables to
+<li>Firstly, the original files should be converted to .csv format to
 facilitate downstream steps. Open the
 <em>Read_Trawl_data_from_SAS_datasets.R</em> code, located in the
-<em>01_code</em> folder using the <em>LDP_ATS_RESCUE.Rproj</em> and
-click run. It creates all necessary folders, if they are absent from the
-directory, and it exports all .sas files as .csv in the
+<em>01_code</em> folder, using the <em>LDP_ATS_RESCUE.Rproj</em> and
+click “run.” This code creates all necessary folders if they are absent
+from the directory, and it exports all .sas files as .csv to the
 <em>02_intermediate_out</em> folder.</li>
 <li>Run all six <em>Read_Trawl_data_from_DAT_datasets_YYYY.R</em>
 scripts in any order you judge appropriate. It converts the .dat files
-in the <em>00_raw_data</em> and save them in the
+in the <em>00_raw_data</em> and saves them in the
 <em>02_intermediate_out</em> folder.</li>
 <li>Run the <em>summary_table.R</em> script for the desired year
-comparison, by changing the name of the trawl file in the script.</li>
+comparison by changing the name of the trawl file in the script.</li>
 <li>Open the <em>Assemble_csv_dat_sas.R</em> script and run it. The
 final, cleaned dataframe is exported to the <em>04_final_output</em>
 folder.</li>
