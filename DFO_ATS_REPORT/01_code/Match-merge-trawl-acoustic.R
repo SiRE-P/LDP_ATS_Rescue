@@ -90,6 +90,10 @@ aggregate(cbind(survey_date, ats_year) ~ lake_code, data = Trawl_data, FUN = fun
 matched_data_trawl <- semi_join(Trawl_data, Acoustic_data, by = c("survey_date", "lake_name", "ats_year"))
 matched_data_acoustic <- semi_join(Acoustic_data, Trawl_data, by = c("survey_date", "lake_name", "ats_year"))
 
+# Check rows that did not match in each dataset 
+mismatched_data_trawl <- anti_join(Trawl_data, Acoustic_data, by = c("survey_date", "lake_name", "ats_year"))
+mismatched_data_acoustic <- anti_join(Acoustic_data, Trawl_data, by = c("survey_date", "lake_name", "ats_year"))
+
 # Check how many columns match allowing a fuzzy interval of 2 days
 # guarantee date are in date, not character
 Trawl_data_date <- Trawl_data %>%
@@ -148,24 +152,27 @@ unique_acoustic_data <- unique_acoustic_data %>%
 matches_survey_date_by_lake <- unique_Trawl_data %>%
   inner_join(unique_acoustic_data, by = c("lake_name", "ats_year", "lake_code"), suffix = c("_trawl", "_acoustic")) %>%
   mutate(date_diff = abs(as.numeric(survey_date_trawl - survey_date_acoustic))) %>%
-  filter(date_diff <= 2) %>%
-  mutate(match_status = TRUE)
+  filter(date_diff <= 2) %>% 
+  mutate(match_status = "MATCH")
 
 # Step 2: Unmatched df1 rows
 unmatched_df1 <- unique_Trawl_data %>%
   filter(!id_df1 %in% matches_survey_date_by_lake$id_df1) %>%
-  mutate(match_status = FALSE)
+  rename("survey_date_trawl" = survey_date) %>%
+  mutate(match_status = "MISMATCH")
 
 # Step 3: Unmatched df2 rows
 unmatched_df2 <- unique_acoustic_data %>%
   filter(!id_df2 %in% matches_survey_date_by_lake$id_df2) %>%
-  mutate(match_status = FALSE)
+  rename("survey_date_acoustic" = survey_date) %>%
+  mutate(match_status = "MISMATCH")
 
 # Step 4: Combine everything
 df_final_merged <- bind_rows(matches_survey_date_by_lake, unmatched_df1, unmatched_df2)
-  
+
+# Eliminate columns that are not needed
 df_final_merged <- df_final_merged %>%
-  select(-id_df1, -id_df2, -survey_date)
+  select(-id_df1, -id_df2, -date_diff)
 
 # Save final table in csv
 write.csv(df_final_merged, paste0(final_directory, "/", "unique_rows_match.csv"), row.names = FALSE)
