@@ -13,7 +13,7 @@ Trawl biosample data collected using trawling method, with net size usually of 2
 
 Note that both *.dat files and SAS files were used as input for this data recovery and data cleaning effort by Alice Assmar in 2025-2026. The *.dat files in 1977-1983 (and some 1984) are in a different format than the other *.dat files, and original data appears to have been overwritten in this other format. Therefore, SAS files were used in those years. These SAS files were originally derived from the original *.dat files, which have since been lost for those years.
 
-After 1983, and until 1999, both format of files were available (except for a few corrupted SAS files), and where there were conflicts between the two, the *.dat values were used.
+After 1983, and until 1999, both format of files were available, and where there were conflicts between the two, the *.dat values were used.
 
 The *.dat files did not have header names as part of the data; these were added when the data were read into R, and an intermediate file *.csv file was created;
 
@@ -45,11 +45,11 @@ orig_start_time: Standardized start time of the trawl sampling rescued from SAS 
 
 orig_end_time: Standardized end time of the trawl sampling rescued from SAS and *.dat files. The format is "HH:MM:SS". All values are local time in Pacific Time (UTC−08 or UTC-07 depending on year and time of year). Records with invalid formats were corrected, when possible, or replaced by NAs, and these issues are flagged in the "data_issues" column as invalid_end_time. Raw column, with flagging of any changes that were made to the raw data.
 
-calc_end_time: Standardized calculated end time of the trawl sampling. This column contains end times calculated from the provided orig_start_time and orig_duration_minutes. The format is "HH:MM:SS". All values are local time in Pacific Time (UTC−08 or UTC-07 depending on year and time of year). In total, 79,012 calculated end times were estimated when no orig_end_time was in the dataset. These modifications were flagged in the “data_issues” column as calc_end_time_comment. Synthetic column.
+calc_end_time: Standardized calculated end time of the trawl sampling. This column contains end times calculated from the provided orig_start_time and orig_duration_minutes. The format is "HH:MM:SS". All values are local time in Pacific Time (UTC−08 or UTC-07 depending on year and time of year). In total, 80,921 calculated end times were estimated when no orig_end_time was in the dataset. These modifications were flagged in the “data_issues” column as calc_end_time_comment. Synthetic column.
 
 orig_duration_minutes: Duration of the trawl sampling in minutes. This variable represents the duration of each trawl event. The expected value range is 0–60 minutes, with most observations near 15 minutes. Values exceeding 60 minutes were flagged in the invalid_duration_time section of the data_issues column as “Greater than 60 min, likely error”. Extreme values (e.g. 365 and 535) were set to NA. Raw column, with flagging of any changes that were made to the raw data.
 
-calc_duration_time: Standardized calculated duration time of the trawl sampling. This column contains duration times calculated from the start time and end time in the original dataset. Times are reported in minutes. In total, 3,555 entries do not match original duration (orig_duration_minutes), likely error in orig_end_time column, and 0 missing duration-time values were replaced with calculated duration times. Mismatches are flagged in the duration_comment section of the data_issues column. Synthetic column.
+calc_duration_time: Standardized calculated duration time of the trawl sampling. This column contains duration times calculated from the start time and end time in the original dataset. Times are reported in minutes. In total, 3,516 entries do not match original duration (orig_duration_minutes), likely error in orig_end_time column, and 0 missing duration-time values were replaced with calculated duration times. Mismatches are flagged in the duration_comment section of the data_issues column. Synthetic column.
 
 fish_class_count: Integer identifying an individual fish within a sample record (formerly called fish_id), based on its order of appearance, and often based on its category, as in the example from Kennedy Lake (Clay) on April 3, 1985, from the 2nd trawl.
 
@@ -74,11 +74,10 @@ Raw column.
 
 calc_std_weight_g: This value is a re-estimate of the imported “orig_std_weight_g” value, calculated using the observed weight, fish_weight_g, and the weight conversion formula based on the preservative in which the specimen was stored, according to the preservative_code.
 Weights are reported in grams.
-34 values differ from the original given standardized weight (orig_std_weight_g), indicating potential inconsistencies in the original column.
+44 values differ from the original given standardized weight (orig_std_weight_g), indicating potential inconsistencies in the original column.
 These were flagged in the data_issues column as a std_weight_g_comment.
 Weight conversion formulas can be found in the look up table 00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table.
-A total of 31,639 calc_std_weight_g values were recalculated and are available where orig_std_weight_g was missing.
-A total of 29,828 standardized weights could not be calculated because the preservative information was missing.
+A total of 29,875 standardized weights could not be calculated because the preservative information was missing.
 They were flagged in the "data_validation_comments" column as a std_weight_g_comment.
 Synthetic column.
 

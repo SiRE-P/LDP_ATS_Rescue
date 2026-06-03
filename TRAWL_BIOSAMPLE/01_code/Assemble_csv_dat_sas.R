@@ -48,32 +48,38 @@ final_directory <- "./TRAWL_BIOSAMPLE/04_final_output/"
   Trawl_82     <- read.csv(paste0(working_directory, "trawl82_SAS.csv"))
   Trawl_83     <- read.csv(paste0(working_directory, "trawl83_SAS.csv"))
   Trawl_84_sas <- read.csv(paste0(working_directory, "trawl84_SAS.csv"))
+  Trawl_85_sas <- read.csv(paste0(working_directory, "trawl85_SAS.csv"))
+  Trawl_86_sas <- read.csv(paste0(working_directory, "trawl86_SAS.csv"))
+  Trawl_87_sas <- read.csv(paste0(working_directory, "trawl87_SAS.csv"))
   Trawl_88_sas <- read.csv(paste0(working_directory, "trawl88_SAS.csv"))
   Trawl_89_sas <- read.csv(paste0(working_directory, "trawl89_SAS.csv"))
   Trawl_90_sas <- read.csv(paste0(working_directory, "trawl90_SAS.csv"))
   Trawl_91_sas <- read.csv(paste0(working_directory, "trawl91_SAS.csv"))
   Trawl_92_sas <- read.csv(paste0(working_directory, "trawl92_SAS.csv"))
   Trawl_93_sas <- read.csv(paste0(working_directory, "trawl93_SAS.csv"))
+  Trawl_94_sas <- read.csv(paste0(working_directory, "trawl94_SAS.csv"))
   Trawl_95_sas <- read.csv(paste0(working_directory, "trawl95_SAS.csv"))
   Trawl_96_sas <- read.csv(paste0(working_directory, "trawl96_SAS.csv"))
+  Trawl_97_sas <- read.csv(paste0(working_directory, "trawl97_SAS.csv"))
+  Trawl_98_sas <- read.csv(paste0(working_directory, "trawl98_SAS.csv"))
 }
 # read csv from dat files
 {
   Trawl_84_dat <- read.csv(paste0(working_directory, "trawl84_DAT.csv"))
-  Trawl_85     <- read.csv(paste0(working_directory, "trawl85_DAT.csv"))
-  Trawl_86     <- read.csv(paste0(working_directory, "trawl86_DAT.csv"))
-  Trawl_87     <- read.csv(paste0(working_directory, "trawl87_DAT.csv"))
+  Trawl_85_dat <- read.csv(paste0(working_directory, "trawl85_DAT.csv"))
+  Trawl_86_dat <- read.csv(paste0(working_directory, "trawl86_DAT.csv"))
+  Trawl_87_dat <- read.csv(paste0(working_directory, "trawl87_DAT.csv"))
   Trawl_88_dat <- read.csv(paste0(working_directory, "trawl88_DAT.csv"))
   Trawl_89_dat <- read.csv(paste0(working_directory, "trawl89_DAT.csv"))
   Trawl_90_dat <- read.csv(paste0(working_directory, "trawl90_DAT.csv"))
   Trawl_91_dat <- read.csv(paste0(working_directory, "TRAWL91_DAT.csv"))
   Trawl_92_dat <- read.csv(paste0(working_directory, "TRAWL92_DAT.csv"))
   Trawl_93_dat <- read.csv(paste0(working_directory, "TRAWL93_DAT.csv"))
-  Trawl_94     <- read.csv(paste0(working_directory, "TRAWL94_DAT.csv"))
+  Trawl_94_dat <- read.csv(paste0(working_directory, "TRAWL94_DAT.csv"))
   Trawl_95_dat <- read.csv(paste0(working_directory, "TRAWL95_DAT.csv"))
   Trawl_96_dat <- read.csv(paste0(working_directory, "TRAWL96_DAT.csv"))
-  Trawl_97     <- read.csv(paste0(working_directory, "TRAWL97_DAT.csv"))
-  Trawl_98     <- read.csv(paste0(working_directory, "TRAWL98_DAT.csv"))
+  Trawl_97_dat <- read.csv(paste0(working_directory, "TRAWL97_DAT.csv"))
+  Trawl_98_dat <- read.csv(paste0(working_directory, "TRAWL98_DAT.csv"))
   Trawl_99     <- read.csv(paste0(working_directory, "TRAWL99_DAT.csv"))
 }
 
@@ -145,14 +151,20 @@ Trawl_96_dat <- Trawl_96_dat %>%
   names(Trawl_82)[names(Trawl_82) == "scale_book"] <- "sas_scale_book"
   names(Trawl_83)[names(Trawl_83) == "scale_book"] <- "sas_scale_book"
   names(Trawl_84_sas)[names(Trawl_84_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_85_sas)[names(Trawl_85_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_86_sas)[names(Trawl_86_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_87_sas)[names(Trawl_87_sas) == "scale_book"] <- "sas_scale_book"
   names(Trawl_88_sas)[names(Trawl_88_sas) == "scale_book"] <- "sas_scale_book"
   names(Trawl_89_sas)[names(Trawl_89_sas) == "scale_book"] <- "sas_scale_book"
   names(Trawl_90_sas)[names(Trawl_90_sas) == "scale_book"] <- "sas_scale_book"
   names(Trawl_91_sas)[names(Trawl_91_sas) == "scale_book"] <- "sas_scale_book"
   names(Trawl_92_sas)[names(Trawl_92_sas) == "scale_book"] <- "sas_scale_book"
   names(Trawl_93_sas)[names(Trawl_93_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_94_sas)[names(Trawl_94_sas) == "scale_book"] <- "sas_scale_book"
   names(Trawl_95_sas)[names(Trawl_95_sas) == "scale_book"] <- "sas_scale_book"
   names(Trawl_96_sas)[names(Trawl_96_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_97_sas)[names(Trawl_97_sas) == "scale_book"] <- "sas_scale_book"
+  names(Trawl_98_sas)[names(Trawl_98_sas) == "scale_book"] <- "sas_scale_book"
 }
 
 # Change "scale" column to "sas_scale"
@@ -166,14 +178,20 @@ Trawl_96_dat <- Trawl_96_dat %>%
   names(Trawl_82)[names(Trawl_82) == "scale"] <- "sas_scale"
   names(Trawl_83)[names(Trawl_83) == "scale"] <- "sas_scale"
   names(Trawl_84_sas)[names(Trawl_84_sas) == "scale"] <- "sas_scale"
+  names(Trawl_85_sas)[names(Trawl_85_sas) == "scale"] <- "sas_scale"
+  names(Trawl_86_sas)[names(Trawl_86_sas) == "scale"] <- "sas_scale"
+  names(Trawl_87_sas)[names(Trawl_87_sas) == "scale"] <- "sas_scale"
   names(Trawl_88_sas)[names(Trawl_88_sas) == "scale"] <- "sas_scale"
   names(Trawl_89_sas)[names(Trawl_89_sas) == "scale"] <- "sas_scale"
   names(Trawl_90_sas)[names(Trawl_90_sas) == "scale"] <- "sas_scale"
   names(Trawl_91_sas)[names(Trawl_91_sas) == "scale"] <- "sas_scale"
   names(Trawl_92_sas)[names(Trawl_92_sas) == "scale"] <- "sas_scale"
   names(Trawl_93_sas)[names(Trawl_93_sas) == "scale"] <- "sas_scale"
+  names(Trawl_94_sas)[names(Trawl_94_sas) == "scale"] <- "sas_scale"
   names(Trawl_95_sas)[names(Trawl_95_sas) == "scale"] <- "sas_scale"
   names(Trawl_96_sas)[names(Trawl_96_sas) == "scale"] <- "sas_scale"
+  names(Trawl_97_sas)[names(Trawl_97_sas) == "scale"] <- "sas_scale"
+  names(Trawl_98_sas)[names(Trawl_98_sas) == "scale"] <- "sas_scale"
 }
 
 ################### full join to keep all columns and rows #########################
@@ -182,6 +200,38 @@ Trawl_96_dat <- Trawl_96_dat %>%
 
 # combining several columns
 Trawl_84 <- joyn::full_join(Trawl_84_dat, Trawl_84_sas, suffix = c(".dat", ".sas"),
+                            by = c("process_date", "trawl_date", "fish_total",
+                                   "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
+                                   "trawl_number", "processor", "lake_code", "lake_name", "age",
+                                   "preservative_code", "duration_mi", "depth_m", "fish_id",
+                                   "fish_description", "preservative_description", "weight_conversion_formula",
+                                   "sample_number", "fish_weight_g", "aging_technique_name",
+                                   "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+
+# combining several columns Trawl_85
+Trawl_85 <- joyn::full_join(Trawl_85_dat, Trawl_85_sas, suffix = c(".dat", ".sas"),
+                            by = c("process_date", "trawl_date", "fish_total",
+                                   "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
+                                   "trawl_number", "processor", "lake_code", "lake_name", "age",
+                                   "preservative_code", "duration_mi", "depth_m", "fish_id",
+                                   "fish_description", "preservative_description", "weight_conversion_formula",
+                                   "sample_number", "fish_weight_g", "aging_technique_name",
+                                   "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+
+# combining several columns Trawl_86
+Trawl_86 <- joyn::full_join(Trawl_86_dat, Trawl_86_sas, suffix = c(".dat", ".sas"),
+                            by = c("process_date", "trawl_date", "fish_total",
+                                   "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
+                                   "trawl_number", "processor", "lake_code", "lake_name", "age",
+                                   "preservative_code", "duration_mi", "depth_m", "fish_id",
+                                   "fish_description", "preservative_description", "weight_conversion_formula",
+                                   "sample_number", "fish_weight_g", "aging_technique_name",
+                                   "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+
+# combining several columns Trawl_87
+# Remove exact duplicates
+Trawl_87_sas <- Trawl_87_sas[!duplicated(Trawl_87_sas$fish_unique_ID), ]
+Trawl_87 <- joyn::full_join(Trawl_87_dat, Trawl_87_sas, suffix = c(".dat", ".sas"),
                             by = c("process_date", "trawl_date", "fish_total",
                                    "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
                                    "trawl_number", "processor", "lake_code", "lake_name", "age",
@@ -251,6 +301,16 @@ Trawl_93 <- joyn::full_join(Trawl_93_dat, Trawl_93_sas, suffix = c(".dat", ".sas
                              "sample_number", "fish_weight_g", "aging_technique_name",
                              "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
 
+#Trawl_94 <- joyn::full_join(Trawl_94_sas, Trawl_94_dat,  suffix = c(".sas", ".dat"),
+Trawl_94 <- joyn::full_join(Trawl_94_dat, Trawl_94_sas, suffix = c(".dat", ".sas"),
+                            by = c("process_date", "trawl_date", "fish_total",
+                                   "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
+                                   "trawl_number", "processor", "lake_code", "lake_name", "age",
+                                   "preservative_code", "duration_mi", "depth_m", "fish_id",
+                                   "fish_description", "preservative_description", "weight_conversion_formula",
+                                   "sample_number", "fish_weight_g", "aging_technique_name",
+                                   "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+
 # Remove duplicates
 Trawl_95_dat <- Trawl_95_dat[!duplicated(Trawl_95_dat$fish_unique_ID), ]
 #Trawl_95_rows <- joyn::full_join(Trawl_95_sas, Trawl_95_dat,  suffix = c(".sas", ".dat"),
@@ -277,6 +337,26 @@ Trawl_96 <- joyn::full_join(Trawl_96_dat, Trawl_96_sas, suffix = c(".dat", ".sas
                              "fish_description", "preservative_description", "weight_conversion_formula",
                              "sample_number", "fish_weight_g", "aging_technique_name",
                              "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+
+#Trawl_97 <- joyn::full_join(Trawl_97_sas, Trawl_97_dat,  suffix = c(".sas", ".dat"),
+Trawl_97 <- joyn::full_join(Trawl_97_dat, Trawl_97_sas, suffix = c(".dat", ".sas"),
+                            by = c("process_date", "trawl_date", "fish_total",
+                                   "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
+                                   "trawl_number", "processor", "lake_code", "lake_name", "age",
+                                   "preservative_code", "duration_mi", "depth_m", "fish_id",
+                                   "fish_description", "preservative_description", "weight_conversion_formula",
+                                   "sample_number", "fish_weight_g", "aging_technique_name",
+                                   "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
+
+#Trawl_98 <- joyn::full_join(Trawl_98_sas, Trawl_98_dat,  suffix = c(".sas", ".dat"),
+Trawl_98 <- joyn::full_join(Trawl_98_dat, Trawl_98_sas, suffix = c(".dat", ".sas"),
+                            by = c("process_date", "trawl_date", "fish_total",
+                                   "fish_length_mm", "trawl_unique_ID", "fish_unique_ID", "species_code",
+                                   "trawl_number", "processor", "lake_code", "lake_name", "age",
+                                   "preservative_code", "duration_mi", "depth_m", "fish_id",
+                                   "fish_description", "preservative_description", "weight_conversion_formula",
+                                   "sample_number", "fish_weight_g", "aging_technique_name",
+                                   "aging_technique", "trawl_month", "ats_year", "program_notes", "species_code_comment"))
 
 
 # Identify vectors to remove all unnecessary vectors using a pattern
@@ -519,11 +599,12 @@ df_final_chk_time <- df_final %>%
   mutate(across(c(start_time.dat, end_time.dat, start_time.sas, end_time.sas, start_time, end_time), 
                 ~ str_replace_all(.x, pattern = "^24", replacement = "00"))) %>%
   mutate(across(c(start_time.sas, end_time.sas), 
-                ~ str_replace_all(.x, pattern = ".\\d{5}$", replacement = "")))
+                ~ str_replace_all(.x, pattern = ".\\d{5}$", replacement = ""))) %>%
+  mutate(start_time.sas = str_squish(start_time.sas))
 
 ## Before combining columns, flag the ones with errors and correct them
 # Define the regex pattern for HH:MM:SS format
-time_pattern <- "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
+time_pattern <- "^([01]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
 
 # Use grepl() to create a logical vector indicating valid formats in .dat time
 is_valid_dat <- ifelse(is.na(df_final_chk_time$start_time.dat), NA, grepl(time_pattern, df_final_chk_time$start_time.dat))
@@ -546,6 +627,9 @@ start_time_errors <- df_final_chk_time[!is.na(df_final_chk_time$invalid_start_ti
 write.csv(start_time_errors, paste0(error_directory, "/start_time_errors.csv"), row.names = FALSE)
 
 ## Flagging errors in the end time
+df_final_chk_time <- df_final_chk_time %>%
+  mutate(end_time.sas = str_squish(end_time.sas))
+
 # Use grepl() to create a logical vector indicating valid formats
 is_valid_end_time_dat <- ifelse(is.na(df_final_chk_time$end_time.dat), NA, grepl(time_pattern, df_final_chk_time$end_time.dat))
 is_valid_end_time_sas <- ifelse(is.na(df_final_chk_time$end_time.sas), NA, grepl(time_pattern, df_final_chk_time$end_time.sas))
@@ -568,6 +652,8 @@ write.csv(end_time_errors, paste0(error_directory, "/end_time_errors.csv"), row.
 
 # Manually fix some of the errors identified
 #  everything with 0203 - fish_unique_ID == 1997-09-17_69_9_15_7_1_1.35_49
+#df_final_flag_time[df_final_flag_time$fish_unique_ID == "1997-09-17_69_9_15_7_1_1.35_49", ]
+
 df_final_flag_time <- df_final_flag_time %>%
   mutate(
     end_time = ifelse(duration_mi == "0203", "02:03:00", end_time),
@@ -577,7 +663,7 @@ df_final_flag_time <- df_final_flag_time %>%
 
 # Summary of start_time with wrong format    
 df_final_flag_time %>%
-  filter(invalid_start_time == "Invalid format") %>%
+  #filter(invalid_start_time == "Invalid format") %>%
   group_by(start_time, start_time.sas, start_time.dat) %>%
   summarise(count = n()) -> summary_table_time
 
@@ -588,11 +674,11 @@ replacement_pattern <- c("08:65:00" = NA_character_,
                          "15:92:00" = NA_character_,
                          "21:89:00" = NA_character_)
 df_final_raw <- df_final_flag_time %>%
-  mutate(start_time = str_replace_all(start_time, replacement_pattern)) 
+  mutate(start_time.dat = str_replace_all(start_time.dat, replacement_pattern)) 
 
 # start_time.sas column substitution patterns
 replacement_pattern <- c("99:40:13" = NA_character_, "100:38:24" = NA_character_)
-df_final_raw <- df_final_raw %>%
+df_final_raw <- df_final_flag_time %>%
   mutate(start_time.sas = str_replace_all(start_time.sas, replacement_pattern)) 
 
 # start_time.dat column substitution patterns
@@ -610,10 +696,16 @@ df_final_raw <- df_final_raw %>%
   select(-start_time.dat, -start_time.sas, -start_time_combined) 
 
 # First clean invalid format. Combine end_time.dat and end_time.sas, prioritizing values for the .dat column when both are present
+# Summary of end_time with wrong format    
+df_final_raw %>%
+  filter(invalid_end_time == "Invalid format") %>%
+  group_by(end_time, end_time.sas, end_time.dat, source_files) %>%
+  summarise(count = n()) -> summary_table_time
+
 # Then combine everything in the end_time column and delete unnecessary columns
 replacement_pattern <- c("NA:NA:00" = NA_character_)
 df_final_raw <- df_final_raw %>%
-  mutate(end_time = str_replace_all(end_time, replacement_pattern)) 
+  mutate(end_time.dat = str_replace_all(end_time, replacement_pattern)) 
 
 df_final_raw$end_time_combined <- coalesce(df_final_raw$end_time.dat, df_final_raw$end_time.sas)
 df_final_raw$end_time_combined <- trimws(df_final_raw$end_time_combined)
@@ -839,6 +931,8 @@ df_final_calc_duration <- df_final_clean_species %>%
                 ~ str_replace_all(.x, pattern = "^00", replacement = "24")))
 
 # Make sure all rows have the same format
+# Make sure the package hms is not loaded:
+#detach("package:hms", unload = TRUE)
 df_final_calc_duration <- df_final_calc_duration %>%
   mutate(start_t = hms(start_time),
          end_t  = hms(end_time)) %>%
@@ -883,6 +977,7 @@ write.csv(duration_mismatch, paste0(error_directory, "/duration_mismatch.csv"), 
 duration_mi_lookup_table_corrections <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/03_AA_look_up_tables/fix_trawl_times.csv")
 
 # Use the lookup table to correct the values in the final dataset
+library(hms)
 df_final_calc_duration <- df_final_calc_duration %>%
   dplyr::left_join(duration_mi_lookup_table_corrections, by = c("trawl_unique_ID", "calc_duration_time")) %>%
   # Replacement commands for start_time and end_time columns
@@ -892,8 +987,10 @@ df_final_calc_duration <- df_final_calc_duration %>%
                               TRUE ~ end_time)) %>%
   # Flag changes in the comment column
   unite(duration_comment, duration_comment, comments_start_end_times, sep = "; ", na.rm = TRUE) %>%
-  select(-new_start_time, -old_start_time, -old_end_time, -new_end_time, -start_t, -end_t)
+  mutate(end_time = round_hms(as_hms(end_time), 60)) %>%
+  select(-new_start_time, -old_start_time, -old_end_time, -new_end_time)
 
+detach("package:hms", unload = TRUE)
 # Include additional comments and corrections performed in duration_mi column
 df_final_calc_duration <- df_final_calc_duration %>%
   mutate(duration_comment2 = ifelse(fish_unique_ID == "1986-08-30_3_1_0_2_1_4.11_65", 
@@ -919,6 +1016,9 @@ df_final_calc_duration <- df_final_calc_duration %>%
                                               (as.numeric(end_t) - as.numeric(start_t)) / 60), NA_real_)) %>%
   mutate(calc_duration_time = round(calc_duration_time, 1))
 
+df_final_calc_duration %>%
+  group_by( start_time, end_time,duration_mi, calc_duration_time, duration_comment, invalid_start_time) %>%
+  summarise(count = n()) -> summary_table_time
 
 ## calculate missing end_time values in anew column
 df_final_calc_end <- df_final_calc_duration %>%
@@ -1280,7 +1380,6 @@ final_dataframe <- final_dataframe %>%
                                 TRUE ~ start_time),
          end_time = case_when(trawl_unique_ID == "1984-06-28_44_2_9" ~ "23:06:00",
                                 TRUE ~ end_time),
-         start_time = round_hms(as_hms(start_time), 60),
          start_end_time_comment = case_when(trawl_unique_ID == "1988-07-31_29_6_0" ~ "orig_start_time inferred from interval between previous and next trawl",
                                         trawl_unique_ID == "1992-08-12_22_2_28" ~ "orig_start_time inferred from interval between previous and next trawl",
                                         trawl_unique_ID == "1992-08-12_22_3_32" ~ "orig_start_time inferred from interval between previous and next trawl",

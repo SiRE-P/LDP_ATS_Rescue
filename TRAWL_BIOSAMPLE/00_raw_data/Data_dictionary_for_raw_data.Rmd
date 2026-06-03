@@ -163,15 +163,6 @@ column17: processor (Observer code)
 -   Because some of the SAS files are corrupted (see below), and because the SAS datasets are synthetic and derived from the original Apple Computer \*.dat files, the data in the \*.dat from the Apple \*.dat files were given preference when both were available:\
     -   Years: 1984, 1988, 1989, 1990, 1991, 1992, 1993, 1995, 1996.
 
--   The following are corrupted SAS files, because their metadata have some
-    structural problem:\
-    -   trlinf85.sas7bdat
-    -   trlinf86.sas7bdat
-    -   trlinf87.sas7bdat
-    -   trlinf94.sas7bdat
-    -   trlinf97.sas7bdat
-    -   trlinf98.sas7bdat\
-
 ### 03_AA_look_up_tables
 
 Contains five .csv lookup and correction tables developed or modified during Alice Assmar’s internship. These tables include information on fish species common names, preservative code formulas, calculated standardized weights, and corrections applied to trawl times and fish length and weight measurements. These reference tables were created to standardize and validate the data by linking coded variables in the dataset to additional descriptive information not originally available in the source databases.

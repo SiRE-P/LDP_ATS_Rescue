@@ -35,7 +35,7 @@ The \*.dat files in 1977-1983 (and some 1984) are in a different format than the
 Therefore, SAS files were used in those years.
 These SAS files were originally derived from the original \*.dat files, which have since been lost for those years.
 
-After 1983, and until 1999, both format of files were available (except for a few corrupted SAS files), and where there were conflicts between the two, the \*.dat values were used.
+After 1983, and until 1999, both format of files were available, and where there were conflicts between the two, the \*.dat values were used.
 
 The \*.dat files did not have header names as part of the data; these were added when the data were read into R, and an intermediate file \*.csv file was created;
 
@@ -113,7 +113,7 @@ Raw column, with flagging of any changes that were made to the raw data.
 This column contains end times calculated from the provided orig_start_time and orig_duration_minutes.
 The format is "HH:MM:SS".
 All values are local time in Pacific Time (UTC−08 or UTC-07 depending on year and time of year).
-In total, 79,012 calculated end times were estimated when no orig_end_time was in the dataset.
+In total, 80,921 calculated end times were estimated when no orig_end_time was in the dataset.
 These modifications were flagged in the “data_issues” column as calc_end_time_comment.
 Synthetic column.
 
@@ -127,7 +127,7 @@ Raw column, with flagging of any changes that were made to the raw data.
 **calc_duration_time:** Standardized calculated duration time of the trawl sampling.
 This column contains duration times calculated from the start time and end time in the original dataset.
 Times are reported in minutes.
-In total, 3,555 entries do not match original duration (orig_duration_minutes), likely error in orig_end_time column, and 0 missing duration-time values were replaced with calculated duration times.
+In total, 3,516 entries do not match original duration (orig_duration_minutes), likely error in orig_end_time column, and 0 missing duration-time values were replaced with calculated duration times.
 Mismatches are flagged in the duration_comment section of the data_issues column.
 Synthetic column.
 
@@ -175,11 +175,10 @@ Raw column.
 
 **calc_std_weight_g:** This value is a re-estimate of the imported “orig_std_weight_g” value, calculated using the observed weight, fish_weight_g, and the weight conversion formula based on the preservative in which the specimen was stored, according to the preservative_code.
 Weights are reported in grams.
-34 values differ from the original given standardized weight (orig_std_weight_g), indicating potential inconsistencies in the original column.
+44 values differ from the original given standardized weight (orig_std_weight_g), indicating potential inconsistencies in the original column.
 These were flagged in the data_issues column as a std_weight_g_comment.
 Weight conversion formulas can be found in the look up table *00_raw_data/03_AA_look_up_tables/AA_DFO_preservative_code_lookup_table*.
-A total of 31,639 calc_std_weight_g values were recalculated and are available where orig_std_weight_g was missing.
-A total of 29,828 standardized weights could not be calculated because the preservative information was missing.
+A total of 29,875 standardized weights could not be calculated because the preservative information was missing.
 They were flagged in the "data_validation_comments" column as a std_weight_g_comment.
 Synthetic column.
 
@@ -367,9 +366,9 @@ Synthetic column.\
 -   Some duplicated rows remain in the final dataset. These records can be verified in detail in the duplicated_df_trawl.csv table. *n = 56*.
 -   There are 146 records without common fish species names. These records can be also found in detail in the *03_errors_out/no_species_record_rows.csv* table.
 -   Codes 9 or 99 usually represent "unknown" data, except for "preservative_code" column, which used codes 9 and 98 instead, to indicate unknowns. All of these were replaced by NAs in the final dataset.
--   In total, 2,029 and 928 invalid formats were detected in the orig_start_time and orig_end_time columns, respectively, and flagged in the "data_issue" column. They can be also found in the errors tables (*03_errors_out/orig_end_time_errors.csv* and *03_errors_out/orig_start_time_errors.csv*). They were replaced by NAs in the final dataset.
+-   In total, 1,994 and 909 invalid formats were detected in the orig_start_time and orig_end_time columns, respectively, and flagged in the "data_issue" column. They can be also found in the errors tables (*03_errors_out/orig_end_time_errors.csv* and *03_errors_out/orig_start_time_errors.csv*). They were replaced by NAs in the final dataset.
 -   351 preservative descriptions information that were nested in the trawl_comment column were transferred to the preservative_description column. They were located using the grep command using the pattern "ethanol".
--   In total, 2,163 invalid formats were detected in the orig_duration_minutes column and flagged in the "data_issues" column.
+-   In total, 2,156 invalid formats were detected in the orig_duration_minutes column and flagged in the "data_issues" column.
 -   Seine information nested in the trawl_comment column was copied to the gear_type column using the grep command to search for the pattern "sein".
 -   The original "species_code" was renamed as "species_info_code" and included species and life stage information. The new "species_code" column is a standardization of codes to reflect only the species name. Detailed information can be found in the *AA_fish_scientific_name_lookup.csv* look up table, located at *00_raw_data/03_AA_look_up_tables*.
 -   Kokanee corresponded to species_info_code 32 in the dataset. This code does not exist in original look up tables, only code 25 existed for this species (*00_raw_data/04_YS_look_up_tables/fish_species_code_lookup_table.csv*); therefore, code 32 was included in a new look up table as unknown life stage of Kokanee (*00_raw_data/03_AA_look_up_tables/AA_fish_scientific_name_lookup.csv*). Note that in some lakes, juvenile kokanee are present but cannot be distinguished from juvenile Sockeye; kokanee may therefore have been misattributed as Sockeye. The analyst should check available information for the possible presence of kokanee in specific lakes. Kokanee and Sockeye would not have been distinguished by means of DNA analysis at that time.

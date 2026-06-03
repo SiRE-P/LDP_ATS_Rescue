@@ -57,13 +57,13 @@ intermediate_out_folder <- "./TRAWL_BIOSAMPLE/02_intermediate_out"
 files <- list.files(data_folder, pattern = name_pattern, full.names = TRUE)
 
 # Remove corrupted files, because their metadata have some structural problem
-remove_yy <- c("trawl85.sas7bdat", 
-               "trawl86.sas7bdat",
-               "trawl87.sas7bdat",
-               "trawl94.sas7bdat",
-               "trawl97.sas7bdat", 
-               "trawl98.sas7bdat")
-files <- files[!basename(files) %in% remove_yy]
+#remove_yy <- c("trawl85.sas7bdat", 
+#               "trawl86.sas7bdat",
+#               "trawl87.sas7bdat",
+#               "trawl94.sas7bdat",
+#               "trawl97.sas7bdat", 
+#               "trawl98.sas7bdat")
+#files <- files[!basename(files) %in% remove_yy]
 
 cat("Found", length(files), "files:\n")
 print(files)
