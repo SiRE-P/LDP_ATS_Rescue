@@ -1,7 +1,7 @@
 # extract transect lengths Jn19-26.R
-    # code to extract transect lengths; 
-    # do this before running "Acoustic Target Data Cleanup.R"
-    # Author: Athena
+    # code to extract transect lengths; do this before running "Acoustic Target Data Cleanup.R"
+    # note that the user has to change the name of the output of "lake_strata_lengths.csv" if they need 
+    # to generate the file to be read by "Acoustic Target Data Cleanup.R"
 
 library(tidyverse)
 library(readr) # for write_csv()
