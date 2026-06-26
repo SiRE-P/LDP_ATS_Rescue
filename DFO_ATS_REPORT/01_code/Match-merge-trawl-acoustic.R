@@ -211,16 +211,19 @@ df_final_merged <- df_final_merged %>%
          survey_date_acoustic, source_file, match_status_acoustic, overlap_status_acoustic, count_acoustic_survey, 
          -id_trawl, -id_acoustic, -date_diff)
 
-# Remove NAs that were added to the rows
+# Remove NAs that were added to the rows 
 replacement_pattern <- c("NA, " = "", ", NA" = "")
 df_final_merged$source_file <- str_replace_all(df_final_merged$source_file, replacement_pattern)
 
-# Include a comment for the records after the 2000s
+# Include a comment for the records after the 2000s and clean the names of the lakes
 df_final_merged <- df_final_merged %>%
   mutate(data_note = ifelse(ats_year >= 2000, "Trawl data yet to be rescued", "Trawl data rescued"))
 
+df_final_merged_clean <- df_final_merged
+df_final_merged_clean$lake_name <- gsub("_", " ", df_final_merged_clean$lake_name)
+
 # Save final table in csv
-write.csv(df_final_merged, paste0(final_directory, "/", "FINAL_2days_match_trawl_and_acoustic.csv"), row.names = FALSE)
+write.csv(df_final_merged_clean, paste0(final_directory, "/", "FINAL_2days_match_trawl_and_acoustic.csv"), row.names = FALSE)
 
 
 ###
@@ -317,9 +320,11 @@ df_final_merged_interval7 <- df_final_merged_interval7 %>%
          survey_date_acoustic, source_file, match_status_acoustic, overlap_status_acoustic, count_acoustic_survey, 
          -id_trawl, -id_acoustic, -date_diff)
 
-# Remove NAs that were added to the rows
+# Remove NAs that were added to the rows and clean the names of the lakes
 replacement_pattern <- c("NA, " = "", ", NA" = "")
 df_final_merged_interval7$source_file <- str_replace_all(df_final_merged_interval7$source_file, replacement_pattern)
+
+df_final_merged_interval7$lake_name <- gsub("_", " ", df_final_merged_interval7$lake_name)
 
 # Include a comment for the records after the 2000s
 df_final_merged_interval7 <- df_final_merged_interval7 %>%
@@ -424,9 +429,11 @@ df_final_merged_interval15 <- df_final_merged_interval15 %>%
          survey_date_acoustic, source_file, match_status_acoustic, overlap_status_acoustic, count_acoustic_survey, 
          -id_trawl, -id_acoustic, -date_diff)
 
-# Remove NAs that were added to the rows
+# Remove NAs that were added to the rows and clean the names of the lakes
 replacement_pattern <- c("NA, " = "", ", NA" = "")
 df_final_merged_interval15$source_file <- str_replace_all(df_final_merged_interval15$source_file, replacement_pattern)
+
+df_final_merged_interval15$lake_name <- gsub("_", " ", df_final_merged_interval15$lake_name)
 
 # Include a comment for the records after the 2000s
 df_final_merged_interval15 <- df_final_merged_interval15 %>%
@@ -514,13 +521,15 @@ df_final_merged_inventory <- df_final_merged_inventory %>%
                                        match_status_acoustic == "MATCH" & match_status_inventory == "MISMATCH" ~ "Match ACOUSTIC",
                                        match_status_acoustic == "MISMATCH" & match_status_inventory == "MATCH" ~ "Match INVENTORY",
                                  TRUE ~ "MISMATCH")) %>%
-  select(-date_diff_inventory, -id_inventory, -count_acoustic_survey)
+  select(-date_diff_inventory, -id_inventory, -count_acoustic_survey, -id_general)
 
-# Remove NAs that were added to the rows
+# Remove NAs that were added to the rows and clean the names of the lakes
 replacement_pattern <- c("NA, NA, " = "", 	
                          "NA, " = "",
                          ", NA" = "")
 df_final_merged_inventory$source_file <- str_replace_all(df_final_merged_inventory$source_file, replacement_pattern)
+
+df_final_merged_inventory$lake_name <- gsub("_", " ", df_final_merged_inventory$lake_name)
 
 # Save final table in csv
 write.csv(df_final_merged_inventory, paste0(final_directory, "/", "FINAL_2days_match_trawl_acoustic_inventory.csv"), row.names = FALSE)
@@ -582,12 +591,14 @@ unmatched_df2_transect <- unique_acoustic_data_transect %>%
 # Combine everything
 df_final_merged_transect <- bind_rows(matches_survey_date_by_lake_transect, unmatched_df1_transect, unmatched_df2_transect)
 
-# Remove columns that are not needed
+# Remove columns that are not needed and clean the names of the lakes
 df_final_merged_transect <- df_final_merged_transect %>%
   unite(col = "source_file", source_file_trawl, source_file_acoustic, sep = ", ") %>%
   select(-id_df1, -id_df2, -date_diff)
 
-# Remove NAs that were added to the rows
+df_final_merged_transect$lake_name <- gsub("_", " ", df_final_merged_transect$lake_name)
+
+# Remove NAs that were added to the rows 
 replacement_pattern <- c("NA, " = "", ", NA" = "")
 df_final_merged_transect$source_file <- str_replace_all(df_final_merged_transect$source_file, replacement_pattern)
 
