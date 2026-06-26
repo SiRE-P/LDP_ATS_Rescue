@@ -91,6 +91,10 @@ summary_table_trawl_acoustic <- summary_table_trawl_acoustic %>%
                                   !is.na(count_trawl) & is.na(count_acoustic) ~ "Trawl only",
                                   TRUE ~ "Acoustic only"))
 
+# Include a comment for the records after the 2000s
+summary_table_trawl_acoustic <- summary_table_trawl_acoustic %>%
+  mutate(data_note = ifelse(ats_year >= 2000, "Trawl data yet to be rescued", "Trawl data rescued"))
+
 # Save final table in csv
 write.csv(summary_table_trawl_acoustic, paste0(final_directory, "/", "Records_count_trawl_acoustic_by_lake_same_date.csv"), row.names = FALSE)
 
@@ -98,7 +102,7 @@ write.csv(summary_table_trawl_acoustic, paste0(final_directory, "/", "Records_co
 aggregate(cbind(survey_date, ats_year) ~ lake_code, data = Acoustic_data, FUN = function(x) length(unique(x)))
 aggregate(cbind(survey_date, ats_year) ~ lake_code, data = Trawl_data, FUN = function(x) length(unique(x)))
 
-# Check rows that matches in each dataset 
+# Check rows that matches in each data set 
 matched_data_trawl <- semi_join(Trawl_data, Acoustic_data, by = c("survey_date", "lake_name", "ats_year"))
 matched_data_acoustic <- semi_join(Acoustic_data, Trawl_data, by = c("survey_date", "lake_name", "ats_year"))
 
@@ -211,6 +215,10 @@ df_final_merged <- df_final_merged %>%
 replacement_pattern <- c("NA, " = "", ", NA" = "")
 df_final_merged$source_file <- str_replace_all(df_final_merged$source_file, replacement_pattern)
 
+# Include a comment for the records after the 2000s
+df_final_merged <- df_final_merged %>%
+  mutate(data_note = ifelse(ats_year >= 2000, "Trawl data yet to be rescued", "Trawl data rescued"))
+
 # Save final table in csv
 write.csv(df_final_merged, paste0(final_directory, "/", "FINAL_2days_match_trawl_and_acoustic.csv"), row.names = FALSE)
 
@@ -255,7 +263,7 @@ for (col in columns) {
   unique_Trawl_seven_days[[col]] <- trimws(unique_Trawl_seven_days[[col]])}
 
 ###
-#### Create a match/merge table based on the intervals of SEVEN days (allowing a fuzzy interval of 7 days) #####
+#### Create a match/merge table based on the intervals of SEVEN days (allowing a fuzzy interval of 14 days) #####
 ###
 
 # Set the class as date
@@ -304,7 +312,7 @@ df_final_merged_interval7 <- bind_rows(matches_survey_date_by_lake_interval7, un
 # Remove columns that are not needed
 df_final_merged_interval7 <- df_final_merged_interval7 %>%
   unite(col = "source_file", source_file_trawl, source_file_acoustic, sep = ", ") %>%
-  arrange(ats_year, lake_name) %>%
+  arrange(ats_year, lake_name, survey_date_trawl, survey_date_acoustic) %>%
   select(ats_year, lake_code, lake_name, survey_date_trawl, interval_start, interval_end,
          survey_date_acoustic, source_file, match_status_acoustic, overlap_status_acoustic, count_acoustic_survey, 
          -id_trawl, -id_acoustic, -date_diff)
@@ -313,8 +321,120 @@ df_final_merged_interval7 <- df_final_merged_interval7 %>%
 replacement_pattern <- c("NA, " = "", ", NA" = "")
 df_final_merged_interval7$source_file <- str_replace_all(df_final_merged_interval7$source_file, replacement_pattern)
 
+# Include a comment for the records after the 2000s
+df_final_merged_interval7 <- df_final_merged_interval7 %>%
+  mutate(data_note = ifelse(ats_year >= 2000, "Trawl data yet to be rescued", "Trawl data rescued"))
+
 # Save final table in csv
 write.csv(df_final_merged_interval7, paste0(final_directory, "/", "FINAL_7days_match_trawl_and_acoustic.csv"), row.names = FALSE)
+
+
+###
+#### Create the intervals of FIFTEEN days for each unique survey date #####
+###
+
+# guarantee date are in date, not character
+Trawl_data_fifteen_days <- Trawl_data %>%
+  mutate(survey_date = as.Date(survey_date),
+         interval_start = survey_date - 15,
+         interval_end = survey_date + 15)
+
+Acoustic_data_fifteen_days <- Acoustic_data %>%
+  mutate(survey_date = as.Date(survey_date))
+
+# create a table with the info I want to check
+Trawl_data_fifteen_days$lake_name <-gsub(" ", "_", Trawl_data_fifteen_days$lake_name)
+unique_Trawl_fifteen_days <- tibble(unique = unique(paste(Trawl_data_fifteen_days$lake_code, Trawl_data_fifteen_days$lake_name, Trawl_data_fifteen_days$survey_date, 
+                                                        Trawl_data_fifteen_days$interval_start, Trawl_data_fifteen_days$interval_end, Trawl_data_fifteen_days$ats_year, 
+                                                        Trawl_data_fifteen_days$source_file))) 
+Acoustic_data_fifteen_days$lake_name <-gsub(" ", "_", Acoustic_data_fifteen_days$lake_name)
+unique_acoustic_fifteen_days <- tibble(unique = unique(paste(Acoustic_data_fifteen_days$lake_code, Acoustic_data_fifteen_days$lake_name, Acoustic_data_fifteen_days$survey_date,
+                                                           Acoustic_data_fifteen_days$ats_year, Acoustic_data_fifteen_days$source_file)))
+
+unique_Trawl_fifteen_days <- unique_Trawl_fifteen_days %>%
+  separate(col = unique, into = c("lake_code", "lake_name", "survey_date", "interval_start","interval_end", 
+                                  "ats_year", "source_file"), sep = " ")
+
+unique_acoustic_fifteen_days <- unique_acoustic_fifteen_days %>%
+  separate(col = unique, into = c("lake_code","lake_name", "survey_date", "ats_year", "source_file"), sep = " ")
+
+# line up identical rows
+columns <- c("lake_code", "lake_name", "survey_date", "ats_year", "source_file")
+
+# Check for leading/trailing whitespace
+for (col in columns) {
+  unique_acoustic_fifteen_days[[col]] <- trimws(unique_acoustic_fifteen_days[[col]])}
+
+for (col in columns) {
+  unique_Trawl_fifteen_days[[col]] <- trimws(unique_Trawl_fifteen_days[[col]])}
+
+###
+#### Create a match/merge table based on the intervals of FIFTEEN days (allowing a fuzzy interval of 30 days) #####
+###
+
+# Set the class as date
+unique_Trawl_fifteen_days$survey_date <- as.Date(unique_Trawl_fifteen_days$survey_date)
+unique_acoustic_fifteen_days$survey_date <- as.Date(unique_acoustic_fifteen_days$survey_date)
+
+# Add unique IDs for each row
+unique_Trawl_fifteen_days <- unique_Trawl_fifteen_days %>%
+  mutate(id_trawl = row_number())
+unique_acoustic_fifteen_days <- unique_acoustic_fifteen_days %>%
+  mutate(id_acoustic = row_number())
+
+# Find valid matches
+matches_survey_date_by_lake_interval15 <- unique_Trawl_fifteen_days %>%
+  inner_join(unique_acoustic_fifteen_days, by = c("lake_name", "ats_year", "lake_code"), suffix = c("_trawl", "_acoustic")) %>%
+  mutate(date_diff = abs(as.numeric(survey_date_trawl - survey_date_acoustic))) %>%
+  filter(date_diff <= 15) %>%
+  mutate(match_status_acoustic = "MATCH")
+
+# state any given date of the acoustic that match more than one interval of the trawl survey
+date_repeated_interval15 <- matches_survey_date_by_lake_interval15 %>%
+  count(lake_name, survey_date_acoustic, name = "count_acoustic_survey")
+
+matches_survey_date_by_lake_interval15 <- matches_survey_date_by_lake_interval15 %>%
+  left_join(date_repeated_interval15, by = c("lake_name", "survey_date_acoustic")) %>%
+  mutate(overlap_status_acoustic = case_when(count_acoustic_survey != 1 ~ "Acoustic date matches more than one trawl date", 
+                                             TRUE ~ "Acoustic date matches one trawl date"))
+
+# Find unmatched id_trawl rows
+unmatched_trawl_interval15 <- unique_Trawl_fifteen_days %>%
+  filter(!id_trawl %in% matches_survey_date_by_lake_interval15$id_trawl) %>%
+  rename("survey_date_trawl" = survey_date) %>%
+  rename("source_file_trawl" = source_file) %>%
+  mutate(match_status_acoustic = "MISMATCH")
+
+# Find unmatched id_acoustic rows
+unmatched_acoustic_interval15 <- unique_acoustic_fifteen_days %>%
+  filter(!id_acoustic %in% matches_survey_date_by_lake_interval15$id_acoustic) %>%
+  rename("survey_date_acoustic" = survey_date) %>%
+  rename("source_file_acoustic" = source_file) %>%
+  mutate(match_status_acoustic = "MISMATCH")
+
+# Combine everything
+df_final_merged_interval15 <- bind_rows(matches_survey_date_by_lake_interval15, 
+                                        unmatched_trawl_interval15, unmatched_acoustic_interval15)
+
+# Remove columns that are not needed
+df_final_merged_interval15 <- df_final_merged_interval15 %>%
+  unite(col = "source_file", source_file_trawl, source_file_acoustic, sep = ", ") %>%
+  arrange(ats_year, lake_name, survey_date_trawl, survey_date_acoustic) %>%
+  select(ats_year, lake_code, lake_name, survey_date_trawl, interval_start, interval_end,
+         survey_date_acoustic, source_file, match_status_acoustic, overlap_status_acoustic, count_acoustic_survey, 
+         -id_trawl, -id_acoustic, -date_diff)
+
+# Remove NAs that were added to the rows
+replacement_pattern <- c("NA, " = "", ", NA" = "")
+df_final_merged_interval15$source_file <- str_replace_all(df_final_merged_interval15$source_file, replacement_pattern)
+
+# Include a comment for the records after the 2000s
+df_final_merged_interval15 <- df_final_merged_interval15 %>%
+  mutate(data_note = ifelse(ats_year >= 2000, "Trawl data yet to be rescued", "Trawl data rescued"))
+
+# Save final table in csv
+write.csv(df_final_merged_interval15, paste0(final_directory, "/", "FINAL_15days_match_trawl_and_acoustic.csv"), row.names = FALSE)
+
 
 ###
 ##############        Checking inventories match / merge.    ##################
