@@ -1,0 +1,19 @@
+# METHODS
+
+## Study Area of the Lake Enrichment Program
+ATS works conducted in British Columbia sampled a total of 73 lakes, or 85 considering lakes subdividions, from 1977-2007 [*MAP BC LAKES*].
+
+## Field Procedures
+
+## Acoustic Target
+
+## Trawl Biosample
+Trawl biosample data collected using trawling method, with net size usually of 2x2x7.5m.
+
+## Data Rescue Program
+The raw data exist in several formats, such as within published DFO reports, Excel spreadsheets, and MS Access databases, as well as SAS and DAT original formats. As part of the DFO-SiRE (Fisheries and Oceans Canada, Salmon in Regional Ecosystems Program) and the Canadian Institute of Ecology and Evolution (CIEE)'s Living Data Project (LDP) partnership, lake acoustic and trawl survey data from 1977-2007 in British Columbia lakes were rescued and cleaned by data interns, overseen by postdoctoral fellows from the same program, and DFO staff. The Acoustic target data rescue was led by Yuliya Shtymburska (intern, University of Regina) and Sandra Emry (UBC postdoctoral fellow), while the trawl biosample data was led by Alice Assmar (intern, McGill University) and David Hunt (postdoctoral fellow, McGill University).
+
+The data was rescued using R and Rstudio, and all codes and output files are available in the repository [*cite the repository*]. For the acoustic target data, XXXXXXX. From 1977 to 2007.
+
+Regarding the trawl biosample data, the R code consisted of a loop to extract trawl information from original DAT files from 1977 to 1999, which were previously formatted as lines. Additionally, data in SAS format files were extracted and cleaned 
+
