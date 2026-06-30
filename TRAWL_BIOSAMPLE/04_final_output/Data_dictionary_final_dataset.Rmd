@@ -478,8 +478,8 @@ Histogram of the distribution of depth (m) frequency across all lakes.
 ggplot(data = unique_depth) +
   geom_histogram(aes(x = depth_m), binwidth = 1) +
   labs(x = "Depth (m)", y = "Frequency") +
-  facet_wrap(~ lake_name, ncol = 2)
-  #facet_wrap(~ lake_name, ncol = 2, scale="free")
+  #facet_wrap(~ lake_name, ncol = 2)
+  facet_wrap(~ lake_name, ncol = 2, scale="free")
 ```
 
 Figure 7.
@@ -799,8 +799,8 @@ lakes <- sort(unique(df_final$lake_name))
 # Plot length problems by lake
 ggplot(data = subset(df_final, species_common_name != "NA"), aes(x = fish_length_mm)) +
   geom_histogram(bins = 50, fill = "steelblue", color = "black") +
-  facet_wrap(~ species_common_name + lake_name, ncol=5) +
-  #facet_wrap(~ species_common_name + lake_name, scales = "free", ncol=5) +
+  #facet_wrap(~ species_common_name + lake_name, ncol=5) +
+  facet_wrap(~ species_common_name + lake_name, scales = "free", ncol=5) +
   theme_bw(base_size = 14) +
   theme(
       strip.background = element_rect(fill = "grey90", color = NA),

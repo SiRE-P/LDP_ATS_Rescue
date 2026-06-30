@@ -1376,7 +1376,7 @@ final_dataframe <- final_dataframe %>%
                                 trawl_unique_ID == "1992-08-12_22_2_28" ~ "22:30:00",
                                 trawl_unique_ID == "1992-08-12_22_3_32" ~ "22:45:00",
                                 trawl_unique_ID == "1992-08-12_22_4_0" ~ "23:00:00",
-                                trawl_unique_ID == "1984-06-28_44_2_9" ~ "23:06:00",
+                                #trawl_unique_ID == "1984-06-28_44_2_9" ~ "23:06:00",
                                 TRUE ~ start_time),
          end_time = case_when(trawl_unique_ID == "1984-06-28_44_2_9" ~ "23:06:00",
                                 TRUE ~ end_time),
