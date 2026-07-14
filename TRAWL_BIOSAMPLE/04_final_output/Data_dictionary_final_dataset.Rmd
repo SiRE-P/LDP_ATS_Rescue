@@ -435,7 +435,7 @@ summary_table_fish_class_total <- summary_table_fish_class_total %>%
 
 write.csv(summary_table_fish_class_total, "../06_Figures/Fish_sampling_by_lake_by_year.csv", row.names = FALSE)
 
-kable(summary_table_fish_class_total, caption = "Table 2. Number of fish surveyed in each lake by ATS year.")
+kable(summary_table_fish_class_total, caption = "Table 2. Number of fish (all species) surveyed in the trawl samples in each lake by ATS year.")
 ```
 
 ```{r duration}
@@ -520,218 +520,218 @@ summary_table_fish_size <- df_final %>%
 write.csv(summary_table_fish_size, "../06_Figures/Summary_fish_length_weight_by_lakes.csv", row.names = FALSE)
 
 # Chinook
-summary_table_Chinook_size <- df_final %>%
-  filter(species_common_name == "Chinook") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop") 
-
-kable(summary_table_Chinook_size, caption = "Table 3. Descriptive statistics of Chinook body length (mm) and weight (g) across sampled lakes.")
-
-# Coho
-summary_table_Coho_size <- df_final %>%
-  filter(species_common_name == "Coho") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop") 
-
-kable(summary_table_Coho_size, caption = "Table 4. Descriptive statistics of Coho body length (mm) and weight (g) across sampled lakes.")
-
-# Dolly Varden
-summary_table_DV_size <- df_final %>%
-  filter(species_common_name == "Dolly Varden") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop") 
-
-kable(summary_table_DV_size, caption = "Table 5. Descriptive statistics of Dolly Varden body length (mm) and weight (g) across sampled lakes.")
-
-# Kokanee
-summary_table_Kokanee_size <- df_final %>%
-  filter(species_common_name == "Kokanee") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop") 
-
-kable(summary_table_Kokanee_size, caption = "Table 6. Descriptive statistics of Kokanee body length (mm) and weight (g) across sampled lakes.")
-
-# Lamprey
-summary_table_Lamprey_size <- df_final %>%
-  filter(species_common_name == "Lamprey") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop") 
-
-kable(summary_table_Lamprey_size, caption = "Table 7. Descriptive statistics of Lamprey body length (mm) and weight (g) across sampled lakes.")
-
-# Peamouth Chub
-summary_table_Peamouth_size <- df_final %>%
-  filter(species_common_name == "Peamouth Chub") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop") 
-
-kable(summary_table_Peamouth_size, caption = "Table 8. Descriptive statistics of Peamouth Chub body length (mm) and weight (g) across sampled lakes.")
-
-# Pink
-summary_table_Pink_size <- df_final %>%
-  filter(species_common_name == "Pink") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop") 
-
-kable(summary_table_Pink_size, caption = "Table 9. Descriptive statistics of Pink body length (mm) and weight (g) across sampled lakes.")
-
-# Red-sided Shiner
-summary_table_RSS_size <- df_final %>%
-  filter(species_common_name == "Red-sided Shiner") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop") 
-
-kable(summary_table_RSS_size, caption = "Table 10. Descriptive statistics of Red-sided Shiner body length (mm) and weight (g) across sampled lakes.")
-
-# Sculpin
-summary_table_Sculpin_size <- df_final %>%
-  filter(species_common_name == "Sculpin") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop") 
-
-kable(summary_table_Sculpin_size, caption = "Table 11. Descriptive statistics of Sculpin body length (mm) and weight (g) across sampled lakes.")
-
-# Sockeye
-summary_table_Sockeye_size <- df_final %>%
-  filter(species_common_name == "Sockeye") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop")
-
-kable(summary_table_Sockeye_size, caption = "Table 12. Descriptive statistics of Sockeye body length (mm) and weight (g) across sampled lakes.")
-
-# Stickleback
-summary_table_Stickleback_size <- df_final %>%
-  filter(species_common_name == "Stickleback") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop")
-
-kable(summary_table_Stickleback_size, caption = "Table 13. Descriptive statistics of Stickleback body length (mm) and weight (g) across sampled lakes.")
-
-# Sucker
-summary_table_Sucker_size <- df_final %>%
-  filter(species_common_name == "Sucker") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop") 
-
-kable(summary_table_Sucker_size, caption = "Table 14. Descriptive statistics of Sucker body length (mm) and weight (g) across sampled lakes.")
-
-# Whitefish
-summary_table_Whitefish_size <- df_final %>%
-  filter(species_common_name == "Whitefish") %>%
-  group_by(lake_name) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop") 
-
-kable(summary_table_Whitefish_size, caption = "Table 15. Descriptive statistics of Whitefish body length (mm) and weight (g) across sampled lakes.")
-
-# Whitefish
-lake_names <- c("Eden Lake", "Ian Lake", "Kennedy Lake (Clay)", "Kennedy Lake (Main)", 
-                "Long Lake", "Lowe Lake", "Port John Lake")
-summary_table_NA_size <- df_final %>%
-  filter(is.na(species_common_name)) %>%
-  group_by(lake_name) %>%
-  filter(lake_name %in% lake_names) %>%
-  summarise(sample_counts = n(),
-      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
-      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
-      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
-      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
-      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
-      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
-      .groups = "drop") 
-
-kable(summary_table_NA_size, caption = "Table 15. Descriptive statistics of non identified fishes body length (mm) and weight (g) across sampled lakes.")
-
+#summary_table_Chinook_size <- df_final %>%
+#  filter(species_common_name == "Chinook") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop") 
+#
+#kable(summary_table_Chinook_size, caption = "Table 3. Descriptive statistics of Chinook body length (mm) and weight (g) across sampled lakes.")
+#
+## Coho
+#summary_table_Coho_size <- df_final %>%
+#  filter(species_common_name == "Coho") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop") 
+#
+#kable(summary_table_Coho_size, caption = "Table 4. Descriptive statistics of Coho body length (mm) and weight (g) across sampled lakes.")
+#
+## Dolly Varden
+#summary_table_DV_size <- df_final %>%
+#  filter(species_common_name == "Dolly Varden") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop") 
+#
+#kable(summary_table_DV_size, caption = "Table 5. Descriptive statistics of Dolly Varden body length (mm) and weight (g) across sampled lakes.")
+#
+## Kokanee
+#summary_table_Kokanee_size <- df_final %>%
+#  filter(species_common_name == "Kokanee") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop") 
+#
+#kable(summary_table_Kokanee_size, caption = "Table 6. Descriptive statistics of Kokanee body length (mm) and weight (g) across sampled lakes.")
+#
+## Lamprey
+#summary_table_Lamprey_size <- df_final %>%
+#  filter(species_common_name == "Lamprey") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop") 
+#
+#kable(summary_table_Lamprey_size, caption = "Table 7. Descriptive statistics of Lamprey body length (mm) and weight (g) across sampled lakes.")
+#
+## Peamouth Chub
+#summary_table_Peamouth_size <- df_final %>%
+#  filter(species_common_name == "Peamouth Chub") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop") 
+#
+#kable(summary_table_Peamouth_size, caption = "Table 8. Descriptive statistics of Peamouth Chub body length (mm) and weight (g) across sampled lakes.")
+#
+## Pink
+#summary_table_Pink_size <- df_final %>%
+#  filter(species_common_name == "Pink") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop") 
+#
+#kable(summary_table_Pink_size, caption = "Table 9. Descriptive statistics of Pink body length (mm) and weight (g) across sampled lakes.")
+#
+## Red-sided Shiner
+#summary_table_RSS_size <- df_final %>%
+#  filter(species_common_name == "Red-sided Shiner") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop") 
+#
+#kable(summary_table_RSS_size, caption = "Table 10. Descriptive statistics of Red-sided Shiner body length (mm) and weight (g) across sampled lakes.")
+#
+## Sculpin
+#summary_table_Sculpin_size <- df_final %>%
+#  filter(species_common_name == "Sculpin") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop") 
+#
+#kable(summary_table_Sculpin_size, caption = "Table 11. Descriptive statistics of Sculpin body length (mm) and weight (g) across sampled lakes.")
+#
+## Sockeye
+#summary_table_Sockeye_size <- df_final %>%
+#  filter(species_common_name == "Sockeye") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop")
+#
+#kable(summary_table_Sockeye_size, caption = "Table 12. Descriptive statistics of Sockeye body length (mm) and weight (g) across sampled lakes.")
+#
+## Stickleback
+#summary_table_Stickleback_size <- df_final %>%
+#  filter(species_common_name == "Stickleback") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop")
+#
+#kable(summary_table_Stickleback_size, caption = "Table 13. Descriptive statistics of Stickleback body length (mm) and weight (g) across sampled lakes.")
+#
+## Sucker
+#summary_table_Sucker_size <- df_final %>%
+#  filter(species_common_name == "Sucker") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop") 
+#
+#kable(summary_table_Sucker_size, caption = "Table 14. Descriptive statistics of Sucker body length (mm) and weight (g) across sampled lakes.")
+#
+## Whitefish
+#summary_table_Whitefish_size <- df_final %>%
+#  filter(species_common_name == "Whitefish") %>%
+#  group_by(lake_name) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop") 
+#
+#kable(summary_table_Whitefish_size, caption = "Table 15. Descriptive statistics of Whitefish body length (mm) and weight (g) across sampled lakes.")
+#
+## Whitefish
+#lake_names <- c("Eden Lake", "Ian Lake", "Kennedy Lake (Clay)", "Kennedy Lake (Main)", 
+#                "Long Lake", "Lowe Lake", "Port John Lake")
+#summary_table_NA_size <- df_final %>%
+#  filter(is.na(species_common_name)) %>%
+#  group_by(lake_name) %>%
+#  filter(lake_name %in% lake_names) %>%
+#  summarise(sample_counts = n(),
+#      min_length_mm  = min(fish_length_mm, na.rm = TRUE),
+#      mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+#      max_length_mm  = max(fish_length_mm, na.rm = TRUE),
+#      min_weight_g   = min(fish_weight_g, na.rm = TRUE),
+#      mean_weight_g  = round(mean(fish_weight_g, na.rm = TRUE), 2),
+#      max_weight_g   = max(fish_weight_g, na.rm = TRUE),
+#      .groups = "drop") 
+#
+#kable(summary_table_NA_size, caption = "Table 15. Descriptive statistics of non identified fishes body length (mm) and weight (g) across sampled lakes.")
+#
 ```
 
 ```{r boxplot-g/cm, fig.width=12}
@@ -796,61 +796,63 @@ lakes <- sort(unique(df_final$lake_name))
 
 ```{r mm/lake, fig.height=100, fig.width=20}
 
-# Plot length problems by lake
-ggplot(data = subset(df_final, species_common_name != "NA"), aes(x = fish_length_mm)) +
-  geom_histogram(bins = 50, fill = "steelblue", color = "black") +
-  #facet_wrap(~ species_common_name + lake_name, ncol=5) +
-  facet_wrap(~ species_common_name + lake_name, scales = "free", ncol=5) +
-  theme_bw(base_size = 14) +
-  theme(
-      strip.background = element_rect(fill = "grey90", color = NA),
-      strip.text.y = element_text(face = "bold"),
-      plot.title = element_text(face = "bold")
-    )
-
+## Plot length problems by lake
+#ggplot(data = subset(df_final, species_common_name != "NA"), aes(x = fish_length_mm)) +
+#  geom_histogram(bins = 50, fill = "steelblue", color = "black") +
+#  #facet_wrap(~ species_common_name + lake_name, ncol=5) +
+#  facet_wrap(~ species_common_name + lake_name, scales = "free", ncol=5) +
+#  theme_bw(base_size = 14) +
+#  theme(
+#      strip.background = element_rect(fill = "grey90", color = NA),
+#      strip.text.y = element_text(face = "bold"),
+#      plot.title = element_text(face = "bold")
+#    )
+#Figure 11.
+#Histograms of the distribution of species length (mm) by sampled lake.
 ```
 
-Figure 11.
-Histograms of the distribution of species length (mm) by sampled lake.
+
 
 ```{r hist-kfactor, fig.height=10, fig.width=6}
 # Plot K by lake and age_class. One lake at a time.
-for (lk in lakes) {
+#for (lk in lakes) {
+#
+#  df_lk <- df_final %>%
+#    filter(lake_name == lk,
+#           #species_code %in% c(1, 2),
+#           !is.na(calc_K_factor))
+#
+#  # Skip if no data for this lake after filtering
+#  if (nrow(df_lk) == 0L) {
+#    message("No data for lake: ", lk)
+#    next
+#  }
+#
+#  p <- ggplot(df_lk, aes(x = calc_K_factor)) +
+#    geom_histogram(bins = 40, fill = "steelblue", color = "black") +
+#    # Species stacked vertically (one column, multiple rows)
+#    facet_grid(rows = vars(species_common_name), scales = "free_y") +
+#    labs(
+#      title = paste(lk, "Fish Condition (K) Distribution"),
+#      x = "K-Factor",
+#      y = "Count"
+#    ) +
+#    theme_bw(base_size = 14) +
+#    theme(
+#      strip.background = element_rect(fill = "grey90", color = NA),
+#      strip.text.y = element_text(face = "bold"),
+#      plot.title = element_text(face = "bold")
+#    )
+#
+#  print(p)
+#}
+#
+#Figure 12.
+#Histograms of the distribution of fish condition (k) by species by sampled lake.
 
-  df_lk <- df_final %>%
-    filter(lake_name == lk,
-           #species_code %in% c(1, 2),
-           !is.na(calc_K_factor))
-
-  # Skip if no data for this lake after filtering
-  if (nrow(df_lk) == 0L) {
-    message("No data for lake: ", lk)
-    next
-  }
-
-  p <- ggplot(df_lk, aes(x = calc_K_factor)) +
-    geom_histogram(bins = 40, fill = "steelblue", color = "black") +
-    # Species stacked vertically (one column, multiple rows)
-    facet_grid(rows = vars(species_common_name), scales = "free_y") +
-    labs(
-      title = paste(lk, "Fish Condition (K) Distribution"),
-      x = "K-Factor",
-      y = "Count"
-    ) +
-    theme_bw(base_size = 14) +
-    theme(
-      strip.background = element_rect(fill = "grey90", color = NA),
-      strip.text.y = element_text(face = "bold"),
-      plot.title = element_text(face = "bold")
-    )
-
-  print(p)
-}
 
 ```
 
-Figure 12.
-Histograms of the distribution of fish condition (k) by species by sampled lake.
 
 ```{r sockeye, fig.height=30, fig.width=8}
 ggplot(data = subset(df_final, species_common_name == "Sockeye"), 
