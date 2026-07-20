@@ -2,46 +2,129 @@
 
 # APPENDIX `r new_appendix()`. BIOLOGICAL DATA {#app:biology}
 
-This appendix demonstrates appendix-specific figure and table numbering (A.1, A.2, etc.).
+This appendix presents tables with trawl biosample and acoustic target metadata. 
 
 ## Sample Biological Data
 
-```{r fig-biology-example, fig.cap="Example plot."}
-set.seed(123)
-length_data <- data.frame(
-  length_cm = rnorm(100, mean = 45, sd = 10),
-  weight_kg = rnorm(100, mean = 2.5, sd = 0.8)
-)
-plot(length_data$length_cm, length_data$weight_kg,
-  xlab = "Length (cm)", ylab = "Weight (kg)",
-  pch = 16, col = rgb(0, 0, 1, 0.5)
-)
+```{r sockeye_info, tab.cap="Number of Sockeye surveyed in the trawl samples in each lake by ATS year."}
+Trawl_data %>%
+  filter(species_common_name == "Sockeye") %>%
+  group_by(lake_name, ats_year) %>%
+  summarise(fish_count = n(), .groups = "drop") -> summary_table
+
+# Pivot to wide format
+summary_table_sockeye_class_total <- summary_table %>%
+pivot_wider(names_from = ats_year,
+            values_from = fish_count,
+            values_fill = 0)
+
+# Add total row per year
+summary_table_sockeye_class_total <- summary_table_sockeye_class_total %>%
+  bind_rows(summary_table_sockeye_class_total %>%
+              summarise(across(where(is.numeric), sum), lake_name = "Total")) %>%
+   rename("Lake name" = lake_name)
+
+# Add a landscape section break before the table using officedown
+block_section(prop_section(type = "continuous"))
+
+flextable::set_flextable_defaults(font.size = 6)
+
+# Plot the table
+flextable::flextable(summary_table_sockeye_class_total) |>
+  flextable::autofit()
+
+# Add a portrait section after to "close" the landscape mode
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
 ```
 
-You can also create tables with appendix numbering:
+```{r other_fish_info, tab.cap="Number of fish (all species) surveyed in the trawl samples in each lake by ATS year."}
+Trawl_data %>%
+  filter(species_common_name != "Sockeye") %>%
+  group_by(lake_name, ats_year) %>%
+  summarise(fish_count = n(), .groups = "drop") -> summary_table
 
-```{r tab-biology-summary, tab.cap="Summary statistics."}
-summary_table <- data.frame(
-  Statistic = c("Mean Length", "SD Length", "Mean Weight", "SD Weight"),
-  Value = c(
-    round(mean(length_data$length_cm), 2),
-    round(sd(length_data$length_cm), 2),
-    round(mean(length_data$weight_kg), 2),
-    round(sd(length_data$weight_kg), 2)
-  )
-)
-flextable::flextable(summary_table)
+# Pivot to wide format
+summary_table_fish_class_total <- summary_table %>%
+pivot_wider(names_from = ats_year,
+            values_from = fish_count,
+            values_fill = 0)
+
+# Add total row per year
+summary_table_fish_class_total <- summary_table_fish_class_total %>%
+  bind_rows(summary_table_fish_class_total %>%
+              summarise(across(where(is.numeric), sum), lake_name = "Total")) %>%
+  select(1,names(.)[-1][order(as.numeric(names(.)[-1]))]) %>%
+   rename("Lake name" = lake_name)
+
+# Add a landscape section break before the table using officedown
+block_section(prop_section(type = "continuous"))
+
+flextable::set_flextable_defaults(font.size = 6)
+
+# Plot the table
+flextable::flextable(summary_table_fish_class_total) |>
+  flextable::autofit()
+
+# Add a portrait section after to "close" the landscape mode
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
 ```
+
+```{r survey-effort-table, tab.cap="Trip effort by lake by year."}
+survey_effort_table <- read.csv("00_data/Trip_effort_table_acoustic_trawl.csv", check.names = FALSE)
+
+# Add a landscape section break before the table using officedown
+block_section(prop_section(type = "continuous"))
+
+flextable::set_flextable_defaults(font.size = 6)
+
+# Plot the table
+flextable::flextable(survey_effort_table)|>
+  flextable::rotate(part = "header", rotation = "btlr", j = 2:ncol(survey_effort_table)) |>
+  flextable::autofit() |>
+  flextable::height(i = 1, height = 0.5, part = "header") |>
+  flextable::hrule(rule = "exact", part = "header")
+
+# Add a portrait section after to "close" the landscape mode
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
+
+```
+
+```{r landscape-lake-strata-table, tab.cap="Lake strata."}
+lake_strata_table <- read.csv("00_data/Lake_strata_length.csv")
+
+lake_strata_table <- lake_strata_table %>%
+   filter(Lake.name %in% 
+           c("Great Central Lake", "Sproat Lake (Two R)", "Sproat Lake", "Henderson Lake", "Kennedy Lake (Clay)", "Kennedy Lake (Main)","Cheewhat Lake", "Muriel Lake", "Hobiton Lake", "Long Lake", "Long Lake (A)", "Long Lake (B)", "Owikeno Lake", "Tahltan Lake", "Meziadin Lake")) %>%
+  rename("Latitude" = Lake.latitude, "Longitude" = Lake.longitude, "Lake" = Lake.name, 
+         "Length (m)" = Transect.length.m, "Area (ha)" = Area.ha, "Code" = Lake.code, 
+         "Depth (m).Min" = Depth.min.m, "Depth (m).Max" = Depth.max.m) %>%
+  mutate(`Area (ha)` = as.integer(`Area (ha)`),
+         `Length (m)` = as.integer(`Length (m)`))
+
+lake_strata_table$Latitude <- str_replace_all(lake_strata_table$Latitude, " deg", "°")
+lake_strata_table$Latitude <- str_replace_all(lake_strata_table$Latitude, " min", "' N")
+
+lake_strata_table$Longitude <- str_replace_all(lake_strata_table$Longitude, " deg", "°")
+lake_strata_table$Longitude <- str_replace_all(lake_strata_table$Longitude, " min", "' W")
+
+# Plot the table
+flextable::flextable(lake_strata_table) |>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
 
 ## Subsection Example
 
 You can have subsections within appendices as usual. The figure numbering continues within the same appendix (A.1, A.2, A.3...).
 
 ```{r fig-biology-histogram, fig.cap="Length frequency distribution"}
-hist(length_data$length_cm,
-  main = "",
-  xlab = "Length (cm)",
-  col = "lightblue",
-  border = "white"
-)
+#hist(length_data$length_cm,
+#  main = "",
+#  xlab = "Length (cm)",
+#  col = "lightblue",
+#  border = "white"
+#)
 ```

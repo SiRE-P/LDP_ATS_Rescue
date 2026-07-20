@@ -91,7 +91,9 @@ opts_chunk$set(
   fig.width = 6, # 'internal' plotting figure width (inches)
   out.width = "80%", # output plotting width; adjust here or by chunk if desired
   fig.asp = 1 / 1.618, # golden ratio; adjust here or by chunk if desired
-  dpi = 200 # adjust to taste; larger = higher resolution but larger file size
+  dpi = 200, # adjust to taste; larger = higher resolution but larger file size
+  warning = FALSE, 
+  message = FALSE
 )
 ```
 
@@ -117,5 +119,15 @@ flextable::set_flextable_defaults(
 library(dplyr) 
 library(ggplot2) 
 library(grateful)
+library(stringr)
+library(beepr)
+library(lubridate)
+library(purrr)
+library(tidyverse)
+library(broom)
+library(officedown)
+library(officer)
+library(sf)
+
 # add more packages here as needed
 ```

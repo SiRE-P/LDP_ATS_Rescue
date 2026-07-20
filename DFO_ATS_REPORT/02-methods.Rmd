@@ -17,3 +17,5 @@ The data was rescued using R and Rstudio, and all codes and output files are ava
 
 Regarding the trawl biosample data, the R code consisted of a loop to extract trawl information from original DAT files from 1977 to 1999, which were previously formatted as lines. Additionally, data in SAS format files were extracted and cleaned 
 
+mention in the methods how K was used to look for weird outliers & fix as needed.
+## Data Visualization

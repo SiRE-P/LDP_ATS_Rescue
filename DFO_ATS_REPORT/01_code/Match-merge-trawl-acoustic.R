@@ -50,6 +50,17 @@ common_data <- intersect(names(Acoustic_data), names(Trawl_data))
 # Remove abbreviations in the name of the lakes in the Acoustic dataset by importing the lookup table
 lake_name <- read.csv("../TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/lake_codes.csv")
 
+# re-assign lake codes
+Acoustic_data <- Acoustic_data %>%
+  mutate(lake_code = case_when(lake_code == 248 ~ 180,
+                               lake_code == 250	~ 50,
+                               lake_code == 247	~ 121,
+                               lake_code == 251	~ 237,
+                               lake_code == 249	~ 59,
+                               lake_code == 252	~ 122,
+                               lake_code == 255	~ 241,
+                               TRUE ~ lake_code))
+
 # Join the tables
 Acoustic_data <- Acoustic_data %>%
   mutate(lake_code = case_when(lake_code == 124 ~ 180,
@@ -60,6 +71,7 @@ Acoustic_data <- Acoustic_data %>%
 #### Rename headers of Acoustic_data and Trawl_data columns to match them
 Trawl_data <- Trawl_data %>% 
   rename("survey_date" = trawl_date) %>%
+  filter(!life_stage %in% c("Gravid female", "Adult", "Adult female")) %>%
   mutate(source_file = "Trawl")
 
 #Acoustic_data <- Acoustic_data %>% 
@@ -222,9 +234,25 @@ df_final_merged <- df_final_merged %>%
 df_final_merged_clean <- df_final_merged
 df_final_merged_clean$lake_name <- gsub("_", " ", df_final_merged_clean$lake_name)
 
-# Save final table in csv
-write.csv(df_final_merged_clean, paste0(final_directory, "/", "FINAL_2days_match_trawl_and_acoustic.csv"), row.names = FALSE)
+Get_Trip_df_final_merged_clean <- df_final_merged_clean %>%
+  mutate(date_to_use = survey_date_trawl) %>%
+  arrange(lake_name, ats_year, survey_date_trawl, survey_date_acoustic) %>%
+  group_by(lake_name, ats_year) %>%
+  mutate(
+    days_since_prev = as.numeric(date_to_use - lag(date_to_use)),
+    
+    Trip = cumsum(
+      case_when(
+        row_number() == 1 ~ 1,                    # first record in lake/year starts Trip 1
+        days_since_prev > 2 ~ 1,                  # new trip if >2 day gap
+        TRUE ~ 0                                  # otherwise same trip
+      ))) %>%
+  ungroup() %>%
+  select(-days_since_prev, -date_to_use)
 
+
+# Save final table in csv
+write.csv(Get_Trip_df_final_merged_clean, paste0(final_directory, "/", "FINAL_2days_match_trawl_and_acoustic.csv"), row.names = FALSE)
 
 ###
 #### Create the intervals of SEVEN days for each unique survey date #####
@@ -330,8 +358,24 @@ df_final_merged_interval7$lake_name <- gsub("_", " ", df_final_merged_interval7$
 df_final_merged_interval7 <- df_final_merged_interval7 %>%
   mutate(data_note = ifelse(ats_year >= 2000, "Trawl data yet to be rescued", "Trawl data rescued"))
 
+Get_Trip_df_final_merged_interval7 <- df_final_merged_interval7 %>%
+  mutate(date_to_use = survey_date_trawl) %>%
+  arrange(lake_name, ats_year, survey_date_trawl, survey_date_acoustic) %>%
+  group_by(lake_name, ats_year) %>%
+  mutate(
+    days_since_prev = as.numeric(date_to_use - lag(date_to_use)),
+    
+    Trip = cumsum(
+      case_when(
+        row_number() == 1 ~ 1,                    # first record in lake/year starts Trip 1
+        days_since_prev > 2 ~ 1,                  # new trip if >2 day gap
+        TRUE ~ 0                                  # otherwise same trip
+      ))) %>%
+  ungroup() %>%
+  select(-days_since_prev, -date_to_use)
+
 # Save final table in csv
-write.csv(df_final_merged_interval7, paste0(final_directory, "/", "FINAL_7days_match_trawl_and_acoustic.csv"), row.names = FALSE)
+write.csv(Get_Trip_df_final_merged_interval7, paste0(final_directory, "/", "FINAL_7days_match_trawl_and_acoustic.csv"), row.names = FALSE)
 
 
 ###
@@ -439,8 +483,24 @@ df_final_merged_interval15$lake_name <- gsub("_", " ", df_final_merged_interval1
 df_final_merged_interval15 <- df_final_merged_interval15 %>%
   mutate(data_note = ifelse(ats_year >= 2000, "Trawl data yet to be rescued", "Trawl data rescued"))
 
+Get_Trip_df_final_merged_interval15 <- df_final_merged_interval15 %>%
+  mutate(date_to_use = survey_date_trawl) %>%
+  arrange(lake_name, ats_year, survey_date_trawl, survey_date_acoustic) %>%
+  group_by(lake_name, ats_year) %>%
+  mutate(
+    days_since_prev = as.numeric(date_to_use - lag(date_to_use)),
+    
+    Trip = cumsum(
+      case_when(
+        row_number() == 1 ~ 1,                    # first record in lake/year starts Trip 1
+        days_since_prev > 2 ~ 1,                  # new trip if >2 day gap
+        TRUE ~ 0                                  # otherwise same trip
+      ))) %>%
+  ungroup() %>%
+  select(-days_since_prev, -date_to_use)
+
 # Save final table in csv
-write.csv(df_final_merged_interval15, paste0(final_directory, "/", "FINAL_15days_match_trawl_and_acoustic.csv"), row.names = FALSE)
+write.csv(Get_Trip_df_final_merged_interval15, paste0(final_directory, "/", "FINAL_15days_match_trawl_and_acoustic.csv"), row.names = FALSE)
 
 
 ###
@@ -553,6 +613,79 @@ unique_Trawl_data_transect <- unique_Trawl_data_transect %>%
 
 unique_acoustic_data_transect <- unique_acoustic_data_transect %>%
   separate(col = unique, into = c("lake_code","lake_name", "survey_date", "ats_year", "source_file", "transect"), sep = " ")
+
+###
+######### Create a match/mismatch table based on HS code, creating trips intervals, using 15 days interval
+###
+
+Get_Trip_15days_match_trawl_and_acoustic <- df_final_merged_interval15 %>%
+  mutate(date_to_use = survey_date_trawl) %>%
+  arrange(lake_name, ats_year, survey_date_trawl, survey_date_acoustic) %>%
+  group_by(lake_name, ats_year) %>%
+  mutate(
+    days_since_prev = as.numeric(date_to_use - lag(date_to_use)),
+    
+    Trip = cumsum(
+      case_when(
+        row_number() == 1 ~ 1,                    # first record in lake/year starts Trip 1
+        days_since_prev > 2 ~ 1,                  # new trip if >2 day gap
+        TRUE ~ 0                                  # otherwise same trip
+      ))) %>%
+  ungroup() %>%
+  select(-days_since_prev)
+
+CHECK_15days_match_trawl_and_acoustic <-          # quick test
+  Get_Trip_15days_match_trawl_and_acoustic %>%    
+  # filter(lake_name == "Sproat Lake", ats_year == 1981) %>%
+  filter(lake_name <= "Az") %>%
+  # filter(ats_year == 1981) %>%
+  arrange(lake_name, survey_date_trawl) %>%
+  select(lake_name, ats_year, Trip, survey_date_trawl, survey_date_acoustic)
+
+Compress_Trip_15days_match_trawl_and_acoustic <- # compress surveys to trip
+  Get_Trip_15days_match_trawl_and_acoustic %>%
+  group_by(lake_name, ats_year, Trip) %>%
+  summarise(
+    survey_date_trawl =
+      if (all(is.na(survey_date_trawl))) NA else min(survey_date_trawl, na.rm = TRUE),
+    survey_date_acoustic =
+      if (all(is.na(survey_date_acoustic))) NA else min(survey_date_acoustic, na.rm = TRUE),
+    .groups = "drop")
+
+###
+######### Create a table based on HS code, creating trips intervals, using regular table
+###
+# Set the class as date
+merged_df$survey_date <- as.Date(merged_df$survey_date)
+
+Get_Trip_match_trawl_and_acoustic <- merged_df %>%
+  mutate(date_to_use = survey_date) %>%
+  arrange(lake_name, ats_year, survey_date, source_file_acoustic, source_file_trawl) %>%
+  group_by(lake_name, ats_year) %>%
+  mutate(days_since_prev = as.numeric(date_to_use - lag(date_to_use)),
+    
+    Trip = cumsum(
+      case_when(
+        row_number() == 1 ~ 1,                    # first record in lake/year starts Trip 1
+        days_since_prev > 2 ~ 1,                  # new trip if >2 day gap
+        TRUE ~ 0                                  # otherwise same trip
+      ))) %>%
+  ungroup() %>%
+  select(-days_since_prev)
+
+CHECK_match_trawl_and_acoustic <-          # quick test
+  Get_Trip_match_trawl_and_acoustic %>%    
+  arrange(lake_name, survey_date) %>%
+  select(lake_name, ats_year, Trip, survey_date, source_file_acoustic, source_file_trawl)
+
+Compress_Trip_match_trawl_and_acoustic <- # compress surveys to trip
+  CHECK_match_trawl_and_acoustic %>%
+  group_by(lake_name, ats_year, Trip) %>%
+  summarise(
+    survey_date = if (all(is.na(survey_date))) NA else min(survey_date, na.rm = TRUE),
+    .groups = "drop") %>%
+  arrange(lake_name, survey_date)
+
 
 ###
 ######### Create a match/merge table based on two-day intervals including the transect
