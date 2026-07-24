@@ -397,3 +397,105 @@ ggplot(data = Trawl_data_filtered_life_stage,
   theme_bw()
 
 ```
+
+```{r trip-effort-lakes, fig.cap="Frequency distribution of ATS trips by month and ATS year across the lakes of interest.", fig.width=8, out.width="100%", fig.asp = 11.69/8.27}
+
+trip_effort_table <- read.csv("./02_final_output/FINAL_2days_match_trawl_and_acoustic.csv", check.names = FALSE)
+
+### adding ats_year and trawl_month
+trip_effort_sockeye_stickle <- trip_effort_table %>%
+  mutate(trawl_date = ifelse(is.na(survey_date_trawl), survey_date_acoustic, survey_date_trawl))
+
+### adding ats_year and trawl_month
+trip_effort_sockeye_stickle <- trip_effort_sockeye_stickle %>%
+  mutate(trawl_date = ymd(trawl_date),
+    trawl_month = month(trawl_date)) 
+
+# Month abbreviation
+trip_effort_sockeye_stickle$trawl_month <- month.abb[trip_effort_sockeye_stickle$trawl_month]
+
+# Filter only the lakes of interest
+trip_effort_sockeye_stickle <- trip_effort_sockeye_stickle %>%
+  filter(lake_name %in% lakes_of_interest) %>%
+  distinct(ats_year, lake_name, Trip, trawl_month) 
+
+# Create histograms for each loi
+lakes <- trip_effort_sockeye_stickle %>%
+  filter(lake_name %in% c("Great Central Lake", "Sproat Lake", "Henderson Lake", "Kennedy Lake (Clay)", "Kennedy Lake (Main)", "Cheewhat Lake", "Muriel Lake", "Hobiton Lake", "Long Lake", "Long Lake (A)", "Long Lake (B)"))
+
+lakes <- unique(lakes$lake_name)
+
+for (lk in lakes) {
+
+  df_lk <- filter(trip_effort_sockeye_stickle, lake_name == lk)
+
+  p <- ggplot(df_lk, aes(x = factor(trawl_month, levels = c("Apr", "May", "Jun",
+             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar")))) +
+    geom_bar(width = 0.75, fill = "#440154", color = "white") +
+    scale_y_continuous(breaks = seq(0, 15, by = 1)) +
+    facet_wrap(~ats_year, ncol = 3) +
+    labs(title = paste(lk),
+         x = "Months",
+         y = "Frequency") +
+    theme_bw()
+  
+  print(p)
+} 
+
+```
+
+```{r trip-effort-Meziadin, fig.cap="Frequency distribution of ATS trips by month and ATS year across the lakes of interest.", fig.width=7, fig.height=2.5, out.width="100%"}
+
+ggplot(data = subset(trip_effort_sockeye_stickle, lake_name == "Meziadin Lake"), 
+       aes(x = factor(trawl_month, levels = c("Apr", "May", "Jun", "Jul", "Aug", "Sep", 
+                                              "Oct", "Nov", "Dec", "Jan", "Feb", "Mar")))) +
+  geom_bar(width = 0.5 , fill = "#440154", color = "white") +
+  scale_y_continuous(breaks = seq(0, 15, by = 1)) +
+  facet_wrap(~ats_year, ncol = 4) +
+  labs(title = "Meziadin Lake",
+         x = "Month",
+         y = "Survey frequency") +
+  theme_bw()
+```
+
+```{r trip-effort-sproat2r, fig.cap="Frequency distribution of ATS trips by month and ATS year across the lakes of interest.", fig.width=4}
+
+ggplot(data = subset(trip_effort_sockeye_stickle, lake_name == "Sproat Lake (Two R)"), 
+       aes(x = factor(trawl_month, levels = c("Apr", "May", "Jun", "Jul", "Aug", "Sep", 
+                                              "Oct", "Nov", "Dec", "Jan", "Feb", "Mar")))) +
+  geom_bar(width = 0.1 , fill = "#440154", color = "white") +
+  scale_y_continuous(breaks = c(0, 1, 2)) +
+  facet_wrap(~ats_year, ncol = 3) +
+  labs(title = "Sproat Lake (Two R)",
+         x = "Month",
+         y = "Survey frequency") +
+    theme_bw()
+
+```
+
+```{r trip-effort-less-surveyed, fig.cap="Frequency distribution of ATS trips by month and ATS year across the lakes of interest.", fig.width=6, out.width="100%", fig.asp = 8.27/8.27}
+
+# Create histograms for each loi
+lakes <- trip_effort_sockeye_stickle %>%
+  filter(lake_name %in% c("Owikeno Lake", "Tahltan Lake"))
+
+lakes <- unique(lakes$lake_name)
+
+for (lk in lakes) {
+  df_lk <- filter(trip_effort_sockeye_stickle, lake_name == lk)
+  
+  p <- ggplot(data = df_lk, aes(x = factor(trawl_month, levels = c("Apr", "May", "Jun", "Jul", "Aug", "Sep", 
+                                              "Oct", "Nov", "Dec", "Jan", "Feb", "Mar")))) +
+    geom_bar(width = 0.75 , fill = "#440154", color = "white") +
+    scale_y_continuous(breaks = seq(0, 15, by = 1)) +
+    facet_wrap(~ats_year, ncol = 4) +
+    labs(title = paste0(lk),
+         x = "Month",
+         y = "Survey frequency") +
+    theme_bw()
+  
+  print(p)
+}
+
+```
+
