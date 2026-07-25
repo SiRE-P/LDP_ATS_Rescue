@@ -1,8 +1,8 @@
 ---
 english_title: |
-  Title Here (*Latin Species Name*)
+  Trawl Biosampling and Acoustic Field Data of the Lake Enrichment Program (LEP) conducted from 1977 to 2007
 french_title: |
-  Titre ici (*Nom latin de l'espèce*)
+  Données de bioéchantillonnage par chalutage et données acoustiques de terrain du Programme d'enrichissement des lacs (LEP) mené de 1977 à 2007
 
 author: |
   Alice C. Assmar^1^,

@@ -1,14 +1,12 @@
 # RESULTS
 
-K factors are available in the dataset, the methods should outline how they were used to fix some anomalous lengths and/or weights.
-two pinks were found.
+K factors are available in the dataset, the methods should outline how they were used to fix some anomalous lengths and/or weights. two pinks were found.
 
 ```{r figure-scale-book, fig.cap="Example of a scale book record form.", out.width="60%"}
 
 include_graphics("../TRAWL_BIOSAMPLE/06_Figures/scale_book1.jpg")
 
 ```
-
 
 ```{r figure-sample, fig.cap="Example of scale samples on a scale book.", out.width="60%"}
 
@@ -226,6 +224,7 @@ for (lk in lakes) {
 #
 #plots[["Cheewhat Lake"]]
 ```
+
 ```{r GCL-plot, fig.cap="Histograms of the distribution of Sockeye and Stickleback length and weight in Great Central Lake."}
 #plots[["Great Central Lake"]]
 #plots[["Henderson Lake"]]
@@ -242,7 +241,6 @@ for (lk in lakes) {
 #plots[["Sproat Lake (Two R)" ]]
 #plots[["Tahltan Lake" ]]
 ```
-
 
 ```{r hist-length-weight-by-year, fig.cap="Histograms of the distribution of Sockeye and Stickleback length and weight by sampled ATS year."}
 df_plot_year <- Trawl_data %>%
@@ -290,7 +288,6 @@ for (lk in lakes) {
 }
 ```
 
-
 ```{r separated-spp, fig.cap="Scatter plot illustrating the relationship between fish length and weight for Chinook, Coho, Sockeye and Stickleback specimens included in the dataset. Additionally, a regression curve is also provided, including the annotated coeficients for each species", out.width="100%"}
 # Drop any adult codes.
 scatter_plot_all_spp_filtered <- Trawl_data %>%
@@ -328,12 +325,11 @@ predictions <- models %>%
       fish_length_mm = seq(min(.x$fish_length_mm),
                            max(.x$fish_length_mm),
                            length.out = 200))),
-    prediction = map2( model, newdata,~mutate(.y,
-        fish_weight_g = exp(predict(.x, newdata = .y))))) %>%
+    prediction = map2( model, newdata,~mutate(.y, fish_weight_g = exp(predict(.x, newdata = .y))))) %>%
   select(species_common_name, prediction) %>%
   unnest(prediction)
 
-#Create annotation labels
+# Create annotation labels
 labels <- stats %>%
   mutate(label = paste0("a = ", signif(a, 3),"\n",
                         "b = ", round(b, 3), "\n",
@@ -398,7 +394,7 @@ ggplot(data = Trawl_data_filtered_life_stage,
 
 ```
 
-```{r trip-effort-lakes, fig.cap="Frequency distribution of ATS trips by month and ATS year across the lakes of interest.", fig.width=8, out.width="100%", fig.asp = 11.69/8.27}
+```{r trip-effort-lakes, fig.cap="Frequency distribution of ATS trips by month and ATS year across the lakes of interest.", fig.width=6, out.width="100%", fig.asp = 11.69/8.27}
 
 trip_effort_table <- read.csv("./02_final_output/FINAL_2days_match_trawl_and_acoustic.csv", check.names = FALSE)
 
@@ -435,16 +431,19 @@ for (lk in lakes) {
     scale_y_continuous(breaks = seq(0, 15, by = 1)) +
     facet_wrap(~ats_year, ncol = 3) +
     labs(title = paste(lk),
+         axis.text.x = element_text(angle = 90, vjust = 0.5, size = 10),
          x = "Months",
          y = "Frequency") +
-    theme_bw()
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5),
+          axis.text.x = element_text(angle = 60, vjust = 0.5, size = 10)) 
   
   print(p)
 } 
 
 ```
 
-```{r trip-effort-Meziadin, fig.cap="Frequency distribution of ATS trips by month and ATS year across the lakes of interest.", fig.width=7, fig.height=2.5, out.width="100%"}
+```{r trip-effort-Meziadin, fig.cap="Frequency distribution of ATS trips by month and ATS year across the lakes of interest.", out.width="100%", fig.asp = 1.5/5}
 
 ggplot(data = subset(trip_effort_sockeye_stickle, lake_name == "Meziadin Lake"), 
        aes(x = factor(trawl_month, levels = c("Apr", "May", "Jun", "Jul", "Aug", "Sep", 
@@ -492,7 +491,9 @@ for (lk in lakes) {
     labs(title = paste0(lk),
          x = "Month",
          y = "Survey frequency") +
-    theme_bw()
+    theme_bw()+
+    theme(plot.title = element_text(hjust = 0.5),
+          axis.text.x = element_text(angle = 60, vjust = 0.5, size = 10)) 
   
   print(p)
 }
