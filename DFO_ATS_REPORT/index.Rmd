@@ -1,17 +1,17 @@
 ---
 english_title: |
-  Trawl Biosampling and Acoustic Field Data of the Lake Enrichment Program (LEP) conducted from 1977 to 2007
+  Trawl Biosampling and Acoustic Field Data of the Lake Enrichment Program (LEP) Conducted from 1977 to 2007 across 75 freshwater bodies, predominantly in British Columbia
 french_title: |
-  Données de bioéchantillonnage par chalutage et données acoustiques de terrain du Programme d'enrichissement des lacs (LEP) mené de 1977 à 2007
+  Données de bioéchantillonnage par chalutage et données acoustiques de terrain du Programme d'enrichissement des lacs (LEP) Mené de 1977 à 2007 dans 75 plans et cours d'eau différents, majoritairement en Colombie-Britannique
 
 author: |
   Alice C. Assmar^1^,
-  Howard W. Stiff^2^,
-  Athena D. Ogden^2^, 
-  David Hunt^3^, 
-  Yuliya Shtymburska^4^,
+  Yuliya Shtymburska^2^,
+  Howard W. Stiff^3^,
+  Athena D. Ogden^3^, 
+  David Hunt^4^, 
   Sandra Emry^5^, and
-  Patrick Thompson^2^
+  Patrick Thompson^3^
 
 english_address: |
   ^1^Lyman Entomological Museum\
@@ -19,20 +19,18 @@ english_address: |
      21111 Lakeshore Road\
      Sainte-Anne-de-Bellevue, Quebec, H9X 3V9, Canada\
   \
-  ^2^Pacific Biological Station\
+  ^2^Dept of Biology\
+     University of Regina\
+  \
+  ^3^Pacific Biological Station\
      Fisheries and Oceans Canada\
      3190 Hammond Bay Road\
      Nanaimo, British Columbia, V9T 6N7, Canada\
   \
-  ^3^Biology Department\
+  ^4^Biology Department\
      McGill University\
      1205 Docteur Penfield\
      Montreal, Quebec, H3A 1B1, Canada\
-  \
-  ^4^Department\
-     \
-     d\
-     a\
   \
   ^5^Department\
      \

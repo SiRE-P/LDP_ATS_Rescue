@@ -73,6 +73,9 @@ survey_counts_acoustic <- unique_surveys_acoustic %>%
 ### combine trawl and acoustic
 survey_effort_combined <- bind_rows(survey_counts_acoustic, survey_counts_trawl)
 
+survey_effort_combined <- survey_effort_combined %>%
+  arrange(lake_name)
+
 # bubble heatmap
 ggplot(data = survey_effort_combined, aes(x = ats_year, y = lake_name, 
                                                           size = n_surveys, colour = dataset)) +
@@ -110,15 +113,31 @@ ggplot(unique_calc_duration, aes(x = duration, fill = type)) +
   theme_bw()
 ```
 
-```{r depth, fig.cap="Histogram of the distribution of depth (m) frequency across all lakes for acoustic sounding. See the Results section for additional information about the zero bin."}
+```{r depth, fig.cap="Histogram of the distribution of depth (m) frequency across all lakes for Trawl biosampling. See the Results section for additional information about the zero bin."}
 unique_depth <- Trawl_data %>%
   distinct(depth_m, trawl_unique_ID, lake_name)
 
 ggplot(data = unique_depth, aes(depth_m)) +
-  geom_histogram(binwidth = 2, position = "dodge", color = "white", linewidth = 0.3, fill = "#440154") +
+  geom_histogram(binwidth = 2, position = "dodge", color = "white", fill="#FBD424FF", linewidth = 0.3) +
   labs(x = "Depth (m)", y = "Frequency") +
   theme_bw()
+
 ```
+
+
+```{r depth-acoustic, fig.cap="Histogram of the distribution of depth (m) frequency across all lakes for acoustic sounding. See the Results section for additional information about the zero bin."}
+unique_depth_acoustic <- Acoustic_data %>%
+  distinct(depth_min_m, depth_max_m, lake_name, survey_date) %>%
+  arrange(depth_min_m) %>%
+  mutate(depth_m = paste0(depth_min_m, "-", depth_max_m),
+         depth_m = factor(depth_m, levels = unique(depth_m))) 
+
+ggplot(unique_depth_acoustic, aes(x = depth_m)) +
+  geom_bar(fill = "#440154", color = "white", linewidth = 0.3) +
+  labs(x = "Depth range (m)", y = "Frequency") +
+  theme_bw()
+```
+
 
 ```{r depth-by-lake, fig.cap="Histogram of the distribution of depth (m) data in some lakes of interest.", fig.width=6, out.width="100%", fig.asp = 11.69/8.27}
 # Filter only the lakes of interest (loi)
@@ -242,7 +261,7 @@ for (lk in lakes) {
 #plots[["Tahltan Lake" ]]
 ```
 
-```{r hist-length-weight-by-year, fig.cap="Histograms of the distribution of Sockeye and Stickleback length and weight by sampled ATS year."}
+```{r hist-length-weight-by-year, fig.cap="Histograms of the distribution of Sockeye and Stickleback length and #weight by sampled ATS year."}
 df_plot_year <- Trawl_data %>%
   filter(lake_name %in% lakes_of_interest,
     species_common_name %in% c("Sockeye", "Stickleback")) %>%
@@ -252,24 +271,24 @@ df_plot_year <- Trawl_data %>%
   arrange(ats_year)
 
 year <- unique(df_plot_year$ats_year)
-
-for (yr in year) {
-
-  df_yr <- filter(df_plot_year, ats_year == yr)
-
-  p <- ggplot(df_yr, aes(x = value)) +
-    geom_histogram(bins = 40, fill = "steelblue", color = "black") +
-    facet_grid(rows = vars(species_common_name), cols = vars(measurement), scales = "free") +
-    labs(title = paste(yr),
-         x = NULL,
-         y = "Count") +
-    theme_bw()
-
-  print(p)
-}
+#
+#for (yr in year) {
+#
+#  df_yr <- filter(df_plot_year, ats_year == yr)
+#
+#  p <- ggplot(df_yr, aes(x = value)) +
+#    geom_histogram(bins = 40, fill = "steelblue", color = "black") +
+#    facet_grid(rows = vars(species_common_name), cols = vars(measurement), scales = "free") +
+#    labs(title = paste(yr),
+#         x = NULL,
+#         y = "Count") +
+#    theme_bw()
+#
+#  print(p)
+#}
 ```
 
-```{r boxplot-lakes-years, fig.cap="Boxplot showing the distribution of the length and weight of Sockeye and Stickleback species in different lakes across the surveyed years."}
+```{r boxplot-lakes-years, fig.cap="Boxplot showing the distribution of the length and weight of Sockeye and Stickleback species in different lakes across the surveyed years.", out.width="100%"}
 
 for (lk in lakes) {
 
@@ -288,7 +307,7 @@ for (lk in lakes) {
 }
 ```
 
-```{r separated-spp, fig.cap="Scatter plot illustrating the relationship between fish length and weight for Chinook, Coho, Sockeye and Stickleback specimens included in the dataset. Additionally, a regression curve is also provided, including the annotated coeficients for each species", out.width="100%"}
+```{r separated-spp, fig.cap="Scatter plot illustrating the relationship between fish length and weight for Chinook, Coho, Sockeye and Stickleback specimens included in the dataset. Additionally, a regression curve is also provided, including the annotated coefficients for each species", out.width="100%"}
 # Drop any adult codes.
 scatter_plot_all_spp_filtered <- Trawl_data %>%
   filter(!life_stage %in% c("Gravid female", "Adult", "Adult female")) %>%
@@ -443,7 +462,7 @@ for (lk in lakes) {
 
 ```
 
-```{r trip-effort-Meziadin, fig.cap="Frequency distribution of ATS trips by month and ATS year across the lakes of interest.", out.width="100%", fig.asp = 1.5/5}
+```{r trip-effort-Meziadin, fig.cap="Frequency distribution of ATS trips by month and ATS year across the lakes of interest.", out.width="100%", fig.asp = 1.75/5}
 
 ggplot(data = subset(trip_effort_sockeye_stickle, lake_name == "Meziadin Lake"), 
        aes(x = factor(trawl_month, levels = c("Apr", "May", "Jun", "Jul", "Aug", "Sep", 
@@ -454,7 +473,8 @@ ggplot(data = subset(trip_effort_sockeye_stickle, lake_name == "Meziadin Lake"),
   labs(title = "Meziadin Lake",
          x = "Month",
          y = "Survey frequency") +
-  theme_bw()
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ```{r trip-effort-sproat2r, fig.cap="Frequency distribution of ATS trips by month and ATS year across the lakes of interest.", fig.width=4}
@@ -468,7 +488,8 @@ ggplot(data = subset(trip_effort_sockeye_stickle, lake_name == "Sproat Lake (Two
   labs(title = "Sproat Lake (Two R)",
          x = "Month",
          y = "Survey frequency") +
-    theme_bw()
+    theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5))
 
 ```
 

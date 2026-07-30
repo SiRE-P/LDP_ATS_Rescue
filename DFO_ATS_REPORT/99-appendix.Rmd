@@ -4,7 +4,6 @@
 
 This appendix presents tables with trawl biosample and acoustic target metadata. 
 
-## Sample Biological Data
 
 ```{r sockeye_info, tab.cap="Number of Sockeye surveyed in the trawl samples in each lake by ATS year."}
 Trawl_data %>%
@@ -33,11 +32,9 @@ flextable::set_flextable_defaults(font.size = 6)
 flextable::flextable(summary_table_sockeye_class_total) |>
   flextable::autofit()
 
-# Add a portrait section after to "close" the landscape mode
-block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
 ```
 
-```{r other_fish_info, tab.cap="Number of fish (all species) surveyed in the trawl samples in each lake by ATS year."}
+```{r other_fish_info, tab.cap="Number of all fish species (except Sockeye) surveyed in the trawl samples in each lake by ATS year."}
 Trawl_data %>%
   filter(species_common_name != "Sockeye") %>%
   group_by(lake_name, ats_year) %>%
@@ -56,24 +53,21 @@ summary_table_fish_class_total <- summary_table_fish_class_total %>%
   select(1,names(.)[-1][order(as.numeric(names(.)[-1]))]) %>%
    rename("Lake name" = lake_name)
 
-# Add a landscape section break before the table using officedown
-block_section(prop_section(type = "continuous"))
-
 flextable::set_flextable_defaults(font.size = 6)
 
 # Plot the table
 flextable::flextable(summary_table_fish_class_total) |>
   flextable::autofit()
 
-# Add a portrait section after to "close" the landscape mode
-block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
 ```
 
 ```{r survey-effort-table, tab.cap="Trip effort by lake by year."}
 survey_effort_table <- read.csv("00_data/Trip_effort_table_acoustic_trawl.csv", check.names = FALSE)
 
-# Add a landscape section break before the table using officedown
-block_section(prop_section(type = "continuous"))
+survey_effort_table <- survey_effort_table %>%
+  bind_rows(survey_effort_table %>%
+              summarise(across(where(is.integer), ~ sum(.x, na.rm = TRUE)), `Lake name` = "Total")) %>%
+  select(1,names(.)[-1][order(as.integer(names(.)[-1]))])
 
 flextable::set_flextable_defaults(font.size = 6)
 
@@ -84,31 +78,112 @@ flextable::flextable(survey_effort_table)|>
   flextable::height(i = 1, height = 0.5, part = "header") |>
   flextable::hrule(rule = "exact", part = "header")
 
-# Add a portrait section after to "close" the landscape mode
-block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
-
 ```
 
-```{r landscape-lake-strata-table, tab.cap="Lake strata."}
-lake_strata_table <- read.csv("00_data/Lake_strata_length.csv")
 
-lake_strata_table <- lake_strata_table %>%
-   filter(Lake.name %in% 
-           c("Great Central Lake", "Sproat Lake (Two R)", "Sproat Lake", "Henderson Lake", "Kennedy Lake (Clay)", "Kennedy Lake (Main)","Cheewhat Lake", "Muriel Lake", "Hobiton Lake", "Long Lake", "Long Lake (A)", "Long Lake (B)", "Owikeno Lake", "Tahltan Lake", "Meziadin Lake")) %>%
-  rename("Latitude" = Lake.latitude, "Longitude" = Lake.longitude, "Lake" = Lake.name, 
-         "Length (m)" = Transect.length.m, "Area (ha)" = Area.ha, "Code" = Lake.code, 
-         "Depth (m).Min" = Depth.min.m, "Depth (m).Max" = Depth.max.m) %>%
-  mutate(`Area (ha)` = as.integer(`Area (ha)`),
-         `Length (m)` = as.integer(`Length (m)`))
 
-lake_strata_table$Latitude <- str_replace_all(lake_strata_table$Latitude, " deg", "°")
-lake_strata_table$Latitude <- str_replace_all(lake_strata_table$Latitude, " min", "' N")
+```{r catch-table-Cheewhat, tab.cap="Cheewhat Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+############## Read csv tables
+Trawl_data <- read.csv("./00_data/Trawl_data_FINAL_1977-1999.csv")
+lake_name <- read.csv("./00_data/lake_codes.csv")
 
-lake_strata_table$Longitude <- str_replace_all(lake_strata_table$Longitude, " deg", "°")
-lake_strata_table$Longitude <- str_replace_all(lake_strata_table$Longitude, " min", "' W")
+### Global variables
+lakes_of_interest <- c("Great Central Lake", "Sproat Lake (Two R)", "Sproat Lake", "Henderson Lake", "Kennedy Lake (Clay)", "Kennedy Lake (Main)", "Cheewhat Lake", "Muriel Lake", "Hobiton Lake", "Long Lake", "Long Lake (A)", "Long Lake (B)", "Owikeno Lake", "Tahltan Lake", "Meziadin Lake")
+
+# Filter the lakes and species of interest
+Trawl_data_loi <- Trawl_data %>%
+  filter(lake_name %in% lakes_of_interest,
+         species_common_name %in% c("Sockeye", "Stickleback"),
+         !is.na(fish_length_mm), !is.na(fish_weight_g), 
+         !gear_info %in% "DUM2") %>%
+  select(-depth_m, - orig_start_time, -orig_end_time, -orig_duration_minutes, -orig_std_weight_g, -calc_end_time, -calc_duration_time, -calc_std_weight_g, -calc_K_factor, -general_comments, -preservative_code, -preservative_description, -preservative_description_short, -trawl_month, -trawl_unique_ID, -fish_unique_ID, -gear_info, -gear_type, -data_issues, -program_notes, -age_class, -weight_conversion_formula, -sas_scale, -sas_scale_book, -dat_scale_book, -dat_scale_book_letter, -species_code, -species_info_code, -aging_technique)
+
+# Create a table specific for sockeye and count the number of trawls per lake, date and year
+### Sockeye
+Sockeye_catch_table <- Trawl_data_loi %>%
+  filter(species_common_name %in% "Sockeye", life_stage %in% "Fry") %>% # filter only sockeye species
+  group_by(trawl_date, ats_year, lake_name) %>%
+  mutate(Trawls_hauls = ifelse(!is.na(trawl_number), n_distinct(trawl_number), 0L),   # count the distinct number of trawl events that day, in the specific lake
+         Sockeye_fry = n())  # extract the number of sockeye fry collected
+
+# Calculate the stats for the length and weight
+Sockeye_catch_summary <- Sockeye_catch_table %>%
+  group_by(lake_name, trawl_date, ats_year) %>%
+  mutate(n_total = Sockeye_fry, 
+         mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+         sd_length = sd(fish_length_mm, na.rm = TRUE),
+         se_length = sd_length / sqrt(n_total),
+         moe_length = round(qt(0.975, df= n_total - 1) * se_length,2)) %>%
+  mutate(n_total = Sockeye_fry,
+         mean_weight_g = round(mean(fish_weight_g, na.rm = TRUE), 2),
+         sd_weight = sd(fish_weight_g, na.rm = TRUE),
+         se_weight = sd_weight / sqrt(n_total),
+         moe_weight = round(qt(0.975, df= n_total - 1) * se_weight, 2)) %>%
+  filter(!moe_weight %in% "NaN") %>%
+  ungroup()
+
+# Create one table for each lake
+for (lk in lakes_of_interest) {
+  
+  df_lk <- filter(Sockeye_catch_summary, lake_name == lk)
+  
+  Sockeye_catch <- df_lk %>%
+    select("ATS date" = trawl_date, "ATS year" = ats_year, "Sockeye Fry_Trawl hauls" = Trawls_hauls, 
+         "Sockeye Fry_catch (n)" = Sockeye_fry, "Sockeye Fry_Mean length (mm)" = mean_length_mm, 
+         "Sockeye Fry_95% MoE (mm)" = moe_length, "Sockeye Fry_weight (g)" = mean_weight_g,
+         "Sockeye Fry_95% MoE (g)" = moe_weight) %>%
+    distinct()
+
+  assign(paste0(lk, "_sockeye_catch_table"), Sockeye_catch)
+}
+
+# Create a table specific for Stickleback and count the number of trawls per lake, date and year
+Stickleback_catch_table <- Trawl_data_loi %>%
+  filter(species_common_name %in% "Stickleback") %>% # filter only Stickleback species
+  group_by(trawl_date, ats_year, lake_name) %>%
+  mutate(Trawls_hauls = ifelse(!is.na(trawl_number), n_distinct(trawl_number), 0L),   # count the distinct number of trawl events that day, in the specific lake
+         Stickleback_all = n())  # extract the number of sockeye fry collected
+
+# Calculate the stats for the length and weight
+Stickleback_catch_summary <- Stickleback_catch_table %>%
+  group_by(lake_name, trawl_date, ats_year) %>%
+  mutate(n_total = Stickleback_all, 
+         mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+         sd_length = sd(fish_length_mm, na.rm = TRUE),
+         se_length = sd_length / sqrt(n_total),
+         moe_length = round(qt(0.975, df= n_total - 1) * se_length,2)) %>%
+  mutate(n_total = Stickleback_all,
+         mean_weight_g = round(mean(fish_weight_g, na.rm = TRUE), 2),
+         sd_weight = sd(fish_weight_g, na.rm = TRUE),
+         se_weight = sd_weight / sqrt(n_total),
+         moe_weight = round(qt(0.975, df= n_total - 1) * se_weight, 2)) %>%
+  filter(!moe_weight %in% "NaN") %>%
+  ungroup()
+
+# Create one table for each lake
+for (lk in lakes_of_interest) {
+  
+  df_lk <- filter(Stickleback_catch_summary, lake_name == lk)
+  
+  Stickle_catch <- df_lk %>%
+    select("ATS date" = trawl_date, "ATS year" = ats_year, "Stickle_Trawl hauls" = Trawls_hauls, 
+           "Stickle_catch (n)" = Stickleback_all, "Stickle_Mean length (mm)" = mean_length_mm, 
+           "Stickle_95% MoE (mm)" = moe_length, "Stickle_weight (g)" = mean_weight_g,
+           "Stickle_95% MoE (g)" = moe_weight) %>%
+    distinct()
+  
+  assign(paste0(lk, "_stickle_catch_table"), Stickle_catch)
+}
+
+# Combine by lake when information is available
+### Cheewhat lake
+Cheewhat_lake <- full_join(`Cheewhat Lake_sockeye_catch_table`, `Cheewhat Lake_stickle_catch_table`, 
+                           by = c("ATS date", "ATS year"))
+Cheewhat_lake <- Cheewhat_lake %>% arrange(`ATS date`) %>% mutate(`ATS year` = as.character(`ATS year`))
 
 # Plot the table
-flextable::flextable(lake_strata_table) |>
+flextable::flextable(Cheewhat_lake)|>
+  flextable::width(width = 1.2)|>
   flextable::separate_header() |>
   flextable::align(align = "center", part = "all") |>
   flextable::autofit()
@@ -116,15 +191,197 @@ flextable::flextable(lake_strata_table) |>
 ```
 
 
-## Subsection Example
 
-You can have subsections within appendices as usual. The figure numbering continues within the same appendix (A.1, A.2, A.3...).
+```{r catch-table-GCL, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+### Great Central Lake
+Great_Central_Lake <- full_join(`Great Central Lake_sockeye_catch_table`, `Great Central Lake_stickle_catch_table`, 
+                           by = c("ATS date", "ATS year"))
+Great_Central_Lake <- Great_Central_Lake %>% arrange(`ATS date`)  %>% mutate(`ATS year` = as.character(`ATS year`))
 
-```{r fig-biology-histogram, fig.cap="Length frequency distribution"}
-#hist(length_data$length_cm,
-#  main = "",
-#  xlab = "Length (cm)",
-#  col = "lightblue",
-#  border = "white"
-#)
+# Plot the table
+flextable::flextable(Great_Central_Lake)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
 ```
+
+
+
+```{r catch-table-Henderson, tab.cap="Henderson Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+### Henderson Lake
+Henderson_Lake <- full_join(`Henderson Lake_sockeye_catch_table`, `Henderson Lake_stickle_catch_table`, 
+                                by = c("ATS date", "ATS year"))
+Henderson_Lake <- Henderson_Lake %>% arrange(`ATS date`)  %>% mutate(`ATS year` = as.character(`ATS year`))
+
+# Plot the table
+flextable::flextable(Henderson_Lake)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+```
+
+
+
+```{r catch-table-Hobiton, tab.cap="Hobiton Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+### Hobiton Lake
+Hobiton_Lake <- full_join(`Hobiton Lake_sockeye_catch_table`, `Hobiton Lake_stickle_catch_table`, 
+                            by = c("ATS date", "ATS year"))
+Hobiton_Lake <- Hobiton_Lake %>% arrange(`ATS date`) %>% mutate(`ATS year` = as.character(`ATS year`))
+
+# Plot the table
+flextable::flextable(Hobiton_Lake)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+```
+
+
+
+```{r catch-table-KLC, tab.cap="Kennedy Lake (Clay) trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+### Kennedy Lake (Clay)
+Kennedy_Lake_Clay <- full_join(`Kennedy Lake (Clay)_sockeye_catch_table`, `Kennedy Lake (Clay)_stickle_catch_table`, 
+                          by = c("ATS date", "ATS year"))
+Kennedy_Lake_Clay <- Kennedy_Lake_Clay %>% arrange(`ATS date`) %>% mutate(`ATS year` = as.character(`ATS year`))
+
+# Plot the table
+flextable::flextable(Kennedy_Lake_Clay)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+```
+
+
+
+```{r catch-table-KLM, tab.cap="Kennedy Lake (Main) trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+### Kennedy Lake (Main)
+Kennedy_Lake_Main <- full_join(`Kennedy Lake (Main)_sockeye_catch_table`, `Kennedy Lake (Main)_stickle_catch_table`, 
+                               by = c("ATS date", "ATS year"))
+Kennedy_Lake_Main <- Kennedy_Lake_Main %>% arrange(`ATS date`) %>% mutate(`ATS year` = as.character(`ATS year`))
+
+# Plot the table
+flextable::flextable(Kennedy_Lake_Main)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+```
+
+
+
+```{r catch-table-Long, tab.cap="Long Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+### Long Lake
+Long_Lake <- full_join(`Long Lake_sockeye_catch_table`, `Long Lake_stickle_catch_table`, 
+                               by = c("ATS date", "ATS year"))
+Long_Lake <- Long_Lake %>% arrange(`ATS date`) %>% mutate(`ATS year` = as.character(`ATS year`))
+
+# Plot the table
+flextable::flextable(Long_Lake)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+```
+
+
+
+```{r catch-table-LongA, tab.cap="Long Lake (A) trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+### Long Lake (A)
+Long_Lake_A <- full_join(`Long Lake (A)_sockeye_catch_table`, `Long Lake (A)_stickle_catch_table`, 
+                               by = c("ATS date", "ATS year"))
+Long_Lake_A <- Long_Lake_A %>% arrange(`ATS date`) %>% mutate(`ATS year` = as.character(`ATS year`))
+
+# Plot the table
+flextable::flextable(Long_Lake_A)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+```
+
+
+
+```{r catch-table-LongB, tab.cap="Long Lake (B) trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+### Long Lake (B)
+Long_Lake_B <- full_join(`Long Lake (B)_sockeye_catch_table`, `Long Lake (B)_stickle_catch_table`, 
+                               by = c("ATS date", "ATS year"))
+Long_Lake_B <- Long_Lake_B %>% arrange(`ATS date`) %>% mutate(`ATS year` = as.character(`ATS year`))
+
+# Plot the table
+flextable::flextable(Long_Lake_B)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+```
+
+
+
+```{r catch-table-Meziadin, tab.cap="Meziadin Lake trawl catch summary by survey date for Sockeye. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error. No records of Stickleback found."}
+
+`Meziadin Lake_sockeye_catch_table` <- `Meziadin Lake_sockeye_catch_table` %>% mutate(`ATS year` = as.character(`ATS year`))
+
+# Plot the table
+flextable::flextable(`Meziadin Lake_sockeye_catch_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+```
+
+
+
+```{r catch-table-Muriel, tab.cap="Muriel Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+### Muriel Lake
+Muriel_Lake <- full_join(`Muriel Lake_sockeye_catch_table`, `Muriel Lake_stickle_catch_table`, 
+                               by = c("ATS date", "ATS year"))
+Muriel_Lake <- Muriel_Lake %>% arrange(`ATS date`) %>% mutate(`ATS year` = as.character(`ATS year`))
+
+# Plot the table
+flextable::flextable(Muriel_Lake)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+```
+
+
+
+```{r catch-table-Owikeno, tab.cap="Owikeno Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+### Owikeno Lake
+Owikeno_Lake <- full_join(`Owikeno Lake_sockeye_catch_table`, `Owikeno Lake_stickle_catch_table`, 
+                         by = c("ATS date", "ATS year"))
+Owikeno_Lake <- Owikeno_Lake %>% arrange(`ATS date`) %>% mutate(`ATS year` = as.character(`ATS year`))
+
+# Plot the table
+flextable::flextable(Owikeno_Lake)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+
+
+```{r catch-table-Sproat, tab.cap="Sproat Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+### Sproat Lake
+Sproat_Lake <- full_join(`Sproat Lake_sockeye_catch_table`, `Sproat Lake_stickle_catch_table`, 
+                               by = c("ATS date", "ATS year"))
+Sproat_Lake <- Sproat_Lake %>% arrange(`ATS date`) %>% mutate(`ATS year` = as.character(`ATS year`))
+
+# Plot the table
+flextable::flextable(Sproat_Lake)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+```
+
+
+
+```{r catch-table-sproat2r, tab.cap="Sproat Lake (Two R) trawl catch summary by survey date for Sockeye. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error. No records of Stickleback found."}
+
+`Sproat Lake (Two R)_sockeye_catch_table` <- `Sproat Lake (Two R)_sockeye_catch_table` %>% mutate(`ATS year` = as.character(`ATS year`))
+
+# Plot the table
+flextable::flextable(`Sproat Lake (Two R)_sockeye_catch_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+# Add a portrait section after to "close" the landscape mode
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
+```
+
