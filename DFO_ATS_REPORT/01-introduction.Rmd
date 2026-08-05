@@ -20,7 +20,7 @@ and bulleted lists:
 
 Note that sub-list items are not supported (you would have to manually apply the List Number 2 or List Bullet 2 style after).
 
-This is a reference to a figure: Figure \@ref(fig:example-fig).
+This is a reference to a figure: Figure \@ref(fig:schematic-fig).
 
 This is a reference to a supplemental figure: Figure \@ref(fig:fig-biology-example).
 
@@ -46,9 +46,9 @@ flextable(df1) |>
 
 ## Figures
 
-```{r example-fig, fig.cap = "Figure showing random numbers."}
-df2 <- data.frame(x = rnorm(10), y = rnorm(10))
-ggplot(df2, aes(x, y)) + geom_point() + theme_light()
+```{r schematic-fig, fig.cap="Flowchart showing the activity types (A-C) and sequential steps (1-9) performed to generate acoustic and trawl survey (ATS) estimates of limnetic fish abundance in the lakes of British Columbia. Modified from Hyatt et al. (2000).", out.width = "100%"}
+
+include_graphics("./03_figs/Schematic of activity-DFO.png")
 
 ```
 

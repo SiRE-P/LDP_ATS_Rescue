@@ -2,7 +2,10 @@
 
 # APPENDIX `r new_appendix()`. ADDITIONAL METADATA {#app:additional}
 
-This appendix presents the transects set in 11 lakes. They are examples of the fixed areas repeatedly surveyed in the freshwater bodies across the ATS years.
+This appendix presents information about the acoustic gear equipment used in the Lake Enrichment Program for 11 BC lakes, as well as the number of regular and surface trawl conducted in the freshwater bodies across the ATS years. Additionally, an example of the metadata table for the lake strata is also provided.
+
+
+
 ```{r acoustic-gear-Cheewhat, tab.cap="Summary of Cheewhat Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
 ############ visualizing the data - survey effort and acoustics gear Hyatt 2000 table 1
 ### Create a survey_date in the trawl data set to merge with acoustic data
@@ -232,18 +235,25 @@ flextable::flextable(`Sproat Lake (Two R)_summary_table`)|>
   flextable::align(align = "center", part = "all") |>
   flextable::autofit()
 
-# Add a portrait section after to "close" the landscape mode
-block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
 ```
 
 
 
-```{r landscape-lake-strata-table, tab.cap="Lake strata for the main surveyed lakes."}
+```{r landscape-lake-strata-table, tab.cap="Summary of the lake strata for the some BC lakes as an example of the metadata availabe for the lakes surveyed during LEP. The complete table is available as a supplementary material."}
 lake_strata_table <- read.csv("00_data/Lake_strata_length.csv")
 
+# extract the lakes in the dataset
+lakes_in_acoustic <- unique(Acoustic_data$lake_name) # extract the lake names acoustic dataset
+lakes_in_trawl <- unique(Trawl_data$lake_name) # Extract the lake names trawl dataset
+
+lakes_in_ATS_database <- c(lakes_in_acoustic, lakes_in_trawl) # combine the lists
+lakes_in_ATS_database <- lakes_in_ATS_database[!is.na(lakes_in_ATS_database)] # remove NAs
+
+lakes_in_ATS_database <- unique(lakes_in_ATS_database)
+
+# Clean the lake strata table
 lake_strata_table <- lake_strata_table %>%
-   filter(Lake.name %in% 
-           c("Great Central Lake", "Sproat Lake (Two R)", "Sproat Lake", "Henderson Lake", "Kennedy Lake (Clay)", "Kennedy Lake (Main)","Cheewhat Lake", "Muriel Lake", "Hobiton Lake", "Long Lake", "Long Lake (A)", "Long Lake (B)", "Owikeno Lake", "Tahltan Lake", "Meziadin Lake")) %>%
+  filter(Lake.name %in% lakes_in_ATS_database) %>%
   rename("Latitude" = Lake.latitude, "Longitude" = Lake.longitude, "Lake" = Lake.name, 
          "Length (m)" = Transect.length.m, "Area (ha)" = Area.ha, "Code" = Lake.code, 
          "Depth (m).Min" = Depth.min.m, "Depth (m).Max" = Depth.max.m) %>%
@@ -256,10 +266,25 @@ lake_strata_table$Latitude <- str_replace_all(lake_strata_table$Latitude, " min"
 lake_strata_table$Longitude <- str_replace_all(lake_strata_table$Longitude, " deg", "°")
 lake_strata_table$Longitude <- str_replace_all(lake_strata_table$Longitude, " min", "' W")
 
+lake_strata_table <- lake_strata_table %>%
+  filter(!is.na(Transect), Transect <3, Lake %in% c("Great Central Lake", "Sproat Lake", "Henderson Lake", "Kennedy Lake (Main)", "Cheewhat Lake", "Muriel Lake", "Hobiton Lake"), `Depth (m).Min` < 10) 
+
+#flextable::set_flextable_defaults(
+#  font.size = 10,
+#  padding.left = 3, 
+#  padding.right = 3, 
+#  padding.top = 1, 
+#  padding.bottom = 1,
+#  na_str = "-",
+#  theme_fun = "theme_booktabs"
+#)
+
 # Plot the table
 flextable::flextable(lake_strata_table) |>
   flextable::separate_header() |>
   flextable::align(align = "center", part = "all") |>
-  flextable::autofit()
+  flextable::autofit() #|>
+ #flextable::save_as_docx(
+ #"landscape lake strata table" = lake_strata_table, path = "./02_final_output/Lake strata table.docx")
 
 ```

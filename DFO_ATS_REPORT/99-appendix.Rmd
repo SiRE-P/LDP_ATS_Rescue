@@ -19,8 +19,8 @@ pivot_wider(names_from = ats_year,
 
 # Add total row per year
 summary_table_sockeye_class_total <- summary_table_sockeye_class_total %>%
-  bind_rows(summary_table_sockeye_class_total %>%
-              summarise(across(where(is.numeric), sum), lake_name = "Total")) %>%
+  #bind_rows(summary_table_sockeye_class_total) %>%
+             # summarise(across(where(is.numeric), sum), lake_name = "Total")) %>%
    rename("Lake name" = lake_name)
 
 # Add a landscape section break before the table using officedown
@@ -48,8 +48,8 @@ pivot_wider(names_from = ats_year,
 
 # Add total row per year
 summary_table_fish_class_total <- summary_table_fish_class_total %>%
-  bind_rows(summary_table_fish_class_total %>%
-              summarise(across(where(is.numeric), sum), lake_name = "Total")) %>%
+  #bind_rows(summary_table_fish_class_total %>%
+             # summarise(across(where(is.numeric), sum), lake_name = "Total")) %>%
   select(1,names(.)[-1][order(as.numeric(names(.)[-1]))]) %>%
    rename("Lake name" = lake_name)
 
