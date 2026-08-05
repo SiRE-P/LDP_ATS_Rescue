@@ -1411,6 +1411,13 @@ adapt_dataset$lake_longitude_decimal <- with(adapt_dataset, {
                       proto = list(deg = numeric(), min = numeric()))
   parts$deg + parts$min / 60})
 
+# Flag anomalous values for sockeye +1 in the Kennedy (Clay) lake
+adapt_dataset <- adapt_dataset %>%
+  mutate(length_weight_comment = if_else(lake_name == "Kennedy Lake (Clay)" & species_code_comment == "1+",
+                                         if_else(is.na(length_weight_comment) | length_weight_comment == "",
+                                                "Unusual size for Sockeye 1+", paste(length_weight_comment, "Unusual size for Sockeye 1+", sep = "; ")), 
+                                          length_weight_comment))
+
 # Combine columns flagging issue in a data_issue column and general comments in a general_comments column, 
 # skip the row when it is NA
 final_dataframe <- adapt_dataset %>%
