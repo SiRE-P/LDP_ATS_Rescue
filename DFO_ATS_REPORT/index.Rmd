@@ -1,6 +1,6 @@
 ---
 english_title: |
-  Trawl biosampling and acoustic field data of the Lake Enrichment Program (LEP) conducted from 1977 to 2007 across 75 freshwater bodies, predominantly in British Columbia
+  Limnetic acoustic sonar fish target and sample data associated with Acoustic-Trawl-Survey (ATS) field studies for juvenile Sockeye salmon abundance during the Lake Enrichment and Study Lakes programs, 1977-2007 
 french_title: |
   Données de bioéchantillonnage par chalutage et données acoustiques de terrain du Programme d'enrichissement des lacs (LEP) mené de 1977 à 2007 dans 75 plans et cours d'eau différents, majoritairement en Colombie-Britannique
 
@@ -68,7 +68,7 @@ english_region: "Pacific Region"
 french_region: "Région du Pacifique"
 
 year: "2026"
-report_number: "000"
+report_number: "0000"
 
 english_preamble_pages: "iv"
 french_preamble_pages: "iv"
@@ -96,15 +96,14 @@ bibliography: ["bib/DFO-ATS-Report-refs.bib", "bib/refs.bib"]
 ```{r setup, echo=FALSE, cache=FALSE, message=FALSE, results='hide', warning=FALSE}
 library(knitr)
 opts_chunk$set(
-  #  cache = TRUE, # cache all chunks?
-  #  autodep = TRUE, # try to guess which chunks depend on which in cache?
-  fig.width = 6, # 'internal' plotting figure width (inches)
-  out.width = "80%", # output plotting width; adjust here or by chunk if desired
+  #  cache = TRUE,     # cache all chunks?
+  #  autodep = TRUE,   # try to guess which chunks depend on which in cache?
+  fig.width = 6,       # 'internal' plotting figure width (inches)
+  out.width = "80%",   # output plotting width; adjust here or by chunk if desired
   fig.asp = 1 / 1.618, # golden ratio; adjust here or by chunk if desired
-  dpi = 200, # adjust to taste; larger = higher resolution but larger file size
+  dpi = 300,           # adjust to taste; larger = higher resolution but larger file size
   warning = FALSE, 
-  message = FALSE
-)
+  message = FALSE)
 ```
 
 ```{r load-libraries-csasdown}
@@ -121,23 +120,27 @@ flextable::set_flextable_defaults(
   padding.top = 1, 
   padding.bottom = 1,
   na_str = "-",
-  theme_fun = "theme_booktabs"
-)
+  theme_fun = "theme_booktabs")
 ```
 
 ```{r load-libraries-user}
+library(beepr)
+library(broom)
 library(dplyr) 
+# install.packages("ggh4x")
+library(ggh4x)
+# install.packages("ggbreak")   # run once
+library(ggbreak)
 library(ggplot2) 
 library(grateful)
-library(stringr)
-library(beepr)
 library(lubridate)
-library(purrr)
-library(tidyverse)
-library(broom)
 library(officedown)
 library(officer)
+library(purrr)
+library(scales)
 library(sf)
-
+library(stringr)
+library(tidyverse)
 # add more packages here as needed
+
 ```
