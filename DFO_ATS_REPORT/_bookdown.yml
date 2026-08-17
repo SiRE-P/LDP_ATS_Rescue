@@ -2,8 +2,8 @@ book_filename: "techreport"
 rmd_files: ["index.Rmd",
             "01-introduction.Rmd",
             "02-methods.Rmd",
-            "03-results.Rmd",
-            "98-references.Rmd",
-            "99-appendix.Rmd",
-            "99-appendix2.Rmd"]
+            "03-results_AA_HS_260815.Rmd",  # HS Revisions & Test Code
+            "98-references.Rmd"]
+          # "99-appendix_AA_HS_260816.Rmd"] # HS Revisions & Test Code
+          # "99-appendix2.Rmd"]
 delete_merged_file: true
