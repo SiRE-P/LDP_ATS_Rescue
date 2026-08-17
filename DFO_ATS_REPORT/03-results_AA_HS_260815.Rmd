@@ -1,0 +1,1619 @@
+# RESULTS
+
+```{r timer-start, include=FALSE}
+report_start_time <- Sys.time()
+cat("\n================================================\n")
+cat("03-results (AA_HS_260610).Rmd started at:", format(report_start_time, "%Y-%m-%d %H:%M:%S"), "\n")
+cat("================================================\n\n")
+```
+
+K factors are available in the dataset, the methods should outline how they were used to fix some anomalous lengths and/or weights. two pinks were found.
+lakes of interest \
+
+<!-- Figure \@ref(fig:separated-spp)  -->
+
+```{r figure-scale-book, fig.cap="Example of a scale book record form.", out.width="60%"}
+
+#include_graphics("../TRAWL_BIOSAMPLE/06_Figures/scale_book1.jpg")
+
+```
+
+```{r figure-sample, fig.cap="Example of scale samples on a scale book.", out.width="60%"}
+
+#include_graphics("../TRAWL_BIOSAMPLE/06_Figures/scale_book2.jpg")
+
+```
+
+```{r read_csvs}
+
+############## Read csv tables
+
+lake_codes_names_lat_longs <- read.csv("./00_data/lake_codes.csv")   # LEP lake codes, names, and lat-longs
+lake_codes_names <- lake_codes_names_lat_longs %>%                   # same, but lat-longs dropped
+  dplyr::select(-lake_latitude, -lake_longitude)                     # this DF can be used to tidy up lake names
+
+Acoustic_data_import <- read.csv("./00_data/Target_OUTPUT_data_FINAL_(1977_2007).csv") %>%
+# filter(lake_code == 255) %>%                                       # ATS Acoustics data
+  left_join(lake_codes_names, by = "lake_code") %>%                  # merge proper lake_name variable by lake code
+  relocate(lake_name, .after = lake_code) %>%                        # tidy order and
+  select(-lake)                                                      # drop old "lake" variable
+       
+Trawl_data_import <- read.csv("./00_data/Trawl_data_FINAL_1977-1999.csv") # ATS Trawl data
+
+```
+
+```{r global_variables}
+
+### Global variables
+
+fig_width  <- 7.5            # figure width in inches
+fig_height <- 10             # figure height in inches  
+half_height<- 4              # figure height for half-page plots
+out_width  <- "80%"          # figure sizing to fit page
+portrait   <- 11/8.5         # figure aspect ratio for 8.5 x 11 page in portrait mode
+landscape  <- 8.5/11         # figure aspect ratio for 8.5 x 11 page in landscape mode
+A4         <- 11.69/8.27     # figure aspect ratio for 8.5 x 14 page (A4) in portrait mode (tall)
+  
+# lakes_of_interest <- c("Great Central Lake", "Sproat Lake (Two R)", "Sproat Lake", "Henderson Lake", "Kennedy Lake (Clay)", "Kennedy Lake (Main)", "Cheewhat Lake", "Muriel Lake", "Hobiton Lake", "Long Lake", "Long Lake (A)", "Long Lake (B)", "Owikeno Lake", "Tahltan Lake", "Meziadin Lake")
+
+lakes_of_interest <- c("Great Central Lake", "Sproat Lake", "Henderson Lake",            # Barkley Sound
+                       "Kennedy Lake", "Cheewhat Lake", "Muriel Lake", "Hobiton Lake",   # Clayoquot Sound & WCVI
+                       "Nimpkish Lake", "Vernon Lake", "Woss Lake",                      # ECVI
+                       "Long Lake", "Owikeno Lake", "Meziadin Lake",                     # Central Coast
+                       "Skidegate Lake", "Yakoun Lake", "Tahltan Lake")                  # North Coast, Haida Gwaii
+```
+
+```{r functions}
+
+library(dplyr)
+library(stringr)
+
+fix_lake_codes_names <- function(df) {
+
+  df %>%
+
+    # Step 1: Fix acoustic-import lake codes
+    mutate(
+      lake_code = case_when(
+        lake_code == 245 ~ 122,  # Quatse Lake
+        lake_code == 247 ~ 121,  # Nahwitti Lake      # most of these are additional codes for existing lakes
+        lake_code == 248 ~ 49,   # Fulmore Lake       # but with _2005 attached to the lake_name.
+        lake_code == 249 ~ 59,   # Phillips Lake      # this code consolidates such records with original
+        lake_code == 250 ~ 50,   # Heydon Lake        # lake code and name.
+        lake_code == 243 ~ 50,   # Heydon Lake        
+        lake_code == 244 ~ 50,   # Heydon Lake        
+        lake_code == 251 ~ 237,  # Osoyoos Lake
+        lake_code == 252 ~ 122,  # Quatse Lake
+        lake_code == 255 ~ 241,  # Skaha Lake
+        lake_code == 124 ~ 180,  # No-Name Lake -> Link Lake
+        TRUE ~ lake_code)
+    ) %>%
+
+    # Step 2: Consolidate lake codes for data report plots & tables
+    mutate(
+      lake_code = case_when(
+        lake_code %in% c(40, 41, 234) ~ 5,         # Kennedy
+        lake_code %in% c(166, 167) ~ 107,          # Cheewhat
+        lake_code %in% c(801, 802) ~ 8,            # Long
+        lake_code %in% c(228, 229, 230, 231) ~ 18, # Owikeno
+        lake_code %in% c(238, 239, 240) ~ 237,     # Osoyoos
+        lake_code %in% c(255) ~ 241,               # Skaha
+        lake_code %in% c(155, 156) ~ 62,           # Skidegate
+        lake_code %in% c(159, 160, 163, 164) ~ 2,  # Sproat
+        TRUE ~ lake_code
+      )
+    ) %>%
+
+    # Step 3: Consolidate lake names (to re-assign old specific location/arm names to one name after lake-code fix)
+    mutate(
+      lake_name = case_when(
+        lake_code == 5   ~ "Kennedy Lake",
+        lake_code == 107 ~ "Cheewhat Lake",
+        lake_code == 8   ~ "Long Lake",
+        lake_code == 18  ~ "Owikeno Lake",
+        lake_code == 237 ~ "Osoyoos Lake",
+        lake_code == 241 ~ "Skaha Lake",
+        lake_code == 62  ~ "Skidegate Lake",
+        lake_code == 2   ~ "Sproat Lake",
+        TRUE ~ lake_name)) %>%
+    mutate(
+    # lake_name = str_trim(str_remove_all(lake_name, "_2005")))
+      lake_name = str_trim(str_replace_all(lake_name, "_2005", " Lake")),
+      lake_name = str_trim(str_replace_all(lake_name, "_2007", " Lake")))
+  }
+
+trim_lake_names <- function(df) {      # Clean lake names
+  
+  df %>% filter(!is.na(lake_name), lake_name != "NA") %>%
+    
+    mutate(
+      lake_name = case_when(
+        lake_name == "Kennedy Lake (Clay)" ~ "Kennedy",
+        lake_name == "Kennedy Lake (Main)" ~ "Kennedy",
+        lake_name == "Long Lake (A)"       ~ "Long",
+        lake_name == "Long Lake (B)"       ~ "Long",
+        lake_name == "Osoyoos Lake C"      ~ "Osoyoos",
+        lake_name == "Osoyoos Lake N"      ~ "Osoyoos",
+        lake_name == "Osoyoos Lake S"      ~ "Osoyoos",                
+        lake_name == "Owikeno Lake (A)"    ~ "Owikeno",
+        lake_name == "Owikeno Lake (B)"    ~ "Owikeno",
+        lake_name == "Owikeno Lake (C)"    ~ "Owikeno",
+        lake_name == "Owikeno Lake (D)"    ~ "Owikeno",
+        lake_name == "Skidegate Lake NE"   ~ "Skidegate",
+        lake_name == "Skidegate Lake SW"   ~ "Skidegate",
+        lake_name == "Sproat Lake (Two R)" ~ "Sproat",
+        TRUE ~ lake_name)) %>%
+    
+    mutate(
+      lake_name = str_trim(str_remove_all(lake_name, "Lake")),
+      lake_name = str_trim(str_remove_all(lake_name, "_2005"))) 
+
+  }
+
+```
+
+```{r bubble_heatmap, fig.cap = "Bubble-plot showing the survey effort (number of distinct ATS survey dates) per lake per year. Bubble colours specify source dataset (acoustic target or trawl biosampling; dark yellow shows where both overlap); bubble size is proportional to the number of dates surveyed in a given year.", fig.height=9, fig.width=fig_width, out.width=out_width, fig.asp = 11.69/8.27}
+
+# fig.width=8, out.width="100%", fig.asp = 11.69/8.27}
+
+### Count survey effort for both acoustic and trawl data
+### Trawl
+unique_surveys_trawl <- fix_lake_codes_names(Trawl_data_import) %>%
+# distinct(lake_name, lake_code) # just for checking unique lakes & codes [hs 260808]
+  distinct(lake_name, lake_code, trawl_date, ats_year)
+
+survey_counts_trawl <- unique_surveys_trawl %>%
+  group_by(lake_name, lake_code, ats_year) %>%
+  summarise(n_surveys = n(), .groups = "drop") %>%
+  mutate(dataset = "Trawl")
+
+### Acoustic
+# re-assign lake codes
+Acoustic_data_lake_code_fix <- fix_lake_codes_names(Acoustic_data_import) 
+
+unique_acoustic_lakes <- Acoustic_data_lake_code_fix %>%
+  distinct(lake_name, lake_code) %>%
+  arrange(lake_code)
+
+# Find unique records
+unique_surveys_acoustic <- Acoustic_data_lake_code_fix %>% # Acoustic_data %>%
+  distinct(lake_name, lake_code, survey_date, ats_year)
+
+survey_counts_acoustic <- unique_surveys_acoustic %>%
+  group_by(lake_name, lake_code, ats_year) %>%
+  summarise(n_surveys = n(), .groups = "drop") %>%
+  mutate(dataset = "Acoustic")
+
+### combine trawl and acoustic
+survey_effort_combined <- bind_rows(survey_counts_acoustic, survey_counts_trawl) # %>%
+
+survey_effort_combined <- trim_lake_names(survey_effort_combined) %>%
+  filter(!is.na(lake_name), lake_name != "NA") %>%
+# mutate(lake_name = paste0(lake_name, " (", sprintf("%03d", lake_code), ")")) %>%  # adds lake_code to label
+  arrange(lake_name)
+
+# bubble heatmap
+# ggplot()+
+# geom_point(
+#   data = subset(survey_effort_combined, dataset == "Acoustic"),
+#   aes(x = ats_year, y = lake_name,
+#       size = n_surveys,
+#       fill = "Acoustic"),
+#   shape = 21,
+#   colour = "purple4",
+#   stroke = 0.15) +
+# geom_point(
+#   data = subset(survey_effort_combined, dataset == "Trawl"),
+#   aes(x = ats_year, y = lake_name,
+#       size = n_surveys,
+#       fill = "Trawl"),
+#   shape = 21,
+#   colour = "black",
+#   stroke = 0.5,
+#   alpha = 0.5) +
+#   scale_fill_manual(
+#   values = c(
+#     Acoustic = "purple",
+#     Trawl = "yellow"),
+#   name = "Dataset") +
+#   scale_x_continuous(breaks = 1977:2008, expand = c(0.01, 0.01)) +
+#   scale_y_discrete(limits = rev) +
+#   scale_size(range = c(1,8), name = "Survey Effort (Tot. Dates)") +
+#   labs(x = "", y = "Lake", color = "Dataset") +
+#   ggtitle("Annual Survey Effort by Lake and ATS Year") +
+#   scale_colour_viridis_d(option = "viridis") +
+#   theme_bw() +
+#   theme(plot.title = element_text(hjust = 0.5),
+#         axis.text.x = element_text(angle = 90, vjust = 0.5, size = 7),
+#         axis.text.y = element_text(size = 7),
+#         panel.grid.major = element_line(colour = "grey90"),
+#         panel.grid.minor = element_blank(),
+#       # legend.position = c(0.84, 0.92),  # x, y coordinates inside plot
+#         legend.position = "bottom", legend.box = "horizontal",
+#         legend.background = element_rect(fill = "white"),
+#         legend.text = element_text(size = 8), legend.title = element_text(size=8),
+#         legend.spacing.x = unit(0.05, "cm"))
+
+ggplot() +
+  geom_point(
+    data = subset(survey_effort_combined, dataset == "Acoustic"),
+    aes(
+      x = ats_year,
+      y = lake_name,
+      size = n_surveys,
+      fill = "Acoustic"),
+    shape = 21,
+    colour = "purple4",
+    stroke = 0.15) +
+  geom_point(
+    data = subset(survey_effort_combined, dataset == "Trawl"),
+    aes(
+      x = ats_year,
+      y = lake_name,
+      size = n_surveys,
+      fill = "Trawl"),
+    shape = 21,
+    colour = "black",
+    stroke = 0.50,
+    alpha = 0.5) +
+  scale_fill_manual(
+    values = c(
+      Acoustic = "purple4",
+      Trawl = "yellow"),
+    name = "Dataset") +
+  scale_x_continuous(
+    breaks = 1977:2008,
+    expand = c(0.01, 0.01)) +
+  scale_y_discrete(limits = rev) +
+  scale_size(
+    range = c(1, 8),
+    name = "Survey Effort (Tot. Dates)") +
+  labs(
+    x = "",
+    y = "Lake") +
+  ggtitle("Annual Survey Effort by Lake and ATS Year") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8),
+    axis.text.y = element_text(size = 8),
+    panel.grid.major = element_line(colour = "grey90"),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    legend.box = "horizontal",
+    # legend.background = element_rect(
+    #   fill = "white",
+    #   colour = "grey70",
+    #   linewidth = 0.3),
+    legend.text = element_text(size = 8),
+    legend.title = element_text(size = 8),
+    legend.spacing.x = unit(0.05, "cm"))
+
+```
+
+```{r trip-effort-lakes, fig.cap="Frequency distribution of ATS trips by month across all available years for key study lakes. Each trip may include 1-3 sequential sampling days in the same lake.", fig.width=fig_width, fig.height=fig_height, out.width=out_width, fig.asp = 11.69/8.27}
+
+### AA's original code chunk will be dropped from report and/or relegated to Supplemental info files  [260806]
+#   Here modified to produce single page facet plot for all available years for each lake... 
+trip_effort_table <- read.csv("./02_final_output/FINAL_2days_match_trawl_and_acoustic.csv", check.names = FALSE)
+
+### adding ats_year and trawl_month
+trip_effort_sockeye_stickle <- fix_lake_codes_names(trip_effort_table) %>%
+  mutate(trawl_date = ifelse(is.na(survey_date_trawl), survey_date_acoustic, survey_date_trawl))
+
+### adding ats_year and trawl_month
+trip_effort_sockeye_stickle <- trip_effort_sockeye_stickle %>%
+  mutate(trawl_date = ymd(trawl_date),
+    trawl_month = month(trawl_date)) 
+
+# Month abbreviation
+trip_effort_sockeye_stickle$trawl_month <- month.abb[trip_effort_sockeye_stickle$trawl_month]
+
+# Filter only the lakes of interest
+trip_effort_sockeye_stickle <- trip_effort_sockeye_stickle %>%
+  filter(lake_name %in% lakes_of_interest) %>%
+  distinct(ats_year, lake_name, Trip, trawl_month) 
+
+# Create histograms for each loi
+lakes <- trip_effort_sockeye_stickle %>%
+  filter(lake_name %in% lakes_of_interest)
+lakes <- unique(lakes$lake_name)
+
+ggplot(
+  trip_effort_sockeye_stickle,
+  aes(
+    x = factor(
+      trawl_month,
+      levels = c("Apr", "May", "Jun", "Jul", "Aug", "Sep",
+                 "Oct", "Nov", "Dec", "Jan", "Feb", "Mar")),
+    fill = factor(ats_year,
+                  levels = sort(unique(ats_year))))) +
+  scale_x_discrete(
+  breaks = c("Apr", "Jun", "Aug", "Oct", "Dec", "Feb")) +
+  geom_bar(
+    color = "black", linewidth = 0.2, 
+    position = position_stack(reverse = TRUE)) +
+  scale_fill_viridis_d(
+  option = "viridis") +
+  facet_wrap(~ lake_name, ncol = 4) +
+  labs(
+    title = "Key Lakes Trip Frequency by Month and ATS Year",
+    x = "",
+    y = "Trips",
+    fill = "ATS Year") +
+  theme_bw() +
+  guides(fill = guide_legend(nrow = 3, byrow = TRUE,
+                             keywidth = unit(0.4, "cm"),
+                             keyheight = unit(0.4, "cm"),)) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 60, hjust = 1, size=8),
+    strip.text = element_text(size = 9),
+    legend.title = element_blank(),
+    legend.position = "bottom", legend.direction = "horizontal",
+    legend.box = "horizontal", 
+    legend.text = element_text(size = 7))
+
+```
+# \newpage
+
+## Acoustic Target Dataset
+
+```{r depth-acoustic, fig.cap="Frequency distribution of depth range for acoustic sonar surveys across all lakes.", fig.width=fig_width, out.width=out_width, fig.height=half_height}
+
+unique_depth_acoustic <- fix_lake_codes_names(Acoustic_data_import) %>%
+  distinct(depth_min_m, depth_max_m, lake_name, survey_date) %>%
+  arrange(depth_min_m) %>%
+  mutate(depth_m = paste0(depth_min_m, "-", depth_max_m),
+         depth_m = factor(depth_m, levels = unique(depth_m))) 
+
+ggplot(unique_depth_acoustic, aes(x = depth_m)) +
+  geom_bar(fill = "purple4", color = "white", linewidth = 0.3) +  # fill = "#440154"
+  labs(title = "Acoustic Survey Sounding Depth Range",
+       subtitle = "All Lakes, All Years",
+       x = "Depth range (m)", y = "Frequency") +
+    scale_y_continuous(sec.axis = sec_axis(transform = ~ . / nrow(unique_depth_acoustic), 
+                                         name = "Percentage", labels = scales::percent), 
+                     expand = expansion(mult = c(0, 0.05))) +
+  theme_bw() +
+    theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.y = element_text(angle = 0, size=10),
+    axis.text.x = element_text(angle = 0, size=10, hjust = 0.5))
+
+```
+\newpage
+
+```{r acoustic-targets, fig.cap="Mean annual fish targets from acoustic sonar surveys by lake and year.", fig.width=fig_width, out.width=out_width, fig.height=half_height}
+
+acoustic_targets <- fix_lake_codes_names(Acoustic_data_import) %>%
+# filter(lake_name == "Great Central Lake") %>%
+  filter(lake_name %in% lakes_of_interest) %>%
+  select(ats_year, lake_name, lake_code, survey_date, transect, targets, prop_sockeye)
+
+# Step 1: Sum across depth strata within each transect
+acoustic_transect_totals <- acoustic_targets %>%
+  group_by(
+    lake_name,
+    lake_code,
+    ats_year,
+    survey_date,
+    transect
+  ) %>%
+  summarise(
+    transect_targets = sum(targets, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Step 2: Sum across transects within each survey
+acoustic_survey_totals <- acoustic_transect_totals %>%
+  group_by(
+    lake_name,
+    lake_code,
+    ats_year,
+    survey_date
+  ) %>%
+  summarise(
+    survey_targets = sum(transect_targets, na.rm = TRUE),
+    .groups = "drop"
+  )
+ 
+# Step 3: Mean acoustic targets per survey by lake and ATS year 
+acoustic_annual_summary <- acoustic_survey_totals %>%
+  group_by(
+    lake_name,
+    lake_code,
+    ats_year
+  ) %>%
+  summarise(
+    n_surveys = n(),
+    mean_targets = mean(survey_targets, na.rm = TRUE),
+    median_targets = median(survey_targets, na.rm = TRUE),
+    sd_targets = sd(survey_targets, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Visualize with boxplots 
+acoustic_annual_medians <- acoustic_survey_totals %>%
+  group_by(
+    lake_name,
+    ats_year
+  ) %>%
+  summarise(
+    median_targets = median(survey_targets),
+   .groups = "drop")
+
+
+for (lk in sort(unique(acoustic_survey_totals$lake_name))) {
+  acoustic_survey_totals_lk <- acoustic_survey_totals %>% 
+    filter(lake_name == lk)
+  
+  acoustic_annual_medians_lk <- acoustic_annual_medians %>%
+  filter(lake_name == lk)
+
+  y_max <- min(
+  30000,
+  quantile(
+    acoustic_survey_totals_lk$survey_targets,
+    probs = 0.99,
+    na.rm = TRUE)) 
+  
+  p <- ggplot(
+    acoustic_survey_totals_lk,
+    aes(
+      x = factor(ats_year),
+      y = survey_targets)) +
+    
+    geom_boxplot(
+      fill = "darkblue",
+      colour = "black",
+      linewidth = 0.3) +
+    
+    geom_line(
+      data = acoustic_annual_medians_lk,
+      aes(
+        x = factor(ats_year),
+        y = median_targets,
+        group = 1),
+      colour = "red",
+      linewidth = 0.5) +
+    
+    geom_point(
+      data = acoustic_annual_medians_lk,
+      aes(
+        x = factor(ats_year),
+        y = median_targets),
+      colour = "red",
+      size = 1) +
+    
+    # facet_wrap(
+    #   ~ lake_name,
+    #   scales = "free_y",
+    #   ncol = 4) +
+    
+    scale_y_continuous(
+      labels = scales::label_number(scale = 1/1000),
+      name = "Targets per Survey (1000's)") +
+          
+    coord_cartesian(ylim = c(0, y_max)) +
+    
+    labs(
+      title = paste(lk, "Mean Annual Acoustic Survey Target Counts by ATS Year"),
+      subtitle = "Survey-level totals summed across depth strata and transects for key study lakes",
+      x = "",
+      y = "Targets per Survey") +
+    
+    theme_bw() +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      plot.subtitle = element_text(hjust = 0.5),
+      axis.text.x = element_text(
+        angle = 45,
+        hjust = 1,
+        size = 8
+      ))
+  # strip.text = element_text(size = 9),
+  # strip.background = element_rect(
+  #   fill = "yellow",
+  #   colour = "black",
+  #   linewidth = 0.3))
+  
+  print(p)
+}
+
+```
+\newpage
+
+```{r acoustic-data-prop-sox, fig.cap="Annual proportion Sockeye (as recorded in acoustic source files), weighted by target abundance, by lake and year.  Note that these proportions were derived from trawl sample data by observers and applied to the acoustic source data manually, and are presented here for comparative purposes.", fig.width=fig_width, out.width=out_width, fig.height=3.5}
+
+acoustic_survey_prop_sockeye <- acoustic_targets %>%  # aggregate to lake/year/survey level
+  group_by(
+    lake_name,
+    lake_code,
+    ats_year,
+    survey_date) %>%
+  summarise(
+    survey_targets = sum(targets, na.rm = TRUE),
+    survey_prop_sockeye =
+      sum(targets * prop_sockeye, na.rm = TRUE) /  # get weighted mean proportion sockeye
+      sum(targets, na.rm = TRUE),                  # weighted by the number of targets
+     .groups = "drop") %>%
+  filter(!is.na(survey_prop_sockeye))
+
+acoustic_annual_prop_sockeye <- acoustic_survey_prop_sockeye %>%   # calc annual medians
+  group_by(
+    lake_name,
+    ats_year) %>%
+  summarise(
+    median_prop_sockeye =
+      median(survey_prop_sockeye, na.rm = TRUE),
+     .groups = "drop")
+
+for (lk in sort(unique(acoustic_survey_prop_sockeye$lake_name))) {
+
+  survey_lk <- acoustic_survey_prop_sockeye %>%
+    filter(lake_name == lk)
+
+  annual_lk <- acoustic_annual_prop_sockeye %>%
+    filter(lake_name == lk)
+
+  p <- ggplot(
+    survey_lk,
+    aes(
+      x = factor(ats_year),
+      y = survey_prop_sockeye)) +
+
+    geom_boxplot(
+      fill = "darkblue",
+      colour = "black",
+      linewidth = 0.3) +
+
+    geom_line(
+      data = annual_lk,
+      aes(
+        x = factor(ats_year),
+        y = median_prop_sockeye,
+        group = 1),
+      colour = "red",
+      linewidth = 0.5) +
+
+    geom_point(
+      data = annual_lk,
+      aes(
+        x = factor(ats_year),
+        y = median_prop_sockeye),
+      colour = "red",
+      size = 1) +
+
+    scale_y_continuous(
+      labels = scales::percent_format(accuracy = 1),
+      limits = c(0, 1),
+      name = "Sockeye Proportion") +
+
+    labs(
+      title = paste(lk,
+        "Annual Sockeye Proportions (in Acoustic Files)"),
+      subtitle =
+        "Survey-level proportions across all depth strata and transects (weighted by targets)",
+      x = "",
+      y = "Sockeye (%)") +
+
+    theme_bw() +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      plot.subtitle = element_text(hjust = 0.5),
+      axis.text.x = element_text(
+        angle = 45,
+        hjust = 1,
+        size = 8))
+
+  print(p)
+}
+
+```
+<!-- \newpage -->
+
+## Trawl Biosample Dataset
+
+```{r sample-label, fig.cap="Example of a trawl sample label.", out.width="60%"}
+
+include_graphics("../TRAWL_BIOSAMPLE/06_Figures/Trawl_sample_label.png")
+
+```
+\newpage
+
+```{r duration_distribution, fig.cap="Frequency distribution of trawl duration in minutes (left y-axis) and their proportion in the dataset (right y-axis). Duration represents calculated times from recorded start and stop times where available, otherwise recorded duration time.", fig.width=fig_width, out.width=out_width, fig.height=half_height}
+
+unique_calc_duration <- fix_lake_codes_names(Trawl_data_import) %>%
+  distinct(calc_duration_time, trawl_unique_ID, orig_duration_minutes) %>%
+  mutate(Duration = case_when(calc_duration_time != orig_duration_minutes ~ calc_duration_time,
+                              is.na(calc_duration_time) ~ orig_duration_minutes,
+                              is.na(orig_duration_minutes) ~ calc_duration_time,
+                              is.na(orig_duration_minutes) & is.na(calc_duration_time) ~ NA_real_,
+                              TRUE ~ orig_duration_minutes))
+
+unique_calc_duration <- unique_calc_duration %>%
+  filter(!is.na(Duration)) %>%
+  group_by(Duration) %>%
+  mutate(count = n())
+
+unique_calc_duration$Proportion <- 
+  round((unique_calc_duration$count / length(unique_calc_duration$Duration))*100, 2)
+
+# ggplot(unique_calc_duration, aes(x = as.integer(Duration))) +
+#   geom_histogram(binwidth = 1, center = 1, linewidth = 0.2, color = "black", fill="#FBD424FF") +
+#   scale_y_continuous(sec.axis = sec_axis(transform = ~ . / nrow(unique_calc_duration), 
+#                                          name = "Percentage", labels = scales::percent), 
+#                      expand = expansion(mult = c(0, 0.05))) +
+#   scale_x_continuous(breaks = seq(0, 50, by = 5), expand = c(0.01, 0.01)) +
+#   labs(title = "Trawl Duration", subtitle = "All Lakes, All Years", 
+#        x = "Duration (min)", y = "Frequency") +
+#   theme_bw() +
+#   theme(
+#     plot.title = element_text(hjust = 0.5),
+#     axis.text.y = element_text(angle = 0, size=10),
+#     axis.text.x = element_text(angle = 0, size=10, hjust = 0.5))
+
+
+# redo above plot with break in y-axis to emphasize lesser bars...
+ggplot(unique_calc_duration,
+       aes(x = as.integer(Duration))) +
+  geom_histogram(
+    binwidth = 1,
+    center = 1,
+    linewidth = 0.1,
+    color = "black",
+    fill = "yellow") +  # #FBD424FF (orange-ish)
+  scale_y_break(
+    c(400, 3600)) +   # adjust these values to suit data
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)),
+    sec.axis = sec_axis(
+      ~ . / nrow(unique_calc_duration),
+      name = "Percentage",
+      labels = scales::percent)) +
+  scale_x_continuous(
+    breaks = seq(0, 50, by = 5),
+    expand = c(0.01, 0.01)) +
+  labs(title = "Trawl Sample Duration", subtitle = "All Lakes, All Years", 
+       x = "Duration (min)", y = "Frequency") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+
+```
+
+```{r depth, fig.cap="Frequency distribution of trawl sample depths across all lakes and years. Due to the fact that the acoustic gear does not detect samples in the top 2 meters, surface trawls (0-2 m) were used to sample for fish in the upper epilimnion. Bin width = 2 meters.", fig.width=fig_width, out.width=out_width, fig.height=half_height}
+
+unique_depth <- fix_lake_codes_names(Trawl_data_import) %>%
+  distinct(depth_m, trawl_unique_ID, lake_name) %>%
+  filter(!is.na(depth_m)) # >= 50)
+
+ggplot(data = unique_depth, aes(depth_m)) +
+  geom_histogram(binwidth = 2, position = "dodge", color = "black", fill="yellow", linewidth = 0.3) + # #FBD424FF
+  labs(title = "Trawl Sample Depth", subtitle = "All Lakes, All Years", 
+       x = "Depth (m)", y = "Frequency") +
+ scale_x_continuous(breaks = seq(0, 70, by = 4), expand = c(0.01, 0.01)) +
+    scale_y_continuous(expand = expansion(mult = c(0, 0.05)),
+    sec.axis = sec_axis(
+      ~ . / nrow(unique_calc_duration),
+      name = "Percentage",
+      labels = scales::percent)) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+
+```
+
+
+```{r depth-by-lake, fig.cap="Frequency distribution of depth (m) data in the trawl dataset for key study lakes. Bin width for bar is 2 meters.",  fig.width=fig_width, out.width=out_width, fig.asp = 1.2}
+
+# Filter only the lakes of interest (loi)
+unique_depth_filtered <- unique_depth %>%
+  filter(lake_name %in% lakes_of_interest)
+
+ggplot(data = unique_depth_filtered) +
+  geom_histogram(aes(x = depth_m), binwidth = 2, color = "black", fill="yellow", linewidth = 0.05) + # #FBD424FF
+  labs(title = "Trawl Sample Depth", subtitle = "Key Lakes", x = "Depth (m)", y = "Frequency") +
+  facet_wrap(~ lake_name, ncol = 4, scale="free") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 00, hjust = .5, size=8),
+    strip.text = element_text(size = 9)) 
+
+```
+
+```{r hist-length-weight-by-lake, fig.cap="Frequency distribution of Sockeye and Stickleback length for key study lakes.", fig.width=fig_width, out.width=out_width, fig.asp = 1}
+
+# chunk_start_time <- Sys.time()
+# cat("\n================================================\n")
+# cat("Chunk started at:", format(chunk_start_time, "%Y-%m-%d %H:%M:%S"), "\n")
+# cat("================================================\n\n")
+
+## by lake name
+df_plot <- fix_lake_codes_names(Trawl_data_import) %>%
+  filter(lake_name %in% lakes_of_interest,
+    species_common_name %in% c("Sockeye", "Stickleback")) %>%
+  filter(!(species_common_name == "Sockeye" & life_stage == "Adult")) %>%
+  rename("Length (mm)" = fish_length_mm, "Weight (g)" = calc_std_weight_g) %>%
+  select(lake_name, species_common_name, `Length (mm)`, `Weight (g)`) %>%
+  pivot_longer(cols = c(`Length (mm)`, `Weight (g)`), names_to = "measurement", values_to = "value") %>%
+  arrange(lake_name)
+
+# lakes <- unique(df_plot$lake_name)
+
+df_plot_year <- fix_lake_codes_names(Trawl_data_import) %>%
+  filter(lake_name %in% lakes_of_interest,
+    species_common_name %in% c("Sockeye", "Stickleback")) %>%
+  filter(!(species_common_name == "Sockeye" & life_stage == "Adult")) %>%
+  rename("Length (mm)" = fish_length_mm, "Weight (g)" = calc_std_weight_g) %>%
+  select(lake_name, ats_year, species_common_name, `Length (mm)`, `Weight (g)`) %>%
+  pivot_longer(cols = c(`Length (mm)`, `Weight (g)`), names_to = "measurement", values_to = "value") %>%
+  arrange(lake_name, ats_year) %>%
+  mutate(ats_year = factor(ats_year, levels = sort(unique(ats_year))))
+
+lakes <- unique(df_plot$lake_name)
+years <- unique(df_plot_year$ats_year)
+
+# plot overlaid bar charts of sox & stix lengths
+
+df_length <- df_plot %>%
+  filter(
+    measurement == "Length (mm)",
+    lake_name %in% lakes_of_interest,
+    !is.na(value))
+
+ggplot(
+  df_length,
+  aes(x = value,
+    fill = species_common_name)) +
+  geom_histogram(
+  # aes(y = after_stat(count / sum(count) * 100)),  # to convert to percentages
+    binwidth = 5,
+    position = "identity",
+    alpha = 0.25,
+    colour = "black",
+    linewidth = 0.1) +
+  facet_wrap(~ lake_name, scales = "free_y", ncol = 4) +
+  # scale_y_continuous(labels = label_number(suffix = "%")) +
+  labs(
+    title = "Fish Length Distributions for Key Study Lakes",
+    subtitle = "All ATS years combined",
+    x = "Fish length (mm)",
+    y = "Count",
+    fill = "Species") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    strip.text = element_text(size = 9),
+    strip.background = element_rect(fill = "yellow", #"#FBD424FF", 
+                                    colour = "black", linewidth = 0.3),
+    legend.position = "bottom")
+
+
+# AA's plot of length & weight for sox and stix by lake and year -- relegate to separate output file??
+# for (lk in lakes) {
+# 
+#   df_lk <- filter(df_plot_year, lake_name == lk)
+#   
+#     for (yr in years) {
+#       df_yr <- filter(df_lk, ats_year == yr)
+#       
+#       if (nrow(df_yr) == 0) next
+#       
+#       p <- ggplot(df_yr, aes(x = value)) +
+#         geom_histogram(bins = 40, fill = "#FBD424FF", color = "black", linewidth = 0.1) +
+#         facet_grid(rows = vars(species_common_name), cols = vars(measurement), scales = "free") +
+#         #facet_wrap(~ ats_year + species_common_name + measurement, scales = "free", ncol = 4) +
+#         labs(title = paste(lk, " - ", yr),
+#             x = NULL,
+#             y = "Count") +
+#          theme_bw()
+#   
+#       print(p)
+#     
+#       }
+# }
+
+# elapsed <- difftime(Sys.time(), chunk_start_time, units = "mins")
+# cat("Elapsed time:", round(as.numeric(elapsed), 2),"minutes. Current time:",
+#     format(Sys.time(), "%H:%M:%S"), 
+#     "\n------------------------------------------------------------------------------\n\n")
+
+```
+
+```{r GCL-plot, fig.cap="Distribution of Sockeye and Stickleback length and weight in Great Central Lake."}
+#plots[["Great Central Lake"]]
+#plots[["Henderson Lake"]]
+#plots[["Hobiton Lake"  ]]
+#plots[["Kennedy Lake (Clay)" ]]
+#plots[["Kennedy Lake (Main)"]]
+#plots[["Long Lake"    ]]
+#plots[["Long Lake (A)"]]
+#plots[["Long Lake (B)"]]
+#plots[["Meziadin Lake"]]
+#plots[["Muriel Lake"  ]]
+#plots[["Owikeno Lake"]]
+#plots[["Sproat Lake"]]
+#plots[["Sproat Lake (Two R)" ]]
+#plots[["Tahltan Lake" ]]
+```
+
+```{r hist-length-weight-by-year, fig.cap="Histograms of the distribution of Sockeye and Stickleback length and weight by sampled ATS year."}
+# df_plot_year <- Trawl_data %>%
+#   filter(lake_name %in% lakes_of_interest,
+#     species_common_name %in% c("Sockeye", "Stickleback")) %>%
+#   rename("Length (mm)" = fish_length_mm, "Weight (g)" = calc_std_weight_g) %>%
+#   select(ats_year, lake_name, species_common_name, `Length (mm)`, `Weight (g)`) %>%
+#   pivot_longer(cols = c(`Length (mm)`, `Weight (g)`), names_to = "measurement", values_to = "value") %>%
+#   arrange(ats_year)
+# 
+# year <- unique(df_plot_year$ats_year)
+#
+#for (yr in year) {
+#
+#  df_yr <- filter(df_plot_year, ats_year == yr)
+#
+#  p <- ggplot(df_yr, aes(x = value)) +
+#    geom_histogram(bins = 40, fill = "steelblue", color = "black") +
+#    facet_grid(rows = vars(species_common_name), cols = vars(measurement), scales = "free") +
+#    labs(title = paste(yr),
+#         x = NULL,
+#         y = "Count") +
+#    theme_bw()
+#
+#  print(p)
+#}
+```
+
+\newpage
+
+```{r boxplot-lakes-years, fig.cap="Size distribution of Sockeye and Stickleback species from trawls in key study lakes by year. (Note: some upper outliers cropped by Y-axis; statistics not affected.)", fig.width=fig_width, out.width=out_width, fig.height=half_height}
+
+for (lk in lakes) {
+
+  df_lk <- filter(df_plot_year, lake_name == lk)
+
+  df_med <- df_lk %>%
+    group_by(ats_year, measurement, species_common_name) %>%
+    summarise(median_value = median(value, na.rm = TRUE), .groups = "drop")
+
+  p <- ggplot(df_lk,
+              aes(x = factor(ats_year), y = value)) +
+    geom_boxplot(fill = "yellow", alpha = 0.7, colour = "black", linewidth = 0.3) + # #FBD424FF
+    geom_line(data = df_med,
+              aes(x = factor(ats_year), y = median_value, group = 1),
+              colour = "red", linewidth = 0.4, linetype = "solid") +
+    geom_point(data = df_med,aes(x = factor(ats_year), y = median_value),
+               colour = "red", size = 1) +
+    facet_grid(
+      rows = vars(measurement),
+      cols = vars(species_common_name),
+      scales = "free_y"
+    ) +
+    facetted_pos_scales(
+      y = list(
+        measurement == "Length (mm)" ~ scale_y_continuous(limits = c(0, 100)),
+        measurement == "Weight (g)"  ~ scale_y_continuous(limits = c(0, 10)))) +
+    labs(
+      title = paste(lk, "Annual Size Statistics for Sockeye and Stickleback"), 
+      x = "",
+      y = NULL) +
+    theme_bw() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      strip.text = element_text(size = 9),
+      strip.background = element_rect(fill = "yellow", #"#FBD424FF", 
+                                    colour = "black", linewidth = 0.3))
+
+  print(p)
+}
+
+  # p <- ggplot(df_lk, aes(x = factor(ats_year), y = value)) +
+  #   geom_boxplot() +
+  #   facet_grid(rows = vars(measurement),
+  #              cols = vars(species_common_name),
+  #              scales = "free") +
+  #   labs(title = lk, x = "Year", y = NULL) +
+  #   theme_bw() +
+  #   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  # 
+  # print(p)
+# }
+
+```
+\newpage
+
+```{r all-spp-scatter-plot, fig.cap="Relationship between fish length and weight for all species included in the trawl dataset.", fig.width=fig_width, out.width=out_width, fig.height = half_height}
+
+# chunk_start_time <- Sys.time()
+# cat("\n================================================\n")
+# cat("Chunk all-spp-scatter-plot started at:",
+#     format(chunk_start_time, "%Y-%m-%d %H:%M:%S"), "\n")
+# cat("================================================\n\n")
+
+# Desired species order
+species_order <- c(
+  "Stickleback", "Sockeye", "Sculpin", "Lamprey",
+  "Peamouth Chub", "Coho", "Whitefish",
+  "Chinook", "Dolly Varden", "Pink",
+  "Red-sided Shiner", "Sucker", "Kokanee")
+
+# Pre-process once
+scatter_plot_all_spp <- Trawl_data_import %>%
+  fix_lake_codes_names() %>%
+  filter(
+    !is.na(species_common_name),
+    !is.na(fish_length_mm),
+    !is.na(calc_std_weight_g),
+    !(species_common_name == "Sockeye" & life_stage == "Adult") ) %>% # omit any Sockeye adults
+  mutate(
+    species_common_name = factor(
+      species_common_name,
+      levels = species_order))
+
+# Sample only abundant species
+set.seed(123)
+
+sockeye_sample <- scatter_plot_all_spp %>%
+  filter(species_common_name == "Sockeye") %>%
+  slice_sample(n = min(10000, nrow(.)))   # random subsample of 10,000 Sockeye records
+
+stickleback_sample <- scatter_plot_all_spp %>%
+  filter(species_common_name == "Stickleback") %>%
+  slice_sample(n = min(10000, nrow(.)))   # random subsample of 10,000 Stickleback records
+
+other_species <- scatter_plot_all_spp %>%
+  filter(!species_common_name %in% c("Sockeye", "Stickleback"))
+
+scatter_plot_sample <- bind_rows(
+  sockeye_sample,
+  stickleback_sample,
+  other_species)
+
+ggplot(
+  scatter_plot_sample,
+  aes(
+    x = fish_length_mm,
+    y = calc_std_weight_g,
+    shape = species_common_name,
+    colour = species_common_name,
+    fill = species_common_name,
+    size = species_common_name)) +
+  
+  geom_point(
+    alpha = 0.35,
+  # size = 1.5,
+    stroke = 0.1) +
+
+  scale_shape_manual(
+    values = c(
+      "Stickleback" = 21,
+      "Sockeye" = 21,
+      "Sculpin" = 16,
+      "Lamprey" = 17,
+      "Peamouth Chub" = 15,
+      "Coho" = 18,
+      "Whitefish" = 1,
+      "Chinook" = 2,
+      "Dolly Varden" = 5,
+      "Pink" = 3,
+      "Red-sided Shiner" = 4,
+      "Sucker" = 8,
+      "Kokanee" = 9),
+    name = "Species") +
+
+  scale_colour_manual(
+    values = c(
+      "Stickleback" = "black",
+      "Sockeye" = "black",
+      "Sculpin" = "#0D0887FF",
+      "Lamprey" = "#3B049AFF",
+      "Peamouth Chub" = "#5D01A6FF",
+      "Coho" = "#7E03A8FF",
+      "Whitefish" = "#B52F8CFF",
+      "Chinook" = "#CC4678FF",
+      "Dolly Varden" = "#DE5F65FF",
+      "Pink" = "#ED7953FF",
+      "Red-sided Shiner" = "#F89441FF",
+      "Sucker" = "#FBD424FF",
+      "Kokanee" = "red"), 
+    name = "Species") +
+
+  scale_fill_manual(
+    values = c(
+      "Stickleback" = "yellow",
+      "Sockeye" = "cyan",
+      "Sculpin" = NA,
+      "Lamprey" = NA,
+      "Peamouth Chub" = NA,
+      "Coho" = NA,
+      "Whitefish" = NA,
+      "Chinook" = NA,
+      "Dolly Varden" = NA,
+      "Pink" = NA,
+      "Red-sided Shiner" = NA,
+      "Sucker" = NA,
+      "Kokanee" = NA),
+    guide = "none") +    # suppress fill legend
+  
+  scale_size_manual(
+  values = c(
+    "Stickleback" = 2.0,
+    "Sockeye" = 2.0,
+    "Sculpin" = 1.2,
+    "Lamprey" = 1.2,
+    "Peamouth Chub" = 1.2,
+    "Coho" = 1.2,
+    "Whitefish" = 1.2,
+    "Chinook" = 1.2,
+    "Dolly Varden" = 1.2,
+    "Pink" = 1.2,
+    "Red-sided Shiner" = 1.2,
+    "Sucker" = 1.2,
+    "Kokanee" = 1.2),
+  guide = "none") +      # suppress size legend
+
+  guides(
+    shape = guide_legend(
+      override.aes = list(
+        fill = c(
+          "yellow", "cyan", rep(NA, 11))))) +
+  
+  labs(
+    title = "Length/Weight Relationships",
+    subtitle = "All Lakes, All Species",
+    x = "Fish length (mm)",
+    y = "Fish weight (g)") +
+
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    legend.box = "horizontal",
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5))
+
+# Plot
+# ggplot() +
+# 
+#   # Stickleback: white circles
+#   geom_point(
+#     data = filter(scatter_plot_sample,
+#                   species_common_name == "Stickleback"),
+#     aes(x = fish_length_mm,
+#         y = calc_std_weight_g),
+#     shape = 21,
+#     fill = "white",
+#     colour = "black",
+#     stroke = 0.1,
+#     alpha = 0.35,
+#     size = 1.5) +
+# 
+#   # Sockeye: red filled circles
+#   geom_point(
+#     data = filter(scatter_plot_sample,
+#                   species_common_name == "Sockeye"),
+#     aes(x = fish_length_mm,
+#         y = calc_std_weight_g),
+#     shape = 21,
+#     fill = "red",
+#     colour = "black",
+#     stroke = 0.1,
+#     alpha = 0.35,
+#     size = 1.5) +
+# 
+#   # All remaining species
+#   geom_point(
+#     data = filter(
+#       scatter_plot_sample,
+#       !species_common_name %in% c("Sockeye", "Stickleback")),
+#     aes(
+#       x = fish_length_mm,
+#       y = calc_std_weight_g,
+#       shape = species_common_name,
+#       colour = species_common_name),
+#     alpha = 0.5,
+#     size = 1.5) +
+# 
+#   scale_shape_manual(
+#     values = c(
+#       "Sculpin" = 16,
+#       "Lamprey" = 17,
+#       "Peamouth Chub" = 15,
+#       "Coho" = 18,
+#       "Whitefish" = 1,
+#       "Chinook" = 2,
+#       "Dolly Varden" = 5,
+#       "Pink" = 3,
+#       "Red-sided Shiner" = 4,
+#       "Sucker" = 8,
+#       "Kokanee" = 9),
+#     name = "Species") +
+# 
+#   scale_color_manual(
+#     values = c(
+#       "Sculpin" = "#0D0887FF",
+#       "Lamprey" = "#3B049AFF",
+#       "Peamouth Chub" = "#5D01A6FF",
+#       "Coho" = "#7E03A8FF",
+#       "Whitefish" = "#B52F8CFF",
+#       "Chinook" = "#CC4678FF",
+#       "Dolly Varden" = "#DE5F65FF",
+#       "Pink" = "#ED7953FF",
+#       "Red-sided Shiner" = "#F89441FF",
+#       "Sucker" = "#FBD424FF",
+#       "Kokanee" = "#F0F921FF"),
+#     name = "Species") +
+# 
+#   labs(title = "Length/Weight Relationships", subtitle = "All Lakes, All Species",
+#     x = "Fish length (mm)",
+#     y = "Fish weight (g)") +
+#   theme_bw() +
+#   theme(
+#     legend.position = "bottom",
+#     legend.box = "horizontal",
+#     plot.title = element_text(hjust = 0.5))
+
+# elapsed <- difftime(Sys.time(), chunk_start_time, units = "mins")
+# cat("Elapsed time:", round(as.numeric(elapsed), 2),"minutes. Current time:",
+#     format(Sys.time(), "%H:%M:%S"),
+#     "\n------------------------------------------------------------------------------\n\n")
+
+```
+
+```{r separated-spp, fig.cap="Scatter plot illustrating the relationship between fish length and weight for juvenile Chinook, Coho, Sockeye and all Stickleback specimens included in the dataset. Additionally, a regression curve is also provided, including the annotated coefficients for each species. Any adult Sockeye was disregarded in the statistical calculations. Length–weight relationships were estimated separately for each species using linear regression on log-transformed data. For each species, a linear model of the form W=aLb was fitted, i.e., log(calculated standardized weight) = log(a) + b × log(length). The intercept and slope from the regression were used to calculate the length–weight parameters, where a was obtained by back-transforming the intercept (exp(intercept)) and b represents the scaling coefficient. The sample size (N) was calculated as the number of observations included in each species-specific model, and model fit was assessed using the coefficient of determination (R²).", fig.width=fig_width, out.width=out_width, fig.asp = 0.8}
+
+# Drop any adult codes.
+scatter_plot_all_spp_filtered <- fix_lake_codes_names(Trawl_data_import) %>%
+  filter(!life_stage %in% c("Gravid female", "Adult", "Adult female")) %>%
+  filter(species_common_name %in% c("Coho", "Chinook", "Stickleback", "Sockeye"))
+
+# Clean data
+scatter_plot_all_spp_filtered <- scatter_plot_all_spp_filtered %>%
+  filter(!is.na(fish_length_mm), !is.na(calc_std_weight_g), fish_length_mm > 0, calc_std_weight_g > 0)
+
+#scatter_plot_all_spp_filtered %>%
+#  filter(!is.na(species_common_name)) %>%
+#  group_by(species_common_name) %>%
+#  summarise(n = n(), unique_lengths = n_distinct(fish_length_mm)) %>%
+#  arrange(unique_lengths)
+
+# Fit one model per species
+models <- scatter_plot_all_spp_filtered %>%
+  group_by(species_common_name) %>%
+  nest() %>%
+  mutate(model = map(data, ~lm(log(calc_std_weight_g) ~ log(fish_length_mm), data = .x)) )
+
+# Compute statistical variables: a, b, N and R²
+stats <- models %>%
+  mutate( intercept = map_dbl(model, ~coef(.x)[1]),
+          b = map_dbl(model, ~coef(.x)[2]),
+          a = exp(intercept),
+          R2 = map_dbl(model, ~summary(.x)$r.squared),
+          N = map_int(data, nrow)) %>%
+  select(species_common_name, a, b, N, R2)
+
+# Create fitted curves
+predictions <- models %>%
+  mutate(newdata = map(data, ~data.frame(
+      fish_length_mm = seq(min(.x$fish_length_mm),
+                           max(.x$fish_length_mm),
+                           length.out = 200))),
+    prediction = map2( model, newdata,~mutate(.y, calc_std_weight_g = exp(predict(.x, newdata = .y))))) %>%
+  select(species_common_name, prediction) %>%
+  unnest(prediction)
+
+# Create annotation labels
+labels <- stats %>%
+  mutate(label = paste0("a = ", signif(a, 3),"\n",
+                        "b = ", round(b, 3), "\n",
+                        "N = ", format(N, big.mark = ","), "\n",
+                        "R² = ", round(R2, 3)))
+
+# Plot the scatter plot
+ggplot(scatter_plot_all_spp_filtered, aes(fish_length_mm, calc_std_weight_g)) +
+  geom_point(aes(color = species_common_name), alpha = 0.7) +
+  geom_line(data = predictions, aes(y = calc_std_weight_g), 
+            colour = "black", linetype = "dashed", linewidth = 0.5) +
+  geom_text(data = labels, aes(x = -Inf, y = Inf, label = label),
+    hjust = -0.05, vjust = 1.1, inherit.aes = FALSE, size = 3) +
+  labs(title="Key Fish Species Length/Weight Relations", 
+       subtitle="All Lakes, All Years",
+       x="Fish length (mm)", y = "Fish weigth (g)", colour = "Species") +
+  facet_wrap(~species_common_name, scales = "free") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    strip.text = element_text(size = 9),
+    strip.background = element_rect(fill   = "yellow", #"#FBD424FF", 
+                                    colour = "black", linewidth = 0.3),
+    legend.position = "none")
+
+```
+\newpage
+
+```{r sockeye, fig.cap="Sockeye length and weight data for key study lakes. Note that there are some anomalous values for Sockeye Age +1 in Kennedy Lake. These unusual length/weight values are flagged in the trawl biosampling dataset. For Great Central Lake, the Sockeye with long length and light weight are also flagged in the trawl dataset as having unusual sizes.  NOTE: NEED TO FIX ISSUES WITH PREDICTED VALUES [HS 260814]", out.width="90%", fig.height=fig_height, fig.asp = 11.69/8.27}
+
+Trawl_data_sockeye <- fix_lake_codes_names(Trawl_data_import) %>%
+  filter(lake_name %in% lakes_of_interest) %>%
+  filter(species_common_name == "Sockeye") %>%
+  filter(!life_stage %in% c("Adult")) %>%
+  filter(!is.na(fish_length_mm)) %>%
+  filter(!is.na(fish_weight_g)) %>%
+  arrange(lake_name, match(life_stage, c("Fry", "1+")))
+
+# Fit one model per lake
+models_lake <- Trawl_data_sockeye %>%
+  group_by(lake_name) %>%
+  nest() %>%
+  mutate(
+    model = map(
+      data,
+      ~ lm(
+        log(calc_std_weight_g) ~ log(fish_length_mm),
+        data = .x)))
+
+# Calculate model statistics
+stats_lake <- models_lake %>%
+  mutate(
+    intercept = map_dbl(model, ~ coef(.x)[1]),
+    b = map_dbl(model, ~ coef(.x)[2]),
+    a = exp(intercept),
+    R2 = map_dbl(model, ~ summary(.x)$r.squared),
+    N = map_int(data, nrow)
+  ) %>%
+  select(lake_name, a, b, N, R2)
+
+# Create fitted curves
+predictions_lake <- models_lake %>%
+  mutate(
+    newdata = map(
+      data,
+      ~ data.frame(
+        fish_length_mm = seq(
+          min(.x$fish_length_mm, na.rm = TRUE),
+          max(.x$fish_length_mm, na.rm = TRUE),
+          length.out = 200
+        ))),
+    prediction = map2(
+      model,
+      newdata,
+      ~ {
+        pred <- predict(
+          .x,
+          newdata = .y,
+          interval = "confidence")
+
+        cbind(.y, pred) %>%
+          mutate(
+            fit = exp(fit),
+            lwr = exp(lwr),
+            upr = exp(upr)
+          )})) %>%
+  select(lake_name, prediction) %>%
+  unnest(prediction)
+
+# Create annotation labels
+labels_lake <- stats_lake %>%
+  mutate(
+    label = paste0(
+      "a = ", signif(a, 3), "\n",
+      "b = ", round(b, 3), "\n",
+      "N = ", format(N, big.mark = ","), "\n",
+      "R² = ", round(R2, 3)))
+
+ggplot(Trawl_data_sockeye, aes(x = fish_length_mm, y = calc_std_weight_g, colour = life_stage)) +
+
+# geom_ribbon(
+#   data = predictions_lake,
+#   aes(
+#     x = fish_length_mm,
+#     ymin = lwr,
+#     ymax = upr
+#   ),
+#   inherit.aes = FALSE,
+#   fill = "red",
+#   alpha = 0.15) +
+  
+# geom_line(
+#   data = predictions_lake,
+#   aes(
+#     x = fish_length_mm,
+#     y = fit
+#   ),
+#   inherit.aes = FALSE,
+#   colour = "red",
+#   linewidth = 1) +
+  
+  geom_point(data = subset(Trawl_data_sockeye, life_stage %in% c("1+", "Fry")), alpha = 0.5) +
+
+  geom_line(data = predictions, aes(y = calc_std_weight_g), 
+            colour = "black", linetype = "dashed", linewidth = 0.5) +
+
+  geom_text(data = labels_lake, aes(x = -Inf, y = Inf, label = label),
+    hjust = -0.05, vjust = 1.1, inherit.aes = FALSE, size = 3) +
+
+  scale_color_manual(name = "Life stage",
+                     values = c("Fry" = "lightblue", "1+" = "darkblue")) +
+  labs(title="Sockeye Length/Weight Relations", subtitle = "Key Study Lakes, All Years", 
+       x = "Length (mm)", y = "Weight (g)") +
+  
+  facet_wrap(~lake_name, ncol = 4, scale = "free") +
+  
+  coord_cartesian(    # zero in on plot data to check systematic issue 
+  xlim = c(60, 120),  # with predicted values across all lakes... 
+  ylim = c(0, 20)) +
+  
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    strip.text = element_text(size = 9),
+    strip.background = element_rect(fill   = "yellow", #"#FBD424FF", 
+                                    colour = "black", linewidth = 0.3),
+    legend.position = "bottom")
+
+# investigating systematic issue in predicted values... not yet working [hs 260813]
+# residuals_lake <- models_lake %>%
+#   mutate(
+#     data = map2(
+#       data,
+#       model,
+#       ~ mutate(
+#           .x,
+#           residual = resid(.y)
+#       )
+#     )
+#   ) %>%
+#   select(lake_name, data) %>%
+#   unnest(data)
+# 
+# ggplot(
+#   residuals_lake,
+#   aes(
+#     fish_length_mm,
+#     residual
+#   )
+# ) +
+#   geom_point(alpha = 0.3) +
+#   geom_hline(yintercept = 0, linetype = 2) +
+#   facet_wrap(~lake_name)
+
+```
+
+```{r Stickleback, fig.cap="Stickleback length and weight data for key study lakes. Note: life-stage data for Sticklebacks only available for Kennedy Lake.", out.width="90%", fig.height=fig_height, fig.asp = 11.69/8.27}
+
+Trawl_data_filtered_life_stage <- fix_lake_codes_names(Trawl_data_import) %>%
+  filter(lake_name %in% lakes_of_interest) %>%
+  mutate(life_stage2 = ifelse(life_stage != "Adult" & life_stage != "Adult female"
+                              & life_stage != "Fry" & life_stage != "Gravid female"
+                              & life_stage != "Subadult", "Unspecified", life_stage)) %>%
+  filter(species_common_name == "Stickleback") %>%
+  arrange(lake_name, match(life_stage2, c("Unspecified", "Subadult", "Fry", "Adult", "Gravid female", "Adult female")))
+
+# Fit one model per lake
+models_lake <- Trawl_data_filtered_life_stage %>%
+  group_by(lake_name) %>%
+  nest() %>%
+  mutate(
+    model = map(
+      data,
+      ~ lm(
+        log(calc_std_weight_g) ~ log(fish_length_mm),
+        data = .x)))
+
+# Calculate model statistics
+stats_lake <- models_lake %>%
+  mutate(
+    intercept = map_dbl(model, ~ coef(.x)[1]),
+    b = map_dbl(model, ~ coef(.x)[2]),
+    a = exp(intercept),
+    R2 = map_dbl(model, ~ summary(.x)$r.squared),
+    N = map_int(data, nrow)
+  ) %>%
+  select(lake_name, a, b, N, R2)
+
+# Create fitted curves
+predictions_lake <- models_lake %>%
+  mutate(
+    newdata = map(
+      data,
+      ~ data.frame(
+        fish_length_mm = seq(
+          min(.x$fish_length_mm, na.rm = TRUE),
+          max(.x$fish_length_mm, na.rm = TRUE),
+          length.out = 200
+        ))),
+    prediction = map2(
+      model,
+      newdata,
+      ~ {
+        pred <- predict(
+          .x,
+          newdata = .y,
+          interval = "confidence")
+
+        cbind(.y, pred) %>%
+          mutate(
+            fit = exp(fit),
+            lwr = exp(lwr),
+            upr = exp(upr)
+          )})) %>%
+  select(lake_name, prediction) %>%
+  unnest(prediction)
+
+# Create annotation labels
+labels_lake <- stats_lake %>%
+  mutate(
+    label = paste0(
+      "a = ", signif(a, 3), "\n",
+      "b = ", round(b, 3), "\n",
+      "N = ", format(N, big.mark = ","), "\n",
+      "R² = ", round(R2, 3)))
+
+ggplot(data = Trawl_data_filtered_life_stage, 
+       aes(x = fish_length_mm, y = calc_std_weight_g, fill = life_stage2)) +
+
+  geom_point(alpha = 0.4, shape = 21, colour = "black") +
+  
+  geom_ribbon(
+  data = predictions_lake,
+  aes(
+    x = fish_length_mm,
+    ymin = lwr,
+    ymax = upr
+  ),
+  inherit.aes = FALSE,
+  fill = "grey50",
+  alpha = 0.2) +
+  
+  geom_line(data = predictions_lake, aes(x = fish_length_mm, y = fit), inherit.aes = FALSE,
+            colour = "black", linetype = "dashed", linewidth = 0.5) +
+
+  geom_text(data = labels_lake, aes(x = -Inf, y = Inf, label = label),
+    hjust = -0.05, vjust = 1.1, inherit.aes = FALSE, size = 3) +
+  
+  scale_fill_viridis_d(option = "B") +
+  labs(x = "Length (mm)", y = "Weight (g)", fill = "Life stage") +
+  labs(title="Stickleback Length/Weight Relations", subtitle = "Key Study Lakes, All Years") +
+  facet_wrap(~lake_name, ncol = 4, scale = "free") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    strip.text = element_text(size = 9),
+    strip.background = element_rect(fill   = "yellow", #"#FBD424FF", 
+                                    colour = "black", linewidth = 0.3),
+    legend.position = "bottom")
+
+```
+\newpage
+
+```{r trawl-sockeye-proportions, fig.cap="Annual proportion of Sockeye in Trawl data, weighted by number of fish in sample.", fig.width=fig_width, out.width=out_width, fig.height=half_height}
+
+# Pre-process once
+trawl_data_all_spp <- Trawl_data_import %>%
+  fix_lake_codes_names() %>%
+  filter(lake_name %in% lakes_of_interest) %>%
+  filter(
+    !is.na(species_common_name),
+    !is.na(fish_length_mm),
+    !is.na(calc_std_weight_g),
+    !(species_common_name == "Sockeye" & life_stage == "Adult") ) %>% # omit any Sockeye adults
+  mutate(
+    species_common_name = factor(species_common_name)) %>%
+  arrange(lake_name, trawl_date)
+
+trawl_sockeye_proportion <- trawl_data_all_spp %>%
+  group_by(
+    lake_name,
+    lake_code,
+    ats_year,
+    trawl_date,
+    trawl_number,
+    trawl_unique_ID) %>%
+  summarise(
+    n_total = n(),
+    n_sockeye = sum(species_common_name == "Sockeye", na.rm = TRUE),
+    prop_sockeye = n_sockeye / n_total,
+   .groups = "drop")
+  
+trawl_annual_sockeye_proportion <- trawl_sockeye_proportion %>%
+  group_by(
+    lake_name,
+    lake_code,
+    ats_year) %>%
+  summarise(
+    n_trawls = n(),
+    total_fish = sum(n_total),
+    total_sockeye = sum(n_sockeye),
+    weighted_mean_prop_sockeye =
+      weighted.mean(
+        prop_sockeye,
+        w = n_total,
+        na.rm = TRUE),
+    median_prop_sockeye =
+      median(prop_sockeye, na.rm = TRUE),
+     .groups = "drop")
+
+for (lk in sort(unique(trawl_sockeye_proportion$lake_name))) {
+
+  survey_lk <- trawl_sockeye_proportion %>%
+    filter(lake_name == lk)
+
+  annual_lk <- trawl_annual_sockeye_proportion %>%
+    filter(lake_name == lk)
+
+  p <- ggplot(
+    survey_lk,
+  aes(
+    x = factor(ats_year),
+    y = prop_sockeye)) +
+  geom_boxplot(
+    fill = "yellow",
+    colour = "black",
+    linewidth = 0.3) +
+  geom_line(
+    data = annual_lk,
+    aes(
+      x = factor(ats_year),
+      y = weighted_mean_prop_sockeye,
+      group = 1),
+    colour = "red",
+    linewidth = 0.5) +
+  geom_point(
+    data = annual_lk,
+    aes(
+      x = factor(ats_year),
+      y = weighted_mean_prop_sockeye
+    ),
+    colour = "red",
+    size = 1) +
+  # facet_wrap(
+  #   ~ lake_name,
+  #   scales = "free_x",
+  #   ncol = 4
+  # ) +
+  scale_y_continuous(
+    labels = scales::percent_format(accuracy = 1),
+    limits = c(0, 1)) +
+  labs(
+    title = paste(lk, "Sockeye Proportion in Trawl Samples"),
+    subtitle = "Boxplots show trawl-level distributions; red line is the weighted annual mean",
+    x = "",
+    y = "Sockeye (%)") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1,
+      size = 8),
+    strip.text = element_text(size = 9),
+    strip.background = element_rect(
+      fill = "yellow",
+      colour = "black",
+      linewidth = 0.3))
+
+print(p)
+}
+
+```
+
+```{r timer-finish, include=FALSE}
+report_finish_time <- Sys.time()
+report_elapsed_time <- difftime(report_finish_time,
+                                report_start_time,
+                                units = "mins")
+
+cat("\n================================================\n")
+cat("03-results (AA_HS).Rmd finished at:",
+    format(report_finish_time, "%Y-%m-%d %H:%M:%S"), "\n")
+cat("Elapsed time:",
+    round(as.numeric(report_elapsed_time), 2),
+    "minutes\n")
+cat("================================================\n\n")
+```
+
+

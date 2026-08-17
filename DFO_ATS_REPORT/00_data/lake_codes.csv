@@ -234,13 +234,27 @@ lake_code,lake_name,lake_latitude,lake_longitude
 233,Cole Ck,NA,NA
 234,Kennedy Lake Hwy B,49 deg 04 min,125 deg 34 min
 235,U Kennedy R M74,NA,NA
+236,Khtada Lake,NA,NA
 237,Osoyoos Lake,49 deg 01 min,119 deg 27 min
 238,Osoyoos Lake N,49 deg 08 min,119 deg 29 min
 239,Osoyoos Lake C,49 deg 01 min,119 deg 27 min
 240,Osoyoos Lake S,48 deg 58 min,119 deg 26 min
 241,Skaha Lake,49 deg 24 min,119 deg 35 min
+242,Vaseux Lake,NA,NA
+243,Heydon Bay Lake,NA,NA
+244,Heydon Main Lake,NA,NA
+245,Quatse_2005,NA,NA
+246,Ruby Lake,NA,NA
+247,Nahwitti_2005,NA,NA
+248,Fulmore_2005,NA,NA
+249,Phillips_2005,NA,NA
+250,Heydon_2005,NA,NA
+251,Osoyoos_2005,NA,NA
+252,Quatse_2005,NA,NA
+253,Village Bay_2005,NA,NA
+255,Skaha_2007,NA,NA
 801,Long Lake (A),51 deg 15 min,127 deg 13 min
 802,Long Lake (B),51 deg 15 min,127 deg 05 min
+803,Okanagan R, NA, NA
+804,Okanagan Lake, NA,NA
 888,Wenatchee Lake,NA,NA
-253,Village Bay_2005,NA,NA
-236,Khtada Lake,NA,NA
