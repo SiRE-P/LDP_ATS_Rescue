@@ -1,0 +1,197 @@
+
+```{r read_csvs}
+# Import CSVs : Acoustic, Trawl, Lakes ----
+
+lake_codes_names_lat_longs <- read.csv("./00_data/lake_codes.csv")   # LEP lake codes, names, and lat-longs
+lake_codes_names <- lake_codes_names_lat_longs %>%                   # same, but lat-longs dropped
+  dplyr::select(-lake_latitude, -lake_longitude)                     # this DF can be used to tidy up lake names
+
+Acoustic_data_import <- read.csv("./00_data/Target_OUTPUT_data_FINAL_(1977_2007).csv") %>%
+  # filter(lake_code == 255) %>%                                       # ATS Acoustics data
+  left_join(lake_codes_names, by = "lake_code") %>%                  # merge proper lake_name variable by lake code
+  relocate(lake_name, .after = lake_code) %>%                        # tidy order and
+  select(-lake)                                                      # drop old "lake" variable
+
+Trawl_data_import <- read.csv("./00_data/Trawl_data_FINAL_1977-1999.csv") # ATS Trawl data
+
+```
+
+```{r global_variables}
+# Global variables ----
+
+fig_width  <- 7.5            # figure width in inches
+fig_height <- 10             # figure height in inches  
+half_height<- 4              # figure height for half-page plots
+out_width  <- "80%"          # figure sizing to fit page
+portrait   <- 11/8.5         # figure aspect ratio for 8.5 x 11 page in portrait mode
+landscape  <- 8.5/11         # figure aspect ratio for 8.5 x 11 page in landscape mode
+A4         <- 11.69/8.27     # figure aspect ratio for 8.5 x 14 page (A4) in portrait mode (tall)
+
+# Key Study Lakes (Lakes of Interest) ----
+
+lakes_of_interest <- c("Great Central Lake", "Sproat Lake", "Henderson Lake",            # Barkley Sound
+                       "Kennedy Lake", "Cheewhat Lake", "Muriel Lake", "Hobiton Lake",   # Clayoquot Sound & WCVI
+                       "Nimpkish Lake", "Vernon Lake", "Woss Lake",                      # ECVI
+                       "Long Lake", "Owikeno Lake", "Meziadin Lake",                     # Central Coast
+                       "Skidegate Lake", "Yakoun Lake", "Tahltan Lake")                  # North Coast, Haida Gwaii
+
+lakes_of_interest <- c("Cheewhat Lake", "Great Central Lake", "Henderson Lake")          # TEST SET
+
+```
+
+```{r functions}        
+
+fix_lake_codes_names <- function(df) {
+  
+  df %>%
+    
+    # Step 1: Fix acoustic-import lake codes
+    mutate(
+      lake_code = case_when(
+        lake_code == 245 ~ 122,  # Quatse Lake
+        lake_code == 247 ~ 121,  # Nahwitti Lake      # most of these are additional codes for existing lakes
+        lake_code == 248 ~ 49,   # Fulmore Lake       # but with _2005 attached to the lake_name.
+        lake_code == 249 ~ 59,   # Phillips Lake      # this code consolidates such records with original
+        lake_code == 250 ~ 50,   # Heydon Lake        # lake code and name.
+        lake_code == 243 ~ 50,   # Heydon Lake        
+        lake_code == 244 ~ 50,   # Heydon Lake        
+        lake_code == 251 ~ 237,  # Osoyoos Lake
+        lake_code == 252 ~ 122,  # Quatse Lake
+        lake_code == 255 ~ 241,  # Skaha Lake
+        lake_code == 124 ~ 180,  # No-Name Lake -> Link Lake
+        TRUE ~ lake_code)
+    ) %>%
+    
+    # Step 2: Consolidate lake codes for data report plots & tables
+    mutate(
+      lake_code = case_when(
+        lake_code %in% c(40, 41, 234) ~ 5,         # Kennedy
+        lake_code %in% c(166, 167) ~ 107,          # Cheewhat
+        lake_code %in% c(801, 802) ~ 8,            # Long
+        lake_code %in% c(228, 229, 230, 231) ~ 18, # Owikeno
+        lake_code %in% c(238, 239, 240) ~ 237,     # Osoyoos
+        lake_code %in% c(255) ~ 241,               # Skaha
+        lake_code %in% c(155, 156) ~ 62,           # Skidegate
+        lake_code %in% c(159, 160, 163, 164) ~ 2,  # Sproat
+        TRUE ~ lake_code
+      )
+    ) %>%
+    
+    # Step 3: Consolidate lake names (to re-assign old specific location/arm names to one name after lake-code fix)
+    mutate(
+      lake_name = case_when(
+        lake_code == 5   ~ "Kennedy Lake",
+        lake_code == 107 ~ "Cheewhat Lake",
+        lake_code == 8   ~ "Long Lake",
+        lake_code == 18  ~ "Owikeno Lake",
+        lake_code == 237 ~ "Osoyoos Lake",
+        lake_code == 241 ~ "Skaha Lake",
+        lake_code == 62  ~ "Skidegate Lake",
+        lake_code == 2   ~ "Sproat Lake",
+        TRUE ~ lake_name)) %>%
+    mutate(
+      # lake_name = str_trim(str_remove_all(lake_name, "_2005")))
+      lake_name = str_trim(str_replace_all(lake_name, "_2005", " Lake")),
+      lake_name = str_trim(str_replace_all(lake_name, "_2007", " Lake")))
+}
+
+trim_lake_names <- function(df) {      # Clean lake names
+  
+  df %>% filter(!is.na(lake_name), lake_name != "NA") %>%
+    
+    mutate(
+      lake_name = case_when(
+        lake_name == "Kennedy Lake (Clay)" ~ "Kennedy",
+        lake_name == "Kennedy Lake (Main)" ~ "Kennedy",
+        lake_name == "Long Lake (A)"       ~ "Long",
+        lake_name == "Long Lake (B)"       ~ "Long",
+        lake_name == "Osoyoos Lake C"      ~ "Osoyoos",
+        lake_name == "Osoyoos Lake N"      ~ "Osoyoos",
+        lake_name == "Osoyoos Lake S"      ~ "Osoyoos",                
+        lake_name == "Owikeno Lake (A)"    ~ "Owikeno",
+        lake_name == "Owikeno Lake (B)"    ~ "Owikeno",
+        lake_name == "Owikeno Lake (C)"    ~ "Owikeno",
+        lake_name == "Owikeno Lake (D)"    ~ "Owikeno",
+        lake_name == "Skidegate Lake NE"   ~ "Skidegate",
+        lake_name == "Skidegate Lake SW"   ~ "Skidegate",
+        lake_name == "Sproat Lake (Two R)" ~ "Sproat",
+        TRUE ~ lake_name)) %>%
+    
+    mutate(
+      lake_name = str_trim(str_remove_all(lake_name, "Lake")),
+      lake_name = str_trim(str_remove_all(lake_name, "_2005"))) 
+}
+
+# function to output the trawl data by lake in the Appendix
+make_catch_table_list <- function(lake_name) {
+  
+  catch_tbl <- full_join(
+    sockeye_tables[[lake_name]],
+    stickle_tables[[lake_name]],
+    by = c("Date", "ATS Year")) %>%
+    arrange(Date) %>%
+    mutate(
+      `ATS Year` = as.character(`ATS Year`),
+      Lake = ifelse(is.na(Lake), lake_stix, Lake) # lake name is missing if no Sockeye, so use lake name from Sticklebacks
+    ) %>%
+    dplyr::select(-lake_stix)
+  
+  # catch_tbl
+  
+  block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+  
+  flextable::flextable(catch_tbl) |>
+    flextable::set_caption(
+      caption = paste(
+        lake_name,
+        "trawl catch summary by survey date for Sockeye and Stickleback."
+      )
+    ) |>
+    flextable::width(width = 1.2) |>
+    flextable::separate_header() |>
+    flextable::align(
+      align = "center",
+      part = "all"
+    ) |>
+    flextable::autofit()
+}
+
+# function to output the trawl data by lake in the Appendix
+make_catch_table <- function(lake_name) {
+  
+  sockeye_tbl <- get(
+    paste0(lake_name, "_sockeye_catch_table")
+  )
+  
+  stickle_tbl <- get(
+    paste0(lake_name, "_stickle_catch_table")
+  )
+  
+  catch_tbl <- full_join(
+    sockeye_tbl,
+    stickle_tbl,
+    by = c("Date", "ATS Year")
+  ) %>%
+    arrange(Date) %>%
+    mutate(
+      `ATS Year` = as.character(`ATS Year`)
+    )
+  
+  block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+  
+  flextable::flextable(catch_tbl) |>
+    flextable::set_caption(
+      caption = paste(
+        lake_name,
+        "trawl catch summary by survey date for Sockeye and Stickleback."
+      )
+    ) |>
+    flextable::width(width = 1.2) |>
+    flextable::separate_header() |>
+    flextable::align(
+      align = "center",
+      part = "all"
+    ) |>
+    flextable::autofit()
+}
+```
