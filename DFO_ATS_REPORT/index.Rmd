@@ -1,6 +1,6 @@
 ---
 english_title: |
-  Limnetic acoustic sonar fish target and sample data associated with Acoustic-Trawl-Survey (ATS) field studies for juvenile Sockeye salmon abundance during the Lake Enrichment and Study Lakes programs, 1977-2007 
+  Limnetic sonar fish target and sample data associated with Acoustic-Trawl-Survey (ATS) field studies for juvenile Sockeye salmon abundance during the Lake Enrichment and Study Lakes programs, 1977-2007 
 french_title: |
   Données de bioéchantillonnage par chalutage et données acoustiques de terrain du Programme d'enrichissement des lacs (LEP) mené de 1977 à 2007 dans 75 plans et cours d'eau différents, majoritairement en Colombie-Britannique
 
@@ -95,15 +95,34 @@ bibliography: ["bib/DFO-ATS-Report-refs.bib", "bib/refs.bib"]
 
 ```{r setup, echo=FALSE, cache=FALSE, message=FALSE, results='hide', warning=FALSE}
 library(knitr)
+
 opts_chunk$set(
   #  cache = TRUE,     # cache all chunks?
   #  autodep = TRUE,   # try to guess which chunks depend on which in cache?
   fig.width = 6,       # 'internal' plotting figure width (inches)
   out.width = "80%",   # output plotting width; adjust here or by chunk if desired
   fig.asp = 1 / 1.618, # golden ratio; adjust here or by chunk if desired
-  dpi = 300,           # adjust to taste; larger = higher resolution but larger file size
+  dpi = 150,           # adjust to taste; larger = higher resolution but larger file size
   warning = FALSE, 
   message = FALSE)
+```
+
+```{r chk-techreport-open}
+# if (.Platform$OS.type == "windows") {
+# 
+#   response <- utils::winDialog(
+#     type = "okcancel",
+#     message = paste(
+#       "Please confirm that techreport.docx is NOT open in Microsoft Word.",
+#       "",
+#       "Click OK to continue rendering.",
+#       "Click CANCEL to stop."))
+# 
+#   if (response == "CANCEL") {
+#     stop(
+#       "Report rendering cancelled.",
+#       call. = FALSE)}
+# }
 ```
 
 ```{r load-libraries-csasdown}
