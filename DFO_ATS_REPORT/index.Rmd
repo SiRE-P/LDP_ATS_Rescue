@@ -1,6 +1,6 @@
 ---
 english_title: |
-  Limnetic sonar fish target and sample data associated with Acoustic-Trawl-Survey (ATS) field studies for juvenile Sockeye salmon abundance during the Lake Enrichment and Study Lakes programs, 1977-2007 
+  Limnetic sonar fish target and bio-sample data from Acoustic-Trawl-Survey (ATS) field studies for juvenile Sockeye salmon abundance during the Lake Enrichment and Study Lakes programs, 1977-2007 
 french_title: |
   Données de bioéchantillonnage par chalutage et données acoustiques de terrain du Programme d'enrichissement des lacs (LEP) mené de 1977 à 2007 dans 75 plans et cours d'eau différents, majoritairement en Colombie-Britannique
 
