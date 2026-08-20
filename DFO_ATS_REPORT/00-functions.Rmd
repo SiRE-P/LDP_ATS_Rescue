@@ -27,7 +27,7 @@ portrait   <- 11/8.5         # figure aspect ratio for 8.5 x 11 page in portrait
 landscape  <- 8.5/11         # figure aspect ratio for 8.5 x 11 page in landscape mode
 A4         <- 11.69/8.27     # figure aspect ratio for 8.5 x 14 page (A4) in portrait mode (tall)
 
-# Key Study Lakes (Lakes of Interest) ----
+# Lakes of Interest (Key Study Lakes) ----
 
 lakes_of_interest <- c("Great Central Lake", "Sproat Lake", "Henderson Lake",            # Barkley Sound
                        "Kennedy Lake", "Cheewhat Lake", "Muriel Lake", "Hobiton Lake",   # Clayoquot Sound & WCVI
@@ -35,7 +35,8 @@ lakes_of_interest <- c("Great Central Lake", "Sproat Lake", "Henderson Lake",   
                        "Long Lake", "Owikeno Lake", "Meziadin Lake",                     # Central Coast
                        "Skidegate Lake", "Yakoun Lake", "Tahltan Lake")                  # North Coast, Haida Gwaii
 
-lakes_of_interest <- c("Cheewhat Lake", "Great Central Lake", "Henderson Lake")          # TEST SET
+# lakes_of_interest <- c("Cheewhat Lake", "Great Central Lake", "Henderson Lake")          # TEST SET
+# lakes_of_interest <- c("Hobiton Lake", "Kennedy Lake", "Long Lake")                      # TEST SET
 
 ```
 
@@ -125,6 +126,12 @@ trim_lake_names <- function(df) {      # Clean lake names
 # function to output the trawl data by lake in the Appendix
 make_catch_table_list <- function(lake_name) {
   
+  sockeye_tbl <- sockeye_tables[[lake_name]]   # check that data for the passed lake exist
+  stickle_tbl <- stickle_tables[[lake_name]]
+
+  if (is.null(sockeye_tbl) || is.null(stickle_tbl)) {
+    return(invisible(NULL))}                   # if not, pass back a NULL and carry on
+  
   catch_tbl <- full_join(
     sockeye_tables[[lake_name]],
     stickle_tables[[lake_name]],
@@ -132,66 +139,52 @@ make_catch_table_list <- function(lake_name) {
     arrange(Date) %>%
     mutate(
       `ATS Year` = as.character(`ATS Year`),
-      Lake = ifelse(is.na(Lake), lake_stix, Lake) # lake name is missing if no Sockeye, so use lake name from Sticklebacks
-    ) %>%
+      Lake = ifelse(is.na(Lake), lake_stix, Lake)) %>% # lake name is missing if no Sockeye, so use lake name from Sticklebacks
     dplyr::select(-lake_stix)
   
   # catch_tbl
   
-  block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+  # block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
   
   flextable::flextable(catch_tbl) |>
     flextable::set_caption(
       caption = paste(
         lake_name,
-        "trawl catch summary by survey date for Sockeye and Stickleback."
-      )
-    ) |>
+        "trawl catch summary by survey date for Sockeye and Stickleback.")) |>
     flextable::width(width = 1.2) |>
     flextable::separate_header() |>
     flextable::align(
       align = "center",
-      part = "all"
-    ) |>
+      part = "all") |>
     flextable::autofit()
 }
 
-# function to output the trawl data by lake in the Appendix
-make_catch_table <- function(lake_name) {
-  
-  sockeye_tbl <- get(
-    paste0(lake_name, "_sockeye_catch_table")
-  )
-  
-  stickle_tbl <- get(
-    paste0(lake_name, "_stickle_catch_table")
-  )
-  
-  catch_tbl <- full_join(
-    sockeye_tbl,
-    stickle_tbl,
-    by = c("Date", "ATS Year")
-  ) %>%
-    arrange(Date) %>%
-    mutate(
-      `ATS Year` = as.character(`ATS Year`)
+check_docx_closed <- function(path = "techreport.docx") {
+
+  if (!file.exists(path)) return(invisible(TRUE))
+
+  tmp <- paste0(path, ".locktest")
+
+  ok <- tryCatch({
+    file.rename(path, tmp)
+  }, error = function(e) FALSE)
+
+  if (!isTRUE(ok)) {
+    stop(
+      paste(
+        "\n\nThe file",
+        path,
+        "appears to be open in Word.",
+        "\nPlease close the document and knit again.\n"
+      ),
+      call. = FALSE
     )
-  
-  block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
-  
-  flextable::flextable(catch_tbl) |>
-    flextable::set_caption(
-      caption = paste(
-        lake_name,
-        "trawl catch summary by survey date for Sockeye and Stickleback."
-      )
-    ) |>
-    flextable::width(width = 1.2) |>
-    flextable::separate_header() |>
-    flextable::align(
-      align = "center",
-      part = "all"
-    ) |>
-    flextable::autofit()
+  }
+
+  file.rename(tmp, path)
+
+  invisible(TRUE)
 }
+
+
 ```
