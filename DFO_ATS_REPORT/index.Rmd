@@ -93,6 +93,17 @@ knit: (function(input, ...) csasdown::render())
 bibliography: ["bib/DFO-ATS-Report-refs.bib", "bib/refs.bib"]
 ---
 
+```{r warning-techreport}
+cat(
+"\n\n",
+"**************************************************************\n",
+"* IMPORTANT: Ensure techreport.docx is CLOSED.               *\n",
+"* KNIT render WILL FAIL when attempting to overwrite report. *\n",
+"* Check NOW to prevent failure.                              *\n",
+"**************************************************************\n\n")
+
+```
+
 ```{r setup, echo=FALSE, cache=FALSE, message=FALSE, results='hide', warning=FALSE}
 library(knitr)
 
@@ -105,24 +116,6 @@ opts_chunk$set(
   dpi = 150,           # adjust to taste; larger = higher resolution but larger file size
   warning = FALSE, 
   message = FALSE)
-```
-
-```{r chk-techreport-open}
-# if (.Platform$OS.type == "windows") {
-# 
-#   response <- utils::winDialog(
-#     type = "okcancel",
-#     message = paste(
-#       "Please confirm that techreport.docx is NOT open in Microsoft Word.",
-#       "",
-#       "Click OK to continue rendering.",
-#       "Click CANCEL to stop."))
-# 
-#   if (response == "CANCEL") {
-#     stop(
-#       "Report rendering cancelled.",
-#       call. = FALSE)}
-# }
 ```
 
 ```{r load-libraries-csasdown}
