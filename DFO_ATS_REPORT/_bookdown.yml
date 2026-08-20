@@ -3,9 +3,10 @@ rmd_files: ["index.Rmd",
             "00-functions.Rmd",
             "01-introduction.Rmd",
             "02-methods.Rmd",
-            "03-results_AA_HS_260815.Rmd",  # HS Revisions & Test Code
-            "98-references.Rmd",
+          # "03-results_AA_HS_260815.Rmd",  # HS Revisions & Test Code
+            "97-acknowledgements.Rmd",
+            "98-references.Rmd"]
           # "99-appendix"],
-            "99-appendix_AA_HS_260817.Rmd"] # HS Revisions & Test Code
+          # "99-appendix_AA_HS_260817.Rmd"] # HS Revisions & Test Code
           # "99-appendix2.Rmd"]
 delete_merged_file: true
