@@ -93,15 +93,10 @@ knit: (function(input, ...) csasdown::render())
 bibliography: ["bib/DFO-ATS-Report-refs.bib", "bib/refs.bib"]
 ---
 
-```{r warning-techreport}
-cat(
-"\n\n",
-"**************************************************************\n",
-"* IMPORTANT: Ensure techreport.docx is CLOSED.               *\n",
-"* KNIT render WILL FAIL when attempting to overwrite report. *\n",
-"* Check NOW to prevent failure.                              *\n",
-"**************************************************************\n\n")
-
+```{r warning-techreport, include=FALSE}
+warning(
+  "\n*** IMPORTANT ***\n",
+  "Please ensure techreport.docx is closed before rendering is complete!***")
 ```
 
 ```{r setup, echo=FALSE, cache=FALSE, message=FALSE, results='hide', warning=FALSE}
@@ -116,6 +111,10 @@ opts_chunk$set(
   dpi = 150,           # adjust to taste; larger = higher resolution but larger file size
   warning = FALSE, 
   message = FALSE)
+```
+
+```{r load-captions, include=FALSE}
+source("03-figure_captions.R")
 ```
 
 ```{r load-libraries-csasdown}
