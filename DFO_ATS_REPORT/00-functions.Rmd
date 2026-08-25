@@ -1,3 +1,11 @@
+# Data import, initial setup, figure captions, and functions
+
+```{r log-message, echo = FALSE}
+log_msg <- function(msg) {
+  # function to log the KNIT process
+  message(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "|", msg, "\n")
+}
+```
 
 ```{r read_csvs}
 # Import CSVs : Acoustic, Trawl, Lakes ----
@@ -6,11 +14,15 @@ lake_codes_names_lat_longs <- read.csv("./00_data/lake_codes.csv")   # LEP lake 
 lake_codes_names <- lake_codes_names_lat_longs %>%                   # same, but lat-longs dropped
   dplyr::select(-lake_latitude, -lake_longitude)                     # this DF can be used to tidy up lake names
 
+log_msg("Reading acoustic data...")
+
 Acoustic_data_import <- read.csv("./00_data/Target_OUTPUT_data_FINAL_(1977_2007).csv") %>%
   # filter(lake_code == 255) %>%                                       # ATS Acoustics data
   left_join(lake_codes_names, by = "lake_code") %>%                  # merge proper lake_name variable by lake code
   relocate(lake_name, .after = lake_code) %>%                        # tidy order and
   select(-lake)                                                      # drop old "lake" variable
+
+log_msg("Reading trawl data...")
 
 Trawl_data_import <- read.csv("./00_data/Trawl_data_FINAL_1977-1999.csv") # ATS Trawl data
 
@@ -20,8 +32,8 @@ Trawl_data_import <- read.csv("./00_data/Trawl_data_FINAL_1977-1999.csv") # ATS 
 # Global variables ----
 
 fig_width  <- 7.5            # figure width in inches
-fig_height <- 10             # figure height in inches  
-half_height<- 4              # figure height for half-page plots
+fig_height <- 9              # figure height in inches  
+half_height<- 3.5            # figure height for half-page plots
 out_width  <- "80%"          # figure sizing to fit page
 portrait   <- 11/8.5         # figure aspect ratio for 8.5 x 11 page in portrait mode
 landscape  <- 8.5/11         # figure aspect ratio for 8.5 x 11 page in landscape mode
@@ -35,9 +47,13 @@ lakes_of_interest <- c("Great Central Lake", "Sproat Lake", "Henderson Lake",   
                        "Long Lake", "Owikeno Lake", "Meziadin Lake",                     # Central Coast
                        "Skidegate Lake", "Yakoun Lake", "Tahltan Lake")                  # North Coast, Haida Gwaii
 
-# lakes_of_interest <- c("Cheewhat Lake", "Great Central Lake", "Henderson Lake")          # TEST SET
-# lakes_of_interest <- c("Hobiton Lake", "Kennedy Lake", "Long Lake")                      # TEST SET
+# lakes_of_interest <- c("Cheewhat Lake", "Great Central Lake", "Henderson Lake")        # TEST SET
+# lakes_of_interest <- c("Great Central Lake", "Hobiton Lake", "Kennedy Lake", "Long Lake")# TEST SET
 
+```
+
+```{r load-captions, include=FALSE}
+source("03-figure_captions.R") # r code that contains all figure captions
 ```
 
 ```{r functions}        
@@ -142,15 +158,11 @@ make_catch_table_list <- function(lake_name) {
       Lake = ifelse(is.na(Lake), lake_stix, Lake)) %>% # lake name is missing if no Sockeye, so use lake name from Sticklebacks
     dplyr::select(-lake_stix)
   
-  # catch_tbl
-  
-  # block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
-  
   flextable::flextable(catch_tbl) |>
-    flextable::set_caption(
-      caption = paste(
-        lake_name,
-        "trawl catch summary by survey date for Sockeye and Stickleback.")) |>
+    # flextable::set_caption(
+    #   caption = paste(
+    #     lake_name,
+    #     "trawl catch summary by survey date for Sockeye and Stickleback.")) |>
     flextable::width(width = 1.2) |>
     flextable::separate_header() |>
     flextable::align(
@@ -185,6 +197,5 @@ check_docx_closed <- function(path = "techreport.docx") {
 
   invisible(TRUE)
 }
-
 
 ```
