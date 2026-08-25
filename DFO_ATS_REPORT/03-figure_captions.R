@@ -17,7 +17,7 @@ trip_effort_lakes_caption <- paste(
   "Each trip may include 1-3 sequential sampling days in the same lake.")
 
 depth_acoustic_caption <-
-  "Frequency distribution of depth range for acoustic sonar surveys across all lakes."
+  "Frequency distribution of lake depth range for acoustic sonar surveys across all lakes and years available."
 
 acoustic_targets_caption <-
   paste(
@@ -43,16 +43,16 @@ trawl_sample_label_caption <-
 
 trawl_duration_distribution_caption <-
   paste(
-    "Frequency distribution of trawl duration in minutes",
-    "(left y-axis) and their proportion in the dataset (right y-axis).",
+    "Frequency distribution of trawl duration for biosample data",
+    "(left y-axis) and relative proportions in the dataset (right y-axis), across all lakes and years available.",
     "Duration represents calculated times from recorded start and stop times",
     "where available, otherwise recorded duration time.",
-    "Note: Y-axis broken to better portray lower frequencies where Duration less than or greater than 15 minutes."
+    "Note: Y-axis broken to better portray lower frequencies where duration not equal to the typical 15 minutes."
     )
 
 trawl_depth_caption <-
   paste(
-    "Frequency distribution of trawl sample depths across all lakes and years.",
+    "Frequency distribution of trawl sampling depth for biosample data, across all lakes and years available.",
     "Due to the fact that the acoustic gear does not detect samples in the top 2 meters,",
     "surface trawls (0-2 m) were used to sample for fish in the upper epilimnion.",
     "Bin width = 2 meters.")
@@ -62,7 +62,7 @@ trawl_depth_by_lake_caption <- paste(
   "Bin width for bar is 2 meters.")
 
 trawl_hist_length_weight_by_lake_caption <-
-  "Frequency distribution of Sockeye and Stickleback length for key study lakes."
+  "Frequency distribution of Sockeye and Stickleback length for key study lakes, all available years."
 
 obsolete_plot_caption <-
   "Distribution of Sockeye and Stickleback length and weight in Great Central Lake."
@@ -75,15 +75,15 @@ boxplot_lakes_years_caption <- paste(
   "(Note: some upper outliers cropped by Y-axis; statistics not affected.)")
 
 all_spp_length_weight_caption <-
-  "Relationship between fish length and weight for all species included in the trawl dataset."
+  "Relationship between fish length and weight for all species included in the trawl dataset, across all lakes and years."
 
 separated_spp_length_weight_caption <-
   paste(
     "Scatter plot illustrating the relationship between fish length and weight",
     "for juvenile Chinook, Coho, Sockeye and all Stickleback specimens included",
     "in the dataset. Additionally, a regression curve is also provided, including",
-    "the annotated coefficients for each species. Any adult Sockeye was disregarded",
-    "in the statistical calculations. Length-weight relationships were estimated",
+    "the annotated coefficients for each species. Any adult Sockeye was omitted",
+    "from the statistical calculations. Length-weight relationships were estimated",
     "separately for each species using linear regression on log-transformed data.",
     "For each species, a linear model of the form W=aLb was fitted, i.e.,",
     "log(calculated standardized weight) = log(a) + b × log(length).",
@@ -97,7 +97,7 @@ separated_spp_length_weight_caption <-
 
 sockeye_length_weight_key_lakes_caption <-
   paste(
-    "Sockeye length and weight data for key study lakes.",
+    "Sockeye length and weight data for key study lakes, across all available years.",
     "Note that there are some anomalous values for Sockeye Age +1 in Kennedy Lake.",
     "These unusual length/weight values are flagged in the trawl biosampling dataset.",
     "For Great Central Lake, the Sockeye with long length and light weight are also",
@@ -105,8 +105,9 @@ sockeye_length_weight_key_lakes_caption <-
   )
 
 stickleback_length_weight_key_lakes_caption <- paste(
-  "Stickleback length and weight data for key study lakes.",
+  "Stickleback length and weight data for key study lakes, all available years.",
   "Note: life-stage data for Sticklebacks only available for Kennedy Lake.")
 
-trawl_sockeye_proportions_caption <-
-  "Annual proportion of Sockeye in Trawl data, weighted by number of fish in sample."
+trawl_sockeye_proportions_caption <- paste(
+  "Annual proportion of Sockeye in Trawl data, weighted by number of fish in sample.",
+  "Boxplots show distributions across trawls; red line is the weighted annual mean proportion across all dates.")
