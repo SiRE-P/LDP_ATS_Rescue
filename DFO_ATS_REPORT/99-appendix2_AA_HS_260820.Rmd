@@ -2,6 +2,9 @@
 
 ```{r appendixB_landscape, echo=FALSE}
 block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+
+lakes_of_interest <- "Great Central Lake"  # keeping it simple for this appendix [hs 260824]
+
 ```
 
 # APPENDIX `r new_appendix()`. ADDITIONAL METADATA {#app:additional}
