@@ -3,12 +3,15 @@
 
 ```{r appendix_landscape, echo=FALSE}
 block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+
+lakes_of_interest <- c("Great Central Lake", "Hobiton Lake", "Kennedy Lake", "Long Lake")# TEST SET
+
 ```
 # APPENDIX `r new_appendix()`. BIOLOGICAL DATA {#app:biology}
 
 This appendix presents tables with trawl biosample and acoustic target metadata. 
 
-```{r sockeye_info, tab.cap="Number of Sockeye surveyed in the trawl samples in each lake by ATS year.", out.width=out_width}
+```{r sockeye_info, tab.cap="Number of Sockeye surveyed in the trawl samples by lake and ATS year.", out.width=out_width}
 # Sockeye tallied by year lake ----
 
 Trawl_summary_sockeye <- trim_lake_names(fix_lake_codes_names(Trawl_data_import)) %>%
@@ -26,12 +29,7 @@ pivot_wider(names_from = ats_year,
 summary_table_sockeye_class_total <- summary_table_sockeye_class_total %>%
   #bind_rows(summary_table_sockeye_class_total) %>%
              # summarise(across(where(is.numeric), sum), lake_name = "Total")) %>%
-   rename("Lake name" = lake_name)
-
-# Add a landscape section break before the table using officedown
-# block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
-# block_section(prop_section(type = "continuous"))
-# block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+   rename("Lake" = lake_name)
 
 flextable::set_flextable_defaults(font.size = 6)
 
@@ -40,9 +38,8 @@ flextable::flextable(summary_table_sockeye_class_total) |>
   flextable::autofit()
 
 ```
-
 \newpage
-```{r other_fish_info, tab.cap="Number of all fish species (except Sockeye) surveyed in the trawl samples in each lake by ATS year.", out.width=out_width}
+```{r other_fish_info, tab.cap="Number of non-Sockeye fish species surveyed in the trawl samples by lake and ATS year.", out.width=out_width}
 # Non-Sockeye tallied by year lake ----
 
 Trawl_summary_non_sockeye <- trim_lake_names(fix_lake_codes_names(Trawl_data_import)) %>% 
@@ -61,7 +58,7 @@ summary_table_fish_class_total <- summary_table_fish_class_total %>%
   #bind_rows(summary_table_fish_class_total %>%
              # summarise(across(where(is.numeric), sum), lake_name = "Total")) %>%
   select(1,names(.)[-1][order(as.numeric(names(.)[-1]))]) %>%
-   rename("Lake name" = lake_name)
+   rename("Lake" = lake_name)
 
 # block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
 
@@ -77,7 +74,7 @@ flextable::flextable(summary_table_fish_class_total) |>
 block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
 ```
 
-```{r survey-effort-table, tab.cap="Number of ATS trips by lake by year.", out.width=out_width}
+```{r survey-effort-table, tab.cap="Number of ATS trips by lake and year.", out.width=out_width}
 ##### Total trips by year lake ----
 
 survey_effort_table_import <- read.csv("00_data/Trip_effort_table_acoustic_trawl.csv", check.names = FALSE) %>%
@@ -217,67 +214,75 @@ for (lk in lakes_of_interest) {
 }
 
 ```
-```{r CHEE-trawl-sox-stix-print, tab.cap="Cheewhat Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+### *Trawl Catch Summary by ATS Year (MoE = Margin of Error)*
+### *??? Should this be summarized by ATS Year [hs 260824]???*
+
+```{r CHEE-trawl-sox-stix-print, tab.cap="Cheewhat Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 # Generate trawl tables for lakes included in lakes_of_interest ---- 
 if ("Cheewhat Lake" %in% lakes_of_interest) make_catch_table_list("Cheewhat Lake")
 ```
 \newpage
-```{r GCL-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+```{r GCL-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Great Central Lake" %in% lakes_of_interest) make_catch_table_list("Great Central Lake")  
 ```
 \newpage
-```{r HEN-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+```{r HEN-trawl-sox-stix-print, tab.cap="Henderson Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Henderson Lake" %in% lakes_of_interest) make_catch_table_list("Henderson Lake")
 ```
 
-```{r HOB-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+\newpage
+```{r HOB-trawl-sox-stix-print, tab.cap="Hobiton Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Hobiton Lake" %in% lakes_of_interest) make_catch_table_list("Hobiton Lake")
 ```
 
-```{r KEN-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+\newpage
+```{r KEN-trawl-sox-stix-print, tab.cap="Kennedy Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Kennedy Lake" %in% lakes_of_interest) make_catch_table_list("Kennedy Lake") 
 ```
-
-```{r LON-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+\newpage
+```{r LON-trawl-sox-stix-print, tab.cap="Long Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Long Lake" %in% lakes_of_interest) make_catch_table_list("Long Lake") 
 ```
-
-```{r MEZ-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+\newpage
+```{r MEZ-trawl-sox-stix-print, tab.cap="Meziadin Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Meziadin Lake" %in% lakes_of_interest) make_catch_table_list("Meziadin Lake") 
 ```
-
-```{r MUR-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+\newpage
+```{r MUR-trawl-sox-stix-print, tab.cap="Muriel Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Muriel Lake" %in% lakes_of_interest) make_catch_table_list("Muriel Lake") 
+```
+\newpage
+```{r NIM-trawl-sox-stix-print, tab.cap="Nimpkish Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Nimpkish Lake" %in% lakes_of_interest) make_catch_table_list("Nimpkish Lake") 
 ```
-
-```{r OWI-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+\newpage
+```{r OWI-trawl-sox-stix-print, tab.cap="Owikeno Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Owikeno Lake" %in% lakes_of_interest) make_catch_table_list("Owikeno Lake") 
 ```
-
-```{r SKI-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+\newpage
+```{r SKI-trawl-sox-stix-print, tab.cap="Skidegate Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Skidegate Lake" %in% lakes_of_interest) make_catch_table_list("Skidegate Lake") 
 ```
-
-```{r SPR-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+\newpage
+```{r SPR-trawl-sox-stix-print, tab.cap="Sproat Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Sproat Lake" %in% lakes_of_interest) make_catch_table_list("Sproat Lake") 
 ```
-
-```{r TAH-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+\newpage
+```{r TAH-trawl-sox-stix-print, tab.cap="Tahltan Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Tahltan Lake" %in% lakes_of_interest) make_catch_table_list("Tahltan Lake") 
 ```
-
-```{r VER-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+\newpage
+```{r VER-trawl-sox-stix-print, tab.cap="Vernon Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Vernon Lake" %in% lakes_of_interest) make_catch_table_list("Vernon Lake") 
 ```
-
-```{r WOSS-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+\newpage
+```{r WOSS-trawl-sox-stix-print, tab.cap="Woss Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Woss Lake" %in% lakes_of_interest) make_catch_table_list("Woss Lake") 
 ```
-
-```{r YAK-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. Abbreviation: ATS - Acoustic Trawl Survey; MoE - Margin of error."}
+\newpage
+```{r YAK-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
 if ("Yakoun Lake" %in% lakes_of_interest) make_catch_table_list("Yakoun Lake") 
 ```
-
 
 ```{r portrait_mode, echo=FALSE}
 # Add a portrait section after to "close" the landscape mode
