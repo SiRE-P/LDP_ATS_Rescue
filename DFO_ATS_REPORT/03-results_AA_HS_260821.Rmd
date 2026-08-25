@@ -24,11 +24,12 @@ lakes of interest \
 
 ```
 
+## Annual Survey Effort by Lake and ATS Year
 
-
-```{r bubble_heatmap, fig.cap = bubble_heatmap_caption, fig.height=9, fig.width=fig_width, out.width=out_width, fig.asp = 11.69/8.27}
-
+```{r bubble_heatmap, fig.cap = bubble_heatmap_caption, fig.height=8, fig.width=fig_width, out.width=out_width, fig.asp = 11.69/8.27}
 # fig.width=8, out.width="100%", fig.asp = 11.69/8.27}
+
+log_msg("Assembling acoustic and trawl trip effort for bubble-plot..")
 
 ### Count survey effort for both acoustic and trawl data
 ### Trawl
@@ -128,7 +129,7 @@ ggplot() +
       fill = "Trawl"),
     shape = 21,
     colour = "black",
-    stroke = 0.50,
+    stroke = 0.750,
     alpha = 0.5) +
   scale_fill_manual(
     values = c(
@@ -145,7 +146,7 @@ ggplot() +
   labs(
     x = "",
     y = "Lake") +
-  ggtitle("Annual Survey Effort by Lake and ATS Year") +
+  # ggtitle("Annual Survey Effort by Lake and ATS Year") +
   guides(fill = guide_legend(override.aes = list(size = 4))) +
   theme_bw() +
   theme(
@@ -165,6 +166,7 @@ ggplot() +
     legend.spacing.x = unit(0.05, "cm"))
 
 ```
+## Trip Frequency by Month and ATS Year for Key Lakes
 
 ```{r trip-effort-lakes, fig.cap=trip_effort_lakes_caption, fig.width=fig_width, fig.height=fig_height, out.width=out_width, fig.asp = 11.69/8.27}
 
@@ -212,7 +214,7 @@ ggplot(
   option = "viridis") +
   facet_wrap(~ lake_name, ncol = 4) +
   labs(
-    title = "Trip Frequency by Month and ATS Year for Key Lakes",
+    # title = "Trip Frequency by Month and ATS Year for Key Lakes",
     x = "",
     y = "Trips",
     fill = "ATS Year") +
@@ -230,9 +232,8 @@ ggplot(
     legend.text = element_text(size = 7))
 
 ```
-# \newpage
-
 ## Acoustic Target Dataset
+### *Acoustic Survey Depth Range Frequency*
 
 ```{r depth-acoustic, fig.cap=depth_acoustic_caption , fig.width=fig_width, out.width=out_width, fig.height=half_height}
 
@@ -244,8 +245,8 @@ unique_depth_acoustic <- fix_lake_codes_names(Acoustic_data_import) %>%
 
 ggplot(unique_depth_acoustic, aes(x = depth_m)) +
   geom_bar(fill = "purple4", color = "white", linewidth = 0.3) +  # fill = "#440154"
-  labs(title = "Acoustic Survey Sounding Depth Range",
-       subtitle = "All Lakes, All Years",
+  labs(#title = "Acoustic Survey Sounding Depth Range",
+       #subtitle = "All Lakes, All Years",
        x = "Depth range (m)", y = "Frequency") +
     scale_y_continuous(sec.axis = sec_axis(transform = ~ . / nrow(unique_depth_acoustic), 
                        name = "Percentage", labels = scales::percent), 
@@ -258,6 +259,7 @@ ggplot(unique_depth_acoustic, aes(x = depth_m)) +
 
 ```
 \newpage
+### *Annual Target Counts - Key Lakes*
 
 ```{r acoustic-targets, fig.cap=acoustic_targets_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
 
@@ -273,12 +275,10 @@ acoustic_transect_totals <- acoustic_targets %>%
     lake_code,
     ats_year,
     survey_date,
-    transect
-  ) %>%
+    transect) %>%
   summarise(
     transect_targets = sum(targets, na.rm = TRUE),
-    .groups = "drop"
-  )
+    .groups = "drop")
 
 # Step 2: Sum across transects within each survey
 acoustic_survey_totals <- acoustic_transect_totals %>%
@@ -286,38 +286,32 @@ acoustic_survey_totals <- acoustic_transect_totals %>%
     lake_name,
     lake_code,
     ats_year,
-    survey_date
-  ) %>%
+    survey_date) %>%
   summarise(
     survey_targets = sum(transect_targets, na.rm = TRUE),
-    .groups = "drop"
-  )
+    .groups = "drop")
  
 # Step 3: Mean acoustic targets per survey by lake and ATS year 
 acoustic_annual_summary <- acoustic_survey_totals %>%
   group_by(
     lake_name,
     lake_code,
-    ats_year
-  ) %>%
+    ats_year) %>%
   summarise(
     n_surveys = n(),
     mean_targets = mean(survey_targets, na.rm = TRUE),
     median_targets = median(survey_targets, na.rm = TRUE),
     sd_targets = sd(survey_targets, na.rm = TRUE),
-    .groups = "drop"
-  )
+    .groups = "drop")
 
 # Visualize with boxplots 
 acoustic_annual_medians <- acoustic_survey_totals %>%
   group_by(
     lake_name,
-    ats_year
-  ) %>%
+    ats_year) %>%
   summarise(
     median_targets = median(survey_targets),
    .groups = "drop")
-
 
 for (lk in sort(unique(acoustic_survey_totals$lake_name))) {
   acoustic_survey_totals_lk <- acoustic_survey_totals %>% 
@@ -372,13 +366,14 @@ for (lk in sort(unique(acoustic_survey_totals$lake_name))) {
     coord_cartesian(ylim = c(0, y_max)) +
     
     labs(
-      title = paste(lk, "Mean Annual Acoustic Survey Target Counts by ATS Year"),
+    # title = paste(lk, "Mean Annual Acoustic Survey Target Counts by ATS Year"),
+      title = paste(lk),
       x = "",
       y = "Targets per Survey") +
     
     theme_bw() +
     theme(
-      plot.title = element_text(hjust = 0.5),
+      plot.title = element_text(hjust = 0),
       plot.subtitle = element_text(hjust = 0.5),
       axis.text.x = element_text(
         angle = 45,
@@ -396,8 +391,9 @@ for (lk in sort(unique(acoustic_survey_totals$lake_name))) {
 
 ```
 \newpage
+### *Annual Sockeye Proportions in Acoustic Dataset - Key Lakes*
 
-```{r acoustic-data-prop-sox, fig.cap=acoustic_data_prop_sox_caption, fig.width=fig_width, out.width=out_width, fig.height=3.5}
+```{r acoustic-data-prop-sox, fig.cap=acoustic_data_prop_sox_caption, fig.width=fig_width, out.width=out_width, fig.height=3}
 
 acoustic_survey_prop_sockeye <- acoustic_targets %>%  # aggregate to lake/year/survey level
   group_by(
@@ -464,14 +460,14 @@ for (lk in sort(unique(acoustic_survey_prop_sockeye$lake_name))) {
       name = "Sockeye Proportion") +
 
     labs(
-      title = paste(lk,
-        "Annual Sockeye Proportions (in Acoustic Files)"),
+      title = paste(lk),
+        # paste(lk, "Annual Sockeye Proportions (in Acoustic Files)"),
       x = "",
       y = "Sockeye (%)") +
 
     theme_bw() +
     theme(
-      plot.title = element_text(hjust = 0.5),
+      plot.title = element_text(hjust = 0),
       plot.subtitle = element_text(hjust = 0.5),
       axis.text.x = element_text(
         angle = 45,
@@ -482,9 +478,10 @@ for (lk in sort(unique(acoustic_survey_prop_sockeye$lake_name))) {
 }
 
 ```
-<!-- \newpage -->
+\newpage
 
 ## Trawl Biosample Dataset
+### *Trawl Sample Label*
 
 ```{r sample-label, fig.cap=trawl_sample_label_caption, out.width="60%"}
 
@@ -492,6 +489,7 @@ include_graphics("../TRAWL_BIOSAMPLE/06_Figures/Trawl_sample_label.png")
 
 ```
 \newpage
+### *Trawl Duration Frequency*
 
 ```{r duration_distribution, fig.cap=trawl_duration_distribution_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
 
@@ -545,12 +543,15 @@ ggplot(unique_calc_duration,
   scale_x_continuous(
     breaks = seq(0, 50, by = 5),
     expand = c(0.01, 0.01)) +
-  labs(title = "Trawl Sample Duration", subtitle = "All Lakes, All Years", 
+  labs(#title = "Trawl Sample Duration", 
+       #subtitle = "All Lakes, All Years", 
        x = "Duration (min)", y = "Frequency") +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
 
 ```
+
+### *Trawl Depth Frequency*
 
 ```{r depth, fig.cap=trawl_depth_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
 
@@ -560,7 +561,7 @@ unique_depth <- fix_lake_codes_names(Trawl_data_import) %>%
 
 ggplot(data = unique_depth, aes(depth_m)) +
   geom_histogram(binwidth = 2, position = "dodge", color = "black", fill="yellow", linewidth = 0.3) + # #FBD424FF
-  labs(title = "Trawl Sample Depth", subtitle = "All Lakes, All Years", 
+  labs(#title = "Trawl Sample Depth", subtitle = "All Lakes, All Years", 
        x = "Depth (m)", y = "Frequency") +
  scale_x_continuous(breaks = seq(0, 70, by = 4), expand = c(0.01, 0.01)) +
     scale_y_continuous(expand = expansion(mult = c(0, 0.05)),
@@ -572,7 +573,7 @@ ggplot(data = unique_depth, aes(depth_m)) +
   theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
 
 ```
-
+### *Trawl Depth Frequency - Key Lakes*
 
 ```{r depth-by-lake, fig.cap=trawl_depth_by_lake_caption,  fig.width=fig_width, out.width=out_width, fig.asp = 1.2}
 
@@ -582,7 +583,7 @@ unique_depth_filtered <- unique_depth %>%
 
 ggplot(data = unique_depth_filtered) +
   geom_histogram(aes(x = depth_m), binwidth = 2, color = "black", fill="yellow", linewidth = 0.05) + # #FBD424FF
-  labs(title = "Trawl Sample Depth for Key Lakes", 
+  labs(#title = "Trawl Sample Depth for Key Lakes", 
        # subtitle = "Key Lakes", 
        x = "Depth (m)", y = "Frequency") +
   facet_wrap(~ lake_name, ncol = 4, scale="free") +
@@ -593,6 +594,8 @@ ggplot(data = unique_depth_filtered) +
     strip.text = element_text(size = 9)) 
 
 ```
+
+### *Sockeye and Stickleback Length Frequency - Key Lakes*
 
 ```{r hist-length-weight-by-lake, fig.cap=trawl_hist_length_weight_by_lake_caption, fig.width=fig_width, out.width=out_width, fig.asp = 1}
 
@@ -648,7 +651,7 @@ ggplot(
   facet_wrap(~ lake_name, scales = "free_y", ncol = 4) +
   # scale_y_continuous(labels = label_number(suffix = "%")) +
   labs(
-    title = "Fish Length Distributions for Key Study Lakes (all years combined)",
+    # title = "Fish Length Distributions for Key Study Lakes (all years combined)",
     # subtitle = "All ATS years combined",
     x = "Fish length (mm)",
     y = "Count",
@@ -739,6 +742,7 @@ ggplot(
 ```
 
 \newpage
+### *Annual Fish Length and Weight Distribution - Key Lakes*
 
 ```{r boxplot-lakes-years, fig.cap=boxplot_lakes_years_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
 
@@ -768,7 +772,7 @@ for (lk in lakes) {
         measurement == "Length (mm)" ~ scale_y_continuous(limits = c(0, 100)),
         measurement == "Weight (g)"  ~ scale_y_continuous(limits = c(0, 10)))) +
     labs(
-      title = paste(lk, "Annual Size Statistics for Sockeye and Stickleback"), 
+      title = paste(lk), #, "Annual Size Statistics for Sockeye and Stickleback"), 
       x = "",
       y = NULL) +
     theme_bw() +
@@ -795,6 +799,7 @@ for (lk in lakes) {
 
 ```
 \newpage
+### *Fish Length-Weight Relations*
 
 ```{r all-spp-scatter-plot, fig.cap=all_spp_length_weight_caption, fig.width=fig_width, out.width=out_width, fig.height = half_height}
 
@@ -929,12 +934,14 @@ ggplot(
   guides(
     shape = guide_legend(
       override.aes = list(
+        size = 4, alpha = 1,
         fill = c(
           "yellow", "cyan", rep(NA, 11))))) +
   
+  
   labs(
-    title = "Length/Weight Relationships",
-    subtitle = "All Lakes, All Species",
+    # title = "Length/Weight Relationships",
+    # subtitle = "All Lakes, All Species",
     x = "Fish length (mm)",
     y = "Fish weight (g)") +
 
@@ -1033,6 +1040,8 @@ ggplot(
 
 ```
 
+### *Fish Length/Weight Relations - Key Species*
+
 ```{r separated-spp, fig.cap=separated_spp_length_weight_caption, fig.width=fig_width, out.width=out_width, fig.asp = 0.8}
 
 # Drop any adult codes.
@@ -1089,9 +1098,9 @@ ggplot(scatter_plot_all_spp_filtered, aes(fish_length_mm, calc_std_weight_g)) +
             colour = "black", linetype = "dashed", linewidth = 0.5) +
   geom_text(data = labels, aes(x = -Inf, y = Inf, label = label),
     hjust = -0.05, vjust = 1.1, inherit.aes = FALSE, size = 3) +
-  labs(title="Key Fish Species Length/Weight Relations", 
-       subtitle="All Lakes, All Years",
-       x="Fish length (mm)", y = "Fish weigth (g)", colour = "Species") +
+  labs(#title="Key Fish Species Length/Weight Relations", 
+       #subtitle="All Lakes, All Years",
+       x="Fish length (mm)", y = "Fish weight (g)", colour = "Species") +
   facet_wrap(~species_common_name, scales = "free") +
   theme_bw() +
   theme(
@@ -1104,6 +1113,7 @@ ggplot(scatter_plot_all_spp_filtered, aes(fish_length_mm, calc_std_weight_g)) +
 
 ```
 \newpage
+### *Sockeye Length/Weight Relations - Key Lakes*
 
 ```{r sockeye, fig.cap=sockeye_length_weight_key_lakes_caption, out.width="90%", fig.height=fig_height, fig.asp = 11.69/8.27}
 
@@ -1177,7 +1187,7 @@ labels_lake <- stats_lake %>%
 
 ggplot(Trawl_data_sockeye, aes(x = fish_length_mm, y = calc_std_weight_g, colour = life_stage)) +
 
-    labs(title="Sockeye Length/Weight Relations", subtitle = "Key Study Lakes, All Years", 
+    labs(#title="Sockeye Length/Weight Relations", subtitle = "Key Study Lakes, All Years", 
        x = "Length (mm)", y = "Weight (g)") +
   
   geom_point(data = subset(Trawl_data_sockeye, life_stage %in% c("1+", "Fry")), alpha = 0.5) +
@@ -1216,6 +1226,8 @@ ggplot(Trawl_data_sockeye, aes(x = fish_length_mm, y = calc_std_weight_g, colour
     legend.position = "bottom")
 
 ```
+
+### *Stickleback Length/Weight Relations - Key Lakes*
 
 ```{r Stickleback, fig.cap=stickleback_length_weight_key_lakes_caption, out.width="90%", fig.height=fig_height, fig.asp = 11.69/8.27}
 
@@ -1311,7 +1323,7 @@ ggplot(data = Trawl_data_filtered_life_stage,
   
   scale_fill_viridis_d(option = "B") +
   labs(x = "Length (mm)", y = "Weight (g)", fill = "Life stage") +
-  labs(title="Stickleback Length/Weight Relations", subtitle = "Key Study Lakes, All Years") +
+# labs(title="Stickleback Length/Weight Relations", subtitle = "Key Study Lakes, All Years") +
   facet_wrap(~lake_name, ncol = 4, scale = "free") +
   theme_bw() +
   theme(
@@ -1324,6 +1336,7 @@ ggplot(data = Trawl_data_filtered_life_stage,
 
 ```
 \newpage
+### *Annual Sockeye Proportions in Trawl Dataset - Key Lakes*
 
 ```{r trawl-sockeye-proportions, fig.cap=trawl_sockeye_proportions_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
 
@@ -1333,8 +1346,8 @@ trawl_data_all_spp <- Trawl_data_import %>%
   filter(lake_name %in% lakes_of_interest) %>%
   filter(
     !is.na(species_common_name),
-    !is.na(fish_length_mm),
-    !is.na(calc_std_weight_g),
+  # !is.na(fish_length_mm),
+  # !is.na(calc_std_weight_g),
     !(species_common_name == "Sockeye" & life_stage == "Adult") ) %>% # omit any Sockeye adults
   mutate(
     species_common_name = factor(species_common_name)) %>%
@@ -1413,14 +1426,14 @@ for (lk in sort(unique(trawl_sockeye_proportion$lake_name))) {
   scale_y_continuous(
     labels = scales::percent_format(accuracy = 1),
     limits = c(0, 1)) +
-  labs(
-    title = paste(lk, "Sockeye Proportion in Trawl Samples"),
-    subtitle = "Boxplots show trawl-level distributions; red line is the weighted annual mean",
+  labs(title = paste(lk),
+    # title = paste(lk, "Sockeye Proportion in Trawl Samples"),
+    # subtitle = "Boxplots show trawl-level distributions; red line is the weighted annual mean",
     x = "",
     y = "Sockeye (%)") +
   theme_bw() +
   theme(
-    plot.title = element_text(hjust = 0.5),
+    plot.title = element_text(hjust = 0),
     plot.subtitle = element_text(hjust = 0.5),
     axis.text.x = element_text(
       angle = 45,
@@ -1451,5 +1464,4 @@ cat("Elapsed time:",
     "minutes\n")
 cat("================================================\n\n")
 ```
-# ----- end of section.
 
