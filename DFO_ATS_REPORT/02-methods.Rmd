@@ -6,16 +6,16 @@ cite_packages(pkgs = c("ggplot2", "beepr", "broom", "dplyr", "ggh4x", "ggbreak",
 ```
 
 ## Study Area of the Lake Enrichment Program
-
-ATS works conducted in British Columbia sampled a total of 73 lakes, or 85 considering lakes subdividions, from 1977-2007 [*MAP BC LAKES*].
+ATS works conducted in British Columbia sampled a total of 73 lakes, or 85 considering lakes subdividions, from 1977-2007 [*MAP BC LAKES*]. The lakes surveyed in the program were located mainly in the coastal areas of British Columbia. According to @hyattResponsesSockeyeSalmon1985, the lakes shared the following characteristics: considerably low phosphorus concentrations, rapid replacement of water due to high flows, and extreme oligotrophic conditions.
 
 ## Field Procedures
+The field procedures used from 1977-2007 will be briefly mentioned in this report, but background details on methods used for acoustic limnetic fish estimations and townet trawl biosamples are deeply explained in the following reports: @hyattLakeEnrichmentProgram1984; @hyattAcousticTrawlBased2000; @gjernesPortableMidwaterTrawling1979, @gjernesDevelopmentSpecificationsUse1986.The ideal techniques to assess fish population in lakes vary depending on the characteristics of the lake, such as size, depth, elevation, and @maclellanEvaluationMethodsUsed2010 presented the current methods adopted by DFO to conduct fieldwork.
 
-## Acoustic Target
+### Acoustic Target
+The single-beam sounder used from the early 1970s to the early 1980s was the Furuno (FM 22 and FNV-3000) [@robinsonPopulationEstimatesSockeye1978], and in 1984 onward the SIMRAD was used. Technical characteristics of echosounders limit their use in shallow waters, especially within the first meter [@maclellanEvaluationMethodsUsed2010]. 
 
-## Trawl Biosample
-
-Trawl biosample data collected using trawling method, with net size usually of 2x2x7.5m.
+### Trawl Biosample
+Trawl netting was used to collect fish specimens for species identification and life history assessments [@robinsonSockeyeSalmonOncorhynchus1975]. This technique complemented hydroacoustic surveys by sampling surface waters that were beyond the detection range of echosounders. Trawls were conducted using a boat-towed net, typically measuring 2 × 2 × 7.5 m, but variations to this net size were reported [@robinsonSockeyeSalmonOncorhynchus1975]. Most fishes were preserved in formalin, with only a small percentage of samples preserved in ethanol. Due to the effects of preservatives on the specimen's length and weight [@Shields1996EffectsOF], these measurements were taken after 30 days, and formulas to calculate their standardized weight were provided to account for these variations.
 
 ## Data Rescue Program
 
