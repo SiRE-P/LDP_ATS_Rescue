@@ -198,4 +198,17 @@ check_docx_closed <- function(path = "techreport.docx") {
   invisible(TRUE)
 }
 
+make_summary_flextable <- function(lk) {
+
+  flextable::flextable(
+    summary_tables[[lk]]
+  ) |>
+    flextable::separate_header() |>
+    flextable::align(
+      align = "center",
+      part = "all"
+    ) |>
+    flextable::autofit()
+}
+
 ```
