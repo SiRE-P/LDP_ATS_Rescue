@@ -33,40 +33,6 @@ install.packages(setdiff(packages, row.names(installed.packages())))
 ################################  Step 1  #####################################
 ########################## Organize the directory #############################
 
-# Uncomment this section if you'd like to rename the folders
-# Renaming existing directory if it is not standardized.
-# Be careful to not delete the current script
-#if (!dir.exists("./TRAWL_BIOSAMPLE/01_code")) {
-#  if(dir.exists("./TRAWL_BIOSAMPLE/code")) {
-#    renaming_folder <- file.rename("./TRAWL_BIOSAMPLE/code", "./TRAWL_BIOSAMPLE/01_code")
-#    if (renaming_folder){
-#      message("Directory renamed successfully.") 
-#    } else {
-#      warning("Failed to rename directory")
-#    }
-#  } else {
-#    warning("Old directory does not exist.")
-#  }
-#} else {
-#  message("New directory already exists.")
-#}
-#
-## Renaming raw data folder
-#if (!dir.exists("./TRAWL_BIOSAMPLE/00_raw_data")) {
-#  if(dir.exists("./TRAWL_BIOSAMPLE/data")) {
-#    renaming_folder <- file.rename("./TRAWL_BIOSAMPLE/data", "./TRAWL_BIOSAMPLE/00_raw_data")
-#    if (renaming_folder){
-#      message("Directory renamed successfully.") 
-#    } else {
-#      warning("Failed to rename directory")
-#    }
-#  } else {
-#    warning("Old directory does not exist.")
-#  }
-#} else {
-#  message("New directory already exists.")
-#}
-
 # Create the directories to hold output files
 if (!dir.exists("./TRAWL_BIOSAMPLE/02_intermediate_out")) {dir.create("./TRAWL_BIOSAMPLE/02_intermediate_out")
 } else {message("Directory already exists.")} # ensure CSV output directory exists
@@ -76,6 +42,8 @@ if (!dir.exists("./TRAWL_BIOSAMPLE/04_final_output")) {dir.create("./TRAWL_BIOSA
 } else {message("Directory already exists.")}  # ensure plot output directory exists
 if (!dir.exists("./TRAWL_BIOSAMPLE/05_ARCHIVE")) {dir.create("./TRAWL_BIOSAMPLE/05_ARCHIVE")
 }  else {message("Directory already exists.")} # ensure archive directory exists for storing date-stamped copy of output
+if (!dir.exists("./TRAWL_BIOSAMPLE/06_Figures")) {dir.create("./TRAWL_BIOSAMPLE/06_Figures")
+}  else {message("Directory already exists.")} # ensure figure directory exists for storing plots and tables
 
 # Regex pattern to automate file processing (loop over all SAS files)
 name_pattern <- "trawl([[:digit:]][[:digit:]])\\.sas7bdat$"
@@ -89,13 +57,13 @@ intermediate_out_folder <- "./TRAWL_BIOSAMPLE/02_intermediate_out"
 files <- list.files(data_folder, pattern = name_pattern, full.names = TRUE)
 
 # Remove corrupted files, because their metadata have some structural problem
-remove_yy <- c("trawl85.sas7bdat", 
-               "trawl86.sas7bdat",
-               "trawl87.sas7bdat",
-               "trawl94.sas7bdat",
-               "trawl97.sas7bdat", 
-               "trawl98.sas7bdat")
-files <- files[!basename(files) %in% remove_yy]
+#remove_yy <- c("trawl85.sas7bdat", 
+#               "trawl86.sas7bdat",
+#               "trawl87.sas7bdat",
+#               "trawl94.sas7bdat",
+#               "trawl97.sas7bdat", 
+#               "trawl98.sas7bdat")
+#files <- files[!basename(files) %in% remove_yy]
 
 cat("Found", length(files), "files:\n")
 print(files)
@@ -248,10 +216,6 @@ for (f in files) {
       duration_mi = as.character(duration_mi)
     )
   
-  ### Creating unique IDs for fishes and Trawls
-  #final_df$trawl_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, sep = "_")
-  #final_df$fish_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, final_df$fish_id, final_df$species_code, sep = "_")
-  
   ### Creating unique IDs for fishes and Trawls, actually avoiding duplicates
   final_df$trawl_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, sep = "_")
   final_df$fish_unique_ID <- paste(final_df$trawl_date, final_df$lake_code, final_df$trawl_number, final_df$depth_m, final_df$species_code, final_df$fish_id, final_df$fish_weight_g, final_df$fish_length_mm, sep = "_")
@@ -271,12 +235,24 @@ for (f in files) {
     mutate(
       trawl_date = ymd(trawl_date),
       trawl_month = month(trawl_date),
-      ats_year = year(trawl_date)
+      ats_year = year(trawl_date) - if_else(trawl_month < 4, 1L, 0L)
     )
   
- # Remove duplicates
-  final_df <- final_df %>% 
-    distinct(select(., -c(trawl_unique_ID, fish_unique_ID)), .keep_all = TRUE)
+  ### Checking for duplicates
+  # Check for duplicates based on selected columns
+  duplicated_rows <- final_df[duplicated(final_df[ , !names(final_df) %in% "source_line"]), ]
+  
+  all_duplicates <- final_df %>%
+    group_by(fish_unique_ID, species_code_comment) %>%
+    filter(n() > 1) %>%
+    arrange(fish_unique_ID) %>%
+    ungroup()
+  
+  n_removed <- nrow(duplicated_rows)
+  cat("Removed", n_removed, "exact duplicate rows across all columns\n")
+  
+  # Remove duplicates
+  final_df <- final_df[!duplicated(final_df[ , !names(final_df) %in% "source_line"]), ]
   
   ### save table in csv 
   write.csv(final_df, paste0(intermediate_out_folder,"/trawl", metadata_yy, "_SAS.csv"), row.names = FALSE)

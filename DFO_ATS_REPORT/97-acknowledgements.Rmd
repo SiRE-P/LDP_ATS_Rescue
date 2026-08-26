@@ -1,0 +1,18 @@
+<!-- Acknowledgements -->
+
+# ACKNOWLEDGEMENTS {-}
+
+Many people contributed to the design, development and execution of the limnetic 
+Acoustic-Trawl-Survey (AST) program and the resulting Juvenile Sockeye Index Database system. 
+We acknowledge the following people:
+
+Jim Manzer, Kim Hyatt, Paul Rankin, Terry Gjernes for the development and implementation of the Lake Enrichment and Study Lakes programs;
+
+Tracy Cone, Vicky Walker, Fay Winters, Melinda Hirst, and Alan Hirst for lab work, aging, and data digitization; 
+
+Greg Steer, Heather Ashton, Corinna Pucher, Dennis Rutherford, John Candy, Karen Cooper, and Jim Radziul for data analyses and reporting;
+
+Ron Traber, Ichio Miki, Carmen McConnell, Steve Waugh, Eric Rome, Barry Hanslit, Ryan Cerniauskus, Steve Toth, and no doubt many others, 
+for their contributions to data acquisition under often grueling conditions in remote locations.
+
+(NOTE: send copy of historic Observers.sas file to Paul Rankin to refresh his memory and corroborate these suggestions!)

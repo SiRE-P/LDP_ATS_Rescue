@@ -1,0 +1,174 @@
+"species_common_name","lake_name","sample_counts","min(fish_length_mm)","mean(fish_length_mm)","max(fish_length_mm)","min(fish_weight_g)","mean(fish_weight_g)","max(fish_weight_g)"
+"Chinook","Damdochax Lake",1,77,77,77,6.15,6.15,6.15
+"Chinook","Owikeno Lake",8,41,74.75,99,0.82,6.68,14.04
+"Coho","Cheewhat Lake",6,35,58.33,99,0.44,4.54,14.78
+"Coho","Hobiton Lake",2,35,36,37,0.41,0.44,0.47
+"Coho","Kennedy Lake (Clay)",2,39,40.5,42,0.56,0.63,0.7
+"Coho","Kennedy Lake (Main)",1,99,99,99,11.63,11.63,11.63
+"Coho","Long Lake",4,36,56,78,0.46,2.83,6.06
+"Coho","Megin Lake",1,55,55,55,1.67,1.67,1.67
+"Coho","Muriel Lake",3,36,36.67,37,0.48,0.53,0.6
+"Coho","Owikeno Lake",12,31,69.92,123,0.26,5.47,23.59
+"Coho","Skidegate Lake",1,81,81,81,6.55,6.55,6.55
+"Coho","Yakoun Lake",2,27,29,31,0.2,0.28,0.35
+"Dolly Varden","Bear Lake",1,56,56,56,1.94,1.94,1.94
+"Dolly Varden","Skidegate Lake",2,94,100.5,107,10.08,11.36,12.64
+"Kokanee","Sproat Lake",1,160,160,160,47.98,47.98,47.98
+"Lamprey","Cheewhat Lake",1,110,110,110,2.34,2.34,2.34
+"Lamprey","Kennedy Lake (Clay)",2,43,111.5,180,2.43,5.66,8.88
+"Lamprey","Megin Lake",3,NA,NA,NA,NA,NA,NA
+"Lamprey","Muriel Lake",1,86,86,86,1.18,1.18,1.18
+"Lamprey","Nahmint Lake",5,43,73.4,93,0.19,0.77,1.27
+"Lamprey","Nimpkish Lake",4,126,143.25,165,2.5,3.95,5.57
+"Lamprey","Owikeno Lake",2,79,97.5,116,0.81,1.78,2.75
+"Lamprey","Phillips Lake",6,84,130.33,167,1.04,4.02,6.85
+"Lamprey","Schoen Lake",1,62,62,62,6.16,6.16,6.16
+"Lamprey","Skidegate Lake",22,86,129.36,212,1.22,4.3,14.72
+"Lamprey","Yakoun Lake",12,45,107.92,133,0.15,2.29,4.13
+"Peamouth Chub","Bowser Lake",4,72,78.75,90,4.23,5.86,8.72
+"Peamouth Chub","Ian Lake",1,36,36,36,0.51,0.51,0.51
+"Peamouth Chub","Kennedy Lake (Clay)",3,48,87.67,122,1.36,9.45,18.49
+"Peamouth Chub","Kennedy Lake (Main)",8,35,69.12,93,0.49,4.33,8.61
+"Peamouth Chub","Muriel Lake",28,45,82.86,125,1.02,7.23,24.44
+"Pink","Yakoun Lake",3,25,31.33,38,0.12,0.27,0.41
+"Red-sided Shiner","Dragon Lake",1,89,89,89,10.07,10.07,10.07
+"Red-sided Shiner","Meziadin Lake",1,75,75,75,6.3,6.3,6.3
+"Sculpin","Damdochax Lake",39,35,62.49,110,0.46,3.51,19.82
+"Sculpin","Hobiton Lake",12,40,51.42,61,0.87,1.77,2.71
+"Sculpin","Muriel Lake",4,41,64,119,0.65,6.18,22.24
+"Sculpin","Skidegate Lake",77,18,32.58,80,0.06,0.6,5.88
+"Sculpin","Tahltan Lake",11,29,39,54,0.23,0.64,1.48
+"Sockeye","Alastair Lake",518,25,52.08,82,0.08,1.54,5.41
+"Sockeye","Awun Lake",958,29,45.18,100,0.18,1.06,12.18
+"Sockeye","Bear Lake",36,26,46.69,79,0.11,1.44,5.75
+"Sockeye","Bonilla Lake",1493,33,54.31,87,0.32,1.82,5.55
+"Sockeye","Bowser Lake",92,27,56.53,81,0.2,2.44,6.52
+"Sockeye","Brannen Lake",24,48,61.04,82,1.12,2.47,5.61
+"Sockeye","Cheewhat Lake",3761,25,52.26,146,0.14,2.05,28.79
+"Sockeye","Cougar Lake",9,36,61.44,120,0.54,6.08,25.82
+"Sockeye","Curtis Lake",1467,30,43.38,85,0.24,0.84,3.27
+"Sockeye","Damdochax Lake",415,27,65.86,94,0.14,3.56,9.47
+"Sockeye","Deer Lake",3,53,63.67,80,1.75,3.5,6.39
+"Sockeye","Devon Lake",1326,29,47.38,90,0.21,1.23,7.78
+"Sockeye","Eden Lake",567,28,50.92,122,0.37,1.54,24.82
+"Sockeye","Ellerslie Lake",30,32,46,150,0.27,3.94,53.48
+"Sockeye","Fred Wright Lake",606,25,50.25,90,0.06,1.78,7.39
+"Sockeye","Glendale Lake",55,31,56.71,80,0.3,2.38,6
+"Sockeye","Great Central Lake",8792,NA,NA,NA,0.11,2.01,15.49
+"Sockeye","Henderson Lake",4031,25,49.96,95,0.11,1.7,10.93
+"Sockeye","Heydon Lake",47,25,39.11,101,0.13,0.86,12.32
+"Sockeye","Hobiton Lake",6512,NA,NA,NA,NA,NA,NA
+"Sockeye","Ian Lake",148,30,58.65,164,0.29,4.02,66.21
+"Sockeye","Ingram Lake",16,27,39.25,46,0.17,0.71,1.13
+"Sockeye","Jansen Lake",89,28,52.22,107,0.17,1.61,7.24
+"Sockeye","Kennedy Lake (Clay)",15716,21,43.09,80,0.1,1.02,5.44
+"Sockeye","Kennedy Lake (Main)",3889,26,50.08,94,0.14,1.42,8.22
+"Sockeye","Kitlope Lake",193,27,51.25,85,0.09,1.67,6.9
+"Sockeye","Kitwanga Lake",4,52,59.25,67,1.58,2.36,3.17
+"Sockeye","Klukshu Lake",90,42,57.04,78,0.81,2.28,6.6
+"Sockeye","Link Lake",16,27,34.12,44,0.15,0.39,0.88
+"Sockeye","Long Lake",7845,NA,NA,NA,0.08,1.02,7.13
+"Sockeye","Long Lake (A)",672,25,44.75,74,0.12,1.04,4.92
+"Sockeye","Long Lake (B)",1005,NA,NA,NA,NA,NA,NA
+"Sockeye","Lowe Lake",1028,35,59.05,100,0.24,2.17,11.68
+"Sockeye","Maggie Lake",21,31,54,146,0.27,5.18,48.47
+"Sockeye","Mathers Lake",86,35,48.99,80,0.47,1.36,5.77
+"Sockeye","Megin Lake",147,28,46.64,70,0.2,1.17,3.66
+"Sockeye","Mercer Lake",2177,31,39.07,74,0.22,0.67,4.61
+"Sockeye","Meziadin Lake",1731,24,51.97,114,0.11,1.85,17.87
+"Sockeye","Morice Lake",1,30,30,30,0.38,0.38,0.38
+"Sockeye","Morrison Lake",39,42,70.31,90,0.75,4.42,8.57
+"Sockeye","Muchalat Lake",1438,28,46.75,90,0.18,1.16,7.44
+"Sockeye","Muriel Lake",1594,24,43.28,157,0.11,1.13,35.22
+"Sockeye","Nahmint Lake",103,26,41.33,152,0.15,1.41,40.62
+"Sockeye","Nahwitti Lake",495,27,49.84,99,0.2,1.46,11.65
+"Sockeye","Nimpkish Lake",1863,25,44.14,81,0.1,1.03,6.16
+"Sockeye","Owikeno Lake",13561,17,41.25,89,0.05,0.82,10.1
+"Sockeye","Phillips Lake",413,30,59.72,109,0.21,3.12,13.54
+"Sockeye","Port John Lake",34,38,48.68,59,0.54,1.33,2.41
+"Sockeye","Power Lake",73,32,61.26,121,0.27,4.29,19.37
+"Sockeye","Quatse Lake",139,48,71.96,113,1.22,4.86,16.2
+"Sockeye","Schoen Lake",84,37,54.3,126,0.41,2.19,23.8
+"Sockeye","Simpson Lake",2,26,27.5,29,0.1,0.17,0.24
+"Sockeye","Skidegate Lake",627,25,60.45,138,0.11,3.81,40.29
+"Sockeye","Sproat Lake",3536,26,57.43,162,0.14,2.16,49.78
+"Sockeye","Sproat Lake (Two R)",39,28,60.33,75,0.2,2.48,4.45
+"Sockeye","Stephens Lake",48,33,50.79,84,0.4,1.73,6.99
+"Sockeye","Swan Lake",43,28,45.28,91,0.23,1.15,6.23
+"Sockeye","Tahltan Lake",859,35,74.75,135,0.22,4.8,26.13
+"Sockeye","Tatsamenie Lake",162,28,44.1,104,0.09,0.9,12.58
+"Sockeye","Trapper Lake",802,NA,NA,NA,NA,NA,NA
+"Sockeye","Uchuck Lake",25,36,58.96,181,0.46,7.36,75.11
+"Sockeye","Vernon Lake",614,27,46.17,147,0.17,1.24,40.61
+"Sockeye","Woss Lake",3489,23,44.97,143,0.11,1.03,31.28
+"Sockeye","Yakoun Lake",2675,24,39.25,106,0.1,0.83,14.48
+"Stickleback","Alastair Lake",335,26,48.62,70,0.13,1.19,3.84
+"Stickleback","Awun Lake",76,41,83.67,107,0.62,7.01,12.73
+"Stickleback","Bonilla Lake",3545,20,52.15,95,0.06,1.4,5.13
+"Stickleback","Brannen Lake",374,29,44.37,74,0.22,0.98,5.19
+"Stickleback","Cheewhat Lake",1845,25,48.57,90,0.14,1.43,8.37
+"Stickleback","Curtis Lake",1799,24,42.07,66,0.09,0.65,2.95
+"Stickleback","Devon Lake",6897,20,43.17,66,0.05,0.74,2.88
+"Stickleback","Dragon Lake",319,25,40.27,88,0.11,0.67,6.08
+"Stickleback","Eden Lake",63,29,62.98,101,0.22,3.22,10.64
+"Stickleback","Ellerslie Lake",1,34,34,34,0.34,0.34,0.34
+"Stickleback","Glendale Lake",11,55,66.55,77,1.54,2.81,4.24
+"Stickleback","Great Central Lake",546,19,60.11,78,0.07,2.54,6.46
+"Stickleback","Henderson Lake",2221,21,50.25,81,0.08,1.65,6.05
+"Stickleback","Hesquiat Lake",12,27,46.92,71,0.24,1.33,3.77
+"Stickleback","Hobiton Lake",28,23,41.32,63,0.1,0.74,2.33
+"Stickleback","Ian Lake",14,32,60.79,115,0.22,4.26,15.85
+"Stickleback","Jansen Lake",10,17,33.7,55,0.03,0.46,1.28
+"Stickleback","Kennedy Lake (Clay)",16320,NA,NA,NA,0.02,0.96,3.87
+"Stickleback","Kennedy Lake (Main)",17105,7,39.03,71,0.02,0.62,4.04
+"Stickleback","Kitlope Lake",32,35,46.22,57,0.35,1.07,1.92
+"Stickleback","Long Lake",13689,17,49.88,88,NA,NA,NA
+"Stickleback","Long Lake (A)",943,19,47.75,73,0.04,1.21,3.74
+"Stickleback","Long Lake (B)",1628,16,48.75,73,0.03,1.16,3.44
+"Stickleback","Lowe Lake",1,52,52,52,1.28,1.28,1.28
+"Stickleback","Maggie Lake",1,30,30,30,0.21,0.21,0.21
+"Stickleback","Mathers Lake",121,29,71.78,84,0.2,3.6,5.77
+"Stickleback","Megin Lake",99,20,72.05,97,0.07,4.8,9.92
+"Stickleback","Mercer Lake",1138,19,50.55,77,0.05,1.55,5.15
+"Stickleback","Muchalat Lake",1,66,66,66,3.71,3.71,3.71
+"Stickleback","Muriel Lake",412,19,39.12,61,0.04,0.56,2.53
+"Stickleback","Nahmint Lake",1,59,59,59,2.36,2.36,2.36
+"Stickleback","Nimpkish Lake",876,15,63.46,96,0.02,2.53,6.11
+"Stickleback","Owikeno Lake",5210,11,43.88,78,NA,NA,NA
+"Stickleback","Phillips Lake",60,37,80.62,104,0.54,7.3,15.63
+"Stickleback","Port John Lake",60,35,65.38,98,0.36,2.75,6.8
+"Stickleback","Power Lake",4,46,69.75,87,0.98,4.71,8.08
+"Stickleback","Quatse Lake",327,22,61.88,85,0.13,2.73,7.28
+"Stickleback","Schoen Lake",1,36,36,36,0.33,0.33,0.33
+"Stickleback","Skidegate Lake",1288,18,52.98,107,0.03,2.3,13.36
+"Stickleback","Sproat Lake",166,21,41.86,70,0.08,0.81,5.05
+"Stickleback","Woss Lake",239,27,42.93,73,0.15,0.94,4.24
+"Stickleback","Yakoun Lake",894,18,44.95,63,0.05,0.89,3.11
+"Sucker","Damdochax Lake",1,141,141,141,38.95,38.95,38.95
+"Whitefish","Damdochax Lake",6,95,112.33,124,9.57,16.68,21.66
+"Whitefish","Morrison Lake",5,68,81,93,3.18,5.78,8.83
+NA,"Awun Lake",4,NA,NA,NA,NA,NA,NA
+NA,"Bear Lake",1,NA,NA,NA,NA,NA,NA
+NA,"Cheewhat Lake",2,NA,NA,NA,NA,NA,NA
+NA,"Devon Lake",1,NA,NA,NA,NA,NA,NA
+NA,"Eden Lake",5,NA,NA,NA,NA,NA,NA
+NA,"Great Central Lake",2,NA,NA,NA,NA,NA,NA
+NA,"Henderson Lake",5,NA,NA,NA,NA,NA,NA
+NA,"Hobiton Lake",7,NA,NA,NA,NA,NA,NA
+NA,"Ian Lake",7,NA,NA,NA,NA,NA,NA
+NA,"Jansen Lake",2,NA,NA,NA,NA,NA,NA
+NA,"Kennedy Lake (Clay)",33,NA,NA,NA,NA,NA,NA
+NA,"Kennedy Lake (Main)",4,24,26,28,0.1,0.16,0.2
+NA,"Kitlope Lake",2,NA,NA,NA,NA,NA,NA
+NA,"Long Lake",38,NA,NA,NA,NA,NA,NA
+NA,"Lowe Lake",12,NA,NA,NA,NA,NA,NA
+NA,"Morice Lake",4,NA,NA,NA,NA,NA,NA
+NA,"Muriel Lake",2,NA,NA,NA,NA,NA,NA
+NA,"Nimpkish Lake",5,NA,NA,NA,NA,NA,NA
+NA,"Port John Lake",1,97,97,97,11.62,11.62,11.62
+NA,"Simpson Lake",1,NA,NA,NA,NA,NA,NA
+NA,"Sproat Lake",2,NA,NA,NA,NA,NA,NA
+NA,"Stephens Lake",2,NA,NA,NA,NA,NA,NA
+NA,"Swan Lake",1,NA,NA,NA,NA,NA,NA
+NA,"Vernon Lake",2,NA,NA,NA,NA,NA,NA
+NA,"Woss Lake",1,NA,NA,NA,NA,NA,NA

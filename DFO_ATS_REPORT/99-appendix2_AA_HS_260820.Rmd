@@ -1,0 +1,276 @@
+\newpage
+
+```{r appendixB_landscape, echo=FALSE}
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+
+lakes_of_interest <- "Great Central Lake"  # keeping it simple for this appendix [hs 260824]
+
+```
+
+# APPENDIX `r new_appendix()`. ADDITIONAL METADATA {#app:additional}
+
+This appendix presents information about the acoustic gear equipment used in the Lake Enrichment and Study Lakes programs for key BC lakes, as well as the number of regular and surface trawls conducted across the ATS years. Additionally, an example of the metadata table for the lake strata is also provided.
+
+```{r acoustic-gear-merge-setup} 
+############ visualizing the data - survey effort and acoustics gear Hyatt 2000 table 1
+### Create a survey_date in the trawl data set to merge with acoustic data
+
+### Trawl
+Trawl_data_renamed <- fix_lake_codes_names(Trawl_data_import) %>%
+  mutate(survey_date = trawl_date)
+
+# join acoustic and trawl tables
+Trawl_acoustic_data <- full_join(Trawl_data_renamed, fix_lake_codes_names(Acoustic_data_import), 
+                                 by = c("ats_year", "lake_code", "survey_date", "lake_name"), 
+                                 suffix = c("_Trawl", "_Acoustic"))
+
+# Filter lakes and species of interest
+Trawl_acoustic_data <- Trawl_acoustic_data %>%
+  filter(lake_name %in% lakes_of_interest,
+         #species_common_name %in% c("Sockeye", "Stickleback"),
+         !gear_info %in% "DUM2",
+         !life_stage %in% "Adult")
+
+# Clean columns keeping only columns of interest
+Trawl_acoustic_data_clean <- Trawl_acoustic_data %>%
+  select(ats_year, lake_code, lake_name, trawl_date, survey_date, trawl_month, survey_month, 
+         trawl_number, depth_m, depth_min_m, depth_max_m, species_code,
+         species_common_name, life_stage, age_class, source_files, 
+         transect, targets, prop_sockeye, prop_stickleback, sounder_code, sounder_type, acoustic_source_file)
+
+# Create a summary table for sockeye
+for (lk in lakes_of_interest) {
+  
+  df_lk <- filter(Trawl_acoustic_data_clean, lake_name == lk)
+  
+  Sockeye_summary_table <- df_lk %>%
+    #filter(species_common_name %in% "Sockeye", !is.na(sounder_type), !is.na(transect), !is.na(trawl_number)) %>% # filter only sockeye species
+    filter(species_common_name %in% "Sockeye") %>% # filter only sockeye species
+    group_by(survey_date, ats_year, sounder_type) %>%
+    mutate(Transects_completed = ifelse(!is.na(transect), n_distinct(transect), 0L),  # store the max transect number in that lake, that date
+           Trawls_completed = ifelse(!is.na(trawl_number), n_distinct(trawl_number), 0L),   # count the distinct number of trawl events that day, in the specific lake
+           Surface_trawl = ifelse(!is.na(trawl_number) & !is.na(depth_m), 
+                                  n_distinct(trawl_number[depth_m == 0]), 0L)) %>% # extract only the trawl events when the depth was 0
+    select("Lake" = lake_name, "ATS Year" = ats_year, "Date" = survey_date, "Sounder Type"  = sounder_type, 
+           "#Transects" = Transects_completed, "#Trawls" = Trawls_completed, "Surface Trawls" = Surface_trawl) %>%
+    mutate(`ATS Year` = as.character(`ATS Year`)) %>%
+    distinct()
+  
+  assign(paste0(lk, "_summary_table"), Sockeye_summary_table)
+}
+```
+
+```{r acoustic-gear-Cheewhat, tab.cap="Summary of Cheewhat Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Cheewhat Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+```{r acoustic-gear-GCL, tab.cap="Summary of Great Central Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Great Central Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+```{r acoustic-gear-Henderson, tab.cap="Summary of Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Henderson Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+```{r acoustic-gear-Hobiton, tab.cap="Summary of Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Hobiton Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+```{r acoustic-gear-Kennedy, tab.cap="Summary of Kennedy Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Kennedy Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+```{r acoustic-gear-Long, tab.cap="Summary of Long Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Long Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+```{r acoustic-gear-Meziadin, tab.cap="Summary of Meziadin Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Meziadin Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+```{r acoustic-gear-Muriel, tab.cap="Summary of Muriel Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Muriel Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+
+
+```{r acoustic-gear-Owikeno, tab.cap="Summary of Owikeno Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Owikeno Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+```{r acoustic-gear-skidegate, tab.cap="Summary of SKidegate Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Skidegate Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+```{r acoustic-gear-Sproat, tab.cap="Summary of Sproat Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Sproat Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+```{r acoustic-gear-Tahltan, tab.cap="Summary of Tahltan Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Tahltan Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+```{r acoustic-gear-Vernon, tab.cap="Summary of Tahltan Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Vernon Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+```{r acoustic-gear-Woss, tab.cap="Summary of Tahltan Lake Sockeye ATS dates, transects and trawl completed, and acoustic gear."}
+
+# Plot the table
+flextable::flextable(`Woss Lake_summary_table`)|>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::autofit()
+
+```
+
+```{r landscape-lake-strata-table, tab.cap="Summary of the lake strata for key lakes as an example of the metadata available for the lakes surveyed during LEP. The complete table is available as a supplementary material."}
+lake_strata_table <- read.csv("00_data/Lake_strata_length.csv")
+
+# extract the lakes in the dataset
+lakes_in_acoustic <- unique(fix_lake_codes_names(Acoustic_data_import)$lake_name) # extract the lake names acoustic dataset
+lakes_in_trawl <- unique(fix_lake_codes_names(Trawl_data_import)$lake_name) # Extract the lake names trawl dataset
+
+lakes_in_ATS_database <- c(lakes_in_acoustic, lakes_in_trawl) # combine the lists
+lakes_in_ATS_database <- lakes_in_ATS_database[!is.na(lakes_in_ATS_database)] # remove NAs
+
+lakes_in_ATS_database <- unique(lakes_in_ATS_database)
+
+# Clean the lake strata table
+lake_strata_table <- lake_strata_table %>%
+  filter(Lake.name %in% lakes_in_ATS_database) %>%
+  rename("Latitude" = Lake.latitude, "Longitude" = Lake.longitude, "Lake" = Lake.name,
+         "Length (m)" = Transect.length.m, "Area (ha)" = Area.ha, "Code" = Lake.code,
+         "Depth (m).Min" = Depth.min.m, "Depth (m).Max" = Depth.max.m) %>%
+  mutate(`Area (ha)` = as.integer(`Area (ha)`),
+         `Length (m)` = as.integer(`Length (m)`))
+
+lake_strata_table$Latitude <- str_replace_all(lake_strata_table$Latitude, " deg", "°")
+lake_strata_table$Latitude <- str_replace_all(lake_strata_table$Latitude, " min", "' N")
+
+lake_strata_table$Longitude <- str_replace_all(lake_strata_table$Longitude, " deg", "°")
+lake_strata_table$Longitude <- str_replace_all(lake_strata_table$Longitude, " min", "' W")
+
+lake_strata_table <- lake_strata_table %>%
+  select(Lake, Code, Latitude, Longitude, 
+         `Depth Min (m)` = `Depth (m).Min`, `Depth Max (m)` = `Depth (m).Max`, 
+         `Area (ha)` , Transect, `Length (m)`) %>%
+  filter(Lake %in% lakes_of_interest,
+         !is.na(Transect)) # , 
+       # Transect <3, 
+       # Lake %in% c("Great Central Lake", "Sproat Lake", "Henderson Lake", "Kennedy Lake (Main)", "Cheewhat Lake", "Muriel Lake", "Hobiton Lake"), 
+       # `Depth (m).Min` < 10)
+
+ft <- flextable::flextable(lake_strata_table) |>
+  flextable::separate_header() |>
+  flextable::align(align = "center", part = "all")
+
+break_rows <- lake_strata_table |>
+  mutate(rowid = row_number()) |>
+  group_by(Lake) |>
+  summarise(rowid = max(rowid)) |>
+  pull(rowid)
+
+ft <- flextable::hline(
+  ft,
+  i = break_rows,
+  border = officer::fp_border(width = 1)
+)
+
+ft |> flextable::autofit()
+
+# flextable::set_flextable_defaults(
+#  font.size = 10,
+#  padding.left = 3,
+#  padding.right = 3,
+#  padding.top = 1,
+#  padding.bottom = 1,
+#  na_str = "-",
+#  theme_fun = "theme_booktabs"
+# )
+
+# # Plot the table
+# flextable::flextable(lake_strata_table) |>
+#   flextable::separate_header() |>
+#   flextable::align(align = "center", part = "all") |>
+#   flextable::autofit() #|>
+#  #flextable::save_as_docx(
+#  #"landscape lake strata table" = lake_strata_table, path = "./02_final_output/Lake strata table.docx")
+
+```

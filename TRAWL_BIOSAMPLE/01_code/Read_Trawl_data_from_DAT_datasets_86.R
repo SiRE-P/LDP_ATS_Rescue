@@ -7,6 +7,12 @@
 ##############        Athena Ogden (DFO Nanaimo)            ###################
 ###############################################################################
 
+###
+
+# THIS SCRIPT WORKS FOR TRAWL FILE '86 ONLY
+
+###
+
 # getwd()
 # setwd("/LDP_ATS_Rescue")
 
@@ -33,38 +39,6 @@ install.packages(setdiff(packages, row.names(installed.packages())))
 ################################  Step 1  #####################################
 ########################## Organize the directory #############################
 
-## Renaming existing directory if it is not standardized
-#if (!dir.exists("./TRAWL_BIOSAMPLE/01_code")) {
-#  if(dir.exists("./TRAWL_BIOSAMPLE/code")) {
-#    renaming_folder <- file.rename("./TRAWL_BIOSAMPLE/code", "/Users/aliceassmar/Documents/LDP-DFO-Project/TRAWL_BIOSAMPLE/01_code")
-#    if (renaming_folder){
-#      message("Directory renamed successfully.") 
-#    } else {
-#      warning("Failed to rename directory")
-#    }
-#  } else {
-#    warning("Old directory does not exist.")
-#  }
-#} else {
-#  message("New directory already exists.")
-#}
-#
-## Renaming raw data folder
-#if (!dir.exists("/Users/aliceassmar/Documents/LDP-DFO-Project/TRAWL_BIOSAMPLE/00_raw_data")) {
-#  if(dir.exists("/Users/aliceassmar/Documents/LDP-DFO-Project/TRAWL_BIOSAMPLE/data")) {
-#    renaming_folder <- file.rename("/Users/aliceassmar/Documents/LDP-DFO-Project/TRAWL_BIOSAMPLE/data", "/Users/aliceassmar/Documents/LDP-DFO-Project/TRAWL_BIOSAMPLE/00_raw_data")
-#    if (renaming_folder){
-#      message("Directory renamed successfully.") 
-#    } else {
-#      warning("Failed to rename directory")
-#    }
-#  } else {
-#    warning("Old directory does not exist.")
-#  }
-#} else {
-#  message("New directory already exists.")
-#}
-
 # Create the directories to hold output files
 if (!dir.exists("./TRAWL_BIOSAMPLE/02_intermediate_out")) {dir.create("./TRAWL_BIOSAMPLE/02_intermediate_out")
 } else {message("Directory already exists.")} # ensure CSV output directory exists
@@ -74,11 +48,19 @@ if (!dir.exists("./TRAWL_BIOSAMPLE/04_final_output")) {dir.create("./TRAWL_BIOSA
 } else {message("Directory already exists.")}  # ensure plot output directory exists
 if (!dir.exists("./TRAWL_BIOSAMPLE/05_ARCHIVE")) {dir.create("./TRAWL_BIOSAMPLE/05_ARCHIVE")
 }  else {message("Directory already exists.")} # ensure archive directory exists for storing date-stamped copy of output
+if (!dir.exists("./TRAWL_BIOSAMPLE/06_Figures")) {dir.create("./TRAWL_BIOSAMPLE/06_Figures")
+}  else {message("Directory already exists.")} # ensure figure directory exists for storing plots and tables
 
 # Create variable to hold output directory and the target file
 input_folder <- "./TRAWL_BIOSAMPLE/00_raw_data/01_DAT"
 intermediate_out_folder <- "./TRAWL_BIOSAMPLE/02_intermediate_out"
-trawl_file <- "trawl86"
+# trawl_file <- "trawl86" # uncomment this line if you're running the script manually
+
+trawl_files <- c("trawl86")
+
+for (trawl_file in trawl_files) {
+  
+  cat("Processing", trawl_file, "\n")
 
 ################################  Step 2  #####################################
 ################### Read dat and loop over data files #########################
@@ -248,6 +230,10 @@ final_df <- final_df %>%
   ) %>%
   select(-end_time_clean, -comments)
 
+## Add leading '0' that were removed by the software used to write the .dat files
+final_df$start_time <- str_pad(final_df$start_time, 4, "left", pad = "0")
+final_df$end_time <- str_pad(final_df$end_time, 4, "left", pad = "0")
+
 # Convert the hour "HHMM" into "HH:MM:SS" as in the SAS files
 final_df$start_time <- sprintf("%s:%s:00", substr(final_df$start_time, 1, 2), substr(final_df$start_time, 3, 4))
 final_df$end_time <- sprintf("%s:%s:00", substr(final_df$end_time, 1, 2), substr(final_df$end_time, 3, 4))
@@ -326,7 +312,7 @@ final_df <- final_df %>%
 
 ### Adding look up tables, that were provided in the Sharepoint
 ### Look up tables include: lake name, fish species, preservative code,
-### weight convertion formula 
+### weight conversion formula 
 
 ### load your look-up tables
 fish_species_code_lookup_table <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/04_YS_look_up_tables/fish_species_code_lookup_table.csv")
@@ -430,7 +416,7 @@ final_df <- final_df %>%
   mutate(
     trawl_date = ymd(trawl_date),
     trawl_month = month(trawl_date),
-    ats_year = year(trawl_date)
+    ats_year = year(trawl_date) - if_else(trawl_month < 4, 1L, 0L)
   )
 
 
@@ -449,29 +435,34 @@ final_df <- final_df %>%
            scale, scale_book, age, aging_technique, aging_technique_name, source_file, source_line)
 
 ### Checking for duplicates
-# Columns to exclude from duplicate check
-cols_to_exclude <- c("trawl_unique_ID", "fish_unique_ID")
-
-# Get column names to include in the check
-cols_to_include <- setdiff(names(final_df), cols_to_exclude)
-
 # Check for duplicates based on selected columns
-duplicate_rows_indices <- duplicated(final_df[, cols_to_include])
+duplicated_rows <- final_df[duplicated(final_df[ , !names(final_df) %in% "source_line"]), ]
 
-# View the duplicate rows
-unique(duplicate_rows_indices)
-final_df[duplicate_rows_indices, ]
+all_duplicates <- final_df %>%
+  group_by(fish_unique_ID, species_code_comment) %>%
+  filter(n() > 1) %>%
+  arrange(fish_unique_ID) %>%
+  ungroup()
+
+n_removed <- nrow(duplicated_rows)
+cat("Removed", n_removed, "exact duplicate rows across all columns\n")
 
 # Remove duplicates
-final_df <- final_df %>% 
-  distinct(select(., -c(trawl_unique_ID, fish_unique_ID)), .keep_all = TRUE)
+final_df <- final_df[!duplicated(final_df[ , !names(final_df) %in% "source_line"]), ]
 
 ### save 
 write.csv(final_df, paste0(intermediate_out_folder, "/", trawl_file, "_DAT.csv"), row.names = FALSE)
 
+cat(
+  "For", trawl_file,
+  ": recovered values ->",
+  "line count =", line_count,
+  ", line index =", line_index,
+  ", i =", i,
+  "\n"
+)
 
-
-
+}
 
 
 
