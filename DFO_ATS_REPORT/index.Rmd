@@ -2,7 +2,7 @@
 english_title: |
   Limnetic sonar fish target and bio-sample data from Acoustic-Trawl-Survey (ATS) field studies for juvenile Sockeye salmon abundance during the Lake Enrichment and Study Lakes programs, 1977-2007 
 french_title: |
-  Données de bioéchantillonnage par chalutage et données acoustiques de terrain du Programme d'enrichissement des lacs (LEP) mené de 1977 à 2007 dans 75 plans et cours d'eau différents, majoritairement en Colombie-Britannique
+  Données de ciblage des poissons par sonar limnétique et données d'échantillons biologiques issues des études de terrain par chalutage acoustique (ATS) sur l'abondance des saumons rouges juvéniles pendant les programmes d'enrichissement des lacs et des lacs d'étude, 1977-2007
 
 author: |
   Alice C. Assmar^1^,
@@ -82,7 +82,7 @@ english_cat_no: "###"
 french_cat_no: "###"
 
 abstract: |
-  Here is the abstract text. It must not be more than 1/2 page (roughly 400 words).
+  This report presents the hydro-acoustic and trawl biosampling data collected by Fisheries and Ocean Canada (DFO) personnel during the Lake Enrichment and Study Lakes Program covering the period between 1977 to 2007. The data was rescued, cleaned and standardized by two interns hired by the Canadian Institute of Ecology and Evolution Living Data Project in partnership with the DFO personnel. In total, 177,541 records from 1977 to 1999 trawl biosampling original files were recovered, while 123,819 were recovered from the hydro-acoustic 1977-2007 original files.
 
   Start new paragraphs after a blank line and with 2 spaces indent.
 
@@ -90,7 +90,7 @@ output:
  csasdown::techreport_docx:
    french: false
 knit: (function(input, ...) csasdown::render())
-bibliography: ["bib/DFO-ATS-Report-refs.bib", "bib/refs.bib"]
+bibliography: ["bib/DFO-ATS-Report-refs.bib", "bib/grateful-refs.bib"]
 ---
 
 ```{r warning-techreport, include=FALSE}
