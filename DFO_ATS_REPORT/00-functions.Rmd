@@ -1,6 +1,8 @@
-# Data import, initial setup, figure captions, and functions
+
 
 ```{r log-message, echo = FALSE}
+# Data import, initial setup, figure captions, and functions
+
 log_msg <- function(msg) {
   # function to log the KNIT process
   message(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "|", msg, "\n")
