@@ -16,7 +16,7 @@ lake_codes_names_lat_longs <- read.csv("./00_data/lake_codes.csv")   # LEP lake 
 lake_codes_names <- lake_codes_names_lat_longs %>%                   # same, but lat-longs dropped
   dplyr::select(-lake_latitude, -lake_longitude)                     # this DF can be used to tidy up lake names
 
-log_msg("Reading acoustic data...")
+# log_msg("Reading acoustic data...")
 
 Acoustic_data_import <- read.csv("./00_data/Target_OUTPUT_data_FINAL_(1977_2007).csv") %>%
   # filter(lake_code == 255) %>%                                       # ATS Acoustics data
@@ -34,8 +34,8 @@ Trawl_data_import <- read.csv("./00_data/Trawl_data_FINAL_1977-1999.csv") # ATS 
 # Global variables ----
 
 fig_width  <- 7.5            # figure width in inches
-fig_height <- 9              # figure height in inches  
-half_height<- 3.5            # figure height for half-page plots
+fig_height <- 8.5            # figure height in inches  
+half_height<- 3.0            # figure height for half-page plots
 out_width  <- "80%"          # figure sizing to fit page
 portrait   <- 11/8.5         # figure aspect ratio for 8.5 x 11 page in portrait mode
 landscape  <- 8.5/11         # figure aspect ratio for 8.5 x 11 page in landscape mode
@@ -141,15 +141,15 @@ trim_lake_names <- function(df) {      # Clean lake names
       lake_name = str_trim(str_remove_all(lake_name, "_2005"))) 
 }
 
-# function to output the trawl data by lake in the Appendix
+# function to output the trawl data by lake in the Appendix - see bottom
 make_catch_table_list <- function(lake_name) {
-  
+
   sockeye_tbl <- sockeye_tables[[lake_name]]   # check that data for the passed lake exist
   stickle_tbl <- stickle_tables[[lake_name]]
 
   if (is.null(sockeye_tbl) || is.null(stickle_tbl)) {
     return(invisible(NULL))}                   # if not, pass back a NULL and carry on
-  
+
   catch_tbl <- full_join(
     sockeye_tables[[lake_name]],
     stickle_tables[[lake_name]],
@@ -159,7 +159,7 @@ make_catch_table_list <- function(lake_name) {
       `ATS Year` = as.character(`ATS Year`),
       Lake = ifelse(is.na(Lake), lake_stix, Lake)) %>% # lake name is missing if no Sockeye, so use lake name from Sticklebacks
     dplyr::select(-lake_stix)
-  
+
   flextable::flextable(catch_tbl) |>
     # flextable::set_caption(
     #   caption = paste(
@@ -212,5 +212,64 @@ make_summary_flextable <- function(lk) {
     ) |>
     flextable::autofit()
 }
+
+
+# make_catch_table_list <- function(lake_name) {
+# 
+#   sockeye_tbl <- sockeye_tables[[lake_name]]
+#   stickle_tbl <- stickle_tables[[lake_name]]
+# 
+#   if (is.null(sockeye_tbl) || is.null(stickle_tbl)) {
+#     return(invisible(NULL))
+#   }
+# 
+#   catch_tbl <- full_join(
+#     sockeye_tables[[lake_name]],
+#     stickle_tables[[lake_name]],
+#     by = c("Date", "ATS Year")
+#   ) %>%
+#     arrange(Date) %>%
+#     mutate(
+#       `ATS Year` = as.character(`ATS Year`),
+#       Lake = ifelse(is.na(Lake), lake_stix, Lake)
+#     ) %>%
+#     dplyr::select(-lake_stix)
+# 
+#   print(names(catch_tbl))
+#         
+#   ft <- flextable::flextable(catch_tbl) |>
+#     flextable::width(width = 1.2) |>
+#     flextable::separate_header() |>
+#     flextable::align(
+#       align = "center",
+#       part = "all"
+#     ) |>
+#     flextable::autofit()
+# 
+#   # length columns: 1 decimal place
+#   ft <- flextable::colformat_num(
+#     ft,
+#     j = c(
+#       "Sockeye Fry_Mean Length (mm)",
+#       "Stickleback_Mean Length (mm)"
+#     ),
+#     digits = 1
+#   )
+# 
+#   # weight columns: 2 decimal places
+#   ft <- flextable::colformat_num(
+#     ft,
+#     j = c(
+#       "Sockeye Fry_Mean Weight (g)",
+#       "Sockeye Fry_SE Length (mm)",
+#       "Sockeye Fry_SE Weight (g)",
+#       "Stickleback_SE Length (mm)",
+#       "Stickleback_SE Weight (g)",
+#       "Stickleback_Mean Weight (g)"),
+#     digits = 2
+#   )
+# 
+#   ft
+# }
 
 ```

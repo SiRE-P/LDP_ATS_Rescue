@@ -7,5 +7,5 @@ rmd_files: ["index.Rmd",
             "97-acknowledgements.Rmd",
             "98-references.Rmd",
             "99-appendix_AA_HS_260817.Rmd",   # HS Revisions & Test Code
-            "99-appendix2_AA_HS_260824.Rmd"]  # HS Revisions & Test Code
+            "99-appendix2_AA_HS_260826.Rmd"]  # HS Revisions & Test Code
 delete_merged_file: true
