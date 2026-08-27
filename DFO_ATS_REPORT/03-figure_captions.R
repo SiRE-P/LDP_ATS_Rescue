@@ -1,6 +1,8 @@
 # techreport_fig_captions.R
 # Figure captions for ATS Technical Report
+# Sourced in 00-functions.Rmd
 
+# Results Section
 figure_scale_book_caption <-
   "Example of a scale book record form."
 
@@ -27,15 +29,8 @@ acoustic_targets_caption <-
 
 acoustic_data_prop_sox_caption <-
   paste(
-    "Annual proportion Sockeye (as recorded in acoustic source files),",
-    "weighted by target abundance, by lake and year.",
-    "Note that these proportions were derived from trawl sample data",
-    "by observers and applied to the acoustic source data manually,",
-    "and are presented here for comparative purposes.",
-    "Note also that the resulting proportions may not be valid because the trip trawl proportions were applied",
-    "manually to acoustic data across multiple trip transects and depth strata, and thus likely over-representing the true proportions",
-    "due to repetitive application -- this should be recalculated",
-    "[HS 260821]"
+    "Annual proportion Sockeye (as manually recorded in acoustic source files),",
+    "weighted by target abundance, by lake and year."
     )
 
 trawl_sample_label_caption <-
@@ -81,18 +76,7 @@ separated_spp_length_weight_caption <-
   paste(
     "Scatter plot illustrating the relationship between fish length and weight",
     "for juvenile Chinook, Coho, Sockeye and all Stickleback specimens included",
-    "in the dataset. Additionally, a regression curve is also provided, including",
-    "the annotated coefficients for each species. Any adult Sockeye was omitted",
-    "from the statistical calculations. Length-weight relationships were estimated",
-    "separately for each species using linear regression on log-transformed data.",
-    "For each species, a linear model of the form W=aLb was fitted, i.e.,",
-    "log(calculated standardized weight) = log(a) + b × log(length).",
-    "The intercept and slope from the regression were used to calculate the",
-    "length-weight parameters, where a was obtained by back-transforming",
-    "the intercept (exp(intercept)) and b represents the scaling coefficient.",
-    "The sample size (N) was calculated as the number of observations included",
-    "in each species-specific model, and model fit was assessed using the",
-    "coefficient of determination (R²)."
+    "in the dataset."
   )
 
 sockeye_length_weight_key_lakes_caption <-
@@ -111,3 +95,29 @@ stickleback_length_weight_key_lakes_caption <- paste(
 trawl_sockeye_proportions_caption <- paste(
   "Annual proportion of Sockeye in Trawl data, weighted by number of fish in sample.",
   "Boxplots show distributions across trawls; red line is the weighted annual mean proportion across all dates.")
+
+# Appendix A
+biosample_sox_count <- "Number of Sockeye surveyed in the trawl samples by lake and ATS year."
+biosam_nonsox_count <- "Number of non-Sockeye surveyed in the trawl samples by lake and ATS year."
+ATS_trips           <- "Number of ATS trips by lake and year."
+
+trawl_biosample_CHE <- "Cheewhat Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_GCL <- "Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_HEN <- "Henderson Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_HOB <- "Hobiton Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_KEN <- "Kennedy Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_LON <- "Long Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_MEZ <- "Meziadin Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_MUR <- "Muriel Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_NIM <- "Nimpkish Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_OWI <- "Owikeno Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_SKI <- "Skidegate Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_SPR <- "Sproat Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_TAH <- "Tahltan Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_VER <- "Vernon Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_WOS <- "Woss Lake trawl catch summary by survey date for Sockeye and Stickleback."
+trawl_biosample_YAK <- "Yakoun Lake trawl catch summary by survey date for Sockeye and Stickleback."
+
+# Appendix B
+acoustic_meta_cap   <- "Example lake survey metadata for ATS date, acoustic sounder employed, and number of transects and trawls completed. All other lake's data will be available in ____.csv."
+lake_strata_tab_cap <- "Summary of the physical lake parameters for one lake''s transects and depth strata as an example of the metadata available for all lakes surveyed. The complete table including all study lakes data is available as a supplementary comma-delimited text file _____.csv."
