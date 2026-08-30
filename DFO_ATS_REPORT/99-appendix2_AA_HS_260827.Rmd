@@ -2,24 +2,34 @@
 
 ```{r appendixB_landscape, echo=FALSE}
 block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+```
 
-lakes_glimpse <- "Kennedy Lake"  # keeping it simple for this appendix [hs 260824]
+```{r set_lakes_glimpse, echo = FALSE}
+# can handle single or multiple lakes or lake arms for tabulation
 
+lakes_glimpse <- sort(lakes_of_interest)                            # example of all key lakes (but will omit KCA, KMA, LongA, LongB!)
+# lakes_glimpse <- c("Kennedy Lake (Clay)", "Kennedy Lake (Main)")  # example of multiple lake arms
+# lakes_glimpse <- c("Long Lake", "Long Lake (A)", "Long Lake (B)") # example of multiple lake arms
+lakes_glimpse <- sort(c("Cheewhat Lake", "Hobiton Lake"))           # example of multiple lakes
+# lakes_glimpse <- c("Cheewhat Lake")                               # simple example of one lake
 ```
 
 # APPENDIX `r new_appendix()`. ADDITIONAL METADATA {#app:additional}
 
-Appendix B1 presents the survey-specific acoustic equipment (sounder) used in the Lake Enrichment and Study Lakes programs for one lake, and includes the number of regular and surface trawls conducted. The data for all other lakes can be found in XXXXXX.csv.
+Appendix B1 and B2 present information for a limited number of study lakes surveyed in the Lake Enrichment and Study Lakes programs; the associated data for all lakes can be obtained from the specified comma-delimited text files.
 
-Appendix B2 presents the physical parameter metadata (location, transect number and length, stratum depth minimum and maximum, and total area associated with each stratum) used to scale up fish target data to estimates of fish abundance. The parameters for all other study lakes can be found in XXXXXX.csv.
+Appendix B1 presents the survey-specific acoustic sounder equipment employed, and displays the number of regular and surface trawls conducted and total trawl effort and catch. The data for all lakes can be found in AST_survey_summary.csv.
+
+Appendix B2 presents the physical parameter metadata (location, transect number and length, stratum depth minimum and maximum, and total area associated with each stratum) used to scale up fish target data to estimates of fish abundance. The parameters for all study lakes can be found in lep_lake_parameters.csv.
 
 ```{r acoustic-gear-merge-setup} 
 
-############ visualizing the data - survey effort and acoustics gear Hyatt 2000 table 1
+### visualizing the data - survey effort and acoustics gear Hyatt 2000 table 1
+### based on actual lake codes in data (e.g., different lake arms treated separately)
 ### Create a survey_date in the trawl data set to merge with acoustic data
 
 ### Acoustic
-acoustic_data_summary <- fix_lake_codes_names(Acoustic_data_import) %>%
+acoustic_data_summary <- (Acoustic_data_import) %>%
 # filter(lake_name %in% lakes_glimpse) %>%
   select(lake_name, lake_code, ats_year, survey_date, survey_month, sounder_type, sounder_gain, transect, targets) %>%
   distinct() %>%
@@ -29,7 +39,7 @@ acoustic_data_summary <- fix_lake_codes_names(Acoustic_data_import) %>%
   n_targets   = sum(targets, na.RM = TRUE),
   .groups = "drop")
   
-trawl_data_summary <- fix_lake_codes_names(Trawl_data_import) %>%
+trawl_data_summary <- (Trawl_data_import) %>%
 # filter(lake_name %in% lakes_glimpse) %>%
   filter(!gear_info %in% "DUM2") %>%
   filter(!(life_stage %in% "Adult" & species_common_name %in% "Sockeye")) %>%
@@ -42,7 +52,7 @@ trawl_data_summary <- fix_lake_codes_names(Trawl_data_import) %>%
   # trawl metrics
   summarise(n_trawls = n_distinct(trawl_number),
             n_surface_trawls    = n_distinct(trawl_number[depth_m == 0]),
-            total_trawl_minutes = sum(unique(calc_duration_time), na.rm = TRUE),
+            total_trawl_minutes = sum(calc_duration_time[!duplicated(trawl_number)], na.rm = TRUE),
             # fish counts
             n_Fish        = n(),
             n_Sockeye     = sum(species_common_name == "Sockeye",    na.rm = TRUE),
@@ -64,9 +74,15 @@ acoustic_trawl_data_merge <-
   mutate(`ATS Year` = as.character(`ATS Year`)) %>%
   arrange(Lake, Date)
 
-##############################  CONTINUE HERE
+# SAVE complete list of ATS survey meta- and summary data
+# Create output directory if it doesn't already exist, then save
+dir.create("02_final_output", showWarnings = FALSE, recursive = TRUE)
+write.csv(
+  acoustic_trawl_data_merge,
+  file = file.path("02_final_output", "ATS_meta_summary_by_survey_date.csv"),
+  row.names = FALSE)
 
-# Create a summary table for sockeye
+# Create a summary table for sockeye, filtered for lakes_glimpse list
 for (lk in lakes_glimpse) {  # filter down to one lake as specified at top  # lakes_of_interest) {
   
   df_lk <- filter(acoustic_trawl_data_merge, Lake == lk)
@@ -88,99 +104,131 @@ for (lk in lakes_glimpse) {  # filter down to one lake as specified at top  # la
 }
 ```
 
+```{r appendixB1_landscape, echo=FALSE}
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+```
+<!-- \newpage -->
+
+### *AST Survey Summary Data*
+
 ```{r acoustic-gear-appendixB, tab.cap=acoustic_meta_cap}
 
 tbl_name <- paste0(lakes_glimpse, "_summary_table")
 
-flextable::flextable(get(tbl_name)) |>
-  flextable::separate_header() |>
-  flextable::align(align = "center", part = "all") |>
-  flextable::autofit()
+# Retrieve and combine all tables
+ft_table <- dplyr::bind_rows(
+  lapply(tbl_name, get))
 
-# Plot the table
-# flextable::flextable(paste0("`", lakes_glimpse, "_summary_table`"))|>
-#   flextable::separate_header() |>
-#   flextable::align(align = "center", part = "all") |>
-#   flextable::autofit()
-
-```
-
-
-```{r landscape-lake-strata-table, tab.cap="Summary of the lake strata for key lakes as an example of the metadata available for the lakes surveyed during LEP. The complete table is available as a supplementary material."}
-lake_strata_table <- read.csv("00_data/Lake_strata_length.csv")
-
-# extract the lakes in the dataset
-lakes_in_acoustic <- unique(fix_lake_codes_names(Acoustic_data_import)$lake_name) # extract the lake names acoustic dataset
-lakes_in_trawl <- unique(fix_lake_codes_names(Trawl_data_import)$lake_name) # Extract the lake names trawl dataset
-
-lakes_in_ATS_database <- c(lakes_in_acoustic, lakes_in_trawl) # combine the lists
-lakes_in_ATS_database <- lakes_in_ATS_database[!is.na(lakes_in_ATS_database)] # remove NAs
-
-lakes_in_ATS_database <- unique(lakes_in_ATS_database)
-
-# Clean the lake strata table
-lake_strata_table <- lake_strata_table %>%
-  filter(Lake.name %in% lakes_in_ATS_database) %>%
-  rename("Latitude" = Lake.latitude, "Longitude" = Lake.longitude, "Lake" = Lake.name,
-         "Length (m)" = Transect.length.m, "Area (ha)" = Area.ha, "Code" = Lake.code,
-         "Depth (m).Min" = Depth.min.m, "Depth (m).Max" = Depth.max.m) %>%
-  mutate(`Area (ha)` = as.integer(`Area (ha)`),
-         `Length (m)` = as.integer(`Length (m)`))
-
-lake_strata_table$Latitude <- str_replace_all(lake_strata_table$Latitude, " deg", "°")
-lake_strata_table$Latitude <- str_replace_all(lake_strata_table$Latitude, " min", "' N")
-
-lake_strata_table$Longitude <- str_replace_all(lake_strata_table$Longitude, " deg", "°")
-lake_strata_table$Longitude <- str_replace_all(lake_strata_table$Longitude, " min", "' W")
-
-lake_strata_table <- lake_strata_table %>%
-  select(Lake, Code, Latitude, Longitude, 
-         Transect, 
-         `Depth Min (m)` = `Depth (m).Min`, `Depth Max (m)` = `Depth (m).Max`, 
-         `Length (m)`, `Area (ha)`) %>%
-  arrange(Lake, Transect) %>%
-  filter(Lake %in% lakes_of_interest,
-         !is.na(Transect)) # , 
-       # Transect <3, 
-       # Lake %in% c("Great Central Lake", "Sproat Lake", "Henderson Lake", "Kennedy Lake (Main)", "Cheewhat Lake", "Muriel Lake", "Hobiton Lake"), 
-       # `Depth (m).Min` < 10)
-
-ft_table <- lake_strata_table %>% filter(lake %in% c(lakes_glimpse))
-                                         
+# Create flextable
 ft <- flextable::flextable(ft_table) |>
+  flextable::theme_booktabs() |>
+  flextable::fontsize(size = 8, part = "all") |>
+  flextable::padding(
+    padding.top = 1,
+    padding.bottom = 1,
+    padding.left = .5,
+    padding.right = .5,
+    part = "all") |>
   flextable::separate_header() |>
-  flextable::align(align = "center", part = "all")
+  flextable::fontsize(size = 9, part = "header") |>
+  flextable::align(
+    align = "center",
+    part = "all")
 
-break_rows <- lake_strata_table |>
-  mutate(rowid = row_number()) |>
-  group_by(Lake) |>
-  summarise(rowid = max(rowid)) |>
+# Add separator lines between lakes
+break_rows <- ft_table %>%
+  mutate(rowid = row_number()) %>%
+  group_by(Lake) %>%
+  summarise(rowid = max(rowid), .groups = "drop") %>%
   pull(rowid)
 
 ft <- flextable::hline(
   ft,
   i = break_rows,
-  border = officer::fp_border(width = 1)
-)
+  border = officer::fp_border(width = 1))
 
-ft |> flextable::autofit()
+ft |>
+  flextable::autofit()
 
-# flextable::set_flextable_defaults(
-#  font.size = 10,
-#  padding.left = 3,
-#  padding.right = 3,
-#  padding.top = 1,
-#  padding.bottom = 1,
-#  na_str = "-",
-#  theme_fun = "theme_booktabs"
-# )
+```
 
-# # Plot the table
-# flextable::flextable(lake_strata_table) |>
-#   flextable::separate_header() |>
-#   flextable::align(align = "center", part = "all") |>
-#   flextable::autofit() #|>
-#  #flextable::save_as_docx(
-#  #"landscape lake strata table" = lake_strata_table, path = "./02_final_output/Lake strata table.docx")
+```{r appendixB2_landscape, echo=FALSE}
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+```
+
+```{r lake_strata_setup}
+lake_strata_table <- read.csv("00_data/Lake_strata_length.csv") 
+# rename(lake_name = Lake.name, lake_code = Lake.code)
+
+# lake_strata_table_fix <- fix_lake_codes_names(lake_strata_table)
+
+# extract the lakes in the dataset
+lakes_in_acoustic <- sort(unique(Acoustic_data_import$lake_name)) # extract the lake names acoustic dataset
+lakes_in_trawl    <- sort(unique(Trawl_data_import$lake_name))    # Extract the lake names trawl dataset
+
+lakes_in_ATS_database <- c(lakes_in_acoustic, lakes_in_trawl)     # combine the lists
+lakes_in_ATS_database <- sort(unique(lakes_in_ATS_database))
+lakes_in_ATS_database <- lakes_in_ATS_database[!is.na(lakes_in_ATS_database)] # remove NAs
+
+# Clean the lake strata table
+lake_strata_table_ATS <- lake_strata_table %>%
+  filter(Lake.name %in% lakes_in_ATS_database) %>%
+  rename("Latitude"   = Lake.latitude, "Longitude" = Lake.longitude, "Lake" = Lake.name,
+         "Length (m)" = Transect.length.m, "Area (ha)" = Area.ha, "Code" = Lake.code,
+         "Depth (m).Min" = Depth.min.m, "Depth (m).Max" = Depth.max.m) %>%
+  mutate(`Area (ha)`  = as.integer(`Area (ha)`),
+         `Length (m)` = as.integer(`Length (m)`))
+
+lake_strata_table_ATS$Latitude <- str_replace_all(lake_strata_table_ATS$Latitude, " deg", "°")
+lake_strata_table_ATS$Latitude <- str_replace_all(lake_strata_table_ATS$Latitude, " min", "' N")
+
+lake_strata_table_ATS$Longitude <- str_replace_all(lake_strata_table_ATS$Longitude, " deg", "°")
+lake_strata_table_ATS$Longitude <- str_replace_all(lake_strata_table_ATS$Longitude, " min", "' W")
+
+lake_strata_table_ATS <- lake_strata_table_ATS %>%
+  select(Lake, Code, Latitude, Longitude, 
+         Transect, 
+        `Depth Min (m)` = `Depth (m).Min`, `Depth Max (m)` = `Depth (m).Max`, 
+        `Length (m)`, `Area (ha)`) %>%
+  arrange(Lake, Transect) %>%
+  filter(!is.na(Transect))
+
+# SAVE complete list of physical lake parameters for the AST lakes
+# Create output directory if it doesn't already exist, then save
+dir.create("02_final_output", showWarnings = FALSE, recursive = TRUE)
+write.csv(
+  lake_strata_table_ATS,
+  file = file.path("02_final_output", "ATS_lake_strata_table.csv"),
+  row.names = FALSE)
+
+```
+### *Lake Physical Parameters*
+```{r lake-strata-table, tab.cap=lake_strata_tab_cap}
+
+ft_table <- lake_strata_table_ATS %>%
+  filter(Lake %in% lakes_glimpse) %>%
+  arrange(Lake, Transect)
+
+ft <- flextable::flextable(ft_table) |>
+  flextable::theme_booktabs() |>
+  flextable::separate_header() |>
+  flextable::fontsize(size = 9, part = "header") |>
+  flextable::bold(part = "header") |>
+  flextable::fontsize(size = 9, part = "body") |>
+  flextable::align(align = "center", part = "all")
+
+break_rows <- ft_table %>%
+  mutate(rowid = row_number()) %>%
+  group_by(Lake) %>%
+  summarise(rowid = max(rowid), .groups = "drop") %>%
+  pull(rowid)
+
+ft <- flextable::hline(
+  ft,
+  i = break_rows,
+  border = officer::fp_border(width = 1))
+
+ft |>
+  flextable::autofit()
 
 ```
