@@ -11,9 +11,9 @@ block_section(prop_section(page_size = page_size(orient = "landscape"), type = "
 
 This appendix presents tables with trawl biosample and acoustic target metadata. 
 
-```{r survey-effort-table, tab.cap=ATS_trips, out.width=out_width}
-
 ### *Total ATS Trips by Lake and Year*
+
+```{r survey-effort-table, tab.cap=ATS_trips, out.width=out_width}
 
 survey_effort_table_import <- read.csv("00_data/Trip_effort_table_acoustic_trawl.csv", check.names = FALSE) %>%
   rename(lake_name = `Lake name`)
@@ -55,8 +55,10 @@ flextable::flextable(survey_effort_table_unique)|>
 
 ```
 
-```{r sockeye_info, tab.cap=biosample_sox_count, out.width=out_width}
+\newpage
 ### *Total Sockeye Captured in Trawls, by Lake and Year*
+
+```{r sockeye_info, tab.cap=biosample_sox_count, out.width=out_width}
 
 Trawl_summary_sockeye <- trim_lake_names(fix_lake_codes_names(Trawl_data_import)) %>%
   filter(species_common_name == "Sockeye") %>%
@@ -82,9 +84,11 @@ flextable::flextable(summary_table_sockeye_class_total) |>
   flextable::autofit()
 
 ```
+
 \newpage
-```{r other_fish_info, tab.cap=biosam_nonsox_count, out.width=out_width}
 ### *Total Non-Sockeye Captured in Trawls, by Lake and Year*
+
+```{r other_fish_info, tab.cap=biosam_nonsox_count, out.width=out_width}
 
 Trawl_summary_non_sockeye <- trim_lake_names(fix_lake_codes_names(Trawl_data_import)) %>% 
   filter(species_common_name != "Sockeye") %>%
@@ -113,9 +117,6 @@ flextable::flextable(summary_table_fish_class_total) |>
   flextable::autofit()
 
 ```
-\newpage
-
-
 \newpage
 
 ```{r trawl-sox-stix-setup}
@@ -220,6 +221,11 @@ for (lk in lakes_of_interest) {
 }
 
 ```
+```{r appendixA_landscape, echo=FALSE}
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+```
+
+<!-- \newpage -->
 ### *Biosample Summary from Trawl Catch for Key Lakes by ATS Year*
 
 ```{r CHE-trawl-sox-stix-print, tab.cap=trawl_biosample_CHE}
@@ -238,6 +244,10 @@ if ("Henderson Lake" %in% lakes_of_interest) make_catch_table_list("Henderson La
 \newpage
 ```{r HOB-trawl-sox-stix-print, tab.cap=trawl_biosample_HOB}
 if ("Hobiton Lake" %in% lakes_of_interest) make_catch_table_list("Hobiton Lake")
+```
+
+```{r appendixAA_landscape, echo=FALSE}
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
 ```
 
 \newpage
