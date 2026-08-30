@@ -34,8 +34,8 @@ Trawl_data_import <- read.csv("./00_data/Trawl_data_FINAL_1977-1999.csv") # ATS 
 # Global variables ----
 
 fig_width  <- 7.5            # figure width in inches
-fig_height <- 8.5            # figure height in inches  
-half_height<- 3.0            # figure height for half-page plots
+fig_height <- 7.0            # figure height in inches  
+half_height<- 2.5            # figure height for half-page plots
 out_width  <- "80%"          # figure sizing to fit page
 portrait   <- 11/8.5         # figure aspect ratio for 8.5 x 11 page in portrait mode
 landscape  <- 8.5/11         # figure aspect ratio for 8.5 x 11 page in landscape mode
