@@ -119,5 +119,5 @@ trawl_biosample_WOS <- "Woss Lake trawl catch summary by survey date for Sockeye
 trawl_biosample_YAK <- "Yakoun Lake trawl catch summary by survey date for Sockeye and Stickleback."
 
 # Appendix B
-acoustic_meta_cap   <- "Example lake survey metadata for ATS date, acoustic sounder employed, and number of transects and trawls completed. All other lake's data will be available in ____.csv."
-lake_strata_tab_cap <- "Summary of the physical lake parameters for one lake''s transects and depth strata as an example of the metadata available for all lakes surveyed. The complete table including all study lakes data is available as a supplementary comma-delimited text file _____.csv."
+acoustic_meta_cap   <- "Example lake survey metadata and summary data by ATS date. Includes acoustic sounder type, total transects and fish-like targets; total trawls completed, total trawl effort (in minutes), and total fish in trawl samples. All other lake's data will be available in a supplementary comma-delimited text file AST_survey_summary.csv."
+lake_strata_tab_cap <- "Summary of the physical lake parameters for one lake's transects and depth strata as an example of the metadata available for all lakes surveyed. The complete table including all study lakes parameters is available as a supplementary comma-delimited text file lep_lake_parameters.csv."
