@@ -94,8 +94,8 @@ stickleback_length_weight_key_lakes_caption <- paste(
   "Stickleback length and weight data for key study lakes, all available years.",
   "Note: life-stage data for Sticklebacks only available for Kennedy Lake.")
 
-appendix_survey_trips_caption <-
-  paste("Number of ATS trips by lake and year. NOTE: Currently missing data (not yet rescued) may be misrepresented by a zero in this table.")
+appendix_survey_trips_caption <- paste(
+  "Number of ATS trips by lake and year. NOTE: Missing ATS data (i.e., not currently available) may be misrepresented by a zero in this table.")
 
 appendix_trawl_sockeye_caption <- paste(
   "Number of Sockeye surveyed in the trawl samples by lake and ATS year.")
