@@ -7,7 +7,6 @@ block_section(prop_section(page_size = page_size(orient = "landscape"), type = "
 ```{r set_lakes_glimpse, echo = FALSE}
 # can handle single or multiple lakes or lake arms for tabulation
 
-lakes_glimpse <- sort(lakes_of_interest)                            # example of all key lakes (but will omit KCA, KMA, LongA, LongB!)
 lakes_glimpse <- c("Kennedy Lake (Clay)", "Kennedy Lake (Main)")  # example of multiple lake arms
 # lakes_glimpse <- c("Long Lake", "Long Lake (A)", "Long Lake (B)") # example of multiple lake arms
 # lakes_glimpse <- sort(c("Cheewhat Lake", "Hobiton Lake"))           # example of multiple lakes
