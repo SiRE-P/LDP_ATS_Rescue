@@ -28,7 +28,7 @@ acoustic_targets_caption <-
 acoustic_data_prop_sox_caption <-
   paste(
     "Annual proportion Sockeye (as recorded in acoustic source files),",
-    "weighted by target abundance, by lake and year.",
+    "weighted by target abundance, by lake and year."
     )
 
 trawl_sample_label_caption <-
