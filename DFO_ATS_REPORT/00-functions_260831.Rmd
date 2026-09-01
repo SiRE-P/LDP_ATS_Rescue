@@ -55,7 +55,7 @@ lakes_of_interest <- c("Great Central Lake", "Sproat Lake", "Henderson Lake",   
 ```
 
 ```{r load-captions, include=FALSE}
-source("03-figure_captions.R") # r code that contains all figure captions
+source("03-figure_captions_260831.R") # r code that contains all figure captions
 ```
 
 ```{r functions}        
