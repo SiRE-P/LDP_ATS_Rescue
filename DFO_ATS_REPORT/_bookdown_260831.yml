@@ -1,0 +1,11 @@
+book_filename: "techreport"
+rmd_files: ["index_260831.Rmd",
+            "00-functions_260831.Rmd",
+            "01-introduction.Rmd",
+            "02-methods.Rmd",
+            "03-results_AA_HS_260831.Rmd",    # HS Revisions & Test Code
+            "97-acknowledgements.Rmd",
+            "98-references.Rmd",
+            "99-appendix_AA_HS_260831.Rmd",   # HS Revisions & Test Code
+            "99-appendix2_AA_HS_260831.Rmd"]  # HS Revisions & Test Code
+delete_merged_file: true

@@ -1,0 +1,294 @@
+
+```{r reset_lakes_of_interest_for_test, echo=FALSE}
+# lakes_of_interest <- c("Great Central Lake", "Hobiton Lake", "Kennedy Lake", "Long Lake")# TEST SET
+```
+
+```{r appendix_landscape, echo=FALSE}
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+```
+
+# APPENDIX `r new_appendix()`. BIOLOGICAL DATA {#app:biology}
+
+This appendix presents tables with trawl biosample and acoustic target metadata. 
+
+### *Total ATS Trips by Lake and Year*
+
+```{r survey-effort-table, tab.cap=appendix_survey_trips_caption, out.width=out_width}
+
+survey_effort_table_import <- read.csv("00_data/Trip_effort_table_acoustic_trawl.csv", check.names = FALSE) %>%
+  rename(lake_name = `Lake name`)
+
+survey_effort_table_unique <- trim_lake_names(survey_effort_table_import) %>%
+  group_by(lake_name) %>%
+  summarise(
+    across(
+      where(is.numeric),
+      ~ sum(.x, na.rm = TRUE)),
+    .groups = "drop")
+
+# Add total row
+survey_effort_table_unique <- survey_effort_table_unique %>%
+  bind_rows(
+    survey_effort_table_unique %>%
+      summarise(
+        across(
+          where(is.numeric),
+          ~ sum(.x, na.rm = TRUE))) %>%
+      mutate(lake_name = "Total") %>%
+      select(lake_name, everything())) %>%
+    rename(Lake = lake_name)
+
+
+# survey_effort_table <- trim_lake_names(survey_effort_table_import) %>%
+#   bind_rows(survey_effort_table %>%
+#               summarise(across(where(is.integer), ~ sum(.x, na.rm = TRUE)), lake_name = "Total")) %>%
+#   select(1,names(.)[-1][order(as.integer(names(.)[-1]))])
+
+flextable::set_flextable_defaults(font.size = 6)
+
+# Plot the table
+flextable::flextable(survey_effort_table_unique)|>
+  flextable::rotate(part = "header", rotation = "btlr", j = 2:ncol(survey_effort_table_unique)) |>
+  flextable::autofit() |>
+  flextable::height(i = 1, height = 0.5, part = "header") |>
+  flextable::hrule(rule = "exact", part = "header")
+
+```
+
+\newpage
+### *Total Sockeye Captured in Trawls, by Lake and Year*
+
+```{r sockeye_info, tab.cap=appendix_trawl_sockeye_caption, out.width=out_width}
+
+Trawl_summary_sockeye <- trim_lake_names(fix_lake_codes_names(Trawl_data_import)) %>%
+  filter(species_common_name == "Sockeye") %>%
+  group_by(lake_name, ats_year) %>%
+  summarise(fish_count = n(), .groups = "drop") -> sockeye_summary_table
+
+# Pivot to wide format
+summary_table_sockeye_class_total <- sockeye_summary_table %>%
+pivot_wider(names_from = ats_year,
+            values_from = fish_count,
+            values_fill = 0)
+
+# Add total row per year
+summary_table_sockeye_class_total <- summary_table_sockeye_class_total %>%
+  #bind_rows(summary_table_sockeye_class_total) %>%
+             # summarise(across(where(is.numeric), sum), lake_name = "Total")) %>%
+   rename("Lake" = lake_name)
+
+flextable::set_flextable_defaults(font.size = 6)
+
+# Plot the table
+flextable::flextable(summary_table_sockeye_class_total) |>
+  flextable::autofit()
+
+```
+\newpage
+### *Total Non-Sockeye Captured in Trawls, by Lake and Year*
+
+```{r other_fish_info, tab.cap=appendix_trawl_nonsox_caption, out.width=out_width}
+
+Trawl_summary_non_sockeye <- trim_lake_names(fix_lake_codes_names(Trawl_data_import)) %>% 
+  filter(species_common_name != "Sockeye") %>%
+  group_by(lake_name, ats_year) %>%
+  summarise(fish_count = n(), .groups = "drop") -> non_sockeye_summary_table
+
+# Pivot to wide format
+summary_table_fish_class_total <- non_sockeye_summary_table %>%
+pivot_wider(names_from = ats_year,
+            values_from = fish_count,
+            values_fill = 0)
+
+# Add total row per year
+summary_table_fish_class_total <- summary_table_fish_class_total %>%
+  #bind_rows(summary_table_fish_class_total %>%
+             # summarise(across(where(is.numeric), sum), lake_name = "Total")) %>%
+  select(1,names(.)[-1][order(as.numeric(names(.)[-1]))]) %>%
+   rename("Lake" = lake_name)
+
+# block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+
+flextable::set_flextable_defaults(font.size = 6)
+
+# Plot the table
+flextable::flextable(summary_table_fish_class_total) |>
+  flextable::autofit()
+
+```
+```{r survey_effort_landscape, echo=FALSE}
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+```
+\newpage
+```{r trawl-sox-stix-setup}
+  
+# Filter the lakes and species of interest
+Trawl_data_loi <- (fix_lake_codes_names(Trawl_data_import)) %>%
+  filter(lake_name %in% lakes_of_interest,
+         species_common_name %in% c("Sockeye", "Stickleback"),
+         !is.na(fish_length_mm), !is.na(fish_weight_g), 
+         !gear_info %in% "DUM2") %>%
+  mutate(char_date = format(as.Date(trawl_date), "%d%b%y")) %>%
+  select(-depth_m, - orig_start_time, -orig_end_time, -orig_duration_minutes, -orig_std_weight_g, -calc_end_time, -calc_duration_time, -calc_std_weight_g, -calc_K_factor, -general_comments, -preservative_code, -preservative_description, -preservative_description_short, -trawl_month, -trawl_unique_ID, -fish_unique_ID, -gear_info, -gear_type, -data_issues, -program_notes, -age_class, -weight_conversion_formula, -sas_scale, -sas_scale_book, -dat_scale_book, -dat_scale_book_letter, -species_code, -species_info_code, -aging_technique)
+
+# Create a table specific for sockeye and count the number of trawls per lake, date and year
+# Sockeye
+Sockeye_catch_table <- Trawl_data_loi %>%
+  filter(species_common_name %in% "Sockeye", life_stage %in% "Fry") %>% # filter only sockeye species
+  group_by(trawl_date, ats_year, lake_name) %>%
+  mutate(Trawls_hauls = ifelse(!is.na(trawl_number), n_distinct(trawl_number), 0L),   # count the distinct number of trawl events that day, in the specific lake
+         Sockeye_fry = n())  # extract the number of sockeye fry collected
+
+# Calculate the stats for the length and weight
+Sockeye_catch_summary <- Sockeye_catch_table %>%
+  group_by(lake_name, trawl_date, ats_year) %>%
+  mutate(n_total = Sockeye_fry, 
+         mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+         sd_length = sd(fish_length_mm, na.rm = TRUE),
+         se_length = sd_length / sqrt(n_total),
+         moe_length = round(qt(0.975, df= n_total - 1) * se_length,2)) %>%
+  mutate(n_total = Sockeye_fry,
+         mean_weight_g = round(mean(fish_weight_g, na.rm = TRUE), 2),
+         sd_weight = sd(fish_weight_g, na.rm = TRUE),
+         se_weight = sd_weight / sqrt(n_total),
+         moe_weight = round(qt(0.975, df= n_total - 1) * se_weight, 2)) %>%
+  filter(!moe_weight %in% "NaN") %>%
+  ungroup()
+
+# Create one table for each lake
+sockeye_tables <- list()
+
+for (lk in lakes_of_interest) {
+  
+  df_lk <- trim_lake_names(filter(Sockeye_catch_summary, lake_name == lk))
+  
+  Sockeye_catch <- df_lk %>%
+    select("Lake" = lake_name, "ATS Year" = ats_year, "Date" = trawl_date, "Sockeye Fry_Trawls" = Trawls_hauls, 
+         "Sockeye Fry_Total Catch (n)" = Sockeye_fry, "Sockeye Fry_Mean Length (mm)" = mean_length_mm, 
+         "Sockeye Fry_Std Error (mm)" = se_length, "Sockeye Fry_Weight (g)" = mean_weight_g,
+         "Sockeye Fry_Std Error (g)" = se_weight) %>%
+    distinct()
+
+# assign(paste0(lk, "_sockeye_catch_table"), Sockeye_catch)   # <-- not advised
+  sockeye_tables[[lk]] <- Sockeye_catch
+}
+
+# Create a table specific for Stickleback and count the number of trawls per lake, date and year
+Stickleback_catch_table <- Trawl_data_loi %>%
+  filter(species_common_name %in% "Stickleback") %>% # filter only Stickleback species
+  group_by(trawl_date, ats_year, lake_name) %>%
+  mutate(Trawls_hauls = ifelse(!is.na(trawl_number), n_distinct(trawl_number), 0L),   # count the distinct number of trawl events that day, in the specific lake
+         Stickleback_all = n())  # extract the number of sockeye fry collected
+
+# Calculate the stats for the length and weight
+Stickleback_catch_summary <- Stickleback_catch_table %>%
+  group_by(lake_name, trawl_date, ats_year) %>%
+  mutate(n_total = Stickleback_all, 
+         mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+         sd_length = sd(fish_length_mm, na.rm = TRUE),
+         se_length = sd_length / sqrt(n_total),
+         moe_length = round(qt(0.975, df= n_total - 1) * se_length,2)) %>%
+  mutate(n_total = Stickleback_all,
+         mean_weight_g = round(mean(fish_weight_g, na.rm = TRUE), 2),
+         sd_weight = sd(fish_weight_g, na.rm = TRUE),
+         se_weight = sd_weight / sqrt(n_total),
+         moe_weight = round(qt(0.975, df= n_total - 1) * se_weight, 2)) %>%
+  filter(!moe_weight %in% "NaN") %>%
+  ungroup()
+
+# Create one table for each lake
+  stickle_tables <- list()
+
+for (lk in lakes_of_interest) {
+  
+  df_lk <- trim_lake_names(filter(Stickleback_catch_summary, lake_name == lk))
+  
+  Stickle_catch <- df_lk %>%
+    select("lake_stix" = lake_name, "ATS Year" = ats_year, "Date" = trawl_date, "Stickleback_Trawls" = Trawls_hauls, 
+           "Stickleback_Total Catch" = Stickleback_all, "Stickleback_Mean Length (mm)" = mean_length_mm, 
+           "Stickleback_Std Error (mm)" = moe_length,   "Stickleback_Weight (g)" = mean_weight_g,
+           "Stickleback_Std Error (g)" = moe_weight) %>%
+    distinct()
+  
+# assign(paste0(lk, "_stickle_catch_table"), Stickle_catch)  # <-- not advised
+  stickle_tables[[lk]] <- Stickle_catch
+}
+
+```
+```{r appendix_bio_table, echo=FALSE}
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+```
+### *Biosample Summary from Trawl Catch for Key Lakes by ATS Year*
+
+```{r CHEE-trawl-sox-stix-print, tab.cap="Cheewhat Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+# Generate trawl tables for lakes included in lakes_of_interest ---- 
+if ("Cheewhat Lake" %in% lakes_of_interest) make_catch_table_list("Cheewhat Lake")
+```
+\newpage
+```{r GCL-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Great Central Lake" %in% lakes_of_interest) make_catch_table_list("Great Central Lake")  
+```
+\newpage
+```{r HEN-trawl-sox-stix-print, tab.cap="Henderson Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Henderson Lake" %in% lakes_of_interest) make_catch_table_list("Henderson Lake")
+```
+
+\newpage
+```{r HOB-trawl-sox-stix-print, tab.cap="Hobiton Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Hobiton Lake" %in% lakes_of_interest) make_catch_table_list("Hobiton Lake")
+```
+
+\newpage
+```{r KEN-trawl-sox-stix-print, tab.cap="Kennedy Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Kennedy Lake" %in% lakes_of_interest) make_catch_table_list("Kennedy Lake") 
+```
+\newpage
+```{r LON-trawl-sox-stix-print, tab.cap="Long Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Long Lake" %in% lakes_of_interest) make_catch_table_list("Long Lake") 
+```
+\newpage
+```{r MEZ-trawl-sox-stix-print, tab.cap="Meziadin Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Meziadin Lake" %in% lakes_of_interest) make_catch_table_list("Meziadin Lake") 
+```
+\newpage
+```{r MUR-trawl-sox-stix-print, tab.cap="Muriel Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Muriel Lake" %in% lakes_of_interest) make_catch_table_list("Muriel Lake") 
+```
+\newpage
+```{r NIM-trawl-sox-stix-print, tab.cap="Nimpkish Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Nimpkish Lake" %in% lakes_of_interest) make_catch_table_list("Nimpkish Lake") 
+```
+\newpage
+```{r OWI-trawl-sox-stix-print, tab.cap="Owikeno Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Owikeno Lake" %in% lakes_of_interest) make_catch_table_list("Owikeno Lake") 
+```
+\newpage
+```{r SKI-trawl-sox-stix-print, tab.cap="Skidegate Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Skidegate Lake" %in% lakes_of_interest) make_catch_table_list("Skidegate Lake") 
+```
+\newpage
+```{r SPR-trawl-sox-stix-print, tab.cap="Sproat Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Sproat Lake" %in% lakes_of_interest) make_catch_table_list("Sproat Lake") 
+```
+\newpage
+```{r TAH-trawl-sox-stix-print, tab.cap="Tahltan Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Tahltan Lake" %in% lakes_of_interest) make_catch_table_list("Tahltan Lake") 
+```
+\newpage
+```{r VER-trawl-sox-stix-print, tab.cap="Vernon Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Vernon Lake" %in% lakes_of_interest) make_catch_table_list("Vernon Lake") 
+```
+\newpage
+```{r WOSS-trawl-sox-stix-print, tab.cap="Woss Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Woss Lake" %in% lakes_of_interest) make_catch_table_list("Woss Lake") 
+```
+\newpage
+```{r YAK-trawl-sox-stix-print, tab.cap="Yakoun Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+if ("Yakoun Lake" %in% lakes_of_interest) make_catch_table_list("Yakoun Lake") 
+```
+
+```{r portrait_mode, echo=FALSE}
+# Add a portrait section after to "close" the landscape mode
+block_section(prop_section(page_size = page_size(orient = "portrait"), type = "nextPage"))
+```
+
