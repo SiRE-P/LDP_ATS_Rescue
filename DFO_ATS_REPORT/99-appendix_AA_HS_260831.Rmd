@@ -143,14 +143,14 @@ Sockeye_catch_table <- Trawl_data_loi %>%
 Sockeye_catch_summary <- Sockeye_catch_table %>%
   group_by(lake_name, trawl_date, ats_year) %>%
   mutate(n_total = Sockeye_fry, 
-         mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+         mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 1),
          sd_length = sd(fish_length_mm, na.rm = TRUE),
-         se_length = sd_length / sqrt(n_total),
+         se_length = round(sd_length / sqrt(n_total), 2),
          moe_length = round(qt(0.975, df= n_total - 1) * se_length,2)) %>%
   mutate(n_total = Sockeye_fry,
          mean_weight_g = round(mean(fish_weight_g, na.rm = TRUE), 2),
          sd_weight = sd(fish_weight_g, na.rm = TRUE),
-         se_weight = sd_weight / sqrt(n_total),
+         se_weight = round(sd_weight / sqrt(n_total), 2),
          moe_weight = round(qt(0.975, df= n_total - 1) * se_weight, 2)) %>%
   filter(!moe_weight %in% "NaN") %>%
   ungroup()
@@ -184,14 +184,14 @@ Stickleback_catch_table <- Trawl_data_loi %>%
 Stickleback_catch_summary <- Stickleback_catch_table %>%
   group_by(lake_name, trawl_date, ats_year) %>%
   mutate(n_total = Stickleback_all, 
-         mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 2),
+         mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 1),
          sd_length = sd(fish_length_mm, na.rm = TRUE),
-         se_length = sd_length / sqrt(n_total),
-         moe_length = round(qt(0.975, df= n_total - 1) * se_length,2)) %>%
+         se_length = round(sd_length / sqrt(n_total), 2),
+         moe_length = round(qt(0.975, df= n_total - 1) * se_length, 2)) %>%
   mutate(n_total = Stickleback_all,
          mean_weight_g = round(mean(fish_weight_g, na.rm = TRUE), 2),
          sd_weight = sd(fish_weight_g, na.rm = TRUE),
-         se_weight = sd_weight / sqrt(n_total),
+         se_weight = round(sd_weight / sqrt(n_total), 2),
          moe_weight = round(qt(0.975, df= n_total - 1) * se_weight, 2)) %>%
   filter(!moe_weight %in% "NaN") %>%
   ungroup()
@@ -216,7 +216,7 @@ for (lk in lakes_of_interest) {
 
 ```
 ```{r appendix_bio_table, echo=FALSE}
-block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
 ```
 ### *Biosample Summary from Trawl Catch for Key Lakes by ATS Year*
 
