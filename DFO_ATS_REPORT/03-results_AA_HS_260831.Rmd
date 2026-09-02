@@ -26,10 +26,7 @@ lakes of interest \
 
 ## Annual Survey Effort by Lake and ATS Year
 
-```{r bubble_heatmap, fig.cap = bubble_heatmap_caption, fig.height=6, fig.width=fig_width, out.width=out_width, fig.asp = 11.69/8.27}
-# fig.width=8, out.width="100%", fig.asp = 11.69/8.27}
-
-# log_msg("Assembling acoustic and trawl trip effort for bubble-plot..")
+```{r bubble_heatmap, fig.cap = bubble_heatmap_caption, fig.asp = 11/8.5, fig.height=9, fig.width=fig_width, out.width=out_width}
 
 ### Count survey effort for both acoustic and trawl data
 ### Trawl
@@ -123,7 +120,7 @@ ggplot() +
 ```
 ## Trip Frequency by Month and ATS Year for Key Lakes
 
-```{r trip-effort-lakes, fig.cap=trip_effort_lakes_caption, fig.width=fig_width, fig.height=7, out.width=out_width, fig.asp = 11.69/8.27}
+```{r trip-effort-lakes, fig.cap=trip_effort_lakes_caption, fig.width=fig_width, fig.height=7, out.width=out_width, fig.asp = 11/8.5}
 
 ### AA's original code chunk will be dropped from report and/or relegated to Supplemental info files  [260806]
 #   Here modified to produce single page facet plot for all available years for each lake... 
@@ -217,7 +214,7 @@ ggplot(unique_depth_acoustic, aes(x = depth_m)) +
 \newpage
 ### *Annual Target Counts - Key Lakes*
 
-```{r acoustic-targets, fig.cap=acoustic_targets_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
+```{r acoustic-targets, fig.cap=acoustic_targets_caption, fig.height = 3.5, out.width = "85%"} 
 
 acoustic_targets <- fix_lake_codes_names(Acoustic_data_import) %>%
 # filter(lake_name == "Great Central Lake") %>%
@@ -353,7 +350,7 @@ Annual proportion Sockeye (as recorded in acoustic source files), by lake and ye
 Note that these proportions were derived from trawl sample data by observers and applied to the acoustic source data manually, and may differ from annual Sockeye proportions as derived from trawl samples directly. 
 See also Figure XX. Annual Sockeye Proportions in Trawl Dataset.
  
-```{r acoustic-data-prop-sox, fig.cap=acoustic_data_prop_sox_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
+```{r acoustic-data-prop-sox, fig.cap=acoustic_data_prop_sox_caption, fig.height = 3.5, out.width = "85%"}
 
 acoustic_survey_prop_sockeye <- acoustic_targets %>%  # aggregate to lake/year/survey level
   group_by(
@@ -451,7 +448,7 @@ include_graphics("../TRAWL_BIOSAMPLE/06_Figures/Trawl_sample_label.png")
 \newpage
 ### *Trawl Duration Frequency*
 
-```{r duration_distribution, fig.cap=trawl_duration_distribution_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
+```{r duration_distribution, fig.cap=trawl_duration_distribution_caption, out.width = "85%", fig.height=half_height}
 
 unique_calc_duration <- fix_lake_codes_names(Trawl_data_import) %>%
   distinct(calc_duration_time, trawl_unique_ID, orig_duration_minutes) %>%
@@ -513,7 +510,7 @@ ggplot(unique_calc_duration,
 
 ### *Trawl Depth Frequency*
 
-```{r depth, fig.cap=trawl_depth_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
+```{r depth, fig.cap=trawl_depth_caption, out.width = "85%", fig.height=half_height}
 
 unique_depth <- fix_lake_codes_names(Trawl_data_import) %>%
   distinct(depth_m, trawl_unique_ID, lake_name) %>%
@@ -535,7 +532,7 @@ ggplot(data = unique_depth, aes(depth_m)) +
 ```
 ### *Trawl Depth Frequency - Key Lakes*
 
-```{r depth-by-lake, fig.cap=trawl_depth_by_lake_caption, fig.width=fig_width, out.width=out_width, fig.asp = 1.2}
+```{r depth-by-lake, fig.cap=trawl_depth_by_lake_caption, fig.asp = 11/8.5, fig.height=9, fig.width=fig_width, out.width=out_width}
 
 # Filter only the lakes of interest (loi)
 unique_depth_filtered <- unique_depth %>%
@@ -560,7 +557,7 @@ ggplot(data = unique_depth_filtered) +
 
 ### *Sockeye and Stickleback Length Frequency - Key Lakes*
 
-```{r hist-length-weight-by-lake, fig.cap=trawl_hist_length_weight_by_lake_caption, fig.width=fig_width, fig.height=fig_height, out.width=out_width, fig.asp = 1.2}
+```{r hist-length-weight-by-lake, fig.cap=trawl_hist_length_weight_by_lake_caption, fig.asp = 11/8.5, fig.height=9, fig.width=fig_width, out.width=out_width}
 
 # chunk_start_time <- Sys.time()
 # cat("\n================================================\n")
@@ -628,31 +625,6 @@ ggplot(
     strip.background = element_rect(fill = "yellow", #"#FBD424FF", 
                                     colour = "black", linewidth = 0.3),
     legend.position = "bottom")
-
-
-# AA's plot of length & weight for sox and stix by lake and year -- relegate to separate output file??
-# for (lk in lakes) {
-# 
-#   df_lk <- filter(df_plot_year, lake_name == lk)
-#   
-#     for (yr in years) {
-#       df_yr <- filter(df_lk, ats_year == yr)
-#       
-#       if (nrow(df_yr) == 0) next
-#       
-#       p <- ggplot(df_yr, aes(x = value)) +
-#         geom_histogram(bins = 40, fill = "#FBD424FF", color = "black", linewidth = 0.1) +
-#         facet_grid(rows = vars(species_common_name), cols = vars(measurement), scales = "free") +
-#         #facet_wrap(~ ats_year + species_common_name + measurement, scales = "free", ncol = 4) +
-#         labs(title = paste(lk, " - ", yr),
-#             x = NULL,
-#             y = "Count") +
-#          theme_bw()
-#   
-#       print(p)
-#     
-#       }
-# }
 
 # elapsed <- difftime(Sys.time(), chunk_start_time, units = "mins")
 # cat("Elapsed time:", round(as.numeric(elapsed), 2),"minutes. Current time:",
@@ -766,7 +738,7 @@ for (lk in lakes) {
 
 ### *Fish Length-Weight Relations*
 
-```{r all-spp-scatter-plot, fig.cap=all_spp_length_weight_caption, fig.width=fig_width, out.width=out_width, fig.asp = 0.8}
+```{r all-spp-scatter-plot, fig.cap=all_spp_length_weight_caption, fig.width=fig_width, out.width=out_width, fig.asp = 1}
 
 # chunk_start_time <- Sys.time()
 # cat("\n================================================\n")
@@ -927,7 +899,7 @@ ggplot(
 
 ### *Fish Length/Weight Relations - Key Species*
 
-```{r separated-spp, fig.cap=separated_spp_length_weight_caption, fig.width=fig_width, out.width=out_width, fig.asp = 0.8}
+```{r separated-spp, fig.cap=separated_spp_length_weight_caption, fig.width=fig_width, out.width=out_width, fig.asp = 1}
 
 # Drop any adult codes.
 # scatter_plot_all_spp_filtered <- fix_lake_codes_names(Trawl_data_import) %>%
@@ -1004,7 +976,7 @@ ggplot(scatter_plot_all_spp_filtered, aes(fish_length_mm, calc_std_weight_g)) +
 \newpage
 ### *Sockeye Length/Weight Relations - Key Lakes*
 
-```{r sockeye, fig.cap=sockeye_length_weight_key_lakes_caption, out.width="90%", fig.height=fig_height, fig.asp = 11.69/8.27}
+```{r sockeye, fig.cap=sockeye_length_weight_key_lakes_caption, out.width="90%", fig.height=fig_height, fig.asp = 11/8.5}
 
 Trawl_data_sockeye <- fix_lake_codes_names(Trawl_data_import) %>%
   filter(lake_name %in% lakes_of_interest) %>%
@@ -1119,7 +1091,7 @@ ggplot(Trawl_data_sockeye, aes(x = fish_length_mm, y = calc_std_weight_g, colour
 
 ### *Stickleback Length/Weight Relations - Key Lakes*
 
-```{r Stickleback, fig.cap=stickleback_length_weight_key_lakes_caption, out.width="90%", fig.height=fig_height, fig.asp = 11.69/8.27}
+```{r Stickleback, fig.cap=stickleback_length_weight_key_lakes_caption, out.width="90%", fig.height=fig_height, fig.asp = 11/8}
 
 Trawl_data_filtered_life_stage <- fix_lake_codes_names(Trawl_data_import) %>%
   filter(lake_name %in% lakes_of_interest) %>%
