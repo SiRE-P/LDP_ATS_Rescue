@@ -85,14 +85,10 @@ separated_spp_length_weight_caption <-
     "the annotated coefficients for each species. Any adult Sockeye was omitted",
     "from the statistical calculations. Length-weight relationships were estimated",
     "separately for each species using linear regression on log-transformed data.",
-    "For each species, a linear model of the form W=aLb was fitted, i.e.,",
-    "log(calculated standardized weight) = log(a) + b × log(length).",
-    "The intercept and slope from the regression were used to calculate the",
-    "length-weight parameters, where a was obtained by back-transforming",
-    "the intercept (exp(intercept)) and b represents the scaling coefficient.",
+    "Refer to the Data Visualization subsection in the Methods section for",
+    "further details about the equations used.",
     "The sample size (N) was calculated as the number of observations included",
-    "in each species-specific model, and model fit was assessed using the",
-    "coefficient of determination (R²)."
+    "in each species-specific model."
   )
 
 sockeye_length_weight_key_lakes_caption <-
