@@ -286,7 +286,7 @@ for (lk in sort(unique(acoustic_survey_totals$lake_name))) {
       y = survey_targets)) +
     
     geom_boxplot(
-      fill = "darkblue",
+      fill = "purple4",
       colour = "black",
       linewidth = 0.3) +
     
@@ -348,7 +348,7 @@ for (lk in sort(unique(acoustic_survey_totals$lake_name))) {
 
 Annual proportion Sockeye (as recorded in acoustic source files), by lake and year, weighted by survey date target abundance.
 Note that these proportions were derived from trawl sample data by observers and applied to the acoustic source data manually, and may differ from annual Sockeye proportions as derived from trawl samples directly. 
-See also Figure XX. Annual Sockeye Proportions in Trawl Dataset.
+See also Figure \@ref(fig:trawl-sockeye-proportions). Annual Sockeye Proportions in Trawl Dataset.
  
 ```{r acoustic-data-prop-sox, fig.cap=acoustic_data_prop_sox_caption, fig.height = 3.5, out.width = "85%"}
 
@@ -390,7 +390,7 @@ for (lk in sort(unique(acoustic_survey_prop_sockeye$lake_name))) {
       y = survey_prop_sockeye)) +
 
     geom_boxplot(
-      fill = "darkblue",
+      fill = "purple4",
       colour = "black",
       linewidth = 0.3) +
 
