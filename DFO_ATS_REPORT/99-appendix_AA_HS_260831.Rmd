@@ -60,22 +60,28 @@ flextable::flextable(survey_effort_table_unique)|>
 
 ```{r sockeye_info, tab.cap=appendix_trawl_sockeye_caption, out.width=out_width}
 
-Trawl_summary_sockeye <- trim_lake_names(fix_lake_codes_names(Trawl_data_import)) %>%
+Trawl_summary_sockeye <- trim_lake_names(
+  fix_lake_codes_names(Trawl_data_import)) %>%
   filter(species_common_name == "Sockeye") %>%
   group_by(lake_name, ats_year) %>%
-  summarise(fish_count = n(), .groups = "drop") -> sockeye_summary_table
+  summarise(
+    fish_count = n(),
+   .groups = "drop")
 
 # Pivot to wide format
-summary_table_sockeye_class_total <- sockeye_summary_table %>%
-pivot_wider(names_from = ats_year,
-            values_from = fish_count,
-            values_fill = 0)
+summary_table_sockeye_class_total <- Trawl_summary_sockeye %>%
+  pivot_wider(
+    names_from  = ats_year,
+    values_from = fish_count,
+    values_fill = 0) %>%
+  {year_cols <- setdiff(names(.), "lake_name")
+    dplyr::select(., lake_name,
+      dplyr::all_of(
+        year_cols[order(as.numeric(year_cols))]))} %>%
+  rename(Lake = lake_name)
 
-# Add total row per year
-summary_table_sockeye_class_total <- summary_table_sockeye_class_total %>%
-  #bind_rows(summary_table_sockeye_class_total) %>%
-             # summarise(across(where(is.numeric), sum), lake_name = "Total")) %>%
-   rename("Lake" = lake_name)
+
+
 
 flextable::set_flextable_defaults(font.size = 6)
 
