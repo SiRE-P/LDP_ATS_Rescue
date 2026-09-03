@@ -300,4 +300,4 @@ if ("Yakoun Lake" %in% lakes_of_interest) make_catch_table_list("Yakoun Lake")
 # Add a portrait section after to "close" the landscape mode
 block_section(prop_section(page_size = page_size(orient = "portrait"), type = "nextPage"))
 ```
-### *End*
+
