@@ -242,3 +242,4 @@ ft |>
   flextable::autofit()
 
 ```
+### *End*
