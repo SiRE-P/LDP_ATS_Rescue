@@ -7,17 +7,22 @@ block_section(prop_section(page_size = page_size(orient = "landscape"), type = "
 ```{r set_lakes_glimpse, echo = FALSE}
 # can handle single or multiple lakes or lake arms for tabulation
 
-lakes_glimpse <- c("Kennedy Lake (Clay)", "Kennedy Lake (Main)")  # example of multiple lake arms
+lakes_glimpse <- c("Kennedy Lake (Clay)", "Kennedy Lake (Main)")    # example of multiple lake arms
 # lakes_glimpse <- c("Long Lake", "Long Lake (A)", "Long Lake (B)") # example of multiple lake arms
-# lakes_glimpse <- sort(c("Cheewhat Lake", "Hobiton Lake"))           # example of multiple lakes
+# lakes_glimpse <- sort(c("Cheewhat Lake", "Hobiton Lake"))         # example of multiple lakes
 # lakes_glimpse <- c("Cheewhat Lake")                               # simple example of one lake
+lakes_glimpse <- sort(unique(c(lakes_of_interest, 
+                               "Kennedy Lake (Clay)", "Kennedy Lake (Main)",
+                               "Long Lake (A)", "Long Lake (B)",
+                               "Owikeno Lake (A)", "Owikeno Lake (B)", "Owikeno Lake (C)", "Owikeno Lake (D)"
+                               )))    # example of key lakes_of_interest plus systems with multiple lake arms
 ```
 
 # APPENDIX `r new_appendix()`. ADDITIONAL METADATA {#app:additional}
 
 Appendix B1 and B2 present information for a limited number of study lakes surveyed in the Lake Enrichment and Study Lakes programs; the associated data for all lakes can be obtained from the specified comma-delimited text files.
 
-Appendix B1 presents the survey-specific acoustic sounder equipment employed, and displays the number of regular and surface trawls conducted and total trawl effort and catch. The data for all lakes can be found in AST_survey_summary.csv.
+Appendix B1 presents the survey-specific acoustic sounder equipment employed, and displays the number of regular and surface trawls conducted and total trawl effort and catch. The data for all lakes can be found in ATS_survey_summary.csv.
 
 Appendix B2 presents the physical parameter metadata (location, transect number and length, stratum depth minimum and maximum, and total area associated with each stratum) used to scale up fish target data to estimates of fish abundance. The parameters for all study lakes can be found in lep_lake_parameters.csv.
 
@@ -43,6 +48,11 @@ trawl_data_summary <- (Trawl_data_import) %>%
   filter(!gear_info %in% "DUM2") %>%
   filter(!(life_stage %in% "Adult" & species_common_name %in% "Sockeye")) %>%
   mutate(survey_date = trawl_date) %>%
+  mutate(duration = case_when(calc_duration_time != orig_duration_minutes ~ calc_duration_time,
+                              is.na(calc_duration_time) ~ orig_duration_minutes,
+                              is.na(orig_duration_minutes) ~ calc_duration_time,
+                              is.na(orig_duration_minutes) & is.na(calc_duration_time) ~ NA_real_,
+                              TRUE ~ orig_duration_minutes)) %>%
   group_by(
     lake_name,
     lake_code,
@@ -51,7 +61,7 @@ trawl_data_summary <- (Trawl_data_import) %>%
   # trawl metrics
   summarise(n_trawls = n_distinct(trawl_number),
             n_surface_trawls    = n_distinct(trawl_number[depth_m == 0]),
-            total_trawl_minutes = sum(calc_duration_time[!duplicated(trawl_number)], na.rm = TRUE),
+            total_trawl_minutes = sum(duration[!duplicated(trawl_number)], na.rm = TRUE),
             # fish counts
             n_Fish        = n(),
             n_Sockeye     = sum(species_common_name == "Sockeye",    na.rm = TRUE),
@@ -108,7 +118,7 @@ block_section(prop_section(page_size = page_size(orient = "landscape"), type = "
 ```
 <!-- \newpage -->
 
-### *AST Survey Summary Data*
+### *ATS Survey Summary Data*
 
 ```{r acoustic-gear-appendixB, tab.cap=appendixB_acoustic_trawl_summary_cpation}
 
@@ -192,7 +202,7 @@ lake_strata_table_ATS <- lake_strata_table_ATS %>%
   arrange(Lake, Transect) %>%
   filter(!is.na(Transect))
 
-# SAVE complete list of physical lake parameters for the AST lakes
+# SAVE complete list of physical lake parameters for the ATS lakes
 # Create output directory if it doesn't already exist, then save
 dir.create("02_final_output", showWarnings = FALSE, recursive = TRUE)
 write.csv(
