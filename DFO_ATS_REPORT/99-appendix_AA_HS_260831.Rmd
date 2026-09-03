@@ -145,14 +145,14 @@ Sockeye_catch_summary <- Sockeye_catch_table %>%
   mutate(n_total = Sockeye_fry, 
          mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 1),
          sd_length = sd(fish_length_mm, na.rm = TRUE),
-         se_length = round(sd_length / sqrt(n_total), 2),
-         moe_length = round(qt(0.975, df= n_total - 1) * se_length,2)) %>%
+         se_length = round(sd_length / sqrt(n_total), 2)) %>%
+       # moe_length = round(qt(0.975, df= n_total - 1) * se_length,2)) %>%
   mutate(n_total = Sockeye_fry,
          mean_weight_g = round(mean(fish_weight_g, na.rm = TRUE), 2),
          sd_weight = sd(fish_weight_g, na.rm = TRUE),
-         se_weight = round(sd_weight / sqrt(n_total), 2),
-         moe_weight = round(qt(0.975, df= n_total - 1) * se_weight, 2)) %>%
-  filter(!moe_weight %in% "NaN") %>%
+         se_weight = round(sd_weight / sqrt(n_total), 2)) %>%
+#        moe_weight = round(qt(0.975, df= n_total - 1) * se_weight, 2)) %>%
+# filter(!moe_weight %in% "NaN") %>%
   ungroup()
 
 # Create one table for each lake
@@ -163,10 +163,11 @@ for (lk in lakes_of_interest) {
   df_lk <- trim_lake_names(filter(Sockeye_catch_summary, lake_name == lk))
   
   Sockeye_catch <- df_lk %>%
-    select("Lake" = lake_name, "ATS Year" = ats_year, "Date" = trawl_date, "Sockeye Fry_Trawls" = Trawls_hauls, 
-         "Sockeye Fry_Total Catch (n)" = Sockeye_fry, "Sockeye Fry_Mean Length (mm)" = mean_length_mm, 
-         "Sockeye Fry_Std Error (mm)" = se_length, "Sockeye Fry_Weight (g)" = mean_weight_g,
-         "Sockeye Fry_Std Error (g)" = se_weight) %>%
+    select("Lake" = lake_name, "ATS Year" = ats_year, "Date" = trawl_date, 
+           "Sockeye Fry_Trawls" = Trawls_hauls, 
+           "Sockeye Fry_Total Catch (n)" = Sockeye_fry, "Sockeye Fry_Mean Length (mm)" = mean_length_mm, 
+           "Sockeye Fry_Std Error (mm)"  = se_length,   "Sockeye Fry_Weight (g)"       = mean_weight_g,
+           "Sockeye Fry_Std Error (g)"   = se_weight) %>%
     distinct()
 
 # assign(paste0(lk, "_sockeye_catch_table"), Sockeye_catch)   # <-- not advised
@@ -186,14 +187,14 @@ Stickleback_catch_summary <- Stickleback_catch_table %>%
   mutate(n_total = Stickleback_all, 
          mean_length_mm = round(mean(fish_length_mm, na.rm = TRUE), 1),
          sd_length = sd(fish_length_mm, na.rm = TRUE),
-         se_length = round(sd_length / sqrt(n_total), 2),
-         moe_length = round(qt(0.975, df= n_total - 1) * se_length, 2)) %>%
+         se_length = round(sd_length / sqrt(n_total), 2)) %>%
+       # moe_length = round(qt(0.975, df= n_total - 1) * se_length, 2)) %>%
   mutate(n_total = Stickleback_all,
          mean_weight_g = round(mean(fish_weight_g, na.rm = TRUE), 2),
          sd_weight = sd(fish_weight_g, na.rm = TRUE),
-         se_weight = round(sd_weight / sqrt(n_total), 2),
-         moe_weight = round(qt(0.975, df= n_total - 1) * se_weight, 2)) %>%
-  filter(!moe_weight %in% "NaN") %>%
+         se_weight = round(sd_weight / sqrt(n_total), 2)) %>%
+#        moe_weight = round(qt(0.975, df= n_total - 1) * se_weight, 2)) %>%
+# filter(!moe_weight %in% "NaN") %>%
   ungroup()
 
 # Create one table for each lake
@@ -204,10 +205,11 @@ for (lk in lakes_of_interest) {
   df_lk <- trim_lake_names(filter(Stickleback_catch_summary, lake_name == lk))
   
   Stickle_catch <- df_lk %>%
-    select("lake_stix" = lake_name, "ATS Year" = ats_year, "Date" = trawl_date, "Stickleback_Trawls" = Trawls_hauls, 
-           "Stickleback_Total Catch" = Stickleback_all, "Stickleback_Mean Length (mm)" = mean_length_mm, 
-           "Stickleback_Std Error (mm)" = moe_length,   "Stickleback_Weight (g)" = mean_weight_g,
-           "Stickleback_Std Error (g)" = moe_weight) %>%
+    select("lake_stix" = lake_name, "ATS Year" = ats_year, "Date" = trawl_date, 
+           "Stickleback_Trawls"         = Trawls_hauls, 
+           "Stickleback_Total Catch"    = Stickleback_all, "Stickleback_Mean Length (mm)" = mean_length_mm, 
+           "Stickleback_Std Error (mm)" = se_length,       "Stickleback_Weight (g)"       = mean_weight_g,
+           "Stickleback_Std Error (g)"  = se_weight) %>%
     distinct()
   
 # assign(paste0(lk, "_stickle_catch_table"), Stickle_catch)  # <-- not advised
@@ -215,13 +217,14 @@ for (lk in lakes_of_interest) {
 }
 
 ```
+
 ```{r appendix_bio_table, echo=FALSE}
+# Generate trawl tables for lakes included in lakes_of_interest ---- 
 block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
 ```
 ### *Biosample Summary from Trawl Catch for Key Lakes by ATS Year*
 
 ```{r CHEE-trawl-sox-stix-print, tab.cap="Cheewhat Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
-# Generate trawl tables for lakes included in lakes_of_interest ---- 
 if ("Cheewhat Lake" %in% lakes_of_interest) make_catch_table_list("Cheewhat Lake")
 ```
 \newpage
@@ -291,4 +294,4 @@ if ("Yakoun Lake" %in% lakes_of_interest) make_catch_table_list("Yakoun Lake")
 # Add a portrait section after to "close" the landscape mode
 block_section(prop_section(page_size = page_size(orient = "portrait"), type = "nextPage"))
 ```
-
+### *End*
