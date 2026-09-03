@@ -4,7 +4,7 @@ rmd_files: ["index_260831.Rmd",
             "01-introduction.Rmd",
             "02-methods.Rmd",
             # "figure_size_test.Rmd"]
-            "03-results_AA_HS_260831.Rmd", #,    # HS Revisions & Test Code
+            "03-results_AA_HS_260831.Rmd",    # HS Revisions & Test Code
             "97-acknowledgements.Rmd", #,
             "98-references.Rmd",
             "99-appendix_AA_HS_260831.Rmd",   # HS Revisions & Test Code
