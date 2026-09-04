@@ -1,8 +1,6 @@
 # techreport_fig_captions.R
 # Figure captions for ATS Technical Report
-# Sourced in 00-functions.Rmd
 
-# Results Section
 figure_scale_book_caption <-
   "Example of a scale book record form."
 
@@ -29,7 +27,7 @@ acoustic_targets_caption <-
 
 acoustic_data_prop_sox_caption <-
   paste(
-    "Annual proportion Sockeye (as manually recorded in acoustic source files),",
+    "Annual proportion Sockeye (as recorded in acoustic source files),",
     "weighted by target abundance, by lake and year."
     )
 
@@ -58,6 +56,10 @@ trawl_depth_by_lake_caption <- paste(
 
 trawl_hist_length_weight_by_lake_caption <-
   "Frequency distribution of Sockeye and Stickleback length for key study lakes, all available years."
+
+trawl_sockeye_proportions_caption <- paste(
+  "Annual proportion of Sockeye in Trawl data, weighted by number of fish in sample.",
+  "Boxplots show distributions across trawls; red line is the weighted annual mean proportion across all dates.")
 
 obsolete_plot_caption <-
   "Distribution of Sockeye and Stickleback length and weight in Great Central Lake."
@@ -92,32 +94,19 @@ stickleback_length_weight_key_lakes_caption <- paste(
   "Stickleback length and weight data for key study lakes, all available years.",
   "Note: life-stage data for Sticklebacks only available for Kennedy Lake.")
 
-trawl_sockeye_proportions_caption <- paste(
-  "Annual proportion of Sockeye in Trawl data, weighted by number of fish in sample.",
-  "Boxplots show distributions across trawls; red line is the weighted annual mean proportion across all dates.")
+appendix_survey_trips_caption <- paste(
+  "Number of ATS trips by lake and year. NOTE: Missing ATS data (i.e., not currently available) may be misrepresented by a zero in this table.")
 
-# Appendix A
-biosample_sox_count <- "Number of Sockeye surveyed in the trawl samples by lake and ATS year."
-biosam_nonsox_count <- "Number of non-Sockeye surveyed in the trawl samples by lake and ATS year."
-ATS_trips           <- "Number of ATS trips by lake and year."
+appendix_trawl_sockeye_caption <- paste(
+  "Number of Sockeye surveyed in the trawl samples by lake and ATS year.")
 
-trawl_biosample_CHE <- "Cheewhat Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_GCL <- "Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_HEN <- "Henderson Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_HOB <- "Hobiton Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_KEN <- "Kennedy Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_LON <- "Long Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_MEZ <- "Meziadin Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_MUR <- "Muriel Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_NIM <- "Nimpkish Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_OWI <- "Owikeno Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_SKI <- "Skidegate Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_SPR <- "Sproat Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_TAH <- "Tahltan Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_VER <- "Vernon Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_WOS <- "Woss Lake trawl catch summary by survey date for Sockeye and Stickleback."
-trawl_biosample_YAK <- "Yakoun Lake trawl catch summary by survey date for Sockeye and Stickleback."
+appendix_trawl_nonsox_caption <- paste(
+  "Number of non-Sockeye surveyed in the trawl samples by lake and ATS year.")
 
-# Appendix B
-acoustic_meta_cap   <- "Example lake survey metadata and summary data by ATS date. Includes acoustic sounder type, total transects and fish-like targets; total trawls completed, total trawl effort (in minutes), and total fish in trawl samples. All other lakes data will be available in a supplementary comma-delimited text file ATS_survey_summary.csv."
-lake_strata_tab_cap <- "Summary of the physical lake parameters for one lake's transects and depth strata as an example of the metadata available for all lakes surveyed. The complete table including all study lakes parameters is available as a supplementary comma-delimited text file lep_lake_parameters.csv."
+appendixB_acoustic_trawl_summary_cpation <- paste(
+  ". Example lake survey metadata and summary data by ATS date. Includes acoustic sounder type, total transects and fish-like targets; total trawls completed, total trawl effort (in minutes), and total fish in trawl samples.",
+  "All other lake's data will be available in a supplementary comma-delimited text file AST_survey_summary.csv."
+  )
+
+appendixB_lake_strata_tab_caption <- "Summary of the physical lake parameters for one lake's transects and depth strata as an example of the metadata available for all lakes surveyed. The complete table including all study lakes parameters is available as a supplementary comma-delimited text file lep_lake_parameters.csv."
+
