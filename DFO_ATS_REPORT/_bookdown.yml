@@ -1,12 +1,11 @@
 book_filename: "techreport"
-rmd_files: ["index_260831.Rmd",
-            "00-functions_260831.Rmd",        # <- update with any 03-figure_captions filename changes!
+rmd_files: ["index.Rmd",               # all AA_HS_260831 files all now renamed to original as shown here
+            "00-functions.Rmd",        # <- update with any 03-figure_captions filename changes!
             "01-introduction.Rmd",
             "02-methods.Rmd",
-            # "figure_size_test.Rmd"]
-            "03-results_AA_HS_260831.Rmd",    # HS Revisions & Test Code
-            "97-acknowledgements.Rmd", #,
+            "03-results.Rmd",    
+            "97-acknowledgements.Rmd",
             "98-references.Rmd",
-            "99-appendix_AA_HS_260831.Rmd",   # HS Revisions & Test Code
-            "99-appendix2_AA_HS_260831.Rmd"]  # HS Revisions & Test Code
+            "99-appendix.Rmd",   
+            "99-appendix2.Rmd"]  
 delete_merged_file: true
