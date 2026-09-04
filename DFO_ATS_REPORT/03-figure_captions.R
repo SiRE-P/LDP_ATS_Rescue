@@ -104,9 +104,9 @@ appendix_trawl_nonsox_caption <- paste(
   "Number of non-Sockeye surveyed in the trawl samples by lake and ATS year.")
 
 appendixB_acoustic_trawl_summary_cpation <- paste(
-  ". Example lake survey metadata and summary data by ATS date. Includes acoustic sounder type, total transects and fish-like targets; total trawls completed, total trawl effort (in minutes), and total fish in trawl samples.",
-  "All other lake's data will be available in a supplementary comma-delimited text file AST_survey_summary.csv."
+  "Key lake survey metadata and summary data by ATS date. Includes acoustic sounder type, total transects and fish-like targets; total trawls completed, total trawl effort (in minutes), and total fish in trawl samples.",
+  "All other lakes data will be available in a supplementary comma-delimited text file AST_survey_summary.csv."
   )
 
-appendixB_lake_strata_tab_caption <- "Summary of the physical lake parameters for one lake's transects and depth strata as an example of the metadata available for all lakes surveyed. The complete table including all study lakes parameters is available as a supplementary comma-delimited text file lep_lake_parameters.csv."
+appendixB_lake_strata_tab_caption <- "Summary of the physical lake parameters for key lake's transects and depth strata as an example of the metadata available for all lakes surveyed. The complete table including all study lakes parameters is available as a supplementary comma-delimited text file lep_lake_parameters.csv."
 
