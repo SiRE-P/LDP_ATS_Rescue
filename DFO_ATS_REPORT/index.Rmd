@@ -14,53 +14,43 @@ author: |
   Patrick Thompson^3^
 
 english_address: |
-  ^1^Lyman Entomological Museum\
-     McGill University\
+  ^1^Lyman Entomological Museum, McGill University\
      21111 Lakeshore Road\
      Sainte-Anne-de-Bellevue, Quebec, H9X 3V9, Canada\
   \
-  ^2^Biology Department\
-     University of Regina\
+  ^2^Biology Department, University of Regina\
      3737 Wascana Parkway\
      Regina, Saskatchewan, S4S 0A2, Canada\
   \
-  ^3^Pacific Biological Station\
-     Fisheries and Oceans Canada\
+  ^3^Pacific Biological Station, Fisheries and Oceans Canada\
      3190 Hammond Bay Road\
      Nanaimo, British Columbia, V9T 6N7, Canada\
   \
-  ^4^Biology Department\
-     McGill University\
+  ^4^Biology Department, McGill University\
      1205 Docteur Penfield\
      Montreal, Quebec, H3A 1B1, Canada\
   \
-  ^5^Zoology Department\
-     University of British Columbia\
+  ^5^Zoology Department, University of British Columbia\
      6270 University Boulevard, \
      Vancouver, British Columbia, V6T 1Z4, Canada\
 french_address: |
-  ^1^Musée entomologique Lyman\
-     Université McGill\
+  ^1^Musée entomologique Lyman, Université McGill\
      21111 rue Lakeshore\
      Sainte-Anne-de-Bellevue, Québec, H9X 3V9, Canada\
   \
-  ^2^Département de biologie\
-     Université de Regina\
+  ^2^Département de biologie, Université de Regina\
      3737, promenade Wascana\
      Regina, Saskatchewan, S4S 0A2, Canada\
   \
-  ^3^Station biologique du Pacifique\
-     Pêches et Océans Canada\
+  ^3^Station biologique du Pacifique, Pêches et Océans Canada\
      3190 Hammond Bay Road\
      Nanaimo, Colombie-Britannique, V9T 6N7, Canada\
   \
-  ^4^Département de biologie\
-     Université McGill\
+  ^4^Département de biologie, Université McGill\
      1205 rue Docteur Penfield\
      Montréal, Québec, H3A 1B1, Canada\
   \
-  ^5^Département de zoologie\
-     Université de la Colombie-Britannique\
+  ^5^Département de zoologie, Université de la Colombie-Britannique\
      6270, boulevard University\
      Vancouver, Colombie-Britannique, V6T 1Z4, Canada\
 
