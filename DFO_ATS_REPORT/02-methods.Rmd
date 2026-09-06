@@ -6,16 +6,16 @@ cite_packages(pkgs = c("ggplot2", "beepr", "broom", "dplyr", "ggh4x", "ggbreak",
 ```
 
 ## Study Area of the Lake Enrichment Program
-ATS work conducted in British Columbia sampled a total of 73 lakes, or 85 sites, including lake subdividions, from 1977-2007 [*MAP BC LAKES*]. The lakes surveyed in the program were located mainly in the coastal areas of British Columbia. According to @hyattResponsesSockeyeSalmon1985, the lakes shared the following characteristics: considerably low phosphorus concentrations, rapid replacement of water due to high flows, and extreme oligotrophic conditions. 
+ATS work conducted in British Columbia sampled a total of 77 lakes, or 95 sites, including lake subdividions, from 1977-2007 [*MAP BC LAKES*]. The lakes surveyed in the program were located mainly in the coastal areas of British Columbia. According to @hyattResponsesSockeyeSalmon1985, the lakes shared the following characteristics: considerably low phosphorus concentrations, rapid replacement of water due to high flows, and extreme oligotrophic conditions. 
 
 ## Field Procedures
 The field procedures used from 1977-2007 will be briefly mentioned in this report, but background details on methods used for acoustic limnetic fish estimations and tow net trawl biosamples are explained in detail in the following reports: @hyattLakeEnrichmentProgram1984; @hyattAcousticTrawlBased2000; @gjernesPortableMidwaterTrawling1979; @gjernesDevelopmentSpecificationsUse1986; @hyattResponsesSockeyeSalmon1985. For the LEP, at least one transect was delimited per basin and four transects per lake [@RankinRutherford1985]. Ideal techniques to assess fish population in lakes vary depending on the characteristics of the lake, such as size, depth, elevation; @maclellanEvaluationMethodsUsed2010 presented more up-to-date methods adopted by DFO to conduct fieldwork.
 
 ### Acoustic Target
-The single-beam sounder used from the early 1970s to the early 1980s was the Furuno (FM 22 and FNV-3000) [@robinsonPopulationEstimatesSockeye1978], and in 1984 onward the SIMRAD was used [@gjernesDevelopmentSpecificationsUse1986]. Technical characteristics of echosounders limit their use in shallow waters, especially within the first metre of depth [@maclellanEvaluationMethodsUsed2010]. Each lake was surveyed using a series of echo-sounding transects, arranged such that the total linear distance surveyed was approximately proportional to lake area [@hyattResponsesSockeyeSalmon1985; @gjernesDevelopmentSpecificationsUse1986]. Acoustic surveys occurred at night as Sockeye salmon migrate to the surface during this time, and fish abundance was estimated using echo trace counting, with the number of echo traces divided by the sampled volume to estimate fish concentration [@gjernesDevelopmentSpecificationsUse1986].
+The single-beam sounder used from the early 1970s to the early 1980s was the Furuno (FM 22 and FNV-3000) [@robinsonPopulationEstimatesSockeye1978], and in 1984 onward the SIMRAD was used [@gjernesDevelopmentSpecificationsUse1986]. Technical characteristics of echosounders limit their use in shallow waters, especially within the first metre of depth [@maclellanEvaluationMethodsUsed2010]. Each lake was surveyed using a series of echo-sounding transects, arranged such that the total linear distance surveyed was approximately proportional to lake area [@hyattResponsesSockeyeSalmon1985; @gjernesDevelopmentSpecificationsUse1986]. Acoustic surveys occurred at night as Sockeye salmon migrate to the surface during this time. Fish abundance was estimated using echo trace counting, with the number of echo traces divided by the sampled volume to estimate fish concentration [@gjernesDevelopmentSpecificationsUse1986].
 
 ### Trawl Biosample
-Trawl netting was used to collect fish specimens for species identification and life history assessments [@robinsonSockeyeSalmonOncorhynchus1975]. This technique complemented hydroacoustic surveys by sampling the water column where hydroacoustic targets were prominent, and surface waters that were beyond the detection range of echosounders. More importantly, this sampling method was used to calibrate the echosounder and enabled researchers to identify the species present in the lake from the trawl catches. Trawls were conducted using a boat-towed net, typically measuring 2 × 2 × 7.5 m. Although it did not occur in our rescued trawl records, variations of the net size were reported in other studies [*e.g.*, @robinsonSockeyeSalmonOncorhynchus1975]. Most fishes were preserved in formalin, with only a small percentage of samples preserved in ethanol. Due to the effects of preservatives on the specimen's length and weight [@Shields1996EffectsOF], these measurements were taken between several weeks and months after collection. Standardized weight was calculated using provided formulas to account for differences in measurement timing and preservative. Some fish were measured fresh and therefore required no conversion. 
+Trawl netting was used to collect fish specimens for species identification and life history assessments [@robinsonSockeyeSalmonOncorhynchus1975]. This technique complemented hydroacoustic surveys by sampling the water column where hydroacoustic targets were prominent, and surface waters that were beyond the detection range of echosounders. More importantly, this sampling method enabled researchers to identify the species present in the lake from the trawl catches, and the field crew also used it to calibrate the echosounder. Trawls were conducted using a boat-towed net, typically measuring 2 × 2 × 7.5 m. Although it did not occur in our rescued trawl records, variations of the net size were reported in other studies [*e.g.*, @robinsonSockeyeSalmonOncorhynchus1975]. Most fishes were preserved in formalin, with only a small percentage of samples preserved in ethanol. Due to the effects of preservatives on the specimen's length and weight [@Shields1996EffectsOF], these measurements were taken between several weeks and months after collection. Standardized weight was calculated using provided formulas to account for differences in measurement timing and preservative. Some fish were measured fresh and therefore required no conversion. 
 
 ## Data Rescue Program
 
@@ -35,13 +35,11 @@ The raw data exist in several formats, such as within published DFO reports, SAS
 
   An R (version 4.5.2) script was created to loop over the .DAT files to extract trawl information, facilitated by RStudio 2025.09.2 Build 418. Each loop used the total number of fish collected during a trawl event to determine how many rows to create. The trawl-level metadata was repeated for each specimen, while the specimen-specific information, such as length and weight, was recorded separately for each fish. The .DAT files did not have header names as part of the data; these were added when the data were read into R. The line number of each record was extracted from the .DAT file and included in the final table, as well as the name of their source file to increase traceability. All cleaning steps were completed using a combination of base R and the tidyverse package and its associated packages: dplyr, lubridate, stringr and tidyr. In some of the .DAT data files, the original processor included comments related to the trawl event in the metadata block. These comments were extracted from the main data columns using the stringr package and transferred to a separated column, linked to the name of the original field they were assigned to. The dates and times were standardized following the international ISO 8601 format. The lake, preservative and species names were added to the table by joining their corresponding codes to lookup tables originally created by DFO personnel. We joined these tables using the dplyr package. The screening and removal of duplicate rows were performed during quality checks. A cleaned table was created for each ATS year and saved separately as .csv. Six scripts were created to address the nuances in the data files.
 
-Regarding the data in SAS proprietary format files (1977-1999), they were read using the haven package [@wickhamHavenImportExport2015]. These SAS files were originally derived from the tabulate .DAT files, which are no longer available in that format. After 1983, and until 1999, both files were available (except for a few corrupted SAS files), and where there were conflicts between the two, the .dat values were used. After 1999, the trawl biosampling data were sometimes available in Excel files held by the Salmon in Regional Ecosystems Program at Fisheries and Oceans Canada (contact Patrick.Thomspon\@dfo-mpo.gc.ca), but the Excel files have not been extracted as part of the current data recovery and cleaning process.
-
-All 22 .SAS files available, which spanned from 1977 to 1999, were used to extract trawl data. As the data were already tabulated, the cleaning process involved renaming the columns to standardize them and joining the corresponding codes to lookup tables. Duplicate rows were screened and removed, and the dates and times were also standardized following the international ISO 8601 format. One script was created to loop over all .SAS files and create final, cleaned tables separated by ATS year and saved as comma delimited .CSV text files.
+Regarding the data in SAS proprietary format files (1977-1999), they were read using the haven package [@wickhamHavenImportExport2015]. These SAS files were originally derived from the tabulate .DAT files, which are no longer available in that format. After 1983, and until 1999, both files were available (except for a few corrupted SAS files), and where there were conflicts between the two, the .dat values were used. All 22 .SAS files available, which spanned from 1977 to 1999, were used to extract trawl data. As the data were already tabulated, the cleaning process involved renaming the columns to standardize them and joining the corresponding codes to lookup tables. Duplicate rows were screened and removed, and the dates and times were also standardized following the international ISO 8601 format. One script was created to loop over all .SAS files and create final, cleaned tables separated by ATS year and saved as comma delimited .CSV text files.
 
 Unique identifiers for each trawl survey were created by concateneting fields from the following columns: Trawl_date, Lake_code, Trawl_number, and Depth_m. Additionally, unique record identifiers were also created for each fish specimen with the same information as for the trawl event, as well as species_info_code, fish_id, weight_g, and length_mm. These codes were used to identify duplicates and merge rows from different tables.
 
-The final dataset was created by merging all the aforementioned tables. First, when applicable, the ATS year tables were merged using the full_join function of the R package joyn [@joyn], as it keeps all columns and rows from both tables. Next, a function was created to collapse duplicate rows (*i.e.*, rows with the identical fish unique identifier) into one, and in case of conflict (*i.e.*, different values in records with the same identifier), values from the original .DAT data files would be preferred over data from SAS files. During this process, flags were included in each row (*i.e.*, in a new column) to identify the type of merge, for example, whether it was a single row (no duplicates found) or whether missing data were replaced by actual values (see document XX on the Open Data site for greater detail). The dataset was then cleaned and standardized during the quality check step, which included but was not limited to: (1) re-calculation of end time based on the duration and start time of the trawl event; (2) calculate verification of original duration values based on through the calculation of it using start and end time of trawl event; (3) re-calculation of standardized weight based on the preservative used; and (4) investigation of weight and length outliers and mismatches in their units (*i.e.* cm/mm, g/mg). The K factor index was calculated to identify unusual values in length and weight and those values were adjusted where appropriate. All modification performed in the values of any column were flagged in a column called "data_issues." K factor  was calculated using the fish length in centimeters (cm) and the calculated standardized weight in grams (g), represented by *L* and *W*, respectively in the following formula:
+The final dataset was created by merging all the aforementioned tables. First, when applicable, the ATS year tables were merged using the full_join function of the R package joyn [@joyn], as it keeps all columns and rows from both tables. Next, a function was created to collapse duplicate rows (*i.e.*, rows with the identical fish unique identifier) into one, and in case of conflict (*i.e.*, different values in records with the same identifier), values from the original .DAT data files would be preferred over data from .SAS files. During this process, flags were included in each row (*i.e.*, in a new column) to identify the type of merge, for example, whether it was a single row (no duplicates found) or whether missing data were replaced by actual values (see document *Data_dictionary_final_dataset* on the Open Data site for greater detail). The dataset was then cleaned and standardized during the quality check step, which included but was not limited to: (1) re-calculation of end time based on the duration and start time of the trawl event; (2) calculate verification of original duration values based on through the calculation of it using start and end time of trawl event; (3) re-calculation of standardized weight based on the preservative used; and (4) investigation of weight and length outliers and mismatches in their units (*i.e.* cm/mm, g/mg). The K factor index was calculated to identify anomalous values in length and weight, and those values were adjusted where appropriate. All modification performed in the values of any column were flagged in a column called "data_issues." K factor  was calculated using the fish length in centimeters (cm) and the calculated standardized weight in grams (g), represented by *L* and *W*, respectively in the following formula:
 
 \begin{equation}
   K = 100 \times \frac{W}{L^3}
@@ -59,7 +57,7 @@ In Figure \@ref(fig:separated-spp) the regression curve and coefficients for fou
   $$W = aL^b$$
   $$ln(W) = ln(a) + bln(L) + \epsilon$$
 
--   Coefficient b is the slope and represents how quickly weight increases relative to the length. This is the second coefficient calculated by the R function coef(), and the formula is:  
+-   Coefficient *b* is the slope and represents how quickly weight increases relative to the length. This is the second coefficient calculated by the R function coef(), and the formula is:  
 
   $$b = \frac{\sum(X_i - \overline{X})(Y_i -\overline{Y} )}{\sum(X_i - \overline{x})^2},$$
 
@@ -70,13 +68,34 @@ Where
   $$Y_i = ln(W_{individual\ observation}),$$
   $$\overline{Y} = mean\ of\ Y$$
 
--   Coefficient a represents the intercept and is the scaling constant in the length-weight equation:
+-   Coefficient *a* represents the intercept and is the scaling constant in the length-weight equation:
 
   $$intercept = ln(a)$$
   $$a = e^{intercept}$$
 
--   R² is the coefficient of determination, representing how well the regression describes the observed data:
+-   *R²* is the coefficient of determination, representing how well the regression describes the observed data:
 
   $$R^2 = 1-\frac{\sum(Y_i - \hat{Y_i})^2}{\sum(Y_i - \overline{Y})^2} $$
 
   $$\hat{Y_i} = ln(a) + bln(X_i)$$
+ 
+   
+\
+The equations used to calculate standard error of appendix A are presented below:
+\
+  
+  
+  - Standard deviation (SD) of the length and weight were used to calculate the standard error (SE). Abbreviations: *N* = total number of observations, *X* = either weight in grams (calc_std_weight_g) or length in millimeter (fish_length_mm):
+
+  $$SE(\overline{X}) = SD(X) / \sqrt{N}$$
+         
+  -   The margin of error (MoE) was calculated at a 95% confidence interval (CI) using a t-distribution with *N − 1* degrees of freedom:
+  
+  $$MoE = t_{0.975,\ N - 1} \times SE$$
+  
+  $$ 95\%\ CI = \pm{MoE}$$
+  
+  
+  
+  
+  

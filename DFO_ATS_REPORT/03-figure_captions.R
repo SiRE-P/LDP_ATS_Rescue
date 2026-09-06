@@ -8,12 +8,12 @@ figure_sample_caption <-
   "Example of scale samples on a scale book."
 
 bubble_heatmap_caption <- paste(
-  "Bubble-plot showing the survey effort (number of distinct ATS survey dates) per lake per year.",
+  "Survey effort (number of distinct ATS survey dates) per lake per year.",
   "Bubble colours specify source dataset (acoustic target or trawl biosampling; dark yellow shows where both overlap);",
   "bubble size is proportional to the number of dates surveyed in a given year.")
   
 trip_effort_lakes_caption <- paste(
-  "Frequency distribution of ATS trips by month across all available years for key study lakes.", 
+  "Frequency distribution of ATS trips by month across all available years for key study lakes (including both source datasets).", 
   "Each trip may include 1-3 sequential sampling days in the same lake.")
 
 depth_acoustic_caption <-
@@ -28,14 +28,7 @@ acoustic_targets_caption <-
 acoustic_data_prop_sox_caption <-
   paste(
     "Annual proportion Sockeye (as recorded in acoustic source files),",
-    "weighted by target abundance, by lake and year.",
-    "Note that these proportions were derived from trawl sample data",
-    "by observers and applied to the acoustic source data manually,",
-    "and are presented here for comparative purposes.",
-    "Note also that the resulting proportions may not be valid because the trip trawl proportions were applied",
-    "manually to acoustic data across multiple trip transects and depth strata, and thus likely over-representing the true proportions",
-    "due to repetitive application -- this should be recalculated",
-    "[HS 260821]"
+    "weighted by target abundance, by lake and year."
     )
 
 trawl_sample_label_caption <-
@@ -64,6 +57,9 @@ trawl_depth_by_lake_caption <- paste(
 trawl_hist_length_weight_by_lake_caption <-
   "Frequency distribution of Sockeye and Stickleback length for key study lakes, all available years."
 
+trawl_sockeye_proportions_caption <- paste(
+  "Distributions of annual proportion of Sockeye salmon across trawls, weighted by number of fish in sample. Red line is the weighted annual mean proportion across all dates.")
+
 obsolete_plot_caption <-
   "Distribution of Sockeye and Stickleback length and weight in Great Central Lake."
 
@@ -79,12 +75,11 @@ all_spp_length_weight_caption <-
 
 separated_spp_length_weight_caption <-
   paste(
-    "Scatter plot illustrating the relationship between fish length and weight",
+    "Representation of the relationship between fish length and weight",
     "for juvenile Chinook, Coho, Sockeye and all Stickleback specimens included",
-    "in the dataset. Additionally, a regression curve is also provided, including",
-    "the annotated coefficients for each species. Any adult Sockeye was omitted",
+    "in the dataset. Any adult Sockeye was omitted",
     "from the statistical calculations. Length-weight relationships were estimated",
-    "separately for each species using linear regression on log-transformed data.",
+    "separately for each species.",
     "Refer to the Data Visualization subsection in the Methods section for",
     "further details about the equations used.",
     "The sample size (N) was calculated as the number of observations included",
@@ -101,9 +96,22 @@ sockeye_length_weight_key_lakes_caption <-
   )
 
 stickleback_length_weight_key_lakes_caption <- paste(
-  "Stickleback length and weight data for key study lakes, all available years.",
+  "Stickleback length and weight data for key study lakes in all available years.",
   "Note: life-stage data for Sticklebacks only available for Kennedy Lake.")
 
-trawl_sockeye_proportions_caption <- paste(
-  "Annual proportion of Sockeye in Trawl data, weighted by number of fish in sample.",
-  "Boxplots show distributions across trawls; red line is the weighted annual mean proportion across all dates.")
+appendix_survey_trips_caption <- paste(
+  "Number of ATS trips by lake and year. NOTE: Missing ATS data (i.e., not currently available) may be misrepresented by a zero in this table.")
+
+appendix_trawl_sockeye_caption <- paste(
+  "Number of Sockeye salmon surveyed in the trawl samples by lake and ATS year.")
+
+appendix_trawl_nonsox_caption <- paste(
+  "Number of non-Sockeye surveyed in the trawl samples by lake and ATS year.")
+
+appendixB_acoustic_trawl_summary_cpation <- paste(
+  "Key lake survey metadata and summary data by ATS date. Includes acoustic sounder type, total transects and fish-like targets; total trawls completed, total trawl effort (in minutes), and total fish in trawl samples.",
+  "The complete table including additional row of the key lakes and all other lakes data will be available in a supplementary comma-delimited text file AST_survey_summary.csv."
+  )
+
+appendixB_lake_strata_tab_caption <- "Summary of the physical lake parameters for key lake's transects and depth strata as an example of the metadata available for all lakes surveyed. The complete table including all study lakes parameters is available as a supplementary comma-delimited text file lep_lake_parameters.csv."
+
