@@ -21,9 +21,9 @@ lakes_glimpse <- sort(unique(c(lakes_of_interest,
 
 Appendix B1 and B2 present information for a limited number of study lakes surveyed in the Lake Enrichment and Study Lakes programs; the associated data for all lakes can be obtained from the specified comma-delimited text files.
 
-Appendix B1 presents the survey-specific acoustic sounder equipment employed, and displays the number of regular and surface trawls conducted and total trawl effort and catch. The data for all lakes can be found in ATS_survey_summary.csv.
+Appendix B1 presents the survey-specific acoustic sounder equipment employed, and displays the number of regular and surface trawls conducted and total trawl effort and catch. The data for all lakes can be found in ATS_meta_summary_by_survey_date.csv.
 
-Appendix B2 presents the physical parameter metadata (location, transect number and length, stratum depth minimum and maximum, and total area associated with each stratum) used to scale up fish target data to estimates of fish abundance. The parameters for all study lakes can be found in lep_lake_parameters.csv.
+Appendix B2 presents the physical parameter metadata (location, transect number and length, stratum depth minimum and maximum, and total area associated with each stratum) used to scale up fish target data to estimates of fish abundance. The parameters for all study lakes can be found in ATS_lake_strata_table.csv.
 
 ```{r acoustic-gear-merge-setup} 
 
