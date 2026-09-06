@@ -89,12 +89,9 @@ The equations used to calculate standard error of appendix A are presented below
 
   $$SE(\overline{X}) = SD(X) / \sqrt{N}$$
          
-  -   The margin of error (MoE) was calculated at a 95% confidence interval (CI) using a t-distribution with *N − 1* degrees of freedom:
+  -   The margin of error (MoE) was calculated at a 95% confidence interval (CI) using a t-distribution with *N − 1* degrees of freedom.The CI is equal to ± MoE:
   
   $$MoE = t_{0.975,\ N - 1} \times SE$$
-  
-  $$ 95\%\ CI = \pm{MoE}$$
-  
   
   
   

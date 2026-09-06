@@ -7,7 +7,7 @@ cat("03-results (AA_HS_260610).Rmd started at:", format(report_start_time, "%Y-%
 cat("================================================\n\n")
 ```
 
-In total, 177,541 records were rescued from the trawl biosampling original files for the years 1977 to 1999, while 123,819 were recovered from the hydro-acoustic 1977-2007 original files. Thirteen species were found, including two Pink. In some lakes, juvenile kokanee are present but cannot be distinguished from juvenile Sockeye salmon. Kokanee may therefore have been misattributed as Sockeye salmon. The analyst should check available information for the possible presence of kokanee in specific lakes. There are 146 records in the trawl final dataset without common fish species names, and they probably represent unidentified specimens. The plots below provide an overview of trip effort, fish collected, and the field sampling methods used during ATS sampling.
+In total, 177,541 records were rescued from the trawl biosampling original files for the years 1977 to 1999, while 123,819 were recovered from the hydro-acoustic 1977-2007 original files. Thirteen species were found, including two Pink. In some lakes, juvenile kokanee are present but cannot be distinguished from juvenile Sockeye salmon. Kokanee may therefore have been misattributed as Sockeye salmon. The analyst should check available information for the possible presence of kokanee in specific lakes. There are 146 records in the trawl final dataset without common fish species names, and they probably represent unidentified specimens. The plots below provide an overview of trip effort, fish collected, and the methods used during ATS.
 \
 
 <!-- Figure \@ref(fig:separated-spp)  -->
