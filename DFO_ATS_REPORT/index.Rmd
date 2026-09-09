@@ -9,60 +9,46 @@ author: |
   Yuliya Shtymburska^2^,
   Howard W. Stiff^3^,
   Athena D. Ogden^3^, 
-  David Hunt^4^, 
-  Sandra Emry^5^, and
+  David Hunt^1^, 
+  Sandra Emry^4^, and
   Patrick Thompson^3^
 
 english_address: |
-  ^1^Lyman Entomological Museum\
-     McGill University\
-     21111 Lakeshore Road\
-     Sainte-Anne-de-Bellevue, Quebec, H9X 3V9, Canada\
-  \
-  ^2^Biology Department\
-     University of Regina\
-     3737 Wascana Parkway\
-     Regina, Saskatchewan, S4S 0A2, Canada\
-  \
-  ^3^Pacific Biological Station\
-     Fisheries and Oceans Canada\
-     3190 Hammond Bay Road\
-     Nanaimo, British Columbia, V9T 6N7, Canada\
-  \
-  ^4^Biology Department\
-     McGill University\
+  ^1^McGill University\
      1205 Docteur Penfield\
      Montreal, Quebec, H3A 1B1, Canada\
   \
-  ^5^Zoology Department\
-     University of British Columbia\
+  ^2^Biology Department, University of Regina\
+     3737 Wascana Parkway\
+     Regina, Saskatchewan, S4S 0A2, Canada\
+  \
+  ^3^Pacific Biological Station, Fisheries and Oceans Canada\
+     3190 Hammond Bay Road\
+     Nanaimo, British Columbia, V9T 6N7, Canada\
+  \
+  ^4^Zoology Department, University of British Columbia\
      6270 University Boulevard, \
-     Vancouver, British Columbia, V6T 1Z4, Canada\
+     Vancouver, British Columbia, V6T 1Z4, Canada
 french_address: |
-  ^1^Musée entomologique Lyman\
-     Université McGill\
+  ^1^Musée entomologique Lyman, Université McGill\
      21111 rue Lakeshore\
      Sainte-Anne-de-Bellevue, Québec, H9X 3V9, Canada\
   \
-  ^2^Département de biologie\
-     Université de Regina\
+  ^2^Département de biologie, Université de Regina\
      3737, promenade Wascana\
      Regina, Saskatchewan, S4S 0A2, Canada\
   \
-  ^3^Station biologique du Pacifique\
-     Pêches et Océans Canada\
+  ^3^Station biologique du Pacifique, Pêches et Océans Canada\
      3190 Hammond Bay Road\
      Nanaimo, Colombie-Britannique, V9T 6N7, Canada\
   \
-  ^4^Département de biologie\
-     Université McGill\
+  ^4^Département de biologie, Université McGill\
      1205 rue Docteur Penfield\
      Montréal, Québec, H3A 1B1, Canada\
   \
-  ^5^Département de zoologie\
-     Université de la Colombie-Britannique\
+  ^5^Département de zoologie, Université de la Colombie-Britannique\
      6270, boulevard University\
-     Vancouver, Colombie-Britannique, V6T 1Z4, Canada\
+     Vancouver, Colombie-Britannique, V6T 1Z4, Canada
 
 english_region: "Pacific Region"
 french_region: "Région du Pacifique"
@@ -82,9 +68,11 @@ english_cat_no: "###"
 french_cat_no: "###"
 
 abstract: |
-  This report presents the hydro-acoustic and trawl biosampling data collected by Fisheries and Ocean Canada (DFO) personnel during the Lake Enrichment and Study Lakes Program covering the period between 1977 to 2007. The data was rescued, cleaned and standardized by two interns hired by the Canadian Institute of Ecology and Evolution Living Data Project in partnership with the DFO personnel. In total, 177,541 records from 1977 to 1999 trawl biosampling original files were recovered, while 123,819 were recovered from the hydro-acoustic 1977-2007 original files.
+  This report presents hydro-acoustic and trawl biosampling data collected by Fisheries and Oceans Canada (DFO) personnel as part of the Lake Enrichment and Study Lakes Program (LEP) from 1977 to 2007. The LEP collected acoustic data using echosounders and fish catch data using boat-towed trawl nets. Data from the Acoustic and Trawl Survey (ATS) were originally stored in proprietary formats, and historical conversions between file formats resulted in data loss. To recover the legacy data, DFO personnel partnered with the Canadian Institute for Ecology and Evolution Living Data Project (CIEE-LDP) and hired two then-graduate students to undertake the data rescue project.
 
-  Start new paragraphs after a blank line and with 2 spaces indent.
+  The recovered data were cleaned and standardized using multiple versions of R and RStudio. The project began in late 2024 and was completed in early 2026. In total, 177,541 records from original trawl biosampling files covering 1977 to 1999 were recovered, along with 123,819 records from original hydro-acoustic files covering 1977 to 2007. Both datasets are openly available through the Government of Canada Open Data repository, along with data dictionaries describing the variables, intermediate tables saved as comma-separated value (CSV) files, and metadata documenting data issues identified during the rescue process.
+
+  The goal of this report is to disseminate the standardized datasets and provide a graphical overview of common methods used during ATS trips, as well as biological patterns observed across key study lakes and years.
 
 output:
  csasdown::techreport_docx:
