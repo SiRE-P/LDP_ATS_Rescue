@@ -7,8 +7,8 @@ cat("03-results (AA_HS_260610).Rmd started at:", format(report_start_time, "%Y-%
 cat("================================================\n\n")
 ```
 
-K factors are available in the dataset, the methods should outline how they were used to fix some anomalous lengths and/or weights. two pinks were found.
-lakes of interest \
+In total, 177,541 records were rescued from the trawl biosampling original files for the years 1977 to 1999, while 123,819 were recovered from the hydro-acoustic 1977-2007 original files. Thirteen species were found, including two Pink. In some lakes, juvenile kokanee are present but cannot be distinguished from juvenile Sockeye salmon. Kokanee may therefore have been misattributed as Sockeye salmon. The analyst should check available information for the possible presence of kokanee in specific lakes. There are 146 records in the trawl final dataset without common fish species names, and they probably represent unidentified specimens. The plots below provide an overview of trip effort, fish collected, and the methods used during ATS.
+\
 
 <!-- Figure \@ref(fig:separated-spp)  -->
 
@@ -186,6 +186,10 @@ ggplot(
 
 ```
 ## Acoustic Target Dataset
+
+The results presented in the figures below are based solely in data from the acoustic target dataset.
+
+
 ### *Acoustic Survey Depth Range Frequency*
 
 ```{r depth-acoustic, fig.cap=depth_acoustic_caption , fig.width=fig_width, out.width=out_width, fig.height=half_height}
@@ -214,6 +218,8 @@ ggplot(unique_depth_acoustic, aes(x = depth_m)) +
 \newpage
 ### *Annual Target Counts - Key Lakes*
 
+Across the key study lakes, the mean annual number of fish-like targets (FLTs) varied both among lakes and among ATS years. Some lakes showed relatively stable FLT estimates across years, whereas others exhibited greater interannual variability and changes in the magnitude of FLTs detected. These patterns provide an overview of temporal variation in acoustic detections across the study lakes, with lake-specific results presented in the box plots below.
+\
 ```{r acoustic-targets, fig.cap=acoustic_targets_caption, fig.height = 3.5, out.width = "85%"} 
 
 acoustic_targets <- fix_lake_codes_names(Acoustic_data_import) %>%
@@ -347,8 +353,8 @@ for (lk in sort(unique(acoustic_survey_totals$lake_name))) {
 ### *Annual Sockeye Proportions in Acoustic Dataset - Key Lakes*
 
 Annual proportion Sockeye (as recorded in acoustic source files), by lake and year, weighted by survey date target abundance.
-Note that these proportions were derived from trawl sample data by observers and applied to the acoustic source data manually, and may differ from annual Sockeye proportions as derived from trawl samples directly. 
-See also Figure \@ref(fig:trawl-sockeye-proportions). Annual Sockeye Proportions in Trawl Dataset.
+Note that these proportions were derived from trawl sample data by observers and applied to the acoustic source data manually, and they may differ from annual Sockeye proportions as derived from trawl samples directly. 
+See also Figure 62 to \@ref(fig:trawl-sockeye-proportions), representing the annual Sockeye salmon proportions in Trawl Dataset.
  
 ```{r acoustic-data-prop-sox, fig.cap=acoustic_data_prop_sox_caption, fig.height = 3.5, out.width = "85%"}
 
@@ -376,7 +382,6 @@ acoustic_annual_prop_sockeye <- acoustic_survey_prop_sockeye %>%   # calc annual
      .groups = "drop")
 
 for (lk in sort(unique(acoustic_survey_prop_sockeye$lake_name))) {
-
   survey_lk <- acoustic_survey_prop_sockeye %>%
     filter(lake_name == lk)
 
@@ -438,6 +443,9 @@ for (lk in sort(unique(acoustic_survey_prop_sockeye$lake_name))) {
 \newpage
 
 ## Trawl Biosample Dataset
+
+The results presented in the figures below are based solely in data from the Trawl biosample dataset.
+
 ### *Trawl Sample Label*
 
 ```{r sample-label, fig.cap=trawl_sample_label_caption, out.width="60%"}
@@ -679,6 +687,9 @@ ggplot(
 
 \newpage
 ### *Annual Fish Length and Weight Distribution - Key Lakes*
+
+Trawl surveys captured Sockeye and Stickleback across a range of fish sizes, with variation in size distributions observed among years and key study lakes. Differences in median size and within-year variability for both species can be assessed from the corresponding key lake- and year-specific size distributions shown in the box plots below.
+\
 
 ```{r boxplot-lakes-years, fig.cap=boxplot_lakes_years_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
 
@@ -1200,6 +1211,10 @@ ggplot(data = Trawl_data_filtered_life_stage,
 ```
 \newpage
 ### *Annual Sockeye Proportions in Trawl Dataset - Key Lakes*
+\
+Annual proportion of Sockeye salmon in Trawl data by lake and year, weighted by the number of fish in the sample.
+Note that these proportions calculated directly using the rescued trawl sample data, and they may differ from annual Sockeye salmon proportions presented in the acoustic source files.
+\
 
 ```{r trawl-sockeye-proportions, fig.cap=trawl_sockeye_proportions_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
 
