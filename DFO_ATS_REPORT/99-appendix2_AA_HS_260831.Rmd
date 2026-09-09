@@ -1,21 +1,4 @@
-```{r portrait_mode, echo=FALSE}
-# Add a portrait section after to "close" the landscape mode
-block_section(prop_section(page_size = page_size(orient = "portrait"), type = "continuous"))
-```
-
-```{r set_lakes_glimpse, echo = FALSE}
-# can handle single or multiple lakes or lake arms for tabulation
-
-lakes_glimpse <- c("Kennedy Lake (Clay)", "Kennedy Lake (Main)")    # example of multiple lake arms
-# lakes_glimpse <- c("Long Lake", "Long Lake (A)", "Long Lake (B)") # example of multiple lake arms
-# lakes_glimpse <- sort(c("Cheewhat Lake", "Hobiton Lake"))         # example of multiple lakes
-# lakes_glimpse <- c("Cheewhat Lake")                               # simple example of one lake
-lakes_glimpse <- sort(unique(c(lakes_of_interest, 
-                               "Kennedy Lake (Clay)", "Kennedy Lake (Main)",
-                               "Long Lake (A)", "Long Lake (B)",
-                               "Owikeno Lake (A)", "Owikeno Lake (B)", "Owikeno Lake (C)", "Owikeno Lake (D)"
-                               )))    # example of key lakes_of_interest plus systems with multiple lake arms
-```
+\newpage
 
 ```{r appendixB_landscape, echo=FALSE}
 block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
@@ -35,11 +18,13 @@ lakes_glimpse <- sort(unique(c(lakes_of_interest,
                                )))    # example of key lakes_of_interest plus systems with multiple lake arms
 ```
 
+# APPENDIX `r new_appendix()`. ADDITIONAL METADATA {#app:additional}
+
 Appendix B1 and B2 present information for a limited number of study lakes surveyed in the Lake Enrichment and Study Lakes programs; the associated data for all lakes can be obtained from the specified comma-delimited text files.
 
-Appendix B1 presents the survey-specific acoustic sounder equipment employed, and displays the number of regular and surface trawls conducted and total trawl effort and catch. The data for all lakes can be found in ATS_meta_summary_by_survey_date.csv.
+Appendix B1 presents the survey-specific acoustic sounder equipment employed, and displays the number of regular and surface trawls conducted and total trawl effort and catch. The data for all lakes can be found in ATS_survey_summary.csv.
 
-Appendix B2 presents the physical parameter metadata (location, transect number and length, stratum depth minimum and maximum, and total area associated with each stratum) used to scale up fish target data to estimates of fish abundance. The parameters for all study lakes can be found in ATS_lake_strata_table.csv.
+Appendix B2 presents the physical parameter metadata (location, transect number and length, stratum depth minimum and maximum, and total area associated with each stratum) used to scale up fish target data to estimates of fish abundance. The parameters for all study lakes can be found in lep_lake_parameters.csv.
 
 ```{r acoustic-gear-merge-setup} 
 
@@ -128,30 +113,20 @@ for (lk in lakes_glimpse) {  # filter down to one lake as specified at top  # la
 }
 ```
 
-
-```{r appendixB1_portrait, echo=FALSE}
-block_section(prop_section(page_size = page_size(orient = "portrait"), type = "continuous"))
-```
-
-
 ```{r appendixB1_landscape, echo=FALSE}
 block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
 ```
-### *ATS Survey Summary Data*
-```{r acoustic-gear-appendixB, tab.cap=appendixB_acoustic_trawl_summary_cpation}
+<!-- \newpage -->
 
-block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
+### *ATS Survey Summary Data*
+
+```{r acoustic-gear-appendixB, tab.cap=appendixB_acoustic_trawl_summary_cpation}
 
 tbl_name <- paste0(lakes_glimpse, "_summary_table")
 
 # Retrieve and combine all tables
 ft_table <- dplyr::bind_rows(
   lapply(tbl_name, get))
-  
-ft_table <- ft_table %>%
-  group_by(Lake) %>%
-  slice_head(n = 5) %>%
-  ungroup()
 
 # Create flextable
 ft <- flextable::flextable(ft_table) |>
@@ -184,14 +159,11 @@ ft <- flextable::hline(
 ft |>
   flextable::autofit()
 
-block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
-
 ```
 
-```{r appendix_b_table_close, echo=FALSE}
-block_section(prop_section(page_size = page_size(orient = "portrait"), type = "continuous"))
+```{r appendixB2_landscape, echo=FALSE}
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "nextPage"))
 ```
-
 
 ```{r lake_strata_setup}
 lake_strata_table <- read.csv("00_data/Lake_strata_length.csv") 
@@ -238,37 +210,6 @@ write.csv(
   file = file.path("02_final_output", "ATS_lake_strata_table.csv"),
   row.names = FALSE)
 
-# Clean the lake strata table
-lake_strata_table_ATS <- lake_strata_table %>%
-  filter(Lake.name %in% lakes_in_ATS_database) %>%
-  rename("Latitude"   = Lake.latitude, "Longitude" = Lake.longitude, "Lake" = Lake.name,
-         "Length (m)" = Transect.length.m, "Area (ha)" = Area.ha, "Code" = Lake.code,
-         "Depth (m).Min" = Depth.min.m, "Depth (m).Max" = Depth.max.m) %>%
-  mutate(`Area (ha)`  = as.integer(`Area (ha)`),
-         `Length (m)` = as.integer(`Length (m)`))
-
-lake_strata_table_ATS$Latitude <- str_replace_all(lake_strata_table_ATS$Latitude, " deg", "°")
-lake_strata_table_ATS$Latitude <- str_replace_all(lake_strata_table_ATS$Latitude, " min", "' N")
-
-lake_strata_table_ATS$Longitude <- str_replace_all(lake_strata_table_ATS$Longitude, " deg", "°")
-lake_strata_table_ATS$Longitude <- str_replace_all(lake_strata_table_ATS$Longitude, " min", "' W")
-
-lake_strata_table_ATS <- lake_strata_table_ATS %>%
-  select(Lake, Code, Latitude, Longitude, 
-         Transect, 
-        `Depth Min (m)` = `Depth (m).Min`, `Depth Max (m)` = `Depth (m).Max`, 
-        `Length (m)`, `Area (ha)`) %>%
-  arrange(Lake, Transect) %>%
-  filter(!is.na(Transect))
-
-# SAVE complete list of physical lake parameters for the ATS lakes
-# Create output directory if it doesn't already exist, then save
-dir.create("02_final_output", showWarnings = FALSE, recursive = TRUE)
-write.csv(
-  lake_strata_table_ATS,
-  file = file.path("02_final_output", "ATS_lake_strata_table.csv"),
-  row.names = FALSE)
-
 ```
 ### *Lake Physical Parameters*
 
@@ -277,11 +218,6 @@ write.csv(
 ft_table <- lake_strata_table_ATS %>%
   filter(Lake %in% lakes_glimpse) %>%
   arrange(Lake, Transect)
-
-ft_table <- ft_table %>%
-  group_by(Lake) %>%
-  slice_head(n = 5) %>%
-  ungroup()
 
 ft <- flextable::flextable(ft_table) |>
   flextable::theme_booktabs() |>
@@ -306,4 +242,4 @@ ft |>
   flextable::autofit()
 
 ```
-
+### *End*

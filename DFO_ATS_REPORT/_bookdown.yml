@@ -1,6 +1,6 @@
 book_filename: "techreport"
-rmd_files: ["index.Rmd",
-            "00-functions.Rmd",
+rmd_files: ["index.Rmd",               # all AA_HS_260831 files all now renamed to original as shown here
+            "00-functions.Rmd",        # <- update with any 03-figure_captions filename changes!
             "01-introduction.Rmd",
             "02-methods.Rmd",
             "03-results.Rmd",    # HS Revisions & Test Code
