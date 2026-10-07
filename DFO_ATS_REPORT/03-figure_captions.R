@@ -27,7 +27,7 @@ acoustic_targets_caption <-
 
 acoustic_data_prop_sox_caption <-
   paste(
-    "Annual proportion Sockeye (as recorded in acoustic source files),",
+    "Annual proportion Sockeye Salmon (as recorded in acoustic source files),",
     "weighted by target abundance, by lake and year."
     )
 
@@ -55,19 +55,19 @@ trawl_depth_by_lake_caption <- paste(
   "Bin width for bar is 2 meters.")
 
 trawl_hist_length_weight_by_lake_caption <-
-  "Frequency distribution of Sockeye and Stickleback length for key study lakes, all available years."
+  "Frequency distribution of Sockeye Salmon and Stickleback length for key study lakes, all available years."
 
 trawl_sockeye_proportions_caption <- paste(
-  "Distributions of annual proportion of Sockeye salmon across trawls, weighted by number of fish in sample. Red line is the weighted annual mean proportion across all dates.")
+  "Distributions of annual proportion of Sockeye Salmon across trawls, weighted by number of fish in sample. Red line is the weighted annual mean proportion across all dates.")
 
 obsolete_plot_caption <-
-  "Distribution of Sockeye and Stickleback length and weight in Great Central Lake."
+  "Distribution of Sockeye Salmon and Stickleback length and weight in Great Central Lake."
 
 hist_length_weight_by_year_caption <-
-  "Histograms of the distribution of Sockeye and Stickleback length and weight by sampled ATS year."
+  "Histograms of the distribution of Sockeye Salmon and Stickleback length and weight by sampled ATS year."
 
 boxplot_lakes_years_caption <- paste(
-  "Size distribution of Sockeye and Stickleback species from trawls in key study lakes by year.",
+  "Size distribution of Sockeye Salmon and Stickleback species from trawls in key study lakes by year.",
   "(Note: some upper outliers cropped by Y-axis; statistics not affected.)")
 
 all_spp_length_weight_caption <-
@@ -76,8 +76,8 @@ all_spp_length_weight_caption <-
 separated_spp_length_weight_caption <-
   paste(
     "Representation of the relationship between fish length and weight",
-    "for juvenile Chinook, Coho, Sockeye and all Stickleback specimens included",
-    "in the dataset. Any adult Sockeye was omitted",
+    "for juvenile Chinook, Coho, Sockeye Salmon and all Stickleback specimens included",
+    "in the dataset. Any adult Sockeye Salmon was omitted",
     "from the statistical calculations. Length-weight relationships were estimated",
     "separately for each species.",
     "Refer to the Data Visualization subsection in the Methods section for",
@@ -88,10 +88,10 @@ separated_spp_length_weight_caption <-
 
 sockeye_length_weight_key_lakes_caption <-
   paste(
-    "Sockeye length and weight data for key study lakes, across all available years.",
-    "Note that there are some anomalous values for Sockeye Age +1 in Kennedy Lake.",
+    "Sockeye Salmon length and weight data for key study lakes, across all available years.",
+    "Note that there are some anomalous values for Sockeye Salmon Age +1 in Kennedy Lake.",
     "These unusual length/weight values are flagged in the trawl biosampling dataset.",
-    "For Great Central Lake, the Sockeye with long length and light weight are also",
+    "For Great Central Lake, the Sockeye Salmon with long length and light weight are also",
     "flagged in the trawl dataset as having unusual sizes."
   )
 
@@ -103,7 +103,7 @@ appendix_survey_trips_caption <- paste(
   "Number of ATS trips by lake and year. NOTE: Missing ATS data (i.e., not currently available) may be misrepresented by a zero in this table.")
 
 appendix_trawl_sockeye_caption <- paste(
-  "Number of Sockeye salmon surveyed in the trawl samples by lake and ATS year.")
+  "Number of Sockeye Salmon surveyed in the trawl samples by lake and ATS year.")
 
 appendix_trawl_nonsox_caption <- paste(
   "Number of non-Sockeye surveyed in the trawl samples by lake and ATS year.")

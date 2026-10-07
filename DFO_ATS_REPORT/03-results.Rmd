@@ -7,7 +7,7 @@ cat("03-results (AA_HS_260610).Rmd started at:", format(report_start_time, "%Y-%
 cat("================================================\n\n")
 ```
 
-In total, 177,541 records were rescued from the trawl biosampling original files for the years 1977 to 1999, while 123,819 were recovered from the hydro-acoustic 1977-2007 original files. Thirteen species were found, including two Pink. In some lakes, juvenile kokanee are present but cannot be distinguished from juvenile Sockeye salmon. Kokanee may therefore have been misattributed as Sockeye salmon. The analyst should check available information for the possible presence of kokanee in specific lakes. There are 146 records in the trawl final dataset without common fish species names, and they probably represent unidentified specimens. The plots below provide an overview of trip effort, fish collected, and the methods used during ATS.
+In total, 177,541 records were rescued from the trawl biosampling original files for the years 1977 to 1999, while 123,819 were recovered from the hydroacoustic 1977-2007 original files. Thirteen species were found, including two Pink. In some lakes, juvenile kokanee are present but cannot be distinguished from juvenile Sockeye Salmon. Kokanee may therefore have been misattributed as Sockeye Salmon. The analyst should check available information for the possible presence of kokanee in specific lakes. There are 146 records in the trawl final dataset without common fish species names, and they probably represent unidentified specimens. The plots below provide an overview of trip effort, fish collected, and the methods used during ATS.
 \
 
 <!-- Figure \@ref(fig:separated-spp)  -->
@@ -350,11 +350,11 @@ for (lk in sort(unique(acoustic_survey_totals$lake_name))) {
 
 ```
 \newpage
-### *Annual Sockeye Proportions in Acoustic Dataset - Key Lakes*
+### *Annual Sockeye Salmon Proportions in Acoustic Dataset - Key Lakes*
 
-Annual proportion Sockeye (as recorded in acoustic source files), by lake and year, weighted by survey date target abundance.
-Note that these proportions were derived from trawl sample data by observers and applied to the acoustic source data manually, and they may differ from annual Sockeye proportions as derived from trawl samples directly. 
-See also Figure 62 to \@ref(fig:trawl-sockeye-proportions), representing the annual Sockeye salmon proportions in Trawl Dataset.
+Annual proportion Sockeye Salmon (as recorded in acoustic source files), by lake and year, weighted by survey date target abundance.
+Note that these proportions were derived from trawl sample data by observers and applied to the acoustic source data manually, and they may differ from annual Sockeye Salmon proportions as derived from trawl samples directly. 
+See also Figure 62 to \@ref(fig:trawl-sockeye-proportions), representing the annual Sockeye Salmon proportions in Trawl Dataset.
  
 ```{r acoustic-data-prop-sox, fig.cap=acoustic_data_prop_sox_caption, fig.height = 3.5, out.width = "85%"}
 
@@ -563,7 +563,7 @@ ggplot(data = unique_depth_filtered) +
 
 ```
 
-### *Sockeye and Stickleback Length Frequency - Key Lakes*
+### *Sockeye Salmon and Stickleback Length Frequency - Key Lakes*
 
 ```{r hist-length-weight-by-lake, fig.cap=trawl_hist_length_weight_by_lake_caption, fig.asp = 11/8.5, fig.height=9, fig.width=fig_width, out.width=out_width}
 
@@ -985,7 +985,7 @@ ggplot(scatter_plot_all_spp_filtered, aes(fish_length_mm, calc_std_weight_g)) +
 
 ```
 \newpage
-### *Sockeye Length/Weight Relations - Key Lakes*
+### *Sockeye Salmon Length/Weight Relations - Key Lakes*
 
 ```{r sockeye, fig.cap=sockeye_length_weight_key_lakes_caption, out.width="90%", fig.height=fig_height, fig.asp = 11/8.5}
 
@@ -1210,10 +1210,10 @@ ggplot(data = Trawl_data_filtered_life_stage,
 
 ```
 \newpage
-### *Annual Sockeye Proportions in Trawl Dataset - Key Lakes*
+### *Annual Sockeye Salmon Proportions in Trawl Dataset - Key Lakes*
 \
-Annual proportion of Sockeye salmon in Trawl data by lake and year, weighted by the number of fish in the sample.
-Note that these proportions calculated directly using the rescued trawl sample data, and they may differ from annual Sockeye salmon proportions presented in the acoustic source files.
+Annual proportion of Sockeye Salmon in Trawl data by lake and year, weighted by the number of fish in the sample.
+Note that these proportions calculated directly using the rescued trawl sample data, and they may differ from annual Sockeye Salmon proportions presented in the acoustic source files.
 \
 
 ```{r trawl-sockeye-proportions, fig.cap=trawl_sockeye_proportions_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}

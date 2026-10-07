@@ -55,52 +55,8 @@ flextable::flextable(survey_effort_table_unique)|>
 
 ```
 
-### *Total ATS Trips by Lake and Year*
-
-```{r survey-effort-table, tab.cap=appendix_survey_trips_caption, out.width=out_width}
-
-survey_effort_table_import <- read.csv("00_data/Trip_effort_table_acoustic_trawl.csv", check.names = FALSE) %>%
-  rename(lake_name = `Lake name`)
-
-survey_effort_table_unique <- trim_lake_names(survey_effort_table_import) %>%
-  group_by(lake_name) %>%
-  summarise(
-    across(
-      where(is.numeric),
-      ~ sum(.x, na.rm = TRUE)),
-    .groups = "drop")
-
-# Add total row
-survey_effort_table_unique <- survey_effort_table_unique %>%
-  bind_rows(
-    survey_effort_table_unique %>%
-      summarise(
-        across(
-          where(is.numeric),
-          ~ sum(.x, na.rm = TRUE))) %>%
-      mutate(lake_name = "Total") %>%
-      select(lake_name, everything())) %>%
-    rename(Lake = lake_name)
-
-
-# survey_effort_table <- trim_lake_names(survey_effort_table_import) %>%
-#   bind_rows(survey_effort_table %>%
-#               summarise(across(where(is.integer), ~ sum(.x, na.rm = TRUE)), lake_name = "Total")) %>%
-#   select(1,names(.)[-1][order(as.integer(names(.)[-1]))])
-
-flextable::set_flextable_defaults(font.size = 6)
-
-# Plot the table
-flextable::flextable(survey_effort_table_unique)|>
-  flextable::rotate(part = "header", rotation = "btlr", j = 2:ncol(survey_effort_table_unique)) |>
-  flextable::autofit() |>
-  flextable::height(i = 1, height = 0.5, part = "header") |>
-  flextable::hrule(rule = "exact", part = "header")
-
-```
-
 \newpage
-### *Total Sockeye Captured in Trawls, by Lake and Year*
+### *Total Sockeye Salmon Captured in Trawls, by Lake and Year*
 
 ```{r sockeye_info, tab.cap=appendix_trawl_sockeye_caption, out.width=out_width}
 
@@ -276,69 +232,69 @@ block_section(prop_section(page_size = page_size(orient = "landscape"), type = "
 For the following tables, the 95% confidence interval (CI) is expressed as ± the value shown in the tables.
 
   
-```{r CHEE-trawl-sox-stix-print, tab.cap="Cheewhat Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r CHEE-trawl-sox-stix-print, tab.cap="Cheewhat Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Cheewhat Lake" %in% lakes_of_interest) make_catch_table_list("Cheewhat Lake")
 ```
 \newpage
-```{r GCL-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r GCL-trawl-sox-stix-print, tab.cap="Great Central Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Great Central Lake" %in% lakes_of_interest) make_catch_table_list("Great Central Lake")  
 ```
 \newpage
-```{r HEN-trawl-sox-stix-print, tab.cap="Henderson Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r HEN-trawl-sox-stix-print, tab.cap="Henderson Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Henderson Lake" %in% lakes_of_interest) make_catch_table_list("Henderson Lake")
 ```
 
 \newpage
-```{r HOB-trawl-sox-stix-print, tab.cap="Hobiton Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r HOB-trawl-sox-stix-print, tab.cap="Hobiton Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Hobiton Lake" %in% lakes_of_interest) make_catch_table_list("Hobiton Lake")
 ```
 
 \newpage
-```{r KEN-trawl-sox-stix-print, tab.cap="Kennedy Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r KEN-trawl-sox-stix-print, tab.cap="Kennedy Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Kennedy Lake" %in% lakes_of_interest) make_catch_table_list("Kennedy Lake") 
 ```
 \newpage
-```{r LON-trawl-sox-stix-print, tab.cap="Long Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r LON-trawl-sox-stix-print, tab.cap="Long Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Long Lake" %in% lakes_of_interest) make_catch_table_list("Long Lake") 
 ```
 \newpage
-```{r MEZ-trawl-sox-stix-print, tab.cap="Meziadin Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r MEZ-trawl-sox-stix-print, tab.cap="Meziadin Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Meziadin Lake" %in% lakes_of_interest) make_catch_table_list("Meziadin Lake") 
 ```
 \newpage
-```{r MUR-trawl-sox-stix-print, tab.cap="Muriel Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r MUR-trawl-sox-stix-print, tab.cap="Muriel Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Muriel Lake" %in% lakes_of_interest) make_catch_table_list("Muriel Lake") 
 ```
 \newpage
-```{r NIM-trawl-sox-stix-print, tab.cap="Nimpkish Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r NIM-trawl-sox-stix-print, tab.cap="Nimpkish Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Nimpkish Lake" %in% lakes_of_interest) make_catch_table_list("Nimpkish Lake") 
 ```
 \newpage
-```{r OWI-trawl-sox-stix-print, tab.cap="Owikeno Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r OWI-trawl-sox-stix-print, tab.cap="Owikeno Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Owikeno Lake" %in% lakes_of_interest) make_catch_table_list("Owikeno Lake") 
 ```
 \
-```{r SKI-trawl-sox-stix-print, tab.cap="Skidegate Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r SKI-trawl-sox-stix-print, tab.cap="Skidegate Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Skidegate Lake" %in% lakes_of_interest) make_catch_table_list("Skidegate Lake") 
 ```
 \newpage
-```{r SPR-trawl-sox-stix-print, tab.cap="Sproat Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r SPR-trawl-sox-stix-print, tab.cap="Sproat Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Sproat Lake" %in% lakes_of_interest) make_catch_table_list("Sproat Lake") 
 ```
 \newpage
-```{r TAH-trawl-sox-stix-print, tab.cap="Tahltan Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r TAH-trawl-sox-stix-print, tab.cap="Tahltan Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Tahltan Lake" %in% lakes_of_interest) make_catch_table_list("Tahltan Lake") 
 ```
 \newpage
-```{r VER-trawl-sox-stix-print, tab.cap="Vernon Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r VER-trawl-sox-stix-print, tab.cap="Vernon Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Vernon Lake" %in% lakes_of_interest) make_catch_table_list("Vernon Lake") 
 ```
 \newpage
-```{r WOSS-trawl-sox-stix-print, tab.cap="Woss Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r WOSS-trawl-sox-stix-print, tab.cap="Woss Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Woss Lake" %in% lakes_of_interest) make_catch_table_list("Woss Lake") 
 ```
 \newpage
-```{r YAK-trawl-sox-stix-print, tab.cap="Yakoun Lake trawl catch summary by survey date for Sockeye and Stickleback. "}
+```{r YAK-trawl-sox-stix-print, tab.cap="Yakoun Lake trawl catch summary by survey date for Sockeye Salmon and Stickleback. "}
 if ("Yakoun Lake" %in% lakes_of_interest) make_catch_table_list("Yakoun Lake") 
 ```
 
