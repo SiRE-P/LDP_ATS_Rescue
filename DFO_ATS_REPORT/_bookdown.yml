@@ -3,9 +3,10 @@ rmd_files: ["index.Rmd",               # all AA_HS_260831 files all now renamed 
             "00-functions.Rmd",        # <- update with any 03-figure_captions filename changes!
             "01-introduction.Rmd",
             "02-methods.Rmd",
-            "03-results.Rmd",    # HS Revisions & Test Code
+            "03-results.Rmd",    
+            "04-discussion.Rmd",
             "97-acknowledgements.Rmd",
             "98-references.Rmd",
-            "99-appendix.Rmd",   # HS Revisions & Test Code
-            "99-appendix2.Rmd"]  # HS Revisions & Test Code
+            "99-appendix.Rmd",   
+            "99-appendix2.Rmd"]  
 delete_merged_file: true
