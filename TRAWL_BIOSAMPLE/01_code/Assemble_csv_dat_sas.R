@@ -1399,7 +1399,6 @@ adapt_dataset <- adapt_dataset %>%
                                     TRUE ~ NA_character_),
          age = case_when(age == 0 ~ NA_real_,
                                TRUE ~ age))
-
 # Convert lat to decimals 
 adapt_dataset$lake_latitude_decimal <- with(adapt_dataset, {
   parts <- strcapture("(\\d+) deg (\\d+) min", lake_latitude,
@@ -1417,6 +1416,16 @@ adapt_dataset <- adapt_dataset %>%
                                          if_else(is.na(length_weight_comment) | length_weight_comment == "",
                                                 "Unusual size for Sockeye 1+", paste(length_weight_comment, "Unusual size for Sockeye 1+", sep = "; ")), 
                                           length_weight_comment))
+
+# clean gear_info columns
+gear_info_correct_codes <- read.csv("./TRAWL_BIOSAMPLE/00_raw_data/03_AA_look_up_tables/Gear_info_correct_codes.csv")
+
+# Use the table to standardize column
+adapt_dataset <- adapt_dataset %>%
+  dplyr::left_join(gear_info_correct_codes, by = "gear_info")
+
+adapt_dataset <- adapt_dataset %>%
+  mutate(gear_info = ifelse(gear_info==gear_info_new, gear_info, gear_info_new))
 
 # Combine columns flagging issue in a data_issue column and general comments in a general_comments column, 
 # skip the row when it is NA

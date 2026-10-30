@@ -80,7 +80,7 @@ Raw column.
 
 **gear_info:** Dimensions of the net used in the sampling event.
 This field can also provide gear information.
-This data is largely unstandardized and should be tidied/standardized before use.
+These data were partially standardized during the internship but should be further cleaned before use.
 Raw column.
 
 **gear_type:** Specifies which gear type was used for a sample, derived from the trawl_comment (originally called trawl_location).

@@ -35,7 +35,7 @@ trawl_month: Month when the trawl biosample data was collected. Synthetic column
 
 trawl_number: Trawl record number. This is a number occurring (usually) sequentially within a set of trawls conducted together (sometimes over two or more days) that identifies an individual trawl set event. Sometimes individual trawl numbers are skipped in the sequence in the original data. The trawl_number ranges from 1-39; i.e. the maximum number of trawls that were conducted together in this dataset was 39. Raw column.
 
-gear_info: Dimensions of the net used in the sampling event. This field can also provide gear information. This data is largely unstandardized and should be tidied/standardized before use. Raw column.
+gear_info: Dimensions of the net used in the sampling event. This field can also provide gear information. These data were partially standardized during the internship but should be further cleaned before use. Raw column.
 
 gear_type: Specifies which gear type was used for a sample, derived from the trawl_comment (originally called trawl_location). If the search term “sein*” was found in the trawl_comment column, the gear_type was listed as “Beach seine”. See trawl_comment below; it is defined under the general_comments entry. "Trawl" was entered for all other gear_type records. Synthetic column.
 

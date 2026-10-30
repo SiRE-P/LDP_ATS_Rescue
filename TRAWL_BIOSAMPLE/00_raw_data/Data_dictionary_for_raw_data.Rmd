@@ -164,7 +164,7 @@ column17: processor (Observer code)
 
 ### 03_AA_look_up_tables
 
-Contains five .csv lookup and correction tables developed or modified during Alice Assmar’s internship. These tables include information on fish species common names, preservative code formulas, calculated standardized weights, and corrections applied to trawl times and fish length and weight measurements. These reference tables were created to standardize and validate the data by linking coded variables in the dataset to additional descriptive information not originally available in the source databases.
+Contains six .csv lookup and correction tables developed or modified during Alice Assmar’s internship. These tables include information on fish species common names, preservative code formulas, calculated standardized weights, and corrections applied to trawl times, gear info, and fish length and weight measurements. These reference tables were created to standardize and validate the data by linking coded variables in the dataset to additional descriptive information not originally available in the source databases.
 
 ### 04_YS_look_up_tables
 
