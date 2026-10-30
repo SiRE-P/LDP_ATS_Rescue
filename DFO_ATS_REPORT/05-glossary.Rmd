@@ -1,0 +1,175 @@
+# 6. GLOSSARY
+
+The following glossary defines technical terms, abbreviations, and identifiers used throughout this report and associated data products. Definitions are provided to assist users unfamiliar with ATS methodologies, hydroacoustic surveys, fisheries monitoring programs, and the associated data-rescue process.
+
+**Acoustic-Trawl Survey (ATS)**
+
+Historical, long-term Fisheries and Oceans Canada limnetic monitoring program that combined hydroacoustic surveys and trawl sampling to assess fish abundance, distribution, and biological characteristics in British Columbia lakes.
+
+**Age Class**
+
+The age cohort of a fish.
+
+**ATS Year**
+
+Standardized survey year used in this report, extending from April 1st to March 31st of the following calendar year.
+
+**Biosampling**
+
+Collection of biological information from captured fish, including species identification, length, weight, age, and other characteristics.
+
+**DAT (.dat)**
+
+A generic data file extension. It can contain data in various formats, such as plain text, binary data, or structured records. Its contents depend on the software that created it.
+
+**Data Rescue**
+
+Process of locating, recovering, standardizing, documenting, and preserving historical datasets and associated metadata from legacy formats.
+
+**Density**
+
+Number of fish-like targets or fish estimated per unit area or volume sampled using acoustics gear.
+
+**Depth Stratum**
+
+Defined depth interval used for acoustic sampling and abundance calculations.
+
+**Fisheries and Oceans Canada (DFO)**
+
+Federal institution responsible for the stewardship of Canada’s fisheries and marine resources. 
+
+**Fish-like Target (FLT)**
+
+Acoustic target detected by a hydroacoustic system that meets criteria consistent with a fish. FLTs are not necessarily equivalent to individual fish counts, and the reported number of FLTs should not be interpreted as direct measurements of fish abundance without additional analytical assumptions and scaling procedures.
+
+**Freshwater Atlas (FWA)**
+
+Provincial geospatial database containing hydrological features and identifiers for British Columbia freshwater systems. See WATERBODY_KEY.
+
+**FURUNO FM-22 and FNV-3000**
+
+Single-beam hydroacoustic echosounders used during early ATS surveys to collect fish-target data.
+
+**Geographic Names Information System (GNIS)**
+
+Registry of officially recognized geographic feature names and identifiers used in British Columbia. 
+
+**GNIS_ID_1**
+
+Officially recognized geographic feature identifier number. See GNIS.
+
+**Hydroacoustics**
+
+Use of underwater sound waves (sonar) to detect and quantify aquatic organisms and other objects in the water column.
+
+**Juvenile Salmon**
+
+Immature salmon residing in freshwater before migration to marine environments. Depending on species and life history, juveniles may remain in lakes for several months to multiple years. Sockeye Salmon in nursery lakes are predominantly age-0+ fish, but some age-1+ fish are also present in some or all lakes. They are not always identified by age class in the legacy data.
+
+**K-factor**
+
+Futon's condition factor (K) in an index used in ichthyology to assess the relative condition of an individual fish based on its length and weight.
+
+**Kokanee**
+
+Freshwater-resident ecotype of Sockeye Salmon (Oncorhynchus nerka) that spends at least part of its life cycle in nursery lakes and does not migrate to the ocean.
+
+**Lake Enrichment Program (LEP)**
+
+A historical experimental DFO Science Branch program involving nutrient additions to selected lakes to evaluate effects on lake productivity and salmon production.
+
+**Lakes Research Program (LRP)**
+
+A program, within the Science branch of Fisheries and Oceans Canada, located at the Cultus Lake, British Columbia, Salmon Research Laboratory, that continues to monitor British Columbia lake ecosystems and juvenile salmon using ATS methods.
+
+**Life Stage**
+
+Biological development category assigned to a fish, such as fry, parr, smolt, juvenile, or adult.
+
+**Limnetic**
+
+Referring to the open-water region of a lake away from shore and bottom habitats.
+
+**Living Data Project (CIEE-LDP)**
+
+An initiative of the Canadian Institute of Ecology and Evolution (CIEE-ICEE) that supports the preservation of historical ecological datasets in danger of being lost.
+
+**Metadata**
+
+Information describing the content, structure, origin, collection methods, quality, or other characteristics of data.
+
+**Near-Surface Zone**
+
+Approximately the upper 0–2 m of the water column. Historical hydroacoustic equipment could not reliably sample this zone because of surface interference and transducer limitations.
+
+**Open Data Repository**
+
+Publicly accessible archive used to store and distribute datasets, metadata, code, and supporting project documentation.
+
+**Pelagic**
+
+Referring to organisms or habitats located in the open-water portion of a lake.
+
+**SAS (Statistical Analysis System)**
+
+Statistical software used for data management, statistical analysis, and data processing. SAS7BDAT (.sas7bdat) files store datasets, including variables, observations, and associated metadata, whereas SAS (.sas) files contain program code (scripts) used to execute SAS procedures and analyses.
+
+**SiRE (Salmon in Regional Ecosystems) Program**
+
+A program within the Science Branch of Fisheries and Oceans Canada involving data-management and information in support of salmon research and modelling studies. Data holder of LEP and ATS survey data. 
+
+**SIMRAD EY-M**
+
+Hydroacoustic echosounder system used in later ATS surveys to collect fish-target data within surveyed lakes.
+
+**Sockeye Salmon**
+
+Oncorhynchus nerka, an anadromous Pacific salmon species whose juveniles typically rear in lakes prior to ocean migration.
+
+**Species Composition**
+
+Relative proportions of fish species present within a biological sample.
+
+**Stickleback**
+
+Small freshwater fish belonging to the family Gasterosteidae. Three-spined Stickleback (Gasterosteus aculeatus) was the most commonly recorded non-Sockeye Salmon species in ATS trawl samples.
+
+**Study Lakes Program**
+
+Historical, long-term Fisheries and Oceans Canada limnetic monitoring program that combined hydroacoustic surveys and trawl sampling to assess fish abundance, distribution, and biological characteristics in British Columbia lakes.
+
+**Surface Trawl**
+
+Trawl tow conducted within the upper portion of the water column, typically to sample fish occupying near-surface habitats that are not effectively sampled by hydroacoustic equipment.
+
+**Survey Effort**
+
+Measure of sampling intensity, typically represented by the number of surveys, sampling dates, trawls, transects, or sampling duration.
+
+**Target Strength**
+
+Hydroacoustic measure of the intensity of sound reflected from an individual target. Target strength is commonly used as a proxy related to fish size, and there are equations that will convert the target strength to approximate size.
+
+**Transect**
+
+Predetermined survey route along which hydroacoustic and trawl data were collected.
+
+**Trawl**
+
+Tow of a net through the water column, pulled by a boat, to collect fish for species identification and biological measurements.
+
+**Trawl Net**
+
+Net used to trawl.
+
+**Waterbody Key**
+
+Unique Freshwater Atlas (FWA) identifier assigned to a mapped waterbody and commonly used to link waterbody information across provincial datasets.
+
+**Waterbody Polygon ID**
+
+Unique Freshwater Atlas (FWA) identifier assigned to a specific lake polygon feature.
+
+**Watershed**
+
+Land area draining into common streams, rivers, lakes, or other freshwater waterbodies.

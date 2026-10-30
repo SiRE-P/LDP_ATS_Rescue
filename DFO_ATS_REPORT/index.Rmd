@@ -1,8 +1,8 @@
 ---
 english_title: |
-  Limnetic sonar fish target and bio-sample data from Acoustic-Trawl-Survey (ATS) field studies for juvenile Sockeye Salmon abundance during the Lake Enrichment and Study Lakes programs, 1977-2007 
+  Limnetic sonar fish target and bio-sample data from acoustic-trawl survey (ATS) field studies for juvenile Sockeye Salmon abundance during the Lake Enrichment and Study Lakes programs, 1977-2007 
 french_title: |
-  Données de ciblage des poissons par sonar limnétique et données d'échantillons biologiques issues des études de terrain par chalutage acoustique (ATS) sur l'abondance des saumons rouges juvéniles pendant les programmes d'enrichissement des lacs et des lacs d'étude, 1977-2007
+  Données sur les cibles piscicoles détectées par sonar limnétique et données d'échantillons biologiques provenant des études de terrain par relevés acoustiques et de chalutage (ATS) sur l'abondance des saumons rouges juvéniles pendant les programmes d'enrichissement des lacs et des lacs d'étude, 1977-2007
 
 author: |
   Alice C. Assmar^1^,
@@ -56,8 +56,12 @@ french_region: "Région du Pacifique"
 year: "2026"
 report_number: "0000"
 
-english_preamble_pages: "iv"
-french_preamble_pages: "iv"
+# !! UPDATE BY HAND: number of roman-numbered pages before page 1 (title page, colophon,
+# !! contents, abstract, resume = "v"). Increase it if the contents run onto a second
+# !! page or you add lists of tables or figures. It appears in the citations.
+
+english_preamble_pages: "vi"
+french_preamble_pages: "vi"
 english_content_pages: "999"
 french_content_pages: "999"
 english_doi: "###"
@@ -67,13 +71,20 @@ french_isbn: "###"
 english_cat_no: "###"
 french_cat_no: "###"
 
-abstract: |
-  The Lake Enrichment Program and associated Study Lakes Program conducted by Fisheries and Oceans Canada generated a substantial archive of limnetic hydroacoustic survey and trawl biosampling data from British Columbia lakes between 1977 and 2007. These surveys were designed primarily to estimate juvenile Sockeye Salmon abundance and evaluate biological responses to lake fertilization and changing environmental conditions. Over three decades, Acoustic-Trawl Survey (ATS) field programs collected information on fish-like targets, species composition, fish length, weight, sampling effort, timing, and lake characteristics across numerous coastal and interior lakes.
+english_abstract: |
+  The Lake Enrichment Program and the associated Study Lakes Program conducted by Fisheries and Oceans Canada generated a substantial archive of limnetic hydroacoustic survey and trawl biosampling data from British Columbia lakes between 1977 and 2007, representing the period covered by datasets recovered here. These surveys were designed primarily to estimate juvenile Sockeye Salmon abundance and evaluate biological responses to lake fertilization and environmental change. Over three decades, acoustic-trawl survey (ATS) field programs collected information on hydroacoustically detected fish abundance, species composition, fish length and weight, sampling effort, timing, and lake characteristics across 77 coastal and interior lakes.
+
+  ATS data were not consolidated, and they were originally stored in software-specific formats. Moreover, successive historical file conversions introduced some uncertainty regarding data loss. As part of a data-rescue initiative, legacy ATS records were digitized, standardized, quality-controlled, and compiled into accessible, standardized datasets suitable for ecological, limnological, fisheries, and stock-assessment applications. This report documents the origin, methods, and structure of these rescued data holdings and summarizes key characteristics of both the acoustic target and trawl biosample datasets. 
+
+  In total, this initiative recovered 177,541 trawl biosampling records, along with 123,819 hydroacoustic records. Lake survey effort varied among years, with sampling concentrated in a subset of intensively monitored systems. Summary visualizations describe temporal survey coverage, acoustic target distributions, trawl sampling characteristics, fish size distributions, length-weight relationships, and species composition patterns. Although survey intensity, sampling protocols, and data completeness varied through time, these datasets represent one of the most extensive long-term limnetic fish-monitoring archives available for British Columbia Sockeye lakes. By preserving and documenting these records, this report supports future fisheries research, ecological analyses, stock assessment activities, and long-term evaluations of lake productivity and juvenile Sockeye Salmon abundance.
+
+french_abstract: |
+  Le Programme de fertilisation des lacs et le Programme des lacs d’étude connexe de Pêches et Océans Canada ont généré une importante archive de données issues de relevés hydroacoustiques limnétiques et d’échantillonnages biologiques au chalut réalisés dans des lacs de la Colombie-Britannique entre 1977 et 2007. Ces relevés visaient principalement à estimer l’abondance des saumons rouges juvéniles (Oncorhynchus nerka) et à évaluer les effets de la fertilisation des lacs ainsi que des changements environnementaux. Pendant plus de 30 ans, les programmes de relevés acoustiques et de chalutage (ATS) ont recueilli des données sur l’abondance des poissons détectés par hydroacoustique, la composition des espèces, la taille et le poids des poissons, l’effort d’échantillonnage ainsi que les caractéristiques de 77 lacs côtiers et intérieurs.
+
+  Les données ATS n’avaient jamais été regroupées et étaient conservées dans divers formats propres à différents logiciels. De plus, des conversions successives de fichiers historiques ont soulevé des préoccupations quant à d’éventuelles pertes de données. Dans le cadre d’une initiative de sauvetage des données, les archives ATS ont été numérisées, normalisées, validées et compilées dans des ensembles de données accessibles et harmonisés, adaptés aux applications en écologie, en limnologie, en sciences halieutiques et en évaluation des stocks. Le présent rapport décrit l’origine, les méthodes et la structure de ces données récupérées et résume les principales caractéristiques des ensembles de données acoustiques et biologiques.
+
+  Au total, l’initiative a permis de récupérer 177,541 enregistrements d’échantillonnage au chalut et 123,819 enregistrements hydroacoustiques. L’effort d’échantillonnage variait selon les années, avec une concentration des relevés dans certains lacs faisant l’objet d’un suivi intensif. Des analyses descriptives présentent la couverture temporelle des relevés, la distribution des cibles acoustiques, les caractéristiques de l’échantillonnage au chalut, les distributions de taille des poissons, les relations longueur-poids et la composition des espèces. Malgré des variations dans l’intensité des relevés, les protocoles et l’exhaustivité des données, ces ensembles constituent l’une des plus importantes archives à long terme de suivi des populations de poissons dans les lacs à saumon rouge de la Colombie-Britannique. Leur préservation soutiendra les futures recherches halieutiques, les analyses écologiques et l’évaluation à long terme de la productivité des lacs et de l’abondance des saumons rouges juvéniles.
   
-  ATS data were originally stored in proprietary formats, and historical conversions between file formats resulted in data loss. As part of a data-rescue initiative, legacy ATS records were digitized, standardized, quality-controlled, and compiled into accessible datasets suitable for future scientific analyses. This report documents the origin, methods, and structure of these rescued data holdings and summarizes key characteristics of both the acoustic target and trawl biosample datasets. 
-
-  In total, this initiative recovered 177,541 trawl biosampling records, along with 123,819 hydroacoustic records. Lake survey effort varied among years, with sampling concentrated in a subsample of key study lakes. Summary visualizations describe temporal survey coverage, acoustic target distributions, trawl sampling characteristics, fish size distributions, length-weight relationships, and species composition patterns. Together, these datasets represent one of the most extensive long-term limnetic fish-monitoring archives available for British Columbia Sockeye lakes. By documenting and preserving these records, this report supports future fisheries research, ecological analyses, stock assessment activities, and long-term evaluations of lake productivity and juvenile Sockeye Salmon abundance.
-
 output:
  csasdown::techreport_docx:
    french: false

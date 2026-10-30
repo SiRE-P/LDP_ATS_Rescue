@@ -1,4 +1,4 @@
-# RESULTS 
+# 3. RESULTS 
 
 ```{r timer-start, include=FALSE}
 report_start_time <- Sys.time()
@@ -7,26 +7,82 @@ cat("03-results (AA_HS_260610).Rmd started at:", format(report_start_time, "%Y-%
 cat("================================================\n\n")
 ```
 
-In total, 177,541 records were rescued from the trawl biosampling original files for the years 1977 to 1999, while 123,819 were recovered from the hydroacoustic 1977-2007 original files. Thirteen species were found, including two Pink. In some lakes, juvenile kokanee are present but cannot be distinguished from juvenile Sockeye Salmon. Kokanee may therefore have been misattributed as Sockeye Salmon. The analyst should check available information for the possible presence of kokanee in specific lakes. There are 146 records in the trawl final dataset without common fish species names, and they probably represent unidentified specimens. The plots below provide an overview of trip effort, fish collected, and the methods used during Acoustic-Trawl Survey (ATS).
+The figures in this section summarize the temporal, spatial, and biological characteristics of the rescued acoustic-trawl survey (ATS) datasets. Detailed tabular summaries underlying many of the figures are provided in Appendices B and C. The purpose of the figures is to describe survey timing and effort, data availability, sampling characteristics, species composition, and basic biological patterns within the recovered records. These summaries should be interpreted as descriptions of the available data and not as standardized estimates of population abundance or long-term ecological trends. Differences among lakes and years may reflect changes in sampling effort, survey design, or data availability in addition to biological variation.
+
+  In total, 177,541 records (*i.e.*, individual fish) were recovered from trawl surveys for the years 1977 to 1999, while 123,819 counts of fish-like targets (FLT) were recovered from hydroacoustic surveys conducted between 1977-2007. The trawl dataset includes 13 identified fish species, as well as 146 records lacking species assignments that likely represent unidentified specimens.
+  
+  Interpretation of species composition should be undertaken cautiously. Juvenile Kokanee and juvenile Sockeye Salmon cannot be reliably distinguished in some ATS surveys and may have been recorded collectively as Sockeye Salmon. Consequently, Sockeye Salmon proportions reported here may include some Kokanee, depending on the lake and survey year. Users interested in individual lakes should consult available biological and stock-assessment information to determine whether Kokanee were present during the period of interest.
+  
+  The following sections are covered.
+
+**Annual Survey Effort by Lake and ATS Year**
+
+Survey effort varied substantially among lakes and ATS years (Figure \@ref(fig:bubble_heatmap)). Monitoring was concentrated in a subset of intensively sampled lakes, while many lakes were surveyed intermittently or for relatively short periods. Consequently, temporal and spatial coverage is uneven across the dataset and should be considered when comparing lakes or evaluating long-term patterns.
+
+**Trip Frequency by Month and ATS Year**
+
+ATS surveys were conducted seasonally, with sampling concentrated during periods when juvenile fish were most effectively sampled using hydroacoustic and trawl methods (Figure \@ref(fig:trip-effort-lakes)). The timing of surveys was generally consistent among years, providing a relatively standardized seasonal sampling window for many study lakes.
+
+**Acoustic Survey Depth Range Frequency**
+
+  Acoustic surveys sampled a broad range of depths across lakes and years, although coverage was limited in near-surface waters due to constraints of the hydroacoustic equipment (Figure \@ref(fig:depth-acoustic)). Consequently, observed depth distributions reflect both fish distribution and the operational limitations of the survey method. 
+  See also @hyattAcousticTrawlBased2000 who state that 0-2 m depth evaluations for both acoustic and trawl surveys prior to 1984 were not routinely assessed.
+
+**Annual Target Counts – Key Lakes**
+
+  Acoustic records indicate substantial variation in fish-like target (FLT) abundance among key lakes and ATS years (Figures 7-\@ref(fig:acoustic-targets)). Some lakes exhibited relatively consistent FLT values through time, whereas others showed pronounced year-to-year variability. Because these summaries are derived from hydroacoustic detections rather than direct fish counts, volumetric conversions are needed to convert them into fish numbers, and differences over time may reflect changes in fish abundance, species composition, survey design, environmental conditions, or sampling effort. 
+
+**Annual Sockeye Salmon Proportions in Acoustic Dataset – Key Lakes**
+
+  The acoustic source files include annual estimates of Sockeye Salmon proportion that were originally derived from associated trawl sampling and manually linked to acoustic records (Figures 23-\@ref(fig:acoustic-data-prop-sox)). These values provide historical estimates of species composition associated with acoustic surveys but should not be interpreted as independent observations derived directly from hydroacoustic data. Comparisons with trawl-derived species proportions may reveal differences resulting from data processing methods or historical interpretation by field staff.
+
+**Trawl Sample Label**
+
+  Trawl sample labels contain information used to link individual fish measurements to specific survey events, locations, and sampling methods (Figure \@ref(fig:sample-label)). These records provide important context for interpreting biological metrics and reconstructing the original survey structure.
+
+**Trawl Duration Frequency**
+
+  Trawl durations were highly standardized throughout the monitoring program (Figure \@ref(fig:duration_distribution)), reflecting consistent field protocols used across lakes and years. Occasional departures from the standard duration (15 minutes) likely reflect field conditions, equipment issues, or methodological adjustments documented during individual surveys.
+
+**Trawl Depth Frequency**
+
+  Trawl sampling occurred across a broad range of depths but was concentrated in shallower strata where juvenile fish were commonly encountered (Figures 41-\@ref(fig:depth-by-lake)). Surface trawls supplemented hydroacoustic surveys by sampling portions of the water column that were poorly represented in acoustic observations.
+
+**Sockeye Salmon and Stickleback Length Frequency – Key Lakes**
+
+  The trawl dataset contains a wide range of fish sizes, reflecting differences among species, life stages, lakes, and years (Figure \@ref(fig:hist-length-weight-by-lake)). Length-frequency distributions provide an overview of the biological variability captured by the monitoring program and illustrate the broad overlap in size of juvenile Sockeye and adult Stickleback. This, in turn, demonstrates the importance of knowing the species make-up of the acoustic targets.
+
+**Annual Fish Length and Weight Distribution – Key Lakes**
+  
+  Fish size distributions varied considerably among lakes and ATS years (Figures 44-\@ref(fig:boxplot-lakes-years)). Observed patterns likely reflect differences in growth, lake productivity, species composition, life-stage structure, and sampling timing. These figures are intended to describe characteristics of the available data rather than to indicate biological trends.
+
+**Fish Length-Weight Relations**
+
+ Length-weight relationships provide a useful summary of the biological consistency and quality of the trawl dataset (Figures 60-\@ref(fig:Stickleback)). Most observations follow expected allometric relationships, while a small number of unusual records remain visible and are retained in the dataset with appropriate quality-control flags.
+
+**Annual Sockeye Salmon Proportions in Trawl Dataset – Key Lakes**
+
+  Species-composition estimates derived directly from trawl samples reveal substantial variation among lakes, years, and individual sampling events (Figures 64-\@ref(fig:trawl-sockeye-proportions)). Because these estimates are calculated from observed species identifications rather than historical acoustic metadata, they provide the primary description of lake-specific fish community composition.
 \
 
 <!-- Figure \@ref(fig:separated-spp)  -->
 
-```{r figure-scale-book, fig.cap=figure_scale_book_caption, out.width="60%"}
+```{r}
 
+#figure-scale-book, fig.cap=figure_scale_book_caption, out.width="60%"
 #include_graphics("../TRAWL_BIOSAMPLE/06_Figures/scale_book1.jpg")
 
 ```
 
-```{r figure-sample, fig.cap=figure_sample_caption, out.width="60%"}
-
+```{r}
+# figure-sample, fig.cap=figure_sample_caption, out.width="60%"
 #include_graphics("../TRAWL_BIOSAMPLE/06_Figures/scale_book2.jpg")
 
 ```
 
-## Annual Survey Effort by Lake and ATS Year
+## 3.1. Annual Survey Effort by Lake and ATS Year
 
-```{r bubble_heatmap, fig.cap = bubble_heatmap_caption, fig.asp = 11/8.5, fig.height=9, fig.width=fig_width, out.width=out_width}
+```{r bubble_heatmap, fig.cap = caption_value(bubble_heatmap_caption), fig.asp = 11/8.5, fig.height=9, fig.width=fig_width, out.width=out_width}
 
 ### Count survey effort for both acoustic and trawl data
 ### Trawl
@@ -106,7 +162,7 @@ ggplot() +
   theme_bw() +
   theme(
     plot.title = element_text(hjust = 0.5),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8),
+    axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8, margin = margin(t = 0)),
     axis.text.y = element_text(size = 8),
     panel.grid.major = element_line(colour = "grey90"),
     panel.grid.minor = element_blank(),
@@ -115,12 +171,16 @@ ggplot() +
   # legend.background = element_rect(colour = "grey70", fill = "white", linewidth = 0.3),
     legend.text = element_text(size = 8),
     legend.title = element_text(size = 8),
-    legend.spacing.x = unit(0.05, "cm"))
+    legend.spacing.x = unit(0.05, "cm"),
+    plot.margin = margin(b = 0, unit = "pt"),
+    legend.box.spacing = unit(-0.5, "cm"))
 
 ```
-## Trip Frequency by Month and ATS Year for Key Lakes
+## 3.2. Trip Frequency by Month and ATS Year for Key Lakes
 
-```{r trip-effort-lakes, fig.cap=trip_effort_lakes_caption, fig.width=fig_width, fig.height=7, out.width=out_width, fig.asp = 11/8.5}
+Survey activity was strongly seasonal, reflecting the timing of juvenile salmon occupancy, hydroacoustic sampling protocols, and logistical field constraints.
+
+```{r trip-effort-lakes, fig.cap = caption_value(trip_effort_lakes_caption), fig.width=fig_width, fig.height=7, out.width=out_width, fig.asp = 11/8.5}
 
 ### AA's original code chunk will be dropped from report and/or relegated to Supplemental info files  [260806]
 #   Here modified to produce single page facet plot for all available years for each lake... 
@@ -185,14 +245,13 @@ ggplot(
     legend.text = element_text(size = 7))
 
 ```
-## Acoustic Target Dataset
+## 3.3. Acoustic Target Dataset
 
-The results presented in the figures below are based solely in data from the acoustic target dataset.
+The following figures summarize the structure and content of the rescued acoustic-target dataset. Results are based exclusively on acoustic survey records and describe survey depth distributions, temporal patterns in FLT abundance, and observer-assigned estimates of species composition. These summaries provide an overview of data availability and variability among lakes and ATS years and should not be interpreted as standardized estimates of fish population trends.
 
+### 3.3.1. *Acoustic Survey Depth Range Frequency*
 
-### *Acoustic Survey Depth Range Frequency*
-
-```{r depth-acoustic, fig.cap=depth_acoustic_caption , fig.width=fig_width, out.width=out_width, fig.height=half_height}
+```{r depth-acoustic, fig.cap = caption_value(depth_acoustic_caption), fig.width=fig_width, out.width=out_width, fig.height=half_height}
 
 unique_depth_acoustic <- fix_lake_codes_names(Acoustic_data_import) %>%
   distinct(depth_min_m, depth_max_m, lake_name, survey_date) %>%
@@ -216,11 +275,11 @@ ggplot(unique_depth_acoustic, aes(x = depth_m)) +
 
 ```
 \newpage
-### *Annual Target Counts - Key Lakes*
+### 3.3.2. *Annual Target Counts - Key Lakes*
 
-Across the key study lakes, the mean annual number of fish-like targets (FLTs) varied both among lakes and among ATS years. Some lakes showed relatively stable FLT estimates across years, whereas others exhibited greater interannual variability and changes in the magnitude of FLTs detected. These patterns provide an overview of temporal variation in acoustic detections across the study lakes, with lake-specific results presented in the box plots below.
+Across the key study lakes, the mean annual number of FLTs varied both among lakes and among ATS years. FLT values represent hydroacoustically detected fish-like targets and are not equivalent to direct fish counts. Interpretation of FLT abundance may be influenced by survey design, species composition, target detectability, and environmental conditions. Some lakes exhibited relatively consistent FLT estimates across years, whereas others exhibited greater interannual variability. These patterns may reflect differences in fish abundance, survey coverage, sampling design, or other factors, and therefore should not be interpreted as direct indicators of population trends.
 \
-```{r acoustic-targets, fig.cap=acoustic_targets_caption, fig.height = 3.5, out.width = "85%"} 
+```{r acoustic-targets, fig.cap = caption_value(acoustic_targets_caption), fig.height = 3.5, out.width = "85%"} 
 
 acoustic_targets <- fix_lake_codes_names(Acoustic_data_import) %>%
 # filter(lake_name == "Great Central Lake") %>%
@@ -350,13 +409,12 @@ for (lk in sort(unique(acoustic_survey_totals$lake_name))) {
 
 ```
 \newpage
-### *Annual Sockeye Salmon Proportions in Acoustic Dataset - Key Lakes*
+### 3.3.3. *Annual Sockeye Salmon Proportions in Acoustic Dataset - Key Lakes*
 
-Annual proportion Sockeye Salmon (as recorded in acoustic source files), by lake and year, weighted by survey date target abundance.
-Note that these proportions were derived from trawl sample data by observers and applied to the acoustic source data manually, and they may differ from annual Sockeye Salmon proportions as derived from trawl samples directly. 
-See also Figure 62 to \@ref(fig:trawl-sockeye-proportions), representing the annual Sockeye Salmon proportions in Trawl Dataset.
+Annual proportion of Sockeye Salmon (as recorded in acoustic source files), by lake and year, weighted by survey date target abundance. Note that these proportions were not calculated directly from the rescued acoustic data. Rather, they represent observer-assigned species proportions originally derived from associated trawl sampling and subsequently recorded within acoustic source files. Consequently, they should be regarded as historical metadata attached to acoustic records rather than independently derived estimates. 
+Compare to trawl Figures 62 to \@ref(fig:trawl-sockeye-proportions).
  
-```{r acoustic-data-prop-sox, fig.cap=acoustic_data_prop_sox_caption, fig.height = 3.5, out.width = "85%"}
+```{r acoustic-data-prop-sox, fig.cap=caption_value(acoustic_data_prop_sox_caption), fig.height = 3.5, out.width = "85%"}
 
 acoustic_survey_prop_sockeye <- acoustic_targets %>%  # aggregate to lake/year/survey level
   group_by(
@@ -442,21 +500,23 @@ for (lk in sort(unique(acoustic_survey_prop_sockeye$lake_name))) {
 ```
 \newpage
 
-## Trawl Biosample Dataset
+## 3.4. Trawl Biosample Dataset
 
-The results presented in the figures below are based solely in data from the Trawl biosample dataset.
+The results presented in this section are based solely on data from the Trawl biosample dataset.
 
-### *Trawl Sample Label*
+### 3.4.1. *Trawl Sample Label*
 
-```{r sample-label, fig.cap=trawl_sample_label_caption, out.width="60%"}
+The specimen label illustrates the information recorded by field crews and provides context for several variables retained in the rescued dataset.
+
+```{r sample-label, fig.cap=caption_value(trawl_sample_label_caption), out.width="60%"}
 
 include_graphics("../TRAWL_BIOSAMPLE/06_Figures/Trawl_sample_label.png")
 
 ```
 \newpage
-### *Trawl Duration Frequency*
+### 3.4.2. *Trawl Duration Frequency*
 
-```{r duration_distribution, fig.cap=trawl_duration_distribution_caption, out.width = "85%", fig.height=half_height}
+```{r duration_distribution, fig.cap=caption_value(trawl_duration_distribution_caption), out.width = "85%", fig.height=half_height}
 
 unique_calc_duration <- fix_lake_codes_names(Trawl_data_import) %>%
   distinct(calc_duration_time, trawl_unique_ID, orig_duration_minutes) %>%
@@ -516,16 +576,16 @@ ggplot(unique_calc_duration,
 
 ```
 
-### *Trawl Depth Frequency*
+### 3.4.3. *Trawl Depth Frequency*
 
-```{r depth, fig.cap=trawl_depth_caption, out.width = "85%", fig.height=half_height}
+```{r depth, fig.cap=caption_value(trawl_depth_caption), out.width = "85%", fig.height=half_height}
 
 unique_depth <- fix_lake_codes_names(Trawl_data_import) %>%
   distinct(depth_m, trawl_unique_ID, lake_name) %>%
   filter(!is.na(depth_m)) # >= 50)
 
 ggplot(data = unique_depth, aes(depth_m)) +
-  geom_histogram(binwidth = 2, position = "dodge", color = "black", fill="yellow", linewidth = 0.3) + # #FBD424FF
+  geom_histogram(binwidth = 2, boundary = 0, color = "black", fill="yellow", linewidth = 0.3) + # #FBD424FF
   labs(#title = "Trawl Sample Depth", subtitle = "All Lakes, All Years", 
        x = "Depth (m)", y = "Frequency") +
  scale_x_continuous(breaks = seq(0, 70, by = 4), expand = c(0.01, 0.01)) +
@@ -538,20 +598,20 @@ ggplot(data = unique_depth, aes(depth_m)) +
   theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
 
 ```
-### *Trawl Depth Frequency - Key Lakes*
+### 3.4.4. *Trawl Depth Frequency - Key Lakes*
 
-```{r depth-by-lake, fig.cap=trawl_depth_by_lake_caption, fig.asp = 11/8.5, fig.height=9, fig.width=fig_width, out.width=out_width}
+```{r depth-by-lake, fig.cap=caption_value(trawl_depth_by_lake_caption), fig.asp = 11/8.5, fig.height=9, fig.width=fig_width, out.width=out_width}
 
 # Filter only the lakes of interest (loi)
 unique_depth_filtered <- unique_depth %>%
   filter(lake_name %in% lakes_of_interest)
 
 ggplot(data = unique_depth_filtered) +
-  geom_histogram(aes(x = depth_m), binwidth = 2, color = "black", fill="yellow", linewidth = 0.05) + # #FBD424FF
+  geom_histogram(aes(x = depth_m), binwidth = 2, boundary = 0, color = "black", fill="yellow", linewidth = 0.05) + # #FBD424FF
   labs(#title = "Trawl Sample Depth for Key Lakes", 
        # subtitle = "Key Lakes", 
        x = "Depth (m)", y = "Frequency") +
-  facet_wrap(~ lake_name, ncol = 4, scale="free") +
+  facet_wrap(~ lake_name, ncol = 4, scale="free_y") +
   scale_y_continuous(expand = c(0,0.10)) +
   theme_bw() +
   theme(
@@ -563,9 +623,9 @@ ggplot(data = unique_depth_filtered) +
 
 ```
 
-### *Sockeye Salmon and Stickleback Length Frequency - Key Lakes*
+### 3.4.5. *Sockeye Salmon and Stickleback Length Frequency - Key Lakes*
 
-```{r hist-length-weight-by-lake, fig.cap=trawl_hist_length_weight_by_lake_caption, fig.asp = 11/8.5, fig.height=9, fig.width=fig_width, out.width=out_width}
+```{r hist-length-weight-by-lake, fig.cap=caption_value(trawl_hist_length_weight_by_lake_caption), fig.asp = 11/8.5, fig.height=9, fig.width=fig_width, out.width=out_width}
 
 # chunk_start_time <- Sys.time()
 # cat("\n================================================\n")
@@ -641,7 +701,8 @@ ggplot(
 
 ```
 
-```{r GCL-plot, fig.cap=obsolete_plot_caption}
+```{r GCL-plot}
+#, fig.cap=caption_value(obsolete_plot_caption)
 #plots[["Great Central Lake"]]
 #plots[["Henderson Lake"]]
 #plots[["Hobiton Lake"  ]]
@@ -658,7 +719,9 @@ ggplot(
 #plots[["Tahltan Lake" ]]
 ```
 
-```{r hist-length-weight-by-year, fig.cap=hist_length_weight_by_year_caption}
+```{r hist-length-weight-by-year}
+#, fig.cap=caption_value(hist_length_weight_by_year_caption)
+
 # df_plot_year <- Trawl_data %>%
 #   filter(lake_name %in% lakes_of_interest,
 #     species_common_name %in% c("Sockeye", "Stickleback")) %>%
@@ -686,12 +749,12 @@ ggplot(
 ```
 
 \newpage
-### *Annual Fish Length and Weight Distribution - Key Lakes*
+### 3.4.6. *Annual Fish Length and Weight Distribution - Key Lakes*
 
-Trawl surveys captured Sockeye and Stickleback across a range of fish sizes, with variation in size distributions observed among years and key study lakes. Differences in median size and within-year variability for both species can be assessed from the corresponding key lake- and year-specific size distributions shown in the box plots below.
+Trawl surveys captured Sockeye and Stickleback across a range of fish sizes, with variation in size distributions observed among years and key study lakes. Differences in median size and within-year variability for both species can be assessed from the corresponding key lake- and year-specific size distributions shown in the box plots below. A small number of extreme outliers were omitted from plot axes to improve visualization; however, all observations were retained for summary statistics and analyses.
 \
 
-```{r boxplot-lakes-years, fig.cap=boxplot_lakes_years_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
+```{r boxplot-lakes-years, fig.cap=caption_value(boxplot_lakes_years_caption), fig.width=fig_width, out.width=out_width, fig.height=half_height}
 
 for (lk in lakes) {
 
@@ -747,9 +810,11 @@ for (lk in lakes) {
 ```
 \newpage
 
-### *Fish Length-Weight Relations*
+### 3.4.7. *Fish Length-Weight Relations*
 
-```{r all-spp-scatter-plot, fig.cap=all_spp_length_weight_caption, fig.width=fig_width, out.width=out_width, fig.asp = 1}
+Length-weight observations shown here include multiple species, life stages, lakes, and years and are intended primarily as an overview of dataset structure.
+
+```{r all-spp-scatter-plot, fig.cap=caption_value(all_spp_length_weight_caption), fig.width=fig_width, out.width=out_width, fig.asp = 1}
 
 # chunk_start_time <- Sys.time()
 # cat("\n================================================\n")
@@ -908,9 +973,9 @@ ggplot(
 
 ```
 
-### *Fish Length/Weight Relations - Key Species*
+### 3.4.8. *Fish Length/Weight Relations - Key Species*
 
-```{r separated-spp, fig.cap=separated_spp_length_weight_caption, fig.width=fig_width, out.width=out_width, fig.asp = 1}
+```{r separated-spp, fig.cap=caption_value(separated_spp_length_weight_caption), fig.width=fig_width, out.width=out_width, fig.asp = 1}
 
 # Drop any adult codes.
 # scatter_plot_all_spp_filtered <- fix_lake_codes_names(Trawl_data_import) %>%
@@ -985,9 +1050,9 @@ ggplot(scatter_plot_all_spp_filtered, aes(fish_length_mm, calc_std_weight_g)) +
 
 ```
 \newpage
-### *Sockeye Salmon Length/Weight Relations - Key Lakes*
+### 3.4.9. *Sockeye Salmon Length/Weight Relations - Key Lakes*
 
-```{r sockeye, fig.cap=sockeye_length_weight_key_lakes_caption, out.width="90%", fig.height=fig_height, fig.asp = 11/8.5}
+```{r sockeye, fig.cap=caption_value(sockeye_length_weight_key_lakes_caption), out.width="90%", fig.height=fig_height, fig.asp = 11/8.5}
 
 Trawl_data_sockeye <- fix_lake_codes_names(Trawl_data_import) %>%
   filter(lake_name %in% lakes_of_interest) %>%
@@ -1100,9 +1165,9 @@ ggplot(Trawl_data_sockeye, aes(x = fish_length_mm, y = calc_std_weight_g, colour
 
 ```
 
-### *Stickleback Length/Weight Relations - Key Lakes*
+### 3.4.10. *Stickleback Length/Weight Relations - Key Lakes*
 
-```{r Stickleback, fig.cap=stickleback_length_weight_key_lakes_caption, out.width="90%", fig.height=fig_height, fig.asp = 11/8}
+```{r Stickleback, fig.cap=caption_value(stickleback_length_weight_key_lakes_caption), out.width="90%", fig.height=fig_height, fig.asp = 11/8}
 
 Trawl_data_filtered_life_stage <- fix_lake_codes_names(Trawl_data_import) %>%
   filter(lake_name %in% lakes_of_interest) %>%
@@ -1210,13 +1275,11 @@ ggplot(data = Trawl_data_filtered_life_stage,
 
 ```
 \newpage
-### *Annual Sockeye Salmon Proportions in Trawl Dataset - Key Lakes*
-\
-Annual proportion of Sockeye Salmon in Trawl data by lake and year, weighted by the number of fish in the sample.
-Note that these proportions calculated directly using the rescued trawl sample data, and they may differ from annual Sockeye Salmon proportions presented in the acoustic source files.
+### 3.4.11. *Annual Sockeye Salmon Proportions in Trawl Dataset - Key Lakes*
+Annual proportion of Sockeye Salmon in Trawl data by lake and year, weighted by the number of fish in the sample. Considerable variability is evident among lakes, years, and individual trawl samples. Because these estimates are based directly on species identifications from rescued trawl records, they provide the primary description of species composition and may differ from annual Sockeye Salmon proportions presented in the acoustic source files (*i.e.*, Figures 23-\@ref(fig:acoustic-data-prop-sox)). Comparisons with the latter mentioned figures can help identify differences between trawl-derived species proportions and those historically recorded as metadata within the acoustic dataset.
 \
 
-```{r trawl-sockeye-proportions, fig.cap=trawl_sockeye_proportions_caption, fig.width=fig_width, out.width=out_width, fig.height=half_height}
+```{r trawl-sockeye-proportions, fig.cap=caption_value(trawl_sockeye_proportions_caption), fig.width=fig_width, out.width=out_width, fig.height=half_height}
 
 # Pre-process once
 trawl_data_all_spp <- Trawl_data_import %>%

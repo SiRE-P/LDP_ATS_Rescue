@@ -1,12 +1,14 @@
 book_filename: "techreport"
-rmd_files: ["index.Rmd",               # all AA_HS_260831 files all now renamed to original as shown here
-            "00-functions.Rmd",        # <- update with any 03-figure_captions filename changes!
+rmd_files: ["index.Rmd",               
+            "00-functions.Rmd",        
             "01-introduction.Rmd",
             "02-methods.Rmd",
             "03-results.Rmd",    
             "04-discussion.Rmd",
+            "05-glossary.Rmd",
             "97-acknowledgements.Rmd",
             "98-references.Rmd",
+            "99-appendix1.Rmd",
             "99-appendix.Rmd",   
             "99-appendix2.Rmd"]  
 delete_merged_file: true

@@ -59,6 +59,8 @@ source("03-figure_captions.R") # r code that contains all figure captions
 ```
 
 ```{r functions}        
+# Get captions to work with the new csasdown version
+caption_value <- function(x) {get(deparse(substitute(x)), envir = .GlobalEnv)}
 
 fix_lake_codes_names <- function(df) {
   

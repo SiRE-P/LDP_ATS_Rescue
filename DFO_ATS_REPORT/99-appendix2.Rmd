@@ -173,7 +173,7 @@ block_section(prop_section(page_size = page_size(orient = "landscape"), type = "
 ```
 
 ```{r appendix_b_table_close, echo=FALSE}
-block_section(prop_section(page_size = page_size(orient = "portrait"), type = "continuous"))
+#block_section(prop_section(page_size = page_size(orient = "portrait"), type = "continuous"))
 ```
 
 
@@ -224,7 +224,7 @@ write.csv(
 
 ```
 
-
+\newpage
 ### *Lake Physical Parameters*
 
 ```{r lake-strata-table, tab.cap=appendixB_lake_strata_tab_caption}
@@ -262,3 +262,7 @@ ft |>
 
 ```
 
+
+```{r appendix_b_table_close_added, echo=FALSE}
+block_section(prop_section(page_size = page_size(orient = "landscape"), type = "continuous"))
+```
