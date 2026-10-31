@@ -1425,7 +1425,8 @@ adapt_dataset <- adapt_dataset %>%
   dplyr::left_join(gear_info_correct_codes, by = "gear_info")
 
 adapt_dataset <- adapt_dataset %>%
-  mutate(gear_info = ifelse(gear_info==gear_info_new, gear_info, gear_info_new))
+  mutate(gear_info = ifelse(gear_info==gear_info_new, gear_info, gear_info_new)) %>%
+  select(-gear_info_new)
 
 # Combine columns flagging issue in a data_issue column and general comments in a general_comments column, 
 # skip the row when it is NA
