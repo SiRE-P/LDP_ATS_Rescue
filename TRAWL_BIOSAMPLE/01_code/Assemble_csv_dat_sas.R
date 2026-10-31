@@ -655,30 +655,33 @@ write.csv(end_time_errors, paste0(error_directory, "/end_time_errors.csv"), row.
 #df_final_flag_time[df_final_flag_time$fish_unique_ID == "1997-09-17_69_9_15_7_1_1.35_49", ]
 
 df_final_flag_time <- df_final_flag_time %>%
-  mutate(
-    end_time = ifelse(duration_mi == "0203", "02:03:00", end_time),
-    time_comment = ifelse(duration_mi == "0203", "0203 error in duration_mi was end_time - corrected", time_comment),
-    duration_mi = ifelse(duration_mi == "0203", "16", duration_mi)
-  )
+  mutate(end_time = ifelse(duration_mi == "0203", "02:03:00", end_time),
+         invalid_duration_time = ifelse(duration_mi == "0203", "0203 error in duration_mi was end_time - corrected", time_comment),
+         start_end_time_comment = case_when(start_time.dat == "08:65:00" ~ "error in .dat file start_time, corrected using .sas7bdat file info",
+                                  start_time.dat == "14:69:00" ~ "error in .dat file start_time, corrected using .sas7bdat file info",
+                                  start_time.dat == "15:92:00"~ "error in .dat file start_time, corrected using .sas7bdat file info",
+                                  start_time.dat == "21:89:00" ~ "error in .dat file start_time, corrected using .sas7bdat file info",
+                                  TRUE ~ NA_character_),
+         duration_mi = ifelse(duration_mi == "0203", "16", duration_mi))
 
 # Summary of start_time with wrong format    
 df_final_flag_time %>%
   #filter(invalid_start_time == "Invalid format") %>%
-  group_by(start_time, start_time.sas, start_time.dat) %>%
+  group_by(start_time, start_time.sas, start_time.dat, time_comment, start_end_time_comment) %>%
   summarise(count = n()) -> summary_table_time
 
 # Clean the invalid numbers. Replace them by NA.
 # start_time column substitution patterns
-replacement_pattern <- c("08:65:00" = NA_character_,
-                         "14:69:00" = NA_character_,
-                         "15:92:00" = NA_character_,
-                         "21:89:00" = NA_character_)
+replacement_pattern <- c("08:65:00" = "09:05:00",
+                         "14:69:00" = "15:09:00",
+                         "15:92:00" = "16:32:00",
+                         "21:89:00" = "22:29:00")
 df_final_raw <- df_final_flag_time %>%
   mutate(start_time.dat = str_replace_all(start_time.dat, replacement_pattern)) 
 
 # start_time.sas column substitution patterns
 replacement_pattern <- c("99:40:13" = NA_character_, "100:38:24" = NA_character_)
-df_final_raw <- df_final_flag_time %>%
+df_final_raw <- df_final_raw %>%
   mutate(start_time.sas = str_replace_all(start_time.sas, replacement_pattern)) 
 
 # start_time.dat column substitution patterns
@@ -900,7 +903,8 @@ df_final_clean_species <- df_final_clean_species %>%
 sum(df_final_clean_species$invalid_duration_time == "Greater than 60 min, likely error", na.rm = TRUE)
 
 # Save errors in duration in separate document
-duration_mi_errors <- df_final_clean_species[df_final_clean_species$invalid_duration_time == "Greater than 60 min, likely error",]
+duration_mi_errors <- df_final_clean_species[!is.na(df_final_clean_species$invalid_duration_time) & 
+                                               df_final_clean_species$invalid_duration_time == "Greater than 60 min, likely error",]
 write.csv(duration_mi_errors, paste0(error_directory, "/duration_mi_errors.csv"), row.names = FALSE)
 
 ## In the duration_mi columns, correct values "365" and "535" 
@@ -969,7 +973,7 @@ sum(df_final_calc_duration$duration_comment == "did NOT match calculated orig_st
 sum(df_final_calc_duration$duration_comment == "duration not provided, calculated from orig_start_time, orig_end_time", na.rm = TRUE)
 
 # Save mismatches in duration in separate document
-duration_mismatch <- df_final_calc_duration[!is.na(df_final_calc_duration$duration_comment) & df_final_calc_duration$duration_comment == "does NOT match calculated start_time and end_time, likely end_time error",]
+duration_mismatch <- df_final_calc_duration[!is.na(df_final_calc_duration$duration_comment) & df_final_calc_duration$duration_comment == "did NOT match calculated orig_start_time and orig_end_time, likely orig_end_time error",]
 write.csv(duration_mismatch, paste0(error_directory, "/duration_mismatch.csv"), row.names = FALSE)
 
 # Correct start_time and end_time based on the calculated duration field.
@@ -1341,7 +1345,7 @@ final_dataframe <- df_final_calc_std_weight %>%
 
 # Check number of problematic rows
 sum(final_dataframe$std_weight_g_comment == "does NOT match calc_std_weight_g", na.rm = TRUE)
-sum(final_dataframe$std_weight_g_comment == "standardized weight calculated from standardized weight formula", na.rm = TRUE)
+sum(final_dataframe$std_weight_g_comment == "orig_std_weight_g not provided", na.rm = TRUE)
 sum(final_dataframe$std_weight_g_comment == "standardized weight could not be calculated", na.rm = TRUE)
 
 # Export errors in standardized weight
