@@ -442,6 +442,8 @@ rm(list = vectors_to_remove)
 # Save raw combined column
 write.csv(df_joined, paste0(working_directory, "/combined_raw_df_trawl.csv"), row.names = FALSE)
 
+#df_joined <- read.csv("./TRAWL_BIOSAMPLE/02_intermediate_out/combined_raw_df_trawl.csv")
+
 # Check the table 
 df_joined_dup <- df_joined[duplicated(df_joined$fish_unique_ID), ]
 summary(df_joined)
@@ -949,7 +951,7 @@ df_final_calc_duration <- df_final_calc_duration %>%
                                       if_else(as.numeric(end_t) < as.numeric(start_t),
                                               (as.numeric(end_t) + 24*60*60 - as.numeric(start_t)) / 60,
                                               (as.numeric(end_t) - as.numeric(start_t)) / 60), NA_real_)) %>%
-  mutate(calc_duration_time = round(calc_duration_time, 1))
+  mutate(calc_duration_time = round(calc_duration_time, 0))
 
 # Final duration column
 df_final_calc_duration <- df_final_calc_duration %>%
@@ -1021,7 +1023,7 @@ df_final_calc_duration <- df_final_calc_duration %>%
   mutate(calc_duration_time = round(calc_duration_time, 1))
 
 df_final_calc_duration %>%
-  group_by( start_time, end_time,duration_mi, calc_duration_time, duration_comment, invalid_start_time) %>%
+  group_by(start_time, end_time,duration_mi, calc_duration_time, duration_comment, invalid_start_time, trawl_unique_ID) %>%
   summarise(count = n()) -> summary_table_time
 
 ## calculate missing end_time values in anew column
