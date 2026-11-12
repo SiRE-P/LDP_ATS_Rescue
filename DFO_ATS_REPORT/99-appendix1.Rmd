@@ -5,25 +5,25 @@ This appendix presents images illustrating the structure of the original raw aco
 
 ### Trawl DAT file
 
-```{r dat-fig, fig.cap="Sample screenshot of an Apple computer DAT trawl file, with rows annotated for the first trawl survey in the file.", out.width = "100%"}
+```{r dat-fig, fig.cap="Sample screenshot of an Apple computer DAT trawl file, with rows annotated (after the hash-marks) for the first trawl survey in the file.", out.width = "100%"}
 
 include_graphics("./03_figs/dat-file-screenshot.png")
 
 ```
 
-```{r sas-dat-fig, fig.cap="Sample screenshot of surviving 1977 to 1983 DAT files available only as tabular exports.", out.width = "100%"}
+```{r sas-dat-fig, fig.cap="Sample screenshot of surviving 1977 to 1983 DAT files available only as tabular exports from SAS® outputs.", out.width = "100%"}
 
 include_graphics("./03_figs/sas-originated_dat-file-screenshot.png")
 
 ```
 
-```{r sas-trawl-fig, fig.cap="Sample screenshot of an Trawlyy.sas7bdat file.", out.width = "100%"}
+```{r sas-trawl-fig, fig.cap="Sample screenshot of an Trawlyy.sas7bdat file in SAS® proprietary software.", out.width = "100%"}
 
 include_graphics("./03_figs/example-sas-file-trawlyy.png")
 
 ```
 
-```{r sas-trawl-info, fig.cap="Sample screenshot of an Trlinfyy.sas7bdat file.", out.width = "100%"}
+```{r sas-trawl-info, fig.cap="Sample screenshot of an Trlinfyy.sas7bdat file in SAS® proprietary software.", out.width = "100%"}
 
 include_graphics("./03_figs/example-sas-file-trlinfyy.png")
 

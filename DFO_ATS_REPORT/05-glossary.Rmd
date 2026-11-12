@@ -4,7 +4,7 @@ The following glossary defines technical terms, abbreviations, and identifiers u
 
 **Acoustic-Trawl Survey (ATS)**
 
-Historical, long-term Fisheries and Oceans Canada limnetic monitoring program that combined hydroacoustic surveys and trawl sampling to assess fish abundance, distribution, and biological characteristics in British Columbia lakes.
+Historical, long-term limnetic monitoring program that combined hydroacoustic surveys and trawl sampling to assess fish abundance, distribution, and biological characteristics in British Columbia lakes.
 
 **Age Class**
 
@@ -20,7 +20,7 @@ Collection of biological information from captured fish, including species ident
 
 **DAT (.dat)**
 
-A generic data file extension. It can contain data in various formats, such as plain text, binary data, or structured records. Its contents depend on the software that created it.
+A generic data file extension. The file can contain data in various formats, such as plain text, binary data, or structured records. Its contents depend on the software that created it.
 
 **Data Rescue**
 
@@ -44,7 +44,7 @@ Acoustic target detected by a hydroacoustic system that meets criteria consisten
 
 **Freshwater Atlas (FWA)**
 
-Provincial geospatial database containing hydrological features and identifiers for British Columbia freshwater systems. See WATERBODY_KEY.
+Provincial geospatial database containing hydrological features and identifiers for British Columbia freshwater systems. See waterbody key.
 
 **FURUNO FM-22 and FNV-3000**
 
@@ -64,15 +64,15 @@ Use of underwater sound waves (sonar) to detect and quantify aquatic organisms a
 
 **Juvenile Salmon**
 
-Immature salmon residing in freshwater before migration to marine environments. Depending on species and life history, juveniles may remain in lakes for several months to multiple years. Sockeye Salmon in nursery lakes are predominantly age-0+ fish, but some age-1+ fish are also present in some or all lakes. They are not always identified by age class in the legacy data.
+Immature salmon residing in freshwater before migration to marine environments. Depending on species and life history, juveniles may remain in lakes and rivers for several months to multiple years. Sockeye Salmon in nursery lakes are predominantly age-0+ fish, but some age-1+ fish are also present in some or all lakes. They are not always identified by age class in the legacy data.
 
 **K-factor**
 
-Futon's condition factor (K) in an index used in ichthyology to assess the relative condition of an individual fish based on its length and weight.
+Fulton's condition factor (K) in an index used in ichthyology to assess the relative condition of an individual fish based on its length and weight.
 
 **Kokanee**
 
-Freshwater-resident ecotype of Sockeye Salmon (Oncorhynchus nerka) that spends at least part of its life cycle in nursery lakes and does not migrate to the ocean.
+Freshwater-resident ecotype of Sockeye Salmon (*Oncorhynchus nerka*) that spends at least part of its life cycle in nursery lakes and does not migrate to the ocean.
 
 **Lake Enrichment Program (LEP)**
 
@@ -104,7 +104,7 @@ Approximately the upper 0–2 m of the water column. Historical hydroacoustic eq
 
 **Open Data Repository**
 
-Publicly accessible archive used to store and distribute datasets, metadata, code, and supporting project documentation.
+Federal publicly accessible archive used to store and distribute datasets, metadata, code, and supporting project documentation.
 
 **Pelagic**
 
@@ -124,7 +124,7 @@ Hydroacoustic echosounder system used in later ATS surveys to collect fish-targe
 
 **Sockeye Salmon**
 
-Oncorhynchus nerka, an anadromous Pacific salmon species whose juveniles typically rear in lakes prior to ocean migration.
+*Oncorhynchus nerka*, an anadromous Pacific salmon species whose juveniles typically rear in lakes prior to ocean migration.
 
 **Species Composition**
 
@@ -132,7 +132,7 @@ Relative proportions of fish species present within a biological sample.
 
 **Stickleback**
 
-Small freshwater fish belonging to the family Gasterosteidae. Three-spined Stickleback (Gasterosteus aculeatus) was the most commonly recorded non-Sockeye Salmon species in ATS trawl samples.
+Small freshwater fish belonging to the family Gasterosteidae. Three-spined Stickleback (*Gasterosteus aculeatus*) was the most commonly recorded non-Sockeye Salmon species in ATS trawl samples.
 
 **Study Lakes Program**
 
@@ -148,7 +148,7 @@ Measure of sampling intensity, typically represented by the number of surveys, s
 
 **Target Strength**
 
-Hydroacoustic measure of the intensity of sound reflected from an individual target. Target strength is commonly used as a proxy related to fish size, and there are equations that will convert the target strength to approximate size.
+Hydroacoustic measure of the intensity of sound reflected from an individual target. Target strength is commonly used as a proxy related to fish size, and there are equations are used to convert the target strength to approximate size.
 
 **Transect**
 
@@ -165,10 +165,6 @@ Net used to trawl.
 **Waterbody Key**
 
 Unique Freshwater Atlas (FWA) identifier assigned to a mapped waterbody and commonly used to link waterbody information across provincial datasets.
-
-**Waterbody Polygon ID**
-
-Unique Freshwater Atlas (FWA) identifier assigned to a specific lake polygon feature.
 
 **Watershed**
 

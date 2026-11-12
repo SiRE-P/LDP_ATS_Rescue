@@ -76,12 +76,12 @@ separated_spp_length_weight_caption <-
   paste(
     "Relationship between fish length and weight",
     "for juvenile Chinook, Coho, Sockeye Salmon and all Stickleback specimens included",
-    "in the dataset. The single adult Sockeye Salmon was omitted",
+    "in the dataset. The single adult Sockeye Salmon in the dataset was omitted",
     "from the statistical calculations. Length-weight relationships were estimated separately for each species using log-log regression models described in the Methods section.")
 
 sockeye_length_weight_key_lakes_caption <-
   paste(
-    "Sockeye Salmon length and weight data for key study lakes, across all available years. Note that there are some anomalously small values for fish Age +1 in Kennedy Lake. For Great Central Lake, the fish with long length and light weight have unusual sizes. These unusual length/weight values are identified through data-quality flags within the published dataset." )
+    "Sockeye Salmon length and weight data for key study lakes, across all available years. Note that there are some anomalously small values for fish Age +1 in Kennedy Lake. For Great Central Lake, the fish recorded with long length and light weight have unusual sizes. These unusual length/weight values are identified through data-quality flags within the published dataset." )
 
 stickleback_length_weight_key_lakes_caption <- paste(
   "Stickleback length and weight data for key study lakes in all available years.",
@@ -96,8 +96,8 @@ appendix_trawl_sockeye_caption <- paste(
 appendix_trawl_nonsox_caption <- paste(
   "Number of non-Sockeye surveyed in the trawl samples by lake and ATS year.")
 
-appendixB_acoustic_trawl_summary_cpation <- paste(
+appendixB_acoustic_trawl_summary_caption <- paste(
   "Key lake survey metadata and summary data by ATS date. Includes acoustic sounder type, total transects and fish-like targets; total trawls completed, total trawl effort (in minutes), and total fish in trawl samples. These metadata provide the information required to interpret ATS sampling design and to reproduce historical abundance calculations. The complete dataset including additional rows for the key lakes and metadata for all other lakes data will be available in a supplementary comma-delimited text file ATS_meta_summary_by_survey_date.csv." )
 
-appendixB_lake_strata_tab_caption <- "Summary of the physical lake parameters for key lakes transects and depth strata as an example of the metadata available for all lakes surveyed. The complete dataset including all study lakes parameters is available as a supplementary comma-delimited text file ATS_lake_strata_table.csv."
+appendixB_lake_strata_tab_caption <- "Summary of the physical lake parameters (e.g., transect length and area) for key lakes, showing depth strata for transect #1 as an example of the metadata available for all lakes surveyed. The complete parameter dataset including all transects for these and other study lakes is available as a supplementary comma-delimited text file ATS_lake_strata_table.csv. Note that official waterbody ID numbers are not available for four ATS lakes: Bonilla; Kitwanga; Klukshu; and Port John."
 

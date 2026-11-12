@@ -8,15 +8,15 @@ The Department of Fisheries and Oceans Canada (DFO) and its predecessor[^01-intr
 
 [^01-introduction-3]: The DFO Lake Enrichment Program was largely phased out during federal budget reductions and organizational restructuring in the mid-1990s, though not because the technique proved ineffective. Retrospective reviews consistently concluded that lake fertilization was biologically effective and cost-efficient in specified locations, but LEP continuation required ongoing operational funding and long-term scientific support that became difficult to sustain under changing departmental priorities [@hyattResponsesSockeyeSalmon1985; @shortreedFactorsLimitingJuvenile2001; @hyattSockeyeSalmonOncorhynchus2004].
 
-[^01-introduction-4]: The Salmon in Regional Ecosystems (SiRE) program and the Lakes Research Program (LRP), both within the Ecosystem Science Division of DFO, continued ATS (acoustic-trawl survey) studies after *19xx*. The LRP maintains a field program, primarily for **Fraser-basin lakes (?)**, while SiRE currently serves as a data-holder **[…as well as… ? how would we put it?—HS and AO to address this]**.
+[^01-introduction-4]: The Salmon in Regional Ecosystems (SiRE) program and the Lakes Research Program (LRP), both within the Ecosystem Science Division of DFO, continued ATS (acoustic-trawl survey) studies after **19xx**. The LRP maintains a field program, primarily for **Fraser-basin lakes (?)**, while SiRE currently serves as a data-holder **[…as well as… ? how would we put it?—HS and AO to address this]**.
 
-Throughout the program, the DFO field crews have collected comprehensive limnological and biological survey data. DFO conducted hydroacoustic surveys and trawl biosampling to estimate fish abundance of fish, especially Sockeye Salmon and Stickleback, in the freshwater bodies of BC [@hyattAcousticTrawlBased2000]. LEP’s Juvenile Salmon Index Data System (JSIDS) and its personnel served as DFO's primary mechanism for archiving, summarizing, and internal dissemination of juvenile salmon monitoring data, including information derived from acoustic-trawl surveys (ATS) and associated limnological studies during the 1980s – 2000s. Rather than a relational database, JSIDS was organized as a collection of ASCII (American Standard Code for Information Interchange) text files grouped by survey year and survey type (e.g., acoustic versus trawl). File formats were sufficiently standardized to allow for automated processing, compilation, and analysis across multiple projects and study lakes. As personal computers and spreadsheet software became more widely adopted during the 1990s and 2000s, portions of the original ASCII-based data holdings were converted into spreadsheet and other file formats. While these conversions improved accessibility for many users, they also reduced the consistency and traceability provided by the original system. In some cases, metadata, processing histories, file relationships, and data fields were not fully preserved, contributing to uncertainty regarding data completeness and provenance within these datasets.
+Throughout the program, the DFO field crews have collected comprehensive limnological and biological survey data. DFO conducted hydroacoustic surveys and trawl biosampling to estimate fish abundance of fish, especially of Sockeye Salmon and Stickleback, in the freshwater bodies of BC [@hyattAcousticTrawlBased2000]. LEP’s Juvenile Salmon Index Data System (JSIDS) and its personnel served as DFO's primary mechanism for archiving, summarizing, and internal dissemination of juvenile salmon monitoring data, including information derived from acoustic-trawl surveys (ATS) and associated limnological studies during the 1980s – 2000s. Rather than a relational database, JSIDS was organized as a collection of ASCII (American Standard Code for Information Interchange) text files grouped by survey year and survey type (e.g., acoustic versus trawl). File formats were sufficiently standardized to allow for automated processing, compilation, and analysis across multiple projects and study lakes. As personal computers and spreadsheet software became more widely adopted during the 1990s and 2000s, portions of the original ASCII-based data holdings were converted into spreadsheet and other file formats. While these conversions improved accessibility for many users, they also reduced the consistency and traceability provided by the original system. In some cases, metadata, processing histories, file relationships, and data fields were not fully preserved, contributing to uncertainty regarding data completeness and provenance within these datasets.
 
 ## 1.1. Purpose of this Report
 
 The objective of this report is to provide a consolidated description of the ATS archive, to document data sources and quality-control procedures, and to identify limitations and potential applications of these historical datasets.
 
-In 2025, Fisheries and Oceans Canada partnered with the Canadian Institute of Ecology and Evolution (CIEE) Living Data Project (LDP) to rescue, standardize, and document historical ATS datasets collected through the Lake Enrichment Program and related monitoring activities. This report presents the resulting hydroacoustic dataset spanning 1977-2007, in combination with available trawl biosample data spanning 1977-1999, and documents the procedures used to recover, validate, and integrate these records.
+In 2025, Fisheries and Oceans Canada partnered with the Canadian Institute of Ecology and Evolution (CIEE) Living Data Project (LDP) to rescue, standardize, and document historical ATS datasets collected through the Lake Enrichment Program and related monitoring activities. This report presents the resulting hydroacoustic dataset spanning 1977-2007, in combination with available trawl biosample data spanning 1977-1999, and it documents the procedures used to recover, validate, and integrate these records.
 
 Detailed procedures for recovery and consolidation of hydroacoustic data are presented separately in @zotero-item-913. This report incorporates available trawl biosample records to further document ATS dataset recovery, and pairs trawl records with acoustic surveys where available (1977-1999). Future data recovery initiatives will focus on assembly of missing trawl records (2000-2007), and incorporation of post-2007 ATS data from Salmon in Regional Ecosystems (SiRE) program archives.
 
@@ -31,7 +31,14 @@ Specifically, this report:
 
 ## 1.2. Study Area of the Lake Enrichment Program
 
-Acoustic-trawl surveys were conducted at 95 sites (including lake subdivisions) across a total of 77 lakes in British Columbia (Figures \@ref(fig:map-fig) and \@ref(fig:map-fig2)). since 1977. Most surveyed lakes were located in coastal watersheds and were characterized by low phosphorus concentrations, rapid water renewal due to high flows, and extreme oligotrophic conditions [@hyattResponsesSockeyeSalmon1985].
+Acoustic-trawl surveys were conducted at 95 sites (including lake subdivisions) across a total of 77 lakes in British Columbia (Figures \@ref(fig:map-fig) and \@ref(fig:map-fig2)) since 1977. Most surveyed lakes were located in coastal watersheds and were characterized by low phosphorus concentrations, rapid water renewal due to high flows, and extreme oligotrophic conditions [@hyattResponsesSockeyeSalmon1985].
+
+Several lakes in southwestern Vancouver Island have been officially renamed in recent years. However, to maintain consistency with historical records and long-term datasets, this report continues to use the former English names:
+
+  - Henderson Lake (now officially called Hucuktlis Lake);
+
+  - Maggie Lake (now officially called Makii Lake).
+
 
 ```{r map-fig, fig.cap="Lakes surveyed during the Lake Enrichment Program (LEP) in British Columbia. The 16 most surveyed lakes are represented as red diamonds. Other lakes are represented by blue dots, and place names by black squares", out.width = "100%"}
 
@@ -39,7 +46,7 @@ include_graphics("./03_figs/ATS_Lakes_BC_Map.png")
 
 ```
 
-```{r map-fig2, fig.cap="Regional distribution of LEP-surveyed lakes in northern, central, and southern British Columbia.", out.width = "100%"}
+```{r map-fig2, fig.cap="Regional distribution of LEP-surveyed lakes in northern, central, and southern British Columbia.", fig.asp = portrait, out.height = fig_height, out.width = "75%"}
 
 #include_graphics("./03_figs/ATS_Lakes_North_Map.png")
 #include_graphics("./03_figs/ATS_Lakes_Central_Map.png")

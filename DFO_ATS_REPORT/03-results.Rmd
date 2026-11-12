@@ -13,11 +13,11 @@ The figures in this section summarize the temporal, spatial, and biological char
   
   Interpretation of species composition should be undertaken cautiously. Juvenile Kokanee and juvenile Sockeye Salmon cannot be reliably distinguished in some ATS surveys and may have been recorded collectively as Sockeye Salmon. Consequently, Sockeye Salmon proportions reported here may include some Kokanee, depending on the lake and survey year. Users interested in individual lakes should consult available biological and stock-assessment information to determine whether Kokanee were present during the period of interest.
   
-  The following sections are covered.
+  The following analyses are covered in subsequent sections.
 
 **Annual Survey Effort by Lake and ATS Year**
 
-Survey effort varied substantially among lakes and ATS years (Figure \@ref(fig:bubble_heatmap)). Monitoring was concentrated in a subset of intensively sampled lakes, while many lakes were surveyed intermittently or for relatively short periods. Consequently, temporal and spatial coverage is uneven across the dataset and should be considered when comparing lakes or evaluating long-term patterns.
+Survey effort varied substantially among lakes and ATS years (Figure \@ref(fig:bubble_heatmap)). Recall that ATS years span April 1^st^ through March 31^st^ of the following calendar year. Monitoring was concentrated in a subset of intensively sampled lakes, while many lakes were surveyed intermittently or for relatively short periods. Consequently, temporal and spatial coverage is uneven across the dataset and should be considered when comparing lakes or evaluating long-term patterns.
 
 **Trip Frequency by Month and ATS Year**
 
@@ -245,6 +245,7 @@ ggplot(
     legend.text = element_text(size = 7))
 
 ```
+
 ## 3.3. Acoustic Target Dataset
 
 The following figures summarize the structure and content of the rescued acoustic-target dataset. Results are based exclusively on acoustic survey records and describe survey depth distributions, temporal patterns in FLT abundance, and observer-assigned estimates of species composition. These summaries provide an overview of data availability and variability among lakes and ATS years and should not be interpreted as standardized estimates of fish population trends.
@@ -411,7 +412,7 @@ for (lk in sort(unique(acoustic_survey_totals$lake_name))) {
 \newpage
 ### 3.3.3. *Annual Sockeye Salmon Proportions in Acoustic Dataset - Key Lakes*
 
-Annual proportion of Sockeye Salmon (as recorded in acoustic source files), by lake and year, weighted by survey date target abundance. Note that these proportions were not calculated directly from the rescued acoustic data. Rather, they represent observer-assigned species proportions originally derived from associated trawl sampling and subsequently recorded within acoustic source files. Consequently, they should be regarded as historical metadata attached to acoustic records rather than independently derived estimates. 
+Annual proportion of Sockeye Salmon (as recorded in acoustic source files), by lake and year, weighted by survey date target abundance. Note that these proportions were not calculated directly from the rescued acoustic data. Rather, they represent observer-assigned species proportions originally derived from associated trawl sampling and subsequently recorded within acoustic source files. Hence, they should be seen as historical metadata attached to acoustic records rather than independently derived estimates. 
 Compare to trawl Figures 62 to \@ref(fig:trawl-sockeye-proportions).
  
 ```{r acoustic-data-prop-sox, fig.cap=caption_value(acoustic_data_prop_sox_caption), fig.height = 3.5, out.width = "85%"}
@@ -492,7 +493,11 @@ for (lk in sort(unique(acoustic_survey_prop_sockeye$lake_name))) {
       axis.text.x = element_text(
         angle = 45,
         hjust = 1,
-        size = 8))
+        size = 8,
+        margin = margin(t = 0, b = -5)),
+     axis.title.x = element_text(
+        margin = margin(t = 0)),
+     plot.margin = margin(0, 5, 0, 5, unit = "pt"))
 
   print(p)
 }
